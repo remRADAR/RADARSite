@@ -3,8 +3,8 @@ import { Marquee } from "@/components/motion/Marquee";
 
 const NAV = [
   { href: "/work", label: "Work" },
-  { href: "/login", label: "Client Login" },
-  { href: "mailto:hello@northlight.studio", label: "hello@northlight.studio" },
+  { href: "/admin", label: "Studio" },
+  { href: "mailto:hello@radarcharts.com", label: "hello@radarcharts.com" },
 ];
 
 const SOCIALS = [
@@ -19,7 +19,7 @@ export function SiteFooter() {
       <div className="overflow-hidden border-b-2 border-paper py-6">
         <Marquee durationSeconds={24}>
           <span className="mx-8 display text-[clamp(2.5rem,7vw,6rem)] leading-none">
-            Northlight
+            RADARCharts
           </span>
           <span className="mx-8 display text-[clamp(2.5rem,7vw,6rem)] leading-none text-flare">
             ✳
@@ -69,14 +69,14 @@ export function SiteFooter() {
             (Studio)
           </p>
           <p className="mt-4 font-mono text-sm uppercase leading-relaxed tracking-wide">
-            Creative agency &amp; production house. Available worldwide, 2026 onward.
+            Music, artist development, editorial, and campaigns. Available worldwide, 2026 onward.
           </p>
         </div>
       </div>
 
       <div className="flex items-center justify-between border-t-2 border-paper px-6 py-4 md:px-8">
         <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-          © {new Date().getFullYear()} Northlight Studio
+          © {new Date().getFullYear()} RADARCharts
         </p>
         <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
           All rights reserved

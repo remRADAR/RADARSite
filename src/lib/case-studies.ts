@@ -1,22 +1,7 @@
 export type MediaTone = "warm" | "cool" | "mono" | "flare";
-
-export type ApproachStep = {
-  label: string;
-  description: string;
-};
-
-export type GalleryItem = {
-  tone: MediaTone;
-  span: "full" | "half" | "third";
-  caption: string;
-  /** Unsplash search query for this slot; falls back to the generative tone if unavailable. */
-  imageQuery: string;
-};
-
-export type ResultStat = {
-  value: string;
-  label: string;
-};
+export type ApproachStep = { label: string; description: string };
+export type GalleryItem = { tone: MediaTone; span: "full" | "half" | "third"; caption: string; imageQuery: string };
+export type ResultStat = { value: string; label: string };
 
 export type CaseStudy = {
   slug: string;
@@ -28,9 +13,7 @@ export type CaseStudy = {
   scope: string;
   deliverables: string;
   heroTone: MediaTone;
-  /** Unsplash search query for the hero / work-grid / teaser image. */
   heroImageQuery: string;
-  /** Unsplash search query for the full-bleed imagery break on the case study page. */
   breakImageQuery: string;
   brief: string;
   approach: ApproachStep[];
@@ -43,159 +26,130 @@ export type CaseStudy = {
 
 export const caseStudies: CaseStudy[] = [
   {
-    slug: "halcyon-rebrand",
-    client: "Halcyon",
-    title: "Rebuilding a century-old spirits house for its next fifty years",
-    oneLiner: "A full identity, packaging, and film relaunch that tripled shelf stand-out.",
-    role: "Brand, Packaging, Film",
-    year: "2025",
-    scope: "Identity system, packaging, launch film",
-    deliverables: "Brand system, 6 SKUs, 90s film, retail toolkit",
+    slug: "luna-vale-first-light",
+    client: "Luna Vale",
+    title: "Giving a debut artist a world before the first record arrived",
+    oneLiner: "Artist identity, visual language, and a release campaign for a voice built for the night.",
+    role: "Artist Development, Campaign, Film",
+    year: "2026",
+    scope: "Artist identity, debut EP, campaign system",
+    deliverables: "Visual identity, 4-track world, live session, release campaign",
     heroTone: "flare",
-    heroImageQuery: "premium whiskey bottle dark moody studio",
-    breakImageQuery: "copper distillery still warm cinematic light",
-    brief:
-      "Halcyon had the liquid and the history but not the shelf presence — sixty years of equity buried under a label that read like a pharmacy tincture. We were asked to find the version of the brand that was always there, without losing the distillery's word-of-mouth credibility with bartenders.",
+    heroImageQuery: "female singer red stage light live music",
+    breakImageQuery: "musician backstage portrait red light",
+    brief: "Luna Vale had the songs, the voice, and a visual instinct that was impossible to fake. RADAR's job was to build a coherent first chapter without sanding off the mystery that made people lean in.",
     approach: [
-      {
-        label: "Discover",
-        description: "Distillery visits, bartender interviews, and a full shelf audit across 40 competitor SKUs.",
-      },
-      {
-        label: "Define",
-        description: "A single organizing idea — 'the pause before the pour' — carried across every touchpoint.",
-      },
-      {
-        label: "Design",
-        description: "Typography, bottle form, and a restrained warm palette drawn from the copper stills.",
-      },
-      {
-        label: "Deliver",
-        description: "Packaging production, a 90-second launch film, and an on-premise toolkit for bar teams.",
-      },
+      { label: "Listen", description: "A deep dive into demos, references, live footage, and the emotional logic behind the EP." },
+      { label: "Frame", description: "A visual system built around contrast: soft focus, hard flash, and the hour after midnight." },
+      { label: "Make", description: "Portraits, a live session, cover art, and a modular release toolkit for every platform." },
+      { label: "Move", description: "A release campaign that made the artist feel present before the algorithm caught up." },
     ],
     gallery: [
-      {
-        tone: "flare",
-        span: "full",
-        caption: "Bottle system, six expressions",
-        imageQuery: "whiskey bottles lineup product photography",
-      },
-      {
-        tone: "warm",
-        span: "half",
-        caption: "Label die-line detail",
-        imageQuery: "vintage label typography print detail",
-      },
-      { tone: "mono", span: "half", caption: "Typography specimen", imageQuery: "letterpress typography specimen" },
-      { tone: "flare", span: "third", caption: "Still house, 4am", imageQuery: "distillery copper still night" },
-      { tone: "warm", span: "third", caption: "Copper detail", imageQuery: "copper metal texture macro" },
-      { tone: "mono", span: "third", caption: "Retail toolkit", imageQuery: "liquor store shelf bottles" },
+      { tone: "flare", span: "full", caption: "First light, first take", imageQuery: "singer microphone red spotlight concert" },
+      { tone: "warm", span: "half", caption: "The room before the room", imageQuery: "music studio analog equipment moody" },
+      { tone: "mono", span: "half", caption: "Portrait study 01", imageQuery: "artist portrait black and white flash" },
+      { tone: "flare", span: "third", caption: "Cover world", imageQuery: "abstract red texture album cover" },
+      { tone: "warm", span: "third", caption: "After the show", imageQuery: "backstage concert photography" },
+      { tone: "mono", span: "third", caption: "Track notes", imageQuery: "vinyl record music desk" },
     ],
     hasVideoMoment: true,
     results: [
-      { value: "3.1×", label: "Shelf stand-out lift, in-store testing" },
-      { value: "40%", label: "On-premise placement growth, 6 months" },
-      { value: "12", label: "Markets relaunched into" },
+      { value: "4.8M", label: "Streams in the first release cycle" },
+      { value: "32", label: "Editorial placements and playlists" },
+      { value: "01", label: "Debut world, fully formed" },
     ],
     credits: [
-      { role: "Creative Direction", name: "Northlight" },
-      { role: "Client", name: "Halcyon Distilling Co." },
-      { role: "Film Direction", name: "Northlight Motion" },
-      { role: "Glass Engineering", name: "Ardent Bottle Works" },
+      { role: "Artist", name: "Luna Vale" },
+      { role: "Creative Direction", name: "RADARCharts" },
+      { role: "Visuals", name: "RADARUnit" },
+      { role: "Management", name: "RADARMe" },
     ],
     featured: true,
   },
   {
-    slug: "vantage-motors-launch",
-    client: "Vantage Motors",
-    title: "Launching an electric marque with no showroom and no dealers",
-    oneLiner: "A direct-to-driver launch campaign built entirely around one film.",
-    role: "Campaign, Film, Digital",
-    year: "2024",
-    scope: "Launch campaign, film, digital platform",
-    deliverables: "Campaign film, 14-city tour, launch site",
+    slug: "after-hours-vol-02",
+    client: "RADAR Sessions",
+    title: "Turning a playlist into a place people want to return to",
+    oneLiner: "An editorial platform and live session series for the next wave of independent sound.",
+    role: "Editorial, Platform, Live",
+    year: "2025",
+    scope: "Series identity, editorial platform, live sessions",
+    deliverables: "Series identity, digital hub, 12 artist sessions, editorial package",
     heroTone: "cool",
-    heroImageQuery: "sleek electric car dark studio cinematic",
-    breakImageQuery: "modern car silhouette dramatic lighting",
-    brief:
-      "Vantage was entering a crowded EV market with zero brand recognition and a direct-to-consumer model that skipped dealerships entirely. The brief was to make the car famous before a single unit shipped, using nothing but craft and restraint against competitors spending ten times the budget.",
+    heroImageQuery: "dj club blue light crowd music",
+    breakImageQuery: "recording studio blue neon musician",
+    brief: "After Hours needed to feel less like a playlist and more like a trusted room: a place where discovery has a point of view and every artist gets enough space to be remembered.",
     approach: [
-      { label: "Discover", description: "Engineering deep-dive with the powertrain team to find the real story." },
-      { label: "Define", description: "Positioning around silence and control rather than speed and spectacle." },
-      { label: "Design", description: "A monochrome campaign system built to survive any billboard or feed." },
-      { label: "Deliver", description: "Flagship film, 14-city driving tour, and a reservation-first launch site." },
+      { label: "Curate", description: "A point of view grounded in people, not genre labels or release velocity." },
+      { label: "Build", description: "A flexible identity that could live on screen, in print, and across a live room." },
+      { label: "Record", description: "Twelve stripped-back sessions that kept the imperfections in the signal." },
+      { label: "Publish", description: "Editorial context around every track, artist, and late-night discovery." },
     ],
     gallery: [
-      { tone: "cool", span: "full", caption: "Test track, first light", imageQuery: "car test track sunrise" },
-      { tone: "mono", span: "half", caption: "Interior detail", imageQuery: "car interior minimalist dashboard" },
-      { tone: "cool", span: "half", caption: "Charging bay", imageQuery: "ev charging station night" },
-      { tone: "mono", span: "third", caption: "Tour build-out", imageQuery: "event stage build production" },
-      { tone: "cool", span: "third", caption: "Wind tunnel", imageQuery: "automotive wind tunnel testing" },
-      { tone: "mono", span: "third", caption: "Launch site, hero frame", imageQuery: "minimalist car photography studio" },
+      { tone: "cool", span: "full", caption: "Session 02, live", imageQuery: "band live performance blue stage" },
+      { tone: "mono", span: "half", caption: "Signal check", imageQuery: "mixing console studio close up" },
+      { tone: "cool", span: "half", caption: "Room tone", imageQuery: "concert audience silhouette blue" },
+      { tone: "mono", span: "third", caption: "The issue", imageQuery: "music magazine editorial print" },
+      { tone: "cool", span: "third", caption: "Between tracks", imageQuery: "headphones turntable dark room" },
+      { tone: "mono", span: "third", caption: "Live archive", imageQuery: "microphone stage black and white" },
     ],
     hasVideoMoment: true,
     results: [
-      { value: "58k", label: "Reservations in launch week" },
-      { value: "2.4M", label: "Film views, organic only" },
-      { value: "14", label: "Cities on the driving tour" },
+      { value: "12", label: "Original sessions published" },
+      { value: "680k", label: "Returning listeners" },
+      { value: "9", label: "Cities in the live series" },
     ],
     credits: [
-      { role: "Creative Direction", name: "Northlight" },
-      { role: "Client", name: "Vantage Motors" },
-      { role: "Production Partner", name: "Roadhouse Films" },
+      { role: "Platform", name: "RADARCharts" },
+      { role: "Editorial", name: "RADARArticles" },
+      { role: "Production", name: "RADARUnit" },
     ],
-    featured: false,
+    featured: true,
   },
   {
-    slug: "kestrel-field-campaign",
-    client: "Kestrel",
-    title: "Taking a technical outerwear brand out of the catalog and into the field",
-    oneLiner: "A campaign shot entirely on the routes the gear was built for.",
-    role: "Campaign, Photography, Retail",
-    year: "2024",
-    scope: "Campaign system, photography, retail windows",
-    deliverables: "Campaign system, 200+ image library, window program",
+    slug: "north-star-release",
+    client: "Kofi North",
+    title: "Building a release campaign that travels beyond the feed",
+    oneLiner: "A tactile campaign system for an album about distance, home, and finding the signal again.",
+    role: "Release Strategy, Design, Campaign",
+    year: "2025",
+    scope: "Album campaign, physical edition, outdoor takeover",
+    deliverables: "Campaign identity, limited edition, OOH system, launch film",
     heroTone: "mono",
-    heroImageQuery: "dramatic mountain ridge alpine cinematic",
-    breakImageQuery: "alpine mountains dawn fog cinematic",
-    brief:
-      "Kestrel's product was best-in-class but the marketing looked like every other technical outerwear brand — grey studio shots on white seamless. We proposed retiring the studio entirely and building the whole campaign from footage shot on the actual routes the gear is tested on.",
+    heroImageQuery: "male musician portrait dramatic studio light",
+    breakImageQuery: "city night billboard music campaign",
+    brief: "Kofi North's album was about movement and memory. We translated that feeling into a campaign that could be held, seen from a passing train, or discovered in a dark corner of the internet.",
     approach: [
-      { label: "Discover", description: "Field trips with the product team across three test routes." },
-      { label: "Define", description: "A campaign built on proof, not aspiration — real conditions, real mileage." },
-      { label: "Design", description: "A modular grid system that could flex from window vinyl to social crops." },
-      { label: "Deliver", description: "A 200+ image library, retail window program, and a wholesale toolkit." },
+      { label: "Map", description: "A release narrative connecting every song to a place, a texture, and a memory." },
+      { label: "Shape", description: "A graphic language of coordinates, crop marks, and imperfect human marks." },
+      { label: "Print", description: "A limited physical edition designed as an artifact, not merchandise." },
+      { label: "Launch", description: "A city-wide signal across outdoor, editorial, and intimate listening rooms." },
     ],
     gallery: [
-      { tone: "mono", span: "full", caption: "Ridge line, first ascent", imageQuery: "mountain ridge climbing dawn" },
-      { tone: "warm", span: "half", caption: "Fabric detail, 400x", imageQuery: "technical fabric texture macro" },
-      { tone: "mono", span: "half", caption: "Basecamp, 5:40am", imageQuery: "mountain basecamp tent morning" },
-      { tone: "warm", span: "third", caption: "Stitch detail", imageQuery: "outerwear jacket stitching detail" },
-      { tone: "mono", span: "third", caption: "Storm pitch", imageQuery: "mountain storm clouds hiker" },
-      { tone: "warm", span: "third", caption: "Retail window install", imageQuery: "retail store window display" },
+      { tone: "mono", span: "full", caption: "North Star, city edition", imageQuery: "music billboard city night" },
+      { tone: "warm", span: "half", caption: "Archive sleeve", imageQuery: "vinyl album packaging design" },
+      { tone: "mono", span: "half", caption: "Coordinates", imageQuery: "map typography poster design" },
+      { tone: "warm", span: "third", caption: "Listening room", imageQuery: "intimate concert venue audience" },
+      { tone: "mono", span: "third", caption: "Pressed copy", imageQuery: "vinyl record close up warm light" },
+      { tone: "warm", span: "third", caption: "Night route", imageQuery: "train window city night" },
     ],
     hasVideoMoment: false,
     results: [
-      { value: "27%", label: "Wholesale sell-through increase" },
-      { value: "200+", label: "Images in the resulting library" },
-      { value: "3", label: "Routes shot, zero studio days" },
+      { value: "2.1M", label: "Campaign reach across launch week" },
+      { value: "14", label: "Independent stores activated" },
+      { value: "100%", label: "Limited edition sold through" },
     ],
     credits: [
-      { role: "Creative Direction", name: "Northlight" },
-      { role: "Client", name: "Kestrel" },
-      { role: "Photography", name: "Northlight Studio" },
+      { role: "Artist", name: "Kofi North" },
+      { role: "Campaign", name: "RADARCharts" },
+      { role: "Editorial Feature", name: "On The Radar" },
     ],
     featured: false,
   },
 ];
 
-export function getCaseStudy(slug: string) {
-  return caseStudies.find((c) => c.slug === slug);
-}
-
+export function getCaseStudy(slug: string) { return caseStudies.find((c) => c.slug === slug); }
 export function getAdjacentCaseStudy(slug: string) {
   const index = caseStudies.findIndex((c) => c.slug === slug);
-  if (index === -1) return caseStudies[0];
-  return caseStudies[(index + 1) % caseStudies.length];
+  return caseStudies[(index + 1) % caseStudies.length] ?? caseStudies[0];
 }

@@ -45,13 +45,13 @@ export function Logo({
   return (
     <Link
       href={href}
-      aria-label="Northlight — home"
+      aria-label="RADARCharts — home"
       className={cn("group/logo flex items-center gap-2.5", className)}
     >
       <LogoMark />
       {showWordmark && (
         <span className="font-display text-lg font-extrabold uppercase leading-none tracking-tight">
-          Northlight
+          RADARCharts
         </span>
       )}
     </Link>

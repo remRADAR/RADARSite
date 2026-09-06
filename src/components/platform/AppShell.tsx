@@ -19,7 +19,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <aside className="hidden w-64 shrink-0 flex-col border-r-2 border-ink bg-paper md:flex">
         <Link href="/dashboard" className="group/logo flex h-16 items-center gap-3 border-b-2 border-ink px-6">
           <LogoMark />
-          <span className="display text-lg">Northlight</span>
+          <span className="display text-lg">RADARCharts</span>
         </Link>
         <p className="border-b-2 border-ink px-6 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
           Client Portal
@@ -57,7 +57,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-screen flex-1 flex-col">
         <header className="flex h-16 items-center justify-between border-b-2 border-ink bg-paper px-6">
           <Link href="/dashboard" className="display text-lg md:hidden">
-            Northlight
+            RADARCharts
           </Link>
           <nav className="flex gap-4 md:hidden">
             {NAV.map((item) => (
@@ -72,10 +72,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </nav>
           <div className="ml-auto flex items-center gap-3">
             <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
-              Priya Nair
+              RADAR Studio
             </span>
             <div className="flex size-9 items-center justify-center bg-ink font-mono text-xs font-bold text-paper">
-              PN
+              R
             </div>
           </div>
         </header>

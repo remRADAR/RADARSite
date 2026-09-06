@@ -55,14 +55,14 @@
 
 /*
   EDITORIAL BRUTALIST SYSTEM
-  Concrete off-white, pure ink, one hot flare. High contrast, hard grid,
-  colossal grotesk. Hard visuals, smooth motion.
+  RADARCharts: black field, white signal, one hot flare. High contrast, hard
+  grid, colossal grotesk. Hard visuals, smooth motion.
 */
 :root {
-  --paper: #e9e6dc;
-  --ink: #0c0c0c;
+  --paper: #050505;
+  --ink: #f7f7f2;
   --flare: #ff3b00;
-  --flare-foreground: #0c0c0c;
+  --flare-foreground: #050505;
 
   --background: var(--paper);
   --foreground: var(--ink);
@@ -72,21 +72,21 @@
   --popover-foreground: var(--ink);
   --primary: var(--ink);
   --primary-foreground: var(--paper);
-  --secondary: #dedacd;
+  --secondary: #171717;
   --secondary-foreground: var(--ink);
-  --muted: #dedacd;
-  --muted-foreground: #5b574d;
+  --muted: #171717;
+  --muted-foreground: #a4a4a0;
   --accent: var(--flare);
   --accent-foreground: var(--flare-foreground);
-  --destructive: #d92b00;
-  --border: #0c0c0c;
-  --input: #0c0c0c;
+  --destructive: #ff3b00;
+  --border: #f7f7f2;
+  --input: #f7f7f2;
   --ring: var(--flare);
   --chart-1: #ff3b00;
-  --chart-2: #0c0c0c;
-  --chart-3: #5b574d;
-  --chart-4: #8a8578;
-  --chart-5: #dedacd;
+  --chart-2: #f7f7f2;
+  --chart-3: #a4a4a0;
+  --chart-4: #555555;
+  --chart-5: #171717;
   --radius: 0px;
   --sidebar: var(--paper);
   --sidebar-foreground: var(--ink);
@@ -125,15 +125,29 @@
 }
 
 @layer utilities {
+  /* Legacy section utilities now resolve to the inverted RADAR field. */
+  .bg-ink,
+  .bg-paper {
+    background-color: var(--paper) !important;
+  }
+  .text-ink,
+  .text-paper {
+    color: var(--ink) !important;
+  }
+  .border-ink,
+  .border-paper {
+    border-color: var(--ink) !important;
+  }
+
   /* Inverted section: full-ink block with paper type — used aggressively as
      brutalist tonal slams between paper sections. */
   .on-dark {
-    --background: var(--ink);
-    --foreground: var(--paper);
-    --border: var(--paper);
-    --muted-foreground: color-mix(in oklch, var(--paper) 55%, transparent);
-    --secondary: #17170f;
-    --input: var(--paper);
+    --background: var(--paper);
+    --foreground: var(--ink);
+    --border: var(--ink);
+    --muted-foreground: color-mix(in oklch, var(--ink) 65%, transparent);
+    --secondary: #171717;
+    --input: var(--ink);
   }
 
   .brut-border {

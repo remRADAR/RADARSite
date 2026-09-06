@@ -17,10 +17,10 @@ export default function LoginPage() {
       <div className="w-full max-w-md brut-border brut-shadow bg-paper p-8 md:p-10">
         <Link href="/" className="group/logo flex items-center gap-3">
           <LogoMark />
-          <span className="display text-xl">Northlight</span>
+          <span className="display text-xl">RADARCharts</span>
         </Link>
         <h1 className="mt-10 display text-[clamp(2.5rem,7vw,4rem)] leading-none">
-          Client
+          Studio
           <br />
           Sign In<span className="text-flare">.</span>
         </h1>

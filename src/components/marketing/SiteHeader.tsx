@@ -5,9 +5,9 @@ import { Magnetic } from "@/components/motion/Magnetic";
 import { Logo } from "@/components/Logo";
 
 const NAV_LINKS = [
-  { href: "/work", label: "Work", index: "01" },
-  { href: "mailto:hello@northlight.studio", label: "Contact", index: "02" },
-  { href: "/login", label: "Client", index: "03" },
+  { href: "/work", label: "Radar", index: "01" },
+  { href: "mailto:hello@radarcharts.com", label: "Contact", index: "02" },
+  { href: "/admin", label: "Studio", index: "03" },
 ];
 
 export function SiteHeader() {

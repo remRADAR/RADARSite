@@ -32,7 +32,7 @@ test.describe("Scroll and hover behavior", () => {
       if (msg.type() === "error") errors.push(msg.text());
     });
 
-    await page.goto("/work/halcyon-rebrand");
+    await page.goto("/work/luna-vale-first-light");
 
     for (let i = 0; i < 10; i++) {
       await page.mouse.wheel(0, 700);

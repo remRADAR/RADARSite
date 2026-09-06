@@ -25,7 +25,7 @@ test.describe("Drag carousels", () => {
   test("client logo carousel is draggable and overflows its viewport", async ({ page }) => {
     await page.goto("/");
     const track = page
-      .getByText("Roadhouse Films", { exact: true })
+      .getByText("RADARUnit", { exact: true })
       .first()
       .locator('xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " w-max ")]')
       .first();
@@ -35,9 +35,9 @@ test.describe("Drag carousels", () => {
   test("case study detail gallery carousel is draggable and overflows its viewport", async ({
     page,
   }) => {
-    await page.goto("/work/halcyon-rebrand");
+    await page.goto("/work/luna-vale-first-light");
     const track = page
-      .getByText("Bottle system, six expressions", { exact: true })
+      .getByText("First light, first take", { exact: true })
       .first()
       .locator('xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " w-max ")]')
       .first();

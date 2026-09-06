@@ -16,11 +16,11 @@ const spaceMono = Space_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "NORTHLIGHT — Creative Agency & Production House",
-    template: "%s — NORTHLIGHT",
+    default: "RADARCharts — Put it on the RADAR",
+    template: "%s — RADARCharts",
   },
   description:
-    "Northlight is a creative agency and production house. Brand, film, and product work built to be remembered, not scrolled past.",
+    "RADARCharts is a music ecosystem for artists, releases, stories, and the people moving culture forward.",
 };
 
 export default function RootLayout({

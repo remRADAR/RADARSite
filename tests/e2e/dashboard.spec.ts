@@ -6,8 +6,8 @@ test.describe("Client dashboard", () => {
 
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Welcome back");
     await expect(page.getByText("Current projects")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Halcyon Relaunch" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Vantage 14-City Tour" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Luna Vale — First Light" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "After Hours Vol. 02" })).toBeVisible();
   });
 
   test("sidebar navigation reaches projects and briefs", async ({ page }) => {

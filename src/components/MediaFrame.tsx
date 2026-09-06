@@ -100,7 +100,7 @@ export function MediaFrame({
       )}
       {photo && attribution && (
         <a
-          href={`${photo.credit.link}?utm_source=northlight&utm_medium=referral`}
+          href={`${photo.credit.link}?utm_source=radarcharts&utm_medium=referral`}
           target="_blank"
           rel="noopener noreferrer"
           className="absolute bottom-3 right-3 z-10 font-mono text-[10px] uppercase tracking-widest text-paper/50 transition-colors hover:text-paper"

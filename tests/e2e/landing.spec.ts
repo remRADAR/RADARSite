@@ -10,9 +10,9 @@ test.describe("Landing page", () => {
 
     await page.goto("/");
 
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("remembering");
-    await expect(page.getByRole("link", { name: "Northlight" }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: "Work" }).first()).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("RADAR");
+    await expect(page.getByRole("link", { name: "RADARCharts" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Radar" }).first()).toBeVisible();
 
     expect(errors).toEqual([]);
   });
