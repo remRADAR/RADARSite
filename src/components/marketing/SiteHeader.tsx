@@ -3,39 +3,14 @@
 import Link from "next/link";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { Logo } from "@/components/Logo";
+import { RADARME_URL } from "@/lib/ia-content";
 
-const NAV_LINKS = [
-  { href: "/work", label: "Radar", index: "01" },
-  { href: "mailto:hello@radarcharts.com", label: "Contact", index: "02" },
-  { href: "/admin", label: "Studio", index: "03" },
+const groups = [
+  { href: "/radarmusic", label: "THE RADARMusic", children: [{ href: "/radarmusic/artists", label: "Artists" }, { href: "/radarmusic/releases", label: "Releases" }] },
+  { href: "/ontheradar", label: "ON THE RADAR", children: [{ href: "/ontheradar/articles", label: "Articles" }, { href: "/ontheradar/magazine", label: "Magazine" }, { href: "/ontheradar/projects", label: "Projects" }, { href: "/ontheradar/events", label: "Events" }] },
+  { href: "/about", label: "ABOUT", children: [{ href: "/about/our-story", label: "Our Story" }, { href: "/about/ecosystem", label: "Ecosystem" }] },
 ];
 
 export function SiteHeader() {
-  return (
-    <header className="fixed inset-x-0 top-0 z-50 brut-border-b bg-paper">
-      <div className="flex h-14 items-stretch justify-between">
-        <Logo className="border-r-2 border-ink px-4 md:px-6" />
-
-        <div className="hidden items-center border-l-2 border-ink px-6 font-mono text-[11px] uppercase tracking-widest text-muted-foreground md:flex">
-          [ Est. 2026 — Worldwide ]
-        </div>
-
-        <nav className="flex items-stretch">
-          {NAV_LINKS.map((link) => (
-            <Magnetic key={link.href} strength={0.3} className="flex">
-              <Link
-                href={link.href}
-                className="group flex items-center gap-2 border-l-2 border-ink px-4 font-mono text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-flare hover:text-flare-foreground md:px-6"
-              >
-                <span className="text-muted-foreground group-hover:text-flare-foreground">
-                  {link.index}
-                </span>
-                {link.label}
-              </Link>
-            </Magnetic>
-          ))}
-        </nav>
-      </div>
-    </header>
-  );
+  return <header className="fixed inset-x-0 top-0 z-50 border-b-2 border-ink bg-paper"><div className="flex min-h-14 items-stretch justify-between"><Logo className="border-r-2 border-ink px-4 md:px-6" /><nav className="hidden items-stretch md:flex">{groups.map((group) => <div key={group.href} className="group relative flex"><Magnetic strength={0.2} className="flex"><Link href={group.href} className="flex items-center border-l-2 border-ink px-4 font-mono text-[11px] font-bold uppercase tracking-widest transition-colors hover:bg-flare hover:text-flare-foreground md:px-5">{group.label}</Link></Magnetic><div className="invisible absolute left-0 top-full min-w-48 border-2 border-t-0 border-ink bg-paper opacity-0 transition-all group-hover:visible group-hover:opacity-100">{group.children.map((child) => <Link key={child.href} href={child.href} className="block border-b-2 border-ink px-4 py-3 font-mono text-[11px] font-bold uppercase tracking-widest last:border-b-0 hover:bg-flare hover:text-flare-foreground">{child.label}</Link>)}</div></div>)}<a href={RADARME_URL} target="_blank" rel="noreferrer" className="flex items-center border-l-2 border-ink bg-flare px-4 font-mono text-[11px] font-bold uppercase tracking-widest text-flare-foreground md:px-5">RADARMe ↗</a></nav><a href={RADARME_URL} target="_blank" rel="noreferrer" className="flex items-center border-l-2 border-ink bg-flare px-4 font-mono text-[11px] font-bold uppercase tracking-widest text-flare-foreground md:hidden">RADARMe ↗</a></div></header>;
 }

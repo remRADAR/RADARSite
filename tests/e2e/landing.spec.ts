@@ -11,8 +11,8 @@ test.describe("Landing page", () => {
     await page.goto("/");
 
     await expect(page.getByRole("heading", { level: 1 })).toContainText("RADAR");
-    await expect(page.getByRole("link", { name: "RADARCharts" }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: "Radar" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "remRADAR — home" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "THE RADARMusic" }).first()).toBeVisible();
 
     expect(errors).toEqual([]);
   });

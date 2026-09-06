@@ -1,5 +1,9 @@
+"use client";
+
 import Link from "next/link";
+import { useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
+import { getSiteOverridesServerSnapshot, getSiteOverridesSnapshot, parseSiteOverrides, subscribeToSiteOverrides } from "@/lib/site-overrides";
 
 /**
  * Animated "N" monogram. On load the frame wipes up and the N stroke draws
@@ -42,16 +46,18 @@ export function Logo({
   showWordmark?: boolean;
   className?: string;
 }) {
+  const overrides = useSyncExternalStore(subscribeToSiteOverrides, getSiteOverridesSnapshot, getSiteOverridesServerSnapshot);
+  const logoText = parseSiteOverrides(overrides).logoText;
   return (
     <Link
       href={href}
-      aria-label="RADARCharts — home"
+      aria-label="remRADAR — home"
       className={cn("group/logo flex items-center gap-2.5", className)}
     >
       <LogoMark />
       {showWordmark && (
         <span className="font-display text-lg font-extrabold uppercase leading-none tracking-tight">
-          RADARCharts
+          {logoText}
         </span>
       )}
     </Link>

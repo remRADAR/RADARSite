@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { EASE } from "@/lib/motion";
 import { heroConfig, getActiveHeroSlides } from "@/lib/radar-content";
+import { getSiteOverridesServerSnapshot, getSiteOverridesSnapshot, parseSiteOverrides, subscribeToSiteOverrides } from "@/lib/site-overrides";
 import { Marquee } from "@/components/motion/Marquee";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -12,6 +13,11 @@ gsap.registerPlugin(ScrollTrigger);
 export function Hero() {
   const rootRef = useRef<HTMLElement>(null);
   const slides = getActiveHeroSlides();
+  const overrideSnapshot = useSyncExternalStore(subscribeToSiteOverrides, getSiteOverridesSnapshot, getSiteOverridesServerSnapshot);
+  const overrides = parseSiteOverrides(overrideSnapshot);
+  const headline = overrides.heroHeadline.length ? overrides.heroHeadline : heroConfig.headline;
+  const subheadline = overrides.heroSubheadline || heroConfig.subheadline;
+  const ticker = overrides.tickerItems.length ? overrides.tickerItems : ["Artist Spotlight", "Releases", "RADARArticles", "On The Radar", "Campaigns"];
   const [active, setActive] = useState(0);
   const [failed, setFailed] = useState<Record<string, boolean>>({});
 
@@ -48,7 +54,7 @@ export function Hero() {
       <div className="absolute inset-0 bg-ink" aria-hidden>
         {slides.map((slide, index) => {
           const isFailed = failed[slide.id];
-          const src = isFailed ? heroConfig.reducedMotionFallback : slide.src;
+          const src = isFailed ? heroConfig.reducedMotionFallback : (overrides.media[`hero:${slide.id}`] || slide.src);
           return (
             <img
               key={slide.id}
@@ -72,14 +78,14 @@ export function Hero() {
 
       <div data-hero-type className="pointer-events-none relative z-10 w-full px-4 pb-8 md:px-8">
         <h1 className="display text-[clamp(2.25rem,11vw,11rem)] text-[#050505]">
-          {heroConfig.headline.map((line, index) => <span className="block overflow-hidden" key={line}><span data-hero-line className="block">{index === 2 ? <><span className="bg-flare px-2 text-flare-foreground">{line}</span></> : line}</span></span>)}
+          {headline.map((line, index) => <span className="block overflow-hidden" key={`${line}-${index}`}><span data-hero-line className="block">{index === headline.length - 1 ? <><span className="bg-flare px-2 text-flare-foreground">{line}</span></> : line}</span></span>)}
         </h1>
-        <p data-hero-meta className="mt-6 max-w-md font-mono text-xs font-bold uppercase tracking-widest text-[#050505]/75">{heroConfig.subheadline}</p>
+        <p data-hero-meta className="mt-6 max-w-md font-mono text-xs font-bold uppercase tracking-widest text-[#050505]/75">{subheadline}</p>
       </div>
 
       <div className="pointer-events-none relative z-10 brut-border-t border-paper bg-ink text-paper">
         <Marquee durationSeconds={26} className="py-3">
-          {homepageTicker().map((item, index) => <span key={`${item}-${index}`} className={`mx-6 font-mono text-sm font-bold uppercase tracking-widest ${index % 2 ? "text-flare" : ""}`}>{index % 2 ? "✳" : item}</span>)}
+          {ticker.map((item, index) => <span key={`${item}-${index}`} className={`mx-6 font-mono text-sm font-bold uppercase tracking-widest ${index % 2 ? "text-flare" : ""}`}>{index % 2 ? (overrides.tickerIcon || "✳") : item}</span>)}
         </Marquee>
       </div>
       <div className="absolute bottom-20 right-4 z-20 flex gap-2 md:right-8" aria-label="Hero slides">
@@ -87,8 +93,4 @@ export function Hero() {
       </div>
     </section>
   );
-}
-
-function homepageTicker() {
-  return ["Artist Spotlight", "Releases", "RADARArticles", "On The Radar", "Campaigns"];
 }

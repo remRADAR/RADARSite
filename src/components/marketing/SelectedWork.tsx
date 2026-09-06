@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { FadeIn } from "@/components/motion/FadeIn";
@@ -9,6 +9,7 @@ import { WorkEntry } from "@/components/marketing/WorkEntry";
 import { caseStudies } from "@/lib/case-studies";
 import { cn } from "@/lib/utils";
 import type { UnsplashPhoto } from "@/lib/unsplash";
+import { getSiteOverridesServerSnapshot, getSiteOverridesSnapshot, parseSiteOverrides, subscribeToSiteOverrides } from "@/lib/site-overrides";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -23,6 +24,9 @@ export function SelectedWork({
 }) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const entryRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const overrideSnapshot = useSyncExternalStore(subscribeToSiteOverrides, getSiteOverridesSnapshot, getSiteOverridesServerSnapshot);
+  const overrides = parseSiteOverrides(overrideSnapshot);
+  const visibleStudies = useMemo(() => overrides.featuredSlugs.length ? caseStudies.filter((study) => overrides.featuredSlugs.includes(study.slug)) : caseStudies, [overrides.featuredSlugs]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -76,7 +80,7 @@ export function SelectedWork({
 
       {/* Mobile / reduced-motion: stacked list. */}
       <div className="flex flex-col md:hidden">
-        {caseStudies.map((project, i) => (
+        {visibleStudies.map((project, i) => (
           <FadeIn key={project.slug}>
             <WorkEntry project={project} reverse={i % 2 === 1} photo={photosBySlug[project.slug]} />
           </FadeIn>
@@ -85,7 +89,7 @@ export function SelectedWork({
 
       {/* Desktop: pinned crossfade sequence. */}
       <div ref={sectionRef} className="relative hidden h-[100svh] w-full overflow-hidden md:block">
-        {caseStudies.map((project, i) => (
+        {visibleStudies.map((project, i) => (
           <div
             key={project.slug}
             ref={(el) => {

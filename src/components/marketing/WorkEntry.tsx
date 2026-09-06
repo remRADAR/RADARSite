@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { MediaFrame } from "@/components/MediaFrame";
 import { useCursor } from "@/components/motion/CursorProvider";
+import { useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
 import { caseStudies, type CaseStudy } from "@/lib/case-studies";
 import type { UnsplashPhoto } from "@/lib/unsplash";
+import { getSiteOverridesServerSnapshot, getSiteOverridesSnapshot, parseSiteOverrides, subscribeToSiteOverrides } from "@/lib/site-overrides";
 
 type WorkEntryProps = {
   project: CaseStudy;
@@ -16,6 +18,10 @@ type WorkEntryProps = {
 
 export function WorkEntry({ project, reverse, className, photo }: WorkEntryProps) {
   const { setLabel } = useCursor();
+  const overrideSnapshot = useSyncExternalStore(subscribeToSiteOverrides, getSiteOverridesSnapshot, getSiteOverridesServerSnapshot);
+  const overrides = parseSiteOverrides(overrideSnapshot);
+  const managedPhoto = overrides.media[`work:${project.slug}`];
+  const renderedPhoto = managedPhoto ? { url: managedPhoto, width: 1680, height: 945, alt: project.title, credit: { name: "RADARCharts", link: "https://radarcharts.com" } } : photo;
   const index = String(caseStudies.findIndex((c) => c.slug === project.slug) + 1).padStart(2, "0");
 
   return (
@@ -36,7 +42,7 @@ export function WorkEntry({ project, reverse, className, photo }: WorkEntryProps
           aspect="aspect-auto"
           className="h-full w-full"
           label={project.client}
-          photo={photo}
+          photo={renderedPhoto}
           attribution={false}
           reveal
         />

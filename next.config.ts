@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      { source: "/on-the-radar", destination: "/ontheradar", permanent: true },
+      { source: "/on-the-radar/:path*", destination: "/ontheradar/:path*", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;
