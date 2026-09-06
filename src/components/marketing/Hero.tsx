@@ -67,14 +67,14 @@ export function Hero() {
       <div className="pointer-events-none absolute inset-0 mx-auto hidden max-w-[1800px] grid-cols-4 md:grid" aria-hidden>
         <div className="border-r-2 border-foreground/10" /><div className="border-r-2 border-foreground/10" /><div className="border-r-2 border-foreground/10" /><div />
       </div>
-      <div className="pointer-events-none absolute left-4 top-20 z-10 whitespace-pre-line font-mono text-[11px] font-bold uppercase tracking-widest md:left-8" data-hero-meta>{heroConfig.eyebrow}</div>
-      <div className="pointer-events-none absolute right-4 top-20 z-10 text-right font-mono text-[11px] font-bold uppercase tracking-widest md:right-8" data-hero-meta>51.5°N / 0.1°W<br />&amp; everywhere the signal travels</div>
+      <div className="pointer-events-none absolute left-4 top-20 z-10 whitespace-pre-line font-mono text-[11px] font-bold uppercase tracking-widest text-[#050505] md:left-8" data-hero-meta>{heroConfig.eyebrow}</div>
+      <div className="pointer-events-none absolute right-4 top-20 z-10 text-right font-mono text-[11px] font-bold uppercase tracking-widest text-[#050505] md:right-8" data-hero-meta>51.5°N / 0.1°W<br />&amp; everywhere the signal travels</div>
 
       <div data-hero-type className="pointer-events-none relative z-10 w-full px-4 pb-8 md:px-8">
-        <h1 className="display text-[clamp(2.25rem,11vw,11rem)] text-foreground">
+        <h1 className="display text-[clamp(2.25rem,11vw,11rem)] text-[#050505]">
           {heroConfig.headline.map((line, index) => <span className="block overflow-hidden" key={line}><span data-hero-line className="block">{index === 2 ? <><span className="bg-flare px-2 text-flare-foreground">{line}</span></> : line}</span></span>)}
         </h1>
-        <p data-hero-meta className="mt-6 max-w-md font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">{heroConfig.subheadline}</p>
+        <p data-hero-meta className="mt-6 max-w-md font-mono text-xs font-bold uppercase tracking-widest text-[#050505]/75">{heroConfig.subheadline}</p>
       </div>
 
       <div className="pointer-events-none relative z-10 brut-border-t border-paper bg-ink text-paper">
