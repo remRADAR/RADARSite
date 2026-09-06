@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { EASE } from "@/lib/motion";
@@ -56,11 +57,13 @@ export function Hero() {
           const isFailed = failed[slide.id];
           const src = isFailed ? heroConfig.reducedMotionFallback : (overrides.media[`hero:${slide.id}`] || slide.src);
           return (
-            <img
+            <Image
               key={slide.id}
               src={src}
               alt={index === active ? slide.alt : ""}
               aria-hidden={index !== active}
+              fill
+              sizes="100vw"
               onError={() => setFailed((current) => ({ ...current, [slide.id]: true }))}
               className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${index === active ? "opacity-100" : "opacity-0"} ${heroConfig.transition === "kenburns" ? "scale-[1.08]" : ""}`}
             />
