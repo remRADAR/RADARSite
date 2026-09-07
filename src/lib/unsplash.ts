@@ -41,6 +41,7 @@ export async function getUnsplashPhoto(query: string): Promise<UnsplashPhoto | n
       )}&orientation=landscape&content_filter=high&per_page=6&order_by=relevant`,
       {
         headers: { Authorization: `Client-ID ${ACCESS_KEY}` },
+        signal: AbortSignal.timeout(8_000),
         next: { revalidate: 60 * 60 * 24 },
       }
     );

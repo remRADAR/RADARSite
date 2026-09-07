@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Archivo, Space_Mono } from "next/font/google";
 import "./globals.css";
 import { LiveSiteOverrides } from "@/components/LiveSiteOverrides";
+import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 
 const archivo = Archivo({
   variable: "--font-grotesk",
@@ -44,8 +45,9 @@ export default function RootLayout({
       className={`${archivo.variable} ${spaceMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
-        <LiveSiteOverrides />
-        {children}
+          <LiveSiteOverrides />
+          <ServiceWorkerRegistration />
+          {children}
       </body>
     </html>
   );

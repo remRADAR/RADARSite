@@ -64,8 +64,9 @@ export function Hero() {
               aria-hidden={index !== active}
               fill
               sizes="100vw"
+              priority={index === 0}
               onError={() => setFailed((current) => ({ ...current, [slide.id]: true }))}
-              className={`absolute inset-0 h-full w-full object-contain object-center transition-opacity duration-1000 ${index === active ? "opacity-100" : "opacity-0"}`}
+              className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-1000 ${index === active ? "opacity-100" : "opacity-0"}`}
             />
           );
         })}
