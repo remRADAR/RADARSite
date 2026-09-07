@@ -50,15 +50,15 @@ export function WorkEntry({ project, reverse, className, photo }: WorkEntryProps
 
       <div
         className={cn(
-          "flex flex-col justify-between gap-8 px-4 py-10 md:px-10 md:py-12",
+          "flex min-w-0 flex-col justify-between gap-8 overflow-hidden px-4 py-8 md:px-8 md:py-10 lg:px-10 lg:py-12",
           reverse && "md:order-1"
         )}
       >
-        <div className="flex items-start justify-between">
+        <div className="flex min-w-0 items-start justify-between gap-4">
           <span className="display text-[clamp(3rem,8vw,7rem)] leading-none text-flare">
             {index}
           </span>
-          <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
+          <span className="shrink-0 whitespace-nowrap text-right font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground md:text-xs md:tracking-widest">
             {project.year} / {project.role.split(",")[0]}
           </span>
         </div>
@@ -67,7 +67,7 @@ export function WorkEntry({ project, reverse, className, photo }: WorkEntryProps
           <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
             {project.client}
           </p>
-          <h3 className="mt-3 display text-[clamp(2rem,4.5vw,4rem)] leading-[0.92]">
+          <h3 className="mt-3 max-w-full display text-[clamp(2rem,4.5vw,4rem)] leading-[0.92]">
             {project.title}
           </h3>
           <p className="mt-5 max-w-md font-mono text-sm uppercase leading-relaxed tracking-wide text-muted-foreground">

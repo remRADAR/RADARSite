@@ -65,7 +65,7 @@ export function SelectedWork({
     });
 
     return () => mm.revert();
-  }, []);
+  }, [visibleStudies.length]);
 
   return (
     <section className="bg-paper">
@@ -88,7 +88,7 @@ export function SelectedWork({
       </div>
 
       {/* Desktop: pinned crossfade sequence. */}
-      <div ref={sectionRef} className="relative hidden h-[100svh] w-full overflow-hidden md:block">
+      <div ref={sectionRef} className="relative hidden h-[calc(100svh-3.625rem)] min-h-[34rem] w-full overflow-hidden md:block">
         {visibleStudies.map((project, i) => (
           <div
             key={project.slug}
