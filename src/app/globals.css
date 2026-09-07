@@ -61,7 +61,7 @@
 :root {
   --paper: #050505;
   --ink: #f7f7f2;
-  --flare: #ff3b00;
+  --flare: #ffffff;
   --flare-foreground: #050505;
 
   --background: var(--paper);
@@ -78,11 +78,11 @@
   --muted-foreground: #a4a4a0;
   --accent: var(--flare);
   --accent-foreground: var(--flare-foreground);
-  --destructive: #ff3b00;
+  --destructive: #ffffff;
   --border: #f7f7f2;
   --input: #f7f7f2;
   --ring: var(--flare);
-  --chart-1: #ff3b00;
+  --chart-1: #ffffff;
   --chart-2: #f7f7f2;
   --chart-3: #a4a4a0;
   --chart-4: #555555;
@@ -180,6 +180,8 @@
     letter-spacing: -0.03em;
     line-height: 0.86;
     text-transform: uppercase;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
   }
 
   /* Faint dot-grid — brutalist newsprint texture, always present as the

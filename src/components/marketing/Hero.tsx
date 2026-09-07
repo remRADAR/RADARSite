@@ -76,13 +76,13 @@ export function Hero() {
       <div className="pointer-events-none absolute inset-0 mx-auto hidden max-w-[1800px] grid-cols-4 md:grid" aria-hidden>
         <div className="border-r-2 border-foreground/10" /><div className="border-r-2 border-foreground/10" /><div className="border-r-2 border-foreground/10" /><div />
       </div>
-      <div className="pointer-events-none absolute right-4 top-20 z-10 text-right font-mono text-[11px] font-bold uppercase tracking-widest text-[#050505] md:right-8" data-hero-meta>14.7167°N / 17.4677°W</div>
+      <div className="pointer-events-none absolute right-4 top-20 z-10 max-w-[calc(100%-2rem)] text-right font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#050505] md:right-8 md:text-[11px]" data-hero-meta>14.7167°N / 17.4677°W</div>
 
       <div data-hero-type className="pointer-events-none relative z-10 w-full px-4 pb-8 md:px-8">
-        <h1 className="display text-[clamp(2.25rem,11vw,11rem)] text-[#050505]">
+        <h1 className="display max-w-[11ch] text-[clamp(2.25rem,11vw,11rem)] leading-[0.9] text-[#050505]">
           {headline.map((line, index) => <span className="block overflow-hidden" key={`${line}-${index}`}><span data-hero-line className="block">{index === headline.length - 1 ? <><span className="bg-flare px-2 text-flare-foreground">{line}</span></> : line}</span></span>)}
         </h1>
-        <p data-hero-meta className="mt-6 max-w-md font-mono text-xs font-bold uppercase tracking-widest text-[#050505]/75">{subheadline}</p>
+        <p data-hero-meta className="mt-6 max-w-[34rem] font-mono text-[11px] font-bold uppercase leading-[1.45] tracking-[0.12em] text-[#050505]/75 md:text-xs">{subheadline}</p>
       </div>
 
       <div className="pointer-events-none relative z-10 brut-border-t border-paper bg-ink text-paper">
