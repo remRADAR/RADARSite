@@ -30,7 +30,7 @@ export function SiteHeader() {
                   <ChevronDown aria-hidden size={12} className="ml-2 shrink-0 transition-transform group-hover:rotate-180" />
                 </Link>
               </Magnetic>
-              <div className="invisible absolute left-0 top-full min-w-48 border-2 border-t-0 border-ink bg-paper opacity-0 transition-all group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+              <div className="invisible absolute left-0 top-full min-w-48 origin-top -translate-y-1 scale-y-95 border-2 border-t-0 border-ink bg-paper opacity-0 transition-[opacity,transform,visibility] duration-300 ease-[var(--ease-out)] motion-reduce:transition-none group-hover:visible group-hover:translate-y-0 group-hover:scale-y-100 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:scale-y-100 group-focus-within:opacity-100">
                 {group.children.map((child) => <Link key={child.href} href={child.href} className="block border-b-2 border-ink px-4 py-3 font-mono text-[clamp(0.625rem,0.7vw,0.75rem)] font-bold uppercase tracking-widest last:border-b-0 hover:bg-flare hover:text-flare-foreground">{child.label}</Link>)}
               </div>
             </div>
@@ -47,8 +47,14 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {menuOpen && (
-        <div id="mobile-navigation" className="border-t-2 border-ink bg-paper lg:hidden" aria-label="Expanded navigation">
+      <div
+        id="mobile-navigation"
+        aria-label="Expanded navigation"
+        aria-hidden={!menuOpen}
+        inert={!menuOpen}
+        className={`grid border-t-2 border-ink bg-paper transition-[grid-template-rows,opacity,transform] duration-500 ease-[var(--ease-out)] motion-reduce:transition-none lg:hidden ${menuOpen ? "grid-rows-[1fr] opacity-100" : "pointer-events-none grid-rows-[0fr] -translate-y-1 opacity-0"}`}
+      >
+        <div className="min-h-0 overflow-hidden">
           <div className="grid gap-0 sm:grid-cols-2">
             {groups.map((group, index) => (
               <section key={group.href} className={`min-w-0 border-b-2 border-ink p-4 ${index === groups.length - 1 ? "sm:col-span-2" : ""}`}>
@@ -64,7 +70,7 @@ export function SiteHeader() {
           </div>
           <a href={RADARME_URL} target="_blank" rel="noreferrer" className="block border-b-2 border-ink bg-flare px-4 py-4 font-mono text-[clamp(0.75rem,2.4vw,0.95rem)] font-bold uppercase tracking-[0.08em] text-flare-foreground">Open RADARMe ↗</a>
         </div>
-      )}
+      </div>
     </header>
   );
 }

@@ -19,7 +19,7 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
       // below. Left on (the default), Lenis also runs its own rAF loop and the
       // scroll gets stepped twice per frame, which is what made it feel uneven.
       autoRaf: false,
-      lerp: 0.1,
+      lerp: 0.12,
       smoothWheel: true,
       wheelMultiplier: 1,
       touchMultiplier: 1.6,
@@ -31,7 +31,9 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
       lenis.raf(time * 1000);
     };
     gsap.ticker.add(onTick);
-    gsap.ticker.lagSmoothing(0);
+    // Avoid a large catch-up burst after a hidden/minimized tab resumes.
+    // Lenis remains on one GSAP ticker, so scroll work stays frame-coalesced.
+    gsap.ticker.lagSmoothing(1000, 16);
 
     return () => {
       gsap.ticker.remove(onTick);
