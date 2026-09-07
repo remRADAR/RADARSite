@@ -15,7 +15,7 @@ export type SiteOverrides = {
 };
 
 export const defaultSiteOverrides: SiteOverrides = {
-  media: {}, logoText: "remRADAR", logoImage: "", tickerIcon: "✳", heroHeadline: [], heroSubheadline: "", tickerItems: [], featuredSlugs: [], seoTitle: "RADARCharts — Put it on the RADAR", seoDescription: "RADARCharts is a music ecosystem for artists, releases, stories, and the people moving culture forward.", socialImage: "",
+  media: {}, logoText: "remRADAR", logoImage: "/radar-n-logo.png", tickerIcon: "✳", heroHeadline: [], heroSubheadline: "", tickerItems: [], featuredSlugs: [], seoTitle: "RADARCharts — Put it on the RADAR", seoDescription: "RADARCharts is a music ecosystem for artists, releases, stories, and the people moving culture forward.", socialImage: "",
 };
 
 function text(value: unknown, fallback: string) { return typeof value === "string" ? value.trim().slice(0, 2000) : fallback; }
