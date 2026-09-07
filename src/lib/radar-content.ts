@@ -66,7 +66,7 @@ export const heroConfig: HeroConfig = {
   overlayStrength: 0.58,
   reducedMotionFallback: "/hero-banner-1.webp",
   eyebrow: "(01 / Signal)\nArtist development & culture",
-  headline: ["Put it", "on the", "RADAR."],
+  headline: ["ON", "THE", "RADAR"],
   subheadline: "A music ecosystem for artists, releases, stories, and the people moving culture forward.",
 };
 

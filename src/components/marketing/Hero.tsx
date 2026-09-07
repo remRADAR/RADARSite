@@ -65,7 +65,7 @@ export function Hero() {
               fill
               sizes="100vw"
               onError={() => setFailed((current) => ({ ...current, [slide.id]: true }))}
-              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${index === active ? "opacity-100" : "opacity-0"} ${heroConfig.transition === "kenburns" ? "scale-100 md:scale-[1.08]" : ""}`}
+              className={`absolute inset-0 h-full w-full object-contain object-center transition-opacity duration-1000 ${index === active ? "opacity-100" : "opacity-0"}`}
             />
           );
         })}
