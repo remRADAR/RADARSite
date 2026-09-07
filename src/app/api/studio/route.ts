@@ -1,30 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
-import { defaultSiteOverrides, type SiteOverrides } from "@/lib/site-overrides";
-import { createSessionToken, getSessionCookieName, hasDatabase, isAdminPasswordValid, isSessionValid, readStudioSettings, writeStudioSettings } from "@/lib/studio-server";
+import { defaultSiteOverrides } from "@/lib/site-overrides";
+import { createSessionToken, getSessionCookieName, getSessionMaxAge, hasDatabase, isAdminPasswordValid, isSessionValid, readStudioSettings, writeStudioSettings } from "@/lib/studio-server";
 
 export const dynamic = "force-dynamic";
+const failedLogins = new Map<string, { count: number; resetAt: number }>();
+const LOGIN_LIMIT = 8;
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+
+function json(data: unknown, init?: ResponseInit) { const response = NextResponse.json(data, init); response.headers.set("Cache-Control", "no-store, max-age=0"); return response; }
+function clearSession(response: NextResponse) { response.cookies.set(getSessionCookieName(), "", { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 0 }); }
+function clientKey(request: NextRequest) { return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"; }
+async function readJson(request: NextRequest) { if (!(request.headers.get("content-type") || "").toLowerCase().includes("application/json")) return null; return request.json().catch(() => null) as Promise<unknown>; }
 
 export async function GET() {
-  if (!hasDatabase()) return NextResponse.json({ configured: false, settings: defaultSiteOverrides });
-  try { return NextResponse.json({ configured: true, settings: await readStudioSettings() }); }
-  catch { return NextResponse.json({ configured: false, settings: defaultSiteOverrides }, { status: 503 }); }
+  if (!hasDatabase()) return json({ configured: false, settings: defaultSiteOverrides });
+  try { return json({ configured: true, settings: await readStudioSettings() }); }
+  catch { return json({ configured: false, settings: defaultSiteOverrides, error: "Studio persistence is unavailable" }, { status: 503 }); }
 }
 
 export async function POST(request: NextRequest) {
-  const body = await request.json().catch(() => null) as { password?: string } | null;
-  if (!isAdminPasswordValid(body?.password || "")) return NextResponse.json({ error: "Invalid admin password" }, { status: 401 });
-  const response = NextResponse.json({ authenticated: true });
-  response.cookies.set(getSessionCookieName(), createSessionToken(), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 24 * 7 });
-  return response;
+  const key = clientKey(request); const now = Date.now(); const attempt = failedLogins.get(key);
+  if (attempt && attempt.resetAt > now && attempt.count >= LOGIN_LIMIT) return json({ error: "Too many login attempts. Try again later." }, { status: 429, headers: { "Retry-After": String(Math.ceil((attempt.resetAt - now) / 1000)) } });
+  const body = await readJson(request) as { password?: unknown } | null; const password = typeof body?.password === "string" ? body.password : "";
+  if (!isAdminPasswordValid(password)) { const next = attempt && attempt.resetAt > now ? { count: attempt.count + 1, resetAt: attempt.resetAt } : { count: 1, resetAt: now + LOGIN_WINDOW_MS }; failedLogins.set(key, next); return json({ error: "Invalid admin password" }, { status: 401 }); }
+  failedLogins.delete(key);
+  const response = json({ authenticated: true }); response.cookies.set(getSessionCookieName(), createSessionToken(), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: getSessionMaxAge() }); return response;
 }
+
+export async function DELETE(request: NextRequest) { const response = json({ authenticated: false }); if (isSessionValid(request.cookies.get(getSessionCookieName())?.value)) clearSession(response); return response; }
 
 export async function PUT(request: NextRequest) {
   const session = request.cookies.get(getSessionCookieName())?.value;
-  if (!isSessionValid(session)) return NextResponse.json({ error: "Admin authentication required" }, { status: 401 });
-  if (!hasDatabase()) return NextResponse.json({ error: "DATABASE_URL is not configured" }, { status: 503 });
-  const body = await request.json().catch(() => null) as { settings?: SiteOverrides } | null;
-  if (!body?.settings) return NextResponse.json({ error: "Settings payload is required" }, { status: 400 });
-  const settings = { ...defaultSiteOverrides, ...body.settings };
-  try { return NextResponse.json({ saved: true, settings: await writeStudioSettings(settings) }); }
-  catch { return NextResponse.json({ error: "Unable to save Studio settings" }, { status: 500 }); }
+  if (!isSessionValid(session)) { const response = json({ error: "Admin authentication required" }, { status: 401 }); clearSession(response); return response; }
+  if (!hasDatabase()) return json({ error: "DATABASE_URL is not configured" }, { status: 503 });
+  const body = await readJson(request) as { settings?: unknown } | null;
+  if (!body || !Object.prototype.hasOwnProperty.call(body, "settings")) return json({ error: "Settings payload is required" }, { status: 400 });
+  try { return json({ saved: true, settings: await writeStudioSettings(body.settings) }); }
+  catch (error) { const tooLarge = error instanceof Error && error.message === "Studio settings payload is too large"; return json({ error: tooLarge ? error.message : "Unable to save Studio settings" }, { status: tooLarge ? 413 : 500 }); }
 }

@@ -3,35 +3,104 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { defaultSiteOverrides, type SiteOverrides } from "@/lib/site-overrides";
 
 const SESSION_COOKIE = "radar_studio_session";
+const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
+const MAX_SETTINGS_BYTES = 256 * 1024;
+const MAX_TEXT_LENGTH = 2_000;
+const MAX_ARRAY_ITEMS = 100;
+const MAX_MEDIA_ITEMS = 100;
 
-export function getSessionCookieName() { return SESSION_COOKIE; }
-export function hasDatabase() { return Boolean(process.env.DATABASE_URL); }
+export function getSessionCookieName() {
+  return SESSION_COOKIE;
+}
+
+export function getSessionMaxAge() {
+  return SESSION_TTL_SECONDS;
+}
+
+export function hasDatabase() {
+  return Boolean(process.env.DATABASE_URL);
+}
 
 function getSql() {
   if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not configured");
   return neon(process.env.DATABASE_URL);
 }
 
+function boundedText(value: unknown, fallback: string) {
+  return typeof value === "string" ? value.trim().slice(0, MAX_TEXT_LENGTH) : fallback;
+}
+
+function boundedStringArray(value: unknown, fallback: string[]) {
+  if (!Array.isArray(value)) return fallback;
+  return value
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => item.trim().slice(0, MAX_TEXT_LENGTH))
+    .filter(Boolean)
+    .slice(0, MAX_ARRAY_ITEMS);
+}
+
+function safeUrl(value: unknown, fallback: string) {
+  const candidate = boundedText(value, fallback);
+  if (!candidate) return "";
+  try {
+    const url = new URL(candidate);
+    return ["http:", "https:"].includes(url.protocol) ? candidate : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+export function normalizeSiteOverrides(input: unknown): SiteOverrides {
+  const value = input && typeof input === "object" ? input as Partial<SiteOverrides> : {};
+  const media: Record<string, string> = {};
+  if (value.media && typeof value.media === "object" && !Array.isArray(value.media)) {
+    for (const [key, url] of Object.entries(value.media).slice(0, MAX_MEDIA_ITEMS)) {
+      const cleanKey = key.trim().slice(0, 120);
+      const cleanUrl = safeUrl(url, "");
+      if (cleanKey && cleanUrl) media[cleanKey] = cleanUrl;
+    }
+  }
+  return {
+    media,
+    logoText: boundedText(value.logoText, defaultSiteOverrides.logoText),
+    logoImage: safeUrl(value.logoImage, defaultSiteOverrides.logoImage),
+    tickerIcon: boundedText(value.tickerIcon, defaultSiteOverrides.tickerIcon),
+    heroHeadline: boundedStringArray(value.heroHeadline, defaultSiteOverrides.heroHeadline),
+    heroSubheadline: boundedText(value.heroSubheadline, defaultSiteOverrides.heroSubheadline),
+    tickerItems: boundedStringArray(value.tickerItems, defaultSiteOverrides.tickerItems),
+    featuredSlugs: boundedStringArray(value.featuredSlugs, defaultSiteOverrides.featuredSlugs),
+    seoTitle: boundedText(value.seoTitle, defaultSiteOverrides.seoTitle),
+    seoDescription: boundedText(value.seoDescription, defaultSiteOverrides.seoDescription),
+    socialImage: safeUrl(value.socialImage, defaultSiteOverrides.socialImage),
+  };
+}
+
 export function isAdminPasswordValid(password: string) {
   const expected = process.env.STUDIO_ADMIN_PASSWORD;
-  if (!expected || !password) return false;
-  const left = Buffer.from(password);
-  const right = Buffer.from(expected);
-  return left.length === right.length && timingSafeEqual(left, right);
+  if (!expected || !password || password.length !== expected.length) return false;
+  return timingSafeEqual(Buffer.from(password), Buffer.from(expected));
 }
 
-export function createSessionToken() {
-  const secret = process.env.STUDIO_ADMIN_PASSWORD;
+function getSessionSecret() {
+  return process.env.STUDIO_ADMIN_PASSWORD || "";
+}
+
+export function createSessionToken(now = Math.floor(Date.now() / 1000)) {
+  const secret = getSessionSecret();
   if (!secret) return "";
-  return createHmac("sha256", secret).update("radar-studio-admin").digest("hex");
+  const expiresAt = now + SESSION_TTL_SECONDS;
+  const payload = `radar-studio-admin.${expiresAt}`;
+  const signature = createHmac("sha256", secret).update(payload).digest("hex");
+  return `${payload}.${signature}`;
 }
 
-export function isSessionValid(value: string | undefined) {
+export function isSessionValid(value: string | undefined, now = Math.floor(Date.now() / 1000)) {
   if (!value) return false;
-  const expected = createSessionToken();
-  const left = Buffer.from(value);
-  const right = Buffer.from(expected);
-  return Boolean(expected) && left.length === right.length && timingSafeEqual(left, right);
+  const [prefix, expiryText, signature] = value.split(".");
+  const expiresAt = Number(expiryText);
+  if (prefix !== "radar-studio-admin" || !Number.isSafeInteger(expiresAt) || expiresAt <= now || !/^[a-f0-9]{64}$/.test(signature || "")) return false;
+  const expected = createHmac("sha256", getSessionSecret()).update(`${prefix}.${expiryText}`).digest("hex");
+  return timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
 }
 
 export async function ensureStudioTable() {
@@ -42,13 +111,19 @@ export async function ensureStudioTable() {
 export async function readStudioSettings(): Promise<SiteOverrides> {
   await ensureStudioTable();
   const sql = getSql();
-  const rows = await sql`SELECT settings FROM studio_settings WHERE id = 1 LIMIT 1` as { settings: Partial<SiteOverrides> }[];
-  return rows[0]?.settings ? { ...defaultSiteOverrides, ...rows[0].settings } : defaultSiteOverrides;
+  const rows = await sql`SELECT settings FROM studio_settings WHERE id = 1 LIMIT 1` as { settings: unknown }[];
+  return normalizeSiteOverrides(rows[0]?.settings);
 }
 
-export async function writeStudioSettings(settings: SiteOverrides) {
+export async function writeStudioSettings(input: unknown) {
+  const settings = normalizeSiteOverrides(input);
+  if (Buffer.byteLength(JSON.stringify(settings), "utf8") > MAX_SETTINGS_BYTES) {
+    throw new Error("Studio settings payload is too large");
+  }
   await ensureStudioTable();
   const sql = getSql();
   await sql`INSERT INTO studio_settings (id, settings, updated_at) VALUES (1, ${JSON.stringify(settings)}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET settings = EXCLUDED.settings, updated_at = now()`;
   return settings;
 }
+
+export { MAX_SETTINGS_BYTES };
