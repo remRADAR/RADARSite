@@ -113,10 +113,23 @@
   body {
     @apply bg-background text-foreground;
     font-synthesis-weight: none;
+    text-align: left;
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+    word-break: normal;
+    overflow-wrap: break-word;
   }
   html {
     @apply font-sans;
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
     /* Cursor is a custom blend-difference block on capable pointers. */
+  }
+  :where(h1, h2, h3, h4, h5, h6, p, a, span, label, button, li) {
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+    word-break: normal;
+    overflow-wrap: break-word;
   }
   ::selection {
     background: var(--flare);
@@ -180,8 +193,10 @@
     letter-spacing: -0.03em;
     line-height: 0.86;
     text-transform: uppercase;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
+    word-break: normal;
     text-wrap: balance;
+    text-align: left;
   }
 
   /* Faint dot-grid — brutalist newsprint texture, always present as the

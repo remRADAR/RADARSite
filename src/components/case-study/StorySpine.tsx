@@ -53,7 +53,7 @@ export function StorySpine({ targetSelector = "[data-story-root]" }: { targetSel
       </div>
       <span
         ref={pctRef}
-        className="border-t-2 border-ink py-2 text-center font-mono text-[10px] font-bold"
+        className="border-t-2 border-ink py-2 text-left font-mono text-[10px] font-bold"
       >
         00
       </span>
