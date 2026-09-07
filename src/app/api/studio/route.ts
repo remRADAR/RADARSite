@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { defaultSiteOverrides } from "@/lib/site-overrides";
+import { hasContentDatabase, readContent, writeContent } from "@/lib/content-server";
 import { createSessionToken, getSessionCookieName, getSessionMaxAge, hasDatabase, isAdminPasswordValid, isSessionValid, readStudioSettings, writeStudioSettings } from "@/lib/studio-server";
 
 export const dynamic = "force-dynamic";
@@ -13,8 +14,8 @@ function clientKey(request: NextRequest) { return request.headers.get("x-forward
 async function readJson(request: NextRequest) { if (!(request.headers.get("content-type") || "").toLowerCase().includes("application/json")) return null; return request.json().catch(() => null) as Promise<unknown>; }
 
 export async function GET() {
-  if (!hasDatabase()) return json({ configured: false, settings: defaultSiteOverrides });
-  try { return json({ configured: true, settings: await readStudioSettings() }); }
+  if (!hasDatabase()) return json({ configured: false, contentConfigured: hasContentDatabase(), settings: defaultSiteOverrides, content: await readContent() });
+  try { return json({ configured: true, contentConfigured: hasContentDatabase(), settings: await readStudioSettings(), content: await readContent() }); }
   catch { return json({ configured: false, settings: defaultSiteOverrides, error: "Studio persistence is unavailable" }, { status: 503 }); }
 }
 
@@ -33,8 +34,11 @@ export async function PUT(request: NextRequest) {
   const session = request.cookies.get(getSessionCookieName())?.value;
   if (!isSessionValid(session)) { const response = json({ error: "Admin authentication required" }, { status: 401 }); clearSession(response); return response; }
   if (!hasDatabase()) return json({ error: "DATABASE_URL is not configured" }, { status: 503 });
-  const body = await readJson(request) as { settings?: unknown } | null;
-  if (!body || !Object.prototype.hasOwnProperty.call(body, "settings")) return json({ error: "Settings payload is required" }, { status: 400 });
-  try { return json({ saved: true, settings: await writeStudioSettings(body.settings) }); }
+  const body = await readJson(request) as { settings?: unknown; content?: unknown } | null;
+  if (!body || (!Object.prototype.hasOwnProperty.call(body, "settings") && !Object.prototype.hasOwnProperty.call(body, "content"))) return json({ error: "Settings or content payload is required" }, { status: 400 });
+  try {
+    if (Object.prototype.hasOwnProperty.call(body, "content")) return json({ saved: true, content: await writeContent(body.content) });
+    return json({ saved: true, settings: await writeStudioSettings(body.settings) });
+  }
   catch (error) { const tooLarge = error instanceof Error && error.message === "Studio settings payload is too large"; return json({ error: tooLarge ? error.message : "Unable to save Studio settings" }, { status: tooLarge ? 413 : 500 }); }
 }

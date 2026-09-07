@@ -59,7 +59,7 @@ export function Logo({
     >
           <LogoMark imageSrc={parseSiteOverrides(overrides).logoImage || "/radar-n-logo.png"} />
       {showWordmark && (
-        <span className="font-display text-lg font-extrabold uppercase leading-none tracking-tight">
+        <span className="font-display text-lg font-extrabold leading-none tracking-tight">
           {logoText}
         </span>
       )}

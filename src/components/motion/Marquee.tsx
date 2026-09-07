@@ -32,7 +32,7 @@ export function Marquee({
   );
 
   return (
-    <div className={cn("flex w-full overflow-hidden", className)}>
+    <div className={cn("flex w-full overflow-hidden [contain:paint]", className)}>
       <div
         className={cn("flex w-max", reverse ? "animate-marquee-reverse" : "animate-marquee")}
         style={{ ["--marquee-duration" as string]: `${durationSeconds}s` }}

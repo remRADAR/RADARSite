@@ -4,8 +4,11 @@ import { useEffect, useState } from "react";
 import { caseStudies } from "@/lib/case-studies";
 import { defaultSiteOverrides, SITE_OVERRIDES_KEY, type SiteOverrides } from "@/lib/site-overrides";
 import { heroConfig } from "@/lib/radar-content";
+import type { ContentCollections } from "@/lib/content-server";
 
-const initial: SiteOverrides = { ...defaultSiteOverrides, logoText: "remRADAR", featuredSlugs: caseStudies.map((study) => study.slug), heroHeadline: heroConfig.headline, heroSubheadline: heroConfig.subheadline, tickerItems: ["Artist Spotlight", "Releases", "RADARArticles", "On The Radar", "Campaigns"] };
+const LOCAL_CONTENT_KEY = "radar-cms-content";
+
+const initial: SiteOverrides = { ...defaultSiteOverrides, logoText: "remRADAR", tickerIcon: "✨", featuredSlugs: caseStudies.map((study) => study.slug), heroHeadline: heroConfig.headline, heroSubheadline: heroConfig.subheadline, tickerItems: ["MOTHERLAND PROJECT", "LIVE ON ARTIZEN", "SEASON 7"] };
 function load(): SiteOverrides { if (typeof window === "undefined") return initial; try { const raw = window.localStorage.getItem(SITE_OVERRIDES_KEY); return raw ? { ...initial, ...JSON.parse(raw) } : initial; } catch { return initial; } }
 
 const fieldClass = "mt-2 w-full brut-border bg-transparent p-3 font-mono text-sm outline-none focus:ring-2 focus:ring-flare";
@@ -20,10 +23,18 @@ export function RadarAdminPanel() {
   const [message, setMessage] = useState("");
   const [newKey, setNewKey] = useState("hero:studio-signal");
   const [newUrl, setNewUrl] = useState("");
+  const [content, setContent] = useState<ContentCollections | null>(null);
+  const [contentType, setContentType] = useState<keyof ContentCollections>("articles");
+  const [contentDraft, setContentDraft] = useState("");
 
   useEffect(() => {
     fetch("/api/studio", { cache: "no-store" }).then((response) => response.json()).then((payload) => {
-      if (payload?.configured && payload.settings) { setValues(payload.settings); setShared(true); }
+      if (payload?.settings) { setValues(payload.settings); setShared(Boolean(payload.configured)); }
+      if (payload?.content) {
+        let nextContent = payload.content;
+        if (!payload.contentConfigured) { try { nextContent = JSON.parse(window.localStorage.getItem(LOCAL_CONTENT_KEY) || "null") || nextContent; } catch { /* use seed content */ } }
+        setContent(nextContent); setContentDraft(JSON.stringify(nextContent.articles || [], null, 2));
+      }
     }).catch(() => setMessage("Studio persistence could not be reached."));
   }, []);
 
@@ -33,8 +44,19 @@ export function RadarAdminPanel() {
   const publish = async () => {
     if (shared && !authenticated) { setMessage("Log in before publishing shared changes."); return; }
     if (shared) {
+      let nextContent = content;
+      if (content) {
+        try { nextContent = { ...content, [contentType]: JSON.parse(contentDraft) }; } catch { setMessage("Content JSON is invalid; nothing was published."); return; }
+      }
       const response = await fetch("/api/studio", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ settings: values }) });
       if (!response.ok) { setMessage(response.status === 401 ? "Session expired. Log in again before publishing." : "Shared save failed; no local copy was changed."); if (response.status === 401) setAuthenticated(false); return; }
+      if (nextContent && JSON.stringify(nextContent) !== JSON.stringify(content)) {
+        if (shared) {
+          const contentResponse = await fetch("/api/studio", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: nextContent }) });
+          if (!contentResponse.ok) { setMessage("Settings saved, but CMS content failed to publish."); return; }
+        } else window.localStorage.setItem(LOCAL_CONTENT_KEY, JSON.stringify(nextContent));
+        setContent(nextContent);
+      }
     }
     window.localStorage.setItem(SITE_OVERRIDES_KEY, JSON.stringify(values));
     window.dispatchEvent(new Event("radar-overrides-updated"));
@@ -55,14 +77,16 @@ export function RadarAdminPanel() {
   const toggleFeatured = (slug: string) => update("featuredSlugs", values.featuredSlugs.includes(slug) ? values.featuredSlugs.filter((item) => item !== slug) : [...values.featuredSlugs, slug]);
   const addAsset = () => { if (!newKey.trim() || !newUrl.trim()) return; update("media", { ...values.media, [newKey.trim()]: newUrl.trim() }); setNewUrl(""); };
   const removeAsset = (key: string) => { const next = { ...values.media }; delete next[key]; update("media", next); };
+  const selectContentType = (next: keyof ContentCollections) => { setContentType(next); setContentDraft(JSON.stringify(content?.[next] || [], null, 2)); };
 
   return <main className="min-h-screen bg-paper px-4 pb-24 pt-24 text-ink md:px-8"><div className="mx-auto max-w-7xl">
     <header className="flex flex-wrap items-end justify-between gap-8 border-b-2 border-ink pb-8"><div><p className={labelClass}>(Studio / Admin / Site editor)</p><h1 className="mt-4 display text-[clamp(3rem,9vw,8rem)] leading-[.86]">RADAR<br /><span className="text-flare">Control.</span></h1></div><p className="max-w-sm font-mono text-xs uppercase leading-relaxed tracking-widest text-muted-foreground">A WordPress-style control room for the live site: replace media, update tags and icons, select featured projects, and manage SEO without touching the composition.</p></header>
-    <section className="mt-6 flex flex-wrap items-end gap-3 brut-border p-4"><div className="min-w-56 flex-1"><p className={labelClass}>{shared ? "Shared Neon database connected" : "Local fallback mode"}</p><p className="mt-2 font-mono text-xs uppercase text-muted-foreground">{message || (shared ? "Log in to publish changes for every device and user." : "Add DATABASE_URL and STUDIO_ADMIN_PASSWORD in Vercel to enable shared persistence.")}</p></div>{!authenticated ? <><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Shared admin password" className="brut-border bg-transparent p-3 font-mono text-xs" /><button onClick={login} className="brut-border px-4 py-3 font-mono text-xs font-bold uppercase tracking-widest">Log in</button></> : <button onClick={logout} className="brut-border px-4 py-3 font-mono text-xs font-bold uppercase tracking-widest">Log out</button>}</section>
+    <section className="mt-6 flex flex-wrap items-end gap-3 brut-border p-4"><div className="min-w-56 flex-1"><p className={labelClass}>{shared ? "Shared Neon database connected" : "Local fallback mode"}</p><p className="mt-2 font-mono text-xs uppercase text-muted-foreground">{message || (shared ? "Log in to publish changes for every device and user." : "Changes are stored only in this browser. Add DATABASE_URL and STUDIO_ADMIN_PASSWORD in Vercel for live shared publishing.")}</p></div>{!authenticated ? <><input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Shared admin password" className="brut-border bg-transparent p-3 font-mono text-xs" /><button onClick={login} className="brut-border px-4 py-3 font-mono text-xs font-bold uppercase tracking-widest">Log in</button></> : <button onClick={logout} className="brut-border px-4 py-3 font-mono text-xs font-bold uppercase tracking-widest">Log out</button>}</section>
     <section className="mt-10"><div className="flex items-center justify-between border-b-2 border-ink pb-3"><h2 className="display text-3xl">Media library</h2><span className={labelClass}>{Object.keys(values.media).length} managed assets</span></div><div className="mt-5 grid gap-4 md:grid-cols-[1fr_2fr_auto]"><select value={newKey} onChange={(e) => setNewKey(e.target.value)} className={fieldClass}><option value="hero:studio-signal">Hero / Studio Signal</option><option value="hero:night-drive">Hero / Night Drive</option><option value="hero:press-room">Hero / Press Room</option>{caseStudies.map((study) => <option key={study.slug} value={`work:${study.slug}`}>Work / {study.client}</option>)}</select><input value={newUrl} onChange={(e) => setNewUrl(e.target.value)} placeholder="Paste an image/video URL or uploaded asset URL" className={fieldClass} /><button onClick={addAsset} className="brut-border bg-flare px-5 py-3 font-mono text-xs font-bold uppercase tracking-widest text-flare-foreground">Add asset</button></div><div className="mt-5 grid gap-3 md:grid-cols-2">{Object.entries(values.media).map(([key, url]) => <div key={key} className="flex items-center gap-3 brut-border p-3"><div className="h-16 w-24 shrink-0 bg-ink bg-cover bg-center" style={{ backgroundImage: `url(${url})` }} /><div className="min-w-0 flex-1"><p className={labelClass}>{key}</p><p className="mt-1 truncate font-mono text-xs text-muted-foreground">{url}</p></div><button onClick={() => removeAsset(key)} className="font-mono text-xs font-bold uppercase tracking-widest text-flare">Remove</button></div>)}</div></section>
     <section className="mt-14 grid gap-10 lg:grid-cols-2"><div><h2 className="display border-b-2 border-ink pb-3 text-3xl">Site tags</h2><div className="mt-5 grid gap-5"><label className={labelClass}>Logo / wordmark<input value={values.logoText} onChange={(e) => update("logoText", e.target.value)} className={fieldClass} /></label><label className={labelClass}>N logo image / PNG URL<input value={values.logoImage} onChange={(e) => update("logoImage", e.target.value)} placeholder="Paste a PNG, SVG, or storage asset URL" className={fieldClass} /></label><label className={labelClass}>Ticker icon or SVG symbol<input value={values.tickerIcon} onChange={(e) => update("tickerIcon", e.target.value)} className={fieldClass} /></label><label className={labelClass}>Ticker items<textarea value={values.tickerItems.join(", ")} onChange={(e) => update("tickerItems", e.target.value.split(",").map((item) => item.trim()).filter(Boolean))} className={`${fieldClass} min-h-24`} /></label></div></div><div><h2 className="display border-b-2 border-ink pb-3 text-3xl">Hero content</h2><div className="mt-5 grid gap-5"><label className={labelClass}>Headline<textarea value={values.heroHeadline.join("\n")} onChange={(e) => update("heroHeadline", e.target.value.split("\n"))} className={`${fieldClass} min-h-28 font-display text-2xl font-extrabold uppercase`} /></label><label className={labelClass}>Subheadline<textarea value={values.heroSubheadline} onChange={(e) => update("heroSubheadline", e.target.value)} className={`${fieldClass} min-h-24`} /></label></div></div></section>
     <section className="mt-14"><h2 className="display border-b-2 border-ink pb-3 text-3xl">Featured content</h2><div className="mt-5 grid gap-3 md:grid-cols-3">{caseStudies.map((study) => <button key={study.slug} onClick={() => toggleFeatured(study.slug)} className={`brut-border p-4 text-left transition-colors ${values.featuredSlugs.includes(study.slug) ? "bg-flare text-flare-foreground" : ""}`}><span className={labelClass}>{values.featuredSlugs.includes(study.slug) ? "Featured" : "Hidden"}</span><strong className="mt-3 block display text-2xl">{study.client}</strong><span className="mt-2 block font-mono text-xs uppercase">{study.title}</span></button>)}</div></section>
     <section className="mt-14"><h2 className="display border-b-2 border-ink pb-3 text-3xl">SEO & social</h2><div className="mt-5 grid gap-5 md:grid-cols-2"><label className={labelClass}>Meta title<input value={values.seoTitle} onChange={(e) => update("seoTitle", e.target.value)} className={fieldClass} /></label><label className={labelClass}>Social image URL<input value={values.socialImage} onChange={(e) => update("socialImage", e.target.value)} className={fieldClass} /></label><label className={`${labelClass} md:col-span-2`}>Meta description<textarea value={values.seoDescription} onChange={(e) => update("seoDescription", e.target.value)} className={`${fieldClass} min-h-24`} /></label></div></section>
+    <section className="mt-14"><div className="flex flex-wrap items-end justify-between gap-4 border-b-2 border-ink pb-3"><div><h2 className="display text-3xl">CMS archive</h2><p className="mt-2 max-w-2xl font-mono text-xs uppercase leading-relaxed text-muted-foreground">Edit published records, featured images, tags, categories, dates, and metadata. Save / publish writes the selected collection to the shared site database immediately.</p></div><select value={contentType} onChange={(e) => selectContentType(e.target.value as keyof ContentCollections)} className="brut-border bg-transparent p-3 font-mono text-xs font-bold uppercase tracking-widest">{(["articles", "magazine", "artists", "releases", "radarProjects", "events"] as (keyof ContentCollections)[]).map((type) => <option key={type} value={type}>{type}</option>)}</select></div><textarea value={contentDraft} onChange={(e) => { setContentDraft(e.target.value); setSaved(false); }} className="mt-5 min-h-[32rem] w-full brut-border bg-transparent p-4 font-mono text-xs leading-relaxed outline-none focus:ring-2 focus:ring-flare" spellCheck={false} aria-label={`${contentType} CMS JSON`} /></section>
     <div className="sticky bottom-4 mt-12 flex flex-wrap items-center gap-4 border-2 border-ink bg-paper p-4"><button onClick={publish} className="brut-border bg-flare px-6 py-4 font-mono text-xs font-bold uppercase tracking-widest text-flare-foreground">{saved ? "Published" : "Save / publish changes"}</button><button onClick={reset} className="brut-border px-6 py-4 font-mono text-xs font-bold uppercase tracking-widest">Reset all overrides</button><span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">{saved ? "Public components update immediately." : "Unsaved changes"}</span></div>
   </div></main>;
 }

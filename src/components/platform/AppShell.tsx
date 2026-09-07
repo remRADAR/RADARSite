@@ -54,23 +54,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <div className="flex min-h-screen flex-1 flex-col">
-        <header className="flex h-16 items-center justify-between border-b-2 border-ink bg-paper px-6">
-          <Link href="/dashboard" className="display text-lg md:hidden">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
+        <header className="flex h-16 min-w-0 items-center justify-between gap-3 border-b-2 border-ink bg-paper px-4 md:px-6">
+          <Link href="/dashboard" className="display shrink-0 text-base md:hidden">
             RADARCharts
           </Link>
-          <nav className="flex gap-4 md:hidden">
+          <nav className="flex min-w-0 flex-1 justify-end gap-2 overflow-x-auto md:hidden">
             {NAV.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="font-mono text-[11px] font-bold uppercase tracking-widest"
+                className="shrink-0 font-mono text-[9px] font-bold uppercase tracking-[0.08em]"
               >
                 {item.label}
               </Link>
             ))}
           </nav>
-          <div className="ml-auto flex items-center gap-3">
+          <div className="ml-auto hidden shrink-0 items-center gap-3 md:flex">
             <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
               RADAR Studio
             </span>
@@ -80,7 +80,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 p-6 md:p-10">{children}</main>
+        <main className="min-w-0 flex-1 p-4 md:p-10">{children}</main>
       </div>
     </div>
   );

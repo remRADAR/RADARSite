@@ -1,12 +1,13 @@
 export const RADARME_URL = "https://radarme.app";
 
 type Related = { artists?: string[]; releases?: string[]; articles?: string[]; magazine?: string[]; projects?: string[]; events?: string[] };
-export type Artist = { slug: string; name: string; project: string; bio: string; imageQuery: string; related: Related };
-export type Release = { slug: string; title: string; artist: string; date: string; description: string; imageQuery: string; related: Related };
-export type Article = { slug: string; title: string; date: string; tags: string[]; body: string; imageQuery: string; related: Related };
-export type MagazineStory = { slug: string; title: string; subtitle: string; year: string; body: string; imageQuery: string; related: Related };
-export type RadarProject = { slug: string; title: string; category: string; year: string; brief: string; imageQuery: string; related: Related };
-export type Event = { slug: string; title: string; date: string; location: string; description: string; imageQuery: string; related: Related };
+type EditorialFields = { imageUrl?: string; featuredImage?: string; categories?: string[]; metaTitle?: string; metaDescription?: string };
+export type Artist = EditorialFields & { slug: string; name: string; project: string; bio: string; imageQuery: string; related: Related };
+export type Release = EditorialFields & { slug: string; title: string; artist: string; date: string; description: string; imageQuery: string; related: Related };
+export type Article = EditorialFields & { slug: string; title: string; date: string; tags: string[]; body: string; imageQuery: string; related: Related };
+export type MagazineStory = EditorialFields & { slug: string; title: string; subtitle: string; year: string; body: string; imageQuery: string; related: Related };
+export type RadarProject = EditorialFields & { slug: string; title: string; category: string; year: string; brief: string; imageQuery: string; related: Related };
+export type Event = EditorialFields & { slug: string; title: string; date: string; location: string; description: string; imageQuery: string; related: Related };
 
 export const artists: Artist[] = [
   { slug: "luna-vale", name: "Luna Vale", project: "First Light", bio: "A midnight voice building a world out of soft focus, hard flash, and songs that stay after the room goes quiet.", imageQuery: "female singer red stage light live music", related: { releases: ["first-light"], magazine: ["luna-vale-after-midnight"], projects: ["first-light-world"], events: ["radar-live-london"] } },

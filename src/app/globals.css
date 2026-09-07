@@ -118,11 +118,13 @@
     text-orientation: mixed;
     word-break: normal;
     overflow-wrap: break-word;
+    overflow-x: hidden;
   }
   html {
     @apply font-sans;
     writing-mode: horizontal-tb;
     text-orientation: mixed;
+    overflow-x: hidden;
     /* Cursor is a custom blend-difference block on capable pointers. */
   }
   :where(h1, h2, h3, h4, h5, h6, p, a, span, label, button, li) {
@@ -193,7 +195,7 @@
     letter-spacing: -0.03em;
     line-height: 0.86;
     text-transform: uppercase;
-    overflow-wrap: break-word;
+    overflow-wrap: normal;
     word-break: normal;
     text-wrap: balance;
     text-align: left;

@@ -23,6 +23,7 @@ type MediaFrameProps = {
   label?: string;
   className?: string;
   photo?: UnsplashPhoto | null;
+  imageUrl?: string;
   sizes?: string;
   priority?: boolean;
   /** Set false when nested inside another <Link>/<a> to avoid invalid anchors. */
@@ -43,6 +44,7 @@ export function MediaFrame({
   label,
   className,
   photo,
+  imageUrl,
   sizes = "(min-width: 768px) 50vw, 100vw",
   priority = false,
   attribution = true,
@@ -63,6 +65,8 @@ export function MediaFrame({
               "transform-gpu saturate-[0.85] brightness-[0.95] transition-[transform,filter] duration-[800ms] ease-[var(--ease-out)] group-hover/card:scale-[1.06] group-hover/card:saturate-100 group-hover/card:brightness-100"
           )}
         />
+      ) : imageUrl ? (
+        <div role="img" aria-label={label || "Featured image"} className={cn("absolute inset-0 bg-cover bg-center", reveal && "transform-gpu transition-transform duration-[800ms] ease-[var(--ease-out)] group-hover/card:scale-[1.06]")} style={{ backgroundImage: `url(${imageUrl})` }} />
       ) : (
         <div
           className={cn(

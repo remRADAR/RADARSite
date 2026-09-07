@@ -5,7 +5,7 @@ import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { EASE } from "@/lib/motion";
-import { heroConfig, getActiveHeroSlides } from "@/lib/radar-content";
+import { heroConfig, getActiveHeroSlides, homepageContent } from "@/lib/radar-content";
 import { getSiteOverridesServerSnapshot, getSiteOverridesSnapshot, parseSiteOverrides, subscribeToSiteOverrides } from "@/lib/site-overrides";
 import { Marquee } from "@/components/motion/Marquee";
 
@@ -18,7 +18,7 @@ export function Hero() {
   const overrides = parseSiteOverrides(overrideSnapshot);
   const headline = overrides.heroHeadline.length ? overrides.heroHeadline : heroConfig.headline;
   const subheadline = overrides.heroSubheadline || heroConfig.subheadline;
-  const ticker = overrides.tickerItems.length ? overrides.tickerItems : ["Artist Spotlight", "Releases", "RADARArticles", "On The Radar", "Campaigns"];
+  const ticker = overrides.tickerItems.length ? overrides.tickerItems : homepageContent.ticker;
   const [active, setActive] = useState(0);
   const [failed, setFailed] = useState<Record<string, boolean>>({});
 
@@ -51,7 +51,7 @@ export function Hero() {
   }, []);
 
   return (
-    <section ref={rootRef} className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden bg-ink pt-14 text-paper">
+    <section ref={rootRef} className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden [contain:paint] bg-ink pt-14 text-paper">
       <div className="absolute inset-0 bg-ink" aria-hidden>
         {slides.map((slide, index) => {
           const isFailed = failed[slide.id];
@@ -65,7 +65,7 @@ export function Hero() {
               fill
               sizes="100vw"
               onError={() => setFailed((current) => ({ ...current, [slide.id]: true }))}
-              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${index === active ? "opacity-100" : "opacity-0"} ${heroConfig.transition === "kenburns" ? "scale-[1.08]" : ""}`}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${index === active ? "opacity-100" : "opacity-0"} ${heroConfig.transition === "kenburns" ? "scale-100 md:scale-[1.08]" : ""}`}
             />
           );
         })}
@@ -87,7 +87,11 @@ export function Hero() {
 
       <div className="pointer-events-none relative z-10 brut-border-t border-paper bg-ink text-paper">
         <Marquee durationSeconds={26} className="py-3">
-          {ticker.map((item, index) => <span key={`${item}-${index}`} className={`${index === 0 ? "ml-0 mr-6" : "mx-6"} whitespace-nowrap font-mono text-sm font-bold uppercase tracking-widest ${index % 2 ? "text-flare" : ""}`}>{index % 2 ? (overrides.tickerIcon || "✳") : item}</span>)}
+          {ticker.map((item, index) => (
+            <span key={`${item}-${index}`} className="mx-3 whitespace-nowrap font-mono text-sm font-bold uppercase tracking-widest md:mx-6">
+              {item}<span className="mx-3 text-flare md:mx-6" aria-hidden>{overrides.tickerIcon || "❇️"}</span>
+            </span>
+          ))}
         </Marquee>
       </div>
       <div className="absolute bottom-20 right-4 z-20 flex gap-2 md:right-8" aria-label="Hero slides">
