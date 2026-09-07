@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { MediaFrame } from "@/components/MediaFrame";
 import { FadeIn } from "@/components/motion/FadeIn";
@@ -8,6 +8,7 @@ import { useCursor } from "@/components/motion/CursorProvider";
 import { cn } from "@/lib/utils";
 import { caseStudies } from "@/lib/case-studies";
 import type { UnsplashPhoto } from "@/lib/unsplash";
+import { getSiteOverridesServerSnapshot, getSiteOverridesSnapshot, parseSiteOverrides, subscribeToSiteOverrides } from "@/lib/site-overrides";
 
 const ALL = "All";
 
@@ -24,8 +25,11 @@ export function WorkGrid({
 
   const [active, setActive] = useState(ALL);
   const { setLabel } = useCursor();
+  const overrideSnapshot = useSyncExternalStore(subscribeToSiteOverrides, getSiteOverridesSnapshot, getSiteOverridesServerSnapshot);
+  const overrides = parseSiteOverrides(overrideSnapshot);
 
-  const visible = caseStudies.filter(
+  const managedStudies = overrides.featuredSlugs.length ? caseStudies.filter((study) => overrides.featuredSlugs.includes(study.slug)) : caseStudies;
+  const visible = managedStudies.filter(
     (c) => active === ALL || c.role.split(",").map((r) => r.trim()).includes(active)
   );
 
@@ -72,7 +76,7 @@ export function WorkGrid({
                 aspect={project.featured ? "aspect-[21/9]" : "aspect-[4/3]"}
                 className="w-full"
                 label={project.client}
-                photo={photosBySlug[project.slug]}
+                photo={overrides.media[`work:${project.slug}`] ? { url: overrides.media[`work:${project.slug}`], width: 1680, height: 945, alt: project.title, credit: { name: "remRADAR", link: "https://radarme.app" } } : photosBySlug[project.slug]}
                 attribution={false}
                 reveal
               />
