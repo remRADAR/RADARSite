@@ -1,11 +1,22 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
-import { getSiteOverridesServerSnapshot, getSiteOverridesSnapshot, parseSiteOverrides, subscribeToSiteOverrides } from "@/lib/site-overrides";
+import { getSiteOverridesServerSnapshot, getSiteOverridesSnapshot, parseSiteOverrides, SITE_OVERRIDES_KEY, subscribeToSiteOverrides } from "@/lib/site-overrides";
 
 export function LiveSiteOverrides() {
   const snapshot = useSyncExternalStore(subscribeToSiteOverrides, getSiteOverridesSnapshot, getSiteOverridesServerSnapshot);
   const overrides = parseSiteOverrides(snapshot);
+
+  useEffect(() => {
+    fetch("/api/studio", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : null)
+      .then((payload) => {
+        if (!payload?.configured || !payload.settings) return;
+        window.localStorage.setItem(SITE_OVERRIDES_KEY, JSON.stringify(payload.settings));
+        window.dispatchEvent(new Event("radar-overrides-updated"));
+      })
+      .catch(() => undefined);
+  }, []);
 
   useEffect(() => {
     if (overrides.seoTitle) document.title = overrides.seoTitle;
