@@ -50,6 +50,17 @@ function safeUrl(value: unknown, fallback: string) {
   }
 }
 
+function boundedSocialLinks(value: unknown) {
+  if (!Array.isArray(value)) return defaultSiteOverrides.socialLinks;
+  return value.slice(0, 20).flatMap((item) => {
+    if (!item || typeof item !== "object") return [];
+    const link = item as { label?: unknown; href?: unknown; enabled?: unknown };
+    const label = boundedText(link.label, "");
+    const href = safeUrl(link.href, "");
+    return label && href ? [{ label, href, enabled: link.enabled !== false }] : [];
+  });
+}
+
 export function normalizeSiteOverrides(input: unknown): SiteOverrides {
   const value = input && typeof input === "object" ? input as Partial<SiteOverrides> : {};
   const media: Record<string, string> = {};
@@ -72,6 +83,11 @@ export function normalizeSiteOverrides(input: unknown): SiteOverrides {
     seoTitle: boundedText(value.seoTitle, defaultSiteOverrides.seoTitle),
     seoDescription: boundedText(value.seoDescription, defaultSiteOverrides.seoDescription),
     socialImage: safeUrl(value.socialImage, defaultSiteOverrides.socialImage),
+    socialLinks: boundedSocialLinks(value.socialLinks),
+    radarMeUrl: safeUrl(value.radarMeUrl, defaultSiteOverrides.radarMeUrl),
+    playlistId: boundedText(value.playlistId, defaultSiteOverrides.playlistId),
+    playlistLabel: boundedText(value.playlistLabel, defaultSiteOverrides.playlistLabel),
+    playlistEnabled: value.playlistEnabled !== false,
   };
 }
 

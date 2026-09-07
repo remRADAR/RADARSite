@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { Logo } from "@/components/Logo";
 import { RADARME_URL } from "@/lib/ia-content";
+import { getSiteOverridesServerSnapshot, getSiteOverridesSnapshot, parseSiteOverrides, subscribeToSiteOverrides } from "@/lib/site-overrides";
 
 const groups = [
   { href: "/radarmusic", label: "THE RADARMusic", children: [{ href: "/radarmusic/artists", label: "Artists" }, { href: "/radarmusic/releases", label: "Releases" }] },
@@ -15,6 +16,8 @@ const groups = [
 
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const snapshot = useSyncExternalStore(subscribeToSiteOverrides, getSiteOverridesSnapshot, getSiteOverridesServerSnapshot);
+  const radarMeUrl = parseSiteOverrides(snapshot).radarMeUrl || RADARME_URL;
 
   return (
     <header className="sticky inset-x-0 top-0 z-50 border-b-2 border-ink bg-paper">
@@ -35,11 +38,11 @@ export function SiteHeader() {
               </div>
             </div>
           ))}
-          <a href={RADARME_URL} target="_blank" rel="noreferrer" className="flex shrink-0 items-center whitespace-nowrap border-l-2 border-ink bg-flare px-3 font-mono text-[clamp(0.625rem,0.7vw,0.75rem)] font-bold uppercase tracking-[0.1em] text-flare-foreground xl:px-4">RADARMe ↗</a>
+          <a href={radarMeUrl} target="_blank" rel="noreferrer" className="flex shrink-0 items-center whitespace-nowrap border-l-2 border-ink bg-flare px-3 font-mono text-[clamp(0.625rem,0.7vw,0.75rem)] font-bold uppercase tracking-[0.1em] text-flare-foreground xl:px-4">RADARMe ↗</a>
         </nav>
 
         <div className="flex shrink-0 items-stretch lg:hidden">
-          <a href={RADARME_URL} target="_blank" rel="noreferrer" className="hidden items-center whitespace-nowrap border-l-2 border-ink bg-flare px-3 font-mono text-[clamp(0.625rem,0.7vw,0.75rem)] font-bold uppercase tracking-[0.1em] text-flare-foreground sm:flex">RADARMe ↗</a>
+          <a href={radarMeUrl} target="_blank" rel="noreferrer" className="hidden items-center whitespace-nowrap border-l-2 border-ink bg-flare px-3 font-mono text-[clamp(0.625rem,0.7vw,0.75rem)] font-bold uppercase tracking-[0.1em] text-flare-foreground sm:flex">RADARMe ↗</a>
           <button type="button" aria-expanded={menuOpen} aria-controls="mobile-navigation" onClick={() => setMenuOpen((open) => !open)} className="flex min-w-24 items-center justify-center gap-2 border-l-2 border-ink px-3 font-mono text-[clamp(0.625rem,1.8vw,0.75rem)] font-bold uppercase tracking-[0.1em] transition-colors hover:bg-flare hover:text-flare-foreground sm:min-w-28">
             {menuOpen ? <X aria-hidden size={16} /> : <Menu aria-hidden size={16} />}
             <span>{menuOpen ? "Close" : "Menu"}</span>
@@ -68,7 +71,7 @@ export function SiteHeader() {
               </section>
             ))}
           </div>
-          <a href={RADARME_URL} target="_blank" rel="noreferrer" className="block border-b-2 border-ink bg-flare px-4 py-4 font-mono text-[clamp(0.75rem,2.4vw,0.95rem)] font-bold uppercase tracking-[0.08em] text-flare-foreground">Open RADARMe ↗</a>
+          <a href={radarMeUrl} target="_blank" rel="noreferrer" className="block border-b-2 border-ink bg-flare px-4 py-4 font-mono text-[clamp(0.75rem,2.4vw,0.95rem)] font-bold uppercase tracking-[0.08em] text-flare-foreground">Open RADARMe ↗</a>
         </div>
       </div>
     </header>
