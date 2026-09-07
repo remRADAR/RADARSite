@@ -87,7 +87,7 @@ export function Hero() {
 
       <div className="pointer-events-none relative z-10 brut-border-t border-paper bg-ink text-paper">
         <Marquee durationSeconds={26} className="py-3">
-          {ticker.map((item, index) => <span key={`${item}-${index}`} className={`mx-6 font-mono text-sm font-bold uppercase tracking-widest ${index % 2 ? "text-flare" : ""}`}>{index % 2 ? (overrides.tickerIcon || "✳") : item}</span>)}
+          {ticker.map((item, index) => <span key={`${item}-${index}`} className={`${index === 0 ? "ml-0 mr-6" : "mx-6"} whitespace-nowrap font-mono text-sm font-bold uppercase tracking-widest ${index % 2 ? "text-flare" : ""}`}>{index % 2 ? (overrides.tickerIcon || "✳") : item}</span>)}
         </Marquee>
       </div>
       <div className="absolute bottom-20 right-4 z-20 flex gap-2 md:right-8" aria-label="Hero slides">
