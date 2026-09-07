@@ -12,7 +12,10 @@ import { getSiteOverridesServerSnapshot, getSiteOverridesSnapshot, parseSiteOver
  * Requires an ancestor with the `group/logo` class for the hover state
  * (the Logo wrapper adds it; standalone users should add it to their link).
  */
-export function LogoMark({ className }: { className?: string }) {
+export function LogoMark({ className, imageSrc }: { className?: string; imageSrc?: string }) {
+  if (imageSrc) {
+    return <span aria-hidden className={cn("block h-6 w-6 shrink-0 bg-contain bg-center bg-no-repeat", className)} style={{ backgroundImage: `url(${imageSrc})` }} />;
+  }
   return (
     <span className={cn("logo-mark relative block h-6 w-6 shrink-0 overflow-hidden", className)}>
       <span
@@ -54,7 +57,7 @@ export function Logo({
       aria-label="remRADAR — home"
       className={cn("group/logo flex items-center gap-2.5", className)}
     >
-      <LogoMark />
+          <LogoMark imageSrc={parseSiteOverrides(overrides).logoImage} />
       {showWordmark && (
         <span className="font-display text-lg font-extrabold uppercase leading-none tracking-tight">
           {logoText}

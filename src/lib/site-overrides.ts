@@ -3,6 +3,7 @@ export const SITE_OVERRIDES_KEY = "radarcharts-site-overrides";
 export type SiteOverrides = {
   media: Record<string, string>;
   logoText: string;
+  logoImage: string;
   tickerIcon: string;
   heroHeadline: string[];
   heroSubheadline: string;
@@ -16,6 +17,7 @@ export type SiteOverrides = {
 export const defaultSiteOverrides: SiteOverrides = {
   media: {},
   logoText: "remRADAR",
+  logoImage: "",
   tickerIcon: "✳",
   heroHeadline: [],
   heroSubheadline: "",
