@@ -43,10 +43,14 @@ function readPlaying() {
 export function PlaylistFloater() {
   const snapshot = useSyncExternalStore(subscribeToSiteOverrides, getSiteOverridesSnapshot, getSiteOverridesServerSnapshot);
   const overrides = parseSiteOverrides(snapshot);
+  const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const dragRef = useRef<{ pointerId: number; offsetX: number; offsetY: number } | null>(null);
-  const [playing, setPlaying] = useState(readPlaying);
-  const [position, setPosition] = useState(readPosition);
+  const [playing, setPlaying] = useState<boolean | null>(null);
+  const [position, setPosition] = useState<Position | null>(null);
+  const effectivePlaying = playing ?? (mounted ? readPlaying() : true);
+  const effectivePosition = position ?? (mounted ? readPosition() : { x: 0, y: 0 });
+  const origin = mounted ? window.location.origin : "";
 
   const send = (command: "playVideo" | "pauseVideo" | "unMute") => {
     frameRef.current?.contentWindow?.postMessage(JSON.stringify({ event: "command", func: command, args: [] }), "https://www.youtube.com");
@@ -62,10 +66,10 @@ export function PlaylistFloater() {
   };
 
   const resumeIfActive = useCallback(() => {
-    if (!playing) return;
+    if (!effectivePlaying) return;
     send("unMute");
     send("playVideo");
-  }, [playing]);
+  }, [effectivePlaying]);
 
   useEffect(() => {
     const handleVisibility = () => {
@@ -82,7 +86,7 @@ export function PlaylistFloater() {
   }, [resumeIfActive]);
 
   const toggle = () => {
-    if (playing) {
+    if (effectivePlaying) {
       send("pauseVideo");
       setPlayingState(false);
     } else {
@@ -96,7 +100,7 @@ export function PlaylistFloater() {
 
   const startDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
-    dragRef.current = { pointerId: event.pointerId, offsetX: event.clientX - position.x, offsetY: event.clientY - position.y };
+    dragRef.current = { pointerId: event.pointerId, offsetX: event.clientX - effectivePosition.x, offsetY: event.clientY - effectivePosition.y };
   };
 
   const moveDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
@@ -116,17 +120,17 @@ export function PlaylistFloater() {
         ref={frameRef}
         title="RADAR playlist audio"
         className="pointer-events-none fixed -left-px -top-px h-px w-px opacity-0"
-        src={`https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(overrides.playlistId)}&autoplay=1&mute=1&enablejsapi=1&controls=0&playsinline=1&origin=${encodeURIComponent(typeof window === "undefined" ? "" : window.location.origin)}`}
+        src={`https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(overrides.playlistId)}&autoplay=1&mute=1&enablejsapi=1&controls=0&playsinline=1&origin=${encodeURIComponent(origin)}`}
         allow="autoplay; encrypted-media"
         onLoad={resumeIfActive}
       />
-      <div className="group fixed z-[60]" style={{ left: position.x, top: position.y }}>
+      <div className="group fixed z-[60]" style={{ left: effectivePosition.x, top: effectivePosition.y }}>
         <span className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-sm border border-ink/20 bg-paper px-2 py-1 font-sans text-[11px] font-normal leading-none text-ink opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
           {overrides.playlistLabel}
         </span>
         <button
           type="button"
-          aria-label={playing ? `Pause RADAR playlist — ${overrides.playlistLabel}` : `Play RADAR playlist — ${overrides.playlistLabel}`}
+          aria-label={effectivePlaying ? `Pause RADAR playlist — ${overrides.playlistLabel}` : `Play RADAR playlist — ${overrides.playlistLabel}`}
           title={overrides.playlistLabel}
           onClick={toggle}
           onPointerDown={startDrag}
@@ -135,7 +139,7 @@ export function PlaylistFloater() {
           onPointerCancel={() => { dragRef.current = null; }}
           className="flex h-12 w-12 cursor-grab touch-none items-center justify-center rounded-full border-2 border-paper bg-flare text-flare-foreground shadow-[3px_3px_0_0_var(--paper)] active:cursor-grabbing"
         >
-          {playing ? <Pause size={17} strokeWidth={2.5} /> : <Play size={17} strokeWidth={2.5} className="translate-x-px" />}
+          {effectivePlaying ? <Pause size={17} strokeWidth={2.5} /> : <Play size={17} strokeWidth={2.5} className="translate-x-px" />}
         </button>
       </div>
     </>

@@ -12,7 +12,6 @@ export type HeroConfig = {
   slides: HeroSlide[];
   durationMs: number;
   transition: "fade" | "kenburns";
-  overlayStrength: number;
   reducedMotionFallback: string;
   eyebrow: string;
   headline: string[];
@@ -79,7 +78,6 @@ export const heroConfig: HeroConfig = {
   ],
   durationMs: 5200,
   transition: "kenburns",
-  overlayStrength: 0.58,
   reducedMotionFallback: "/hero-new/banner-1.webp",
   eyebrow: "(01 / Signal)\nArtist development & culture",
   headline: ["ON", "THE", "RADAR"],

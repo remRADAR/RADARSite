@@ -4,9 +4,12 @@ import fs from "node:fs/promises";
 const baseUrl = process.env.BASE_URL ?? "http://localhost:3200";
 const viewports = [
   { width: 320, height: 568, label: "mobile-small" },
+  { width: 375, height: 812, label: "mobile-medium" },
   { width: 390, height: 844, label: "mobile" },
   { width: 768, height: 1024, label: "tablet" },
+  { width: 1024, height: 768, label: "tablet-wide" },
   { width: 1280, height: 720, label: "desktop" },
+  { width: 1440, height: 900, label: "desktop-wide" },
   { width: 1920, height: 1080, label: "ultrawide" },
 ];
 
@@ -61,7 +64,9 @@ for (const viewport of viewports) {
         tag: node.tagName,
         className: typeof node.className === "string" ? node.className : "",
         right: node.getBoundingClientRect().right,
-      })).filter((item) => item.right > window.innerWidth + 1).sort((a, b) => b.right - a.right).slice(0, 5),
+        intentionalMarquee: Boolean(node.closest(".animate-marquee, .animate-marquee-reverse")),
+        intentionalHorizontalRail: Boolean(node.closest(".cursor-grab")),
+      })).filter((item) => item.right > window.innerWidth + 1 && !item.intentionalMarquee && !item.intentionalHorizontalRail).sort((a, b) => b.right - a.right).slice(0, 5),
       socialCount: socialLinks.length,
       socialLabels: socialLinks.map((link) => link.getAttribute("aria-label")),
     };

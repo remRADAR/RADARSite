@@ -19,9 +19,13 @@ This report records the hardening and performance work staged from the attached 
 
 ## Verification
 
-`npm run lint` and `npm run build` pass. The responsive audit covered 320x568, 390x844, 768x1024, 1280x720, and 1920x1080. Hero bounds matched the viewport width at each size, the hero images loaded successfully, the menu expansion remained in normal document flow, and all seven social links remained present.
+`npm run lint`, `npx tsc --noEmit`, and `npm run build` pass. The expanded responsive audit covers 320x568, 375x812, 390x844, 768x1024, 1024x768, 1280x720, 1440x900, and 1920x1080. Hero bounds matched the viewport width at each size, hero images loaded successfully, the menu expansion remained in normal document flow, and all seven social links remained present. Intentional marquee-track overflow is excluded from page-overflow checks.
 
-The local browser audit reports a pre-existing development hydration warning from the draggable PlaylistFloater's client-position style. It is not introduced by these hardening changes. The local environment did not provide OWASP ZAP, k6, or Lighthouse binaries, so those scans are not claimed as completed. A full distributed rate limiter, MFA, Sentry/LogRocket integration, and provider-level WAF/DDoS protection require production infrastructure and credentials not present in this repository.
+The draggable PlaylistFloater's browser-dependent position, playback state, and iframe origin are now deferred through a hydration-safe mount snapshot, removing the previously documented mismatch source. The local environment did not provide OWASP ZAP, k6, or Lighthouse binaries, so those scans are not claimed as completed. A full distributed rate limiter, MFA, Sentry/LogRocket integration, and provider-level WAF/DDoS protection require production infrastructure and credentials not present in this repository.
+
+## Hero HD cleanup
+
+The homepage hero no longer applies a full-image darkening overlay, a full-image gradient, or the hero-specific vertical grid layer. The obsolete `overlayStrength` setting was removed from the hero configuration after repository-wide consumer search. Dark headline lines retain their black fill with a thin, low-opacity white stroke, while the highlighted final line and supporting copy receive intentionally lighter treatment. Existing carousel transitions, image priority loading, GSAP headline animation, slide controls, reduced-motion behavior, and responsive composition remain intact.
 
 ## Required environment variables
 

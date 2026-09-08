@@ -33,7 +33,7 @@ export function SiteHeader() {
                   <ChevronDown aria-hidden size={12} className="ml-2 shrink-0 transition-transform group-hover:rotate-180" />
                 </Link>
               </Magnetic>
-              <div className="invisible absolute left-0 top-full min-w-48 origin-top -translate-y-1 scale-y-95 border-2 border-t-0 border-ink bg-paper opacity-0 transition-[opacity,transform,visibility] duration-300 ease-[var(--ease-out)] motion-reduce:transition-none group-hover:visible group-hover:translate-y-0 group-hover:scale-y-100 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:scale-y-100 group-focus-within:opacity-100">
+              <div className={`invisible absolute top-full min-w-48 origin-top -translate-y-1 scale-y-95 border-2 border-t-0 border-ink bg-paper opacity-0 transition-[opacity,transform,visibility] duration-300 ease-[var(--ease-out)] motion-reduce:transition-none group-hover:visible group-hover:translate-y-0 group-hover:scale-y-100 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:scale-y-100 group-focus-within:opacity-100 ${group === groups[groups.length - 1] ? "right-0" : "left-0"}`}>
                 {group.children.map((child) => <Link key={child.href} href={child.href} className="block border-b-2 border-ink px-4 py-3 font-mono text-[clamp(0.625rem,0.7vw,0.75rem)] font-bold uppercase tracking-widest last:border-b-0 hover:bg-flare hover:text-flare-foreground">{child.label}</Link>)}
               </div>
             </div>

@@ -26,7 +26,7 @@ export function CTASection() {
           <Magnetic strength={0.5}>
             <a
               href={`mailto:${cta.email}`}
-              className="inline-flex items-center gap-4 brut-border border-paper bg-flare px-8 py-5 font-mono text-sm font-bold uppercase tracking-widest text-flare-foreground transition-transform hover:-translate-y-1"
+              className="inline-flex max-w-full items-center gap-4 whitespace-normal brut-border border-paper bg-flare px-5 py-5 text-left font-mono text-sm font-bold uppercase tracking-widest text-flare-foreground transition-transform hover:-translate-y-1 sm:px-8"
             >
               {cta.email}
               <span aria-hidden>↗</span>
