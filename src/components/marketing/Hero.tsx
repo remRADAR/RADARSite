@@ -53,23 +53,23 @@ export function Hero() {
   return (
     <section ref={rootRef} className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden [contain:paint] bg-ink pt-14 text-paper">
       <div className="absolute inset-0 bg-ink" aria-hidden>
-        {slides.map((slide, index) => {
+        {(() => {
+          const slide = slides[active] ?? slides[0];
           const isFailed = failed[slide.id];
           const src = isFailed ? heroConfig.reducedMotionFallback : (overrides.media[`hero:${slide.id}`] || slide.src);
           return (
             <Image
               key={slide.id}
               src={src}
-              alt={index === active ? slide.alt : ""}
-              aria-hidden={index !== active}
+              alt={slide.alt}
               fill
               sizes="100vw"
-              priority={index === 0}
+              priority
               onError={() => setFailed((current) => ({ ...current, [slide.id]: true }))}
-              className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-1000 ${index === active ? "opacity-100" : "opacity-0"}`}
+              className="absolute inset-0 h-full w-full object-cover object-center"
             />
           );
-        })}
+        })()}
       </div>
 
       <div className="pointer-events-none absolute right-4 top-20 z-10 max-w-[calc(100%-2rem)] text-right font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#050505] md:right-8 md:text-[11px]" data-hero-meta>14.7167°N / 17.4677°W</div>

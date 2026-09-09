@@ -214,12 +214,12 @@
 
   /* Keeps dark hero type legible without dimming or tinting the photography. */
   .hero-readable-ink {
-    -webkit-text-stroke: 0.75px rgb(255 255 255 / 0.58);
+    -webkit-text-stroke: 2.5px rgb(255 255 255 / 0.85);
     paint-order: stroke fill;
   }
 
   .hero-readable-support {
-    -webkit-text-stroke: 0.35px rgb(255 255 255 / 0.42);
+    -webkit-text-stroke: 1px rgb(255 255 255 / 0.68);
     paint-order: stroke fill;
   }
 }
