@@ -51,7 +51,7 @@ export function MediaFrame({
   reveal = false,
 }: MediaFrameProps) {
   return (
-    <div className={cn("relative isolate overflow-hidden bg-ink", aspect, className)}>
+    <div data-visual-regression-mask className={cn("relative isolate overflow-hidden bg-ink", aspect, className)}>
       {photo ? (
         <Image
           src={photo.url}
