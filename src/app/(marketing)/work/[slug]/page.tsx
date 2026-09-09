@@ -13,6 +13,8 @@ import { CreditsBlock } from "@/components/case-study/CreditsBlock";
 import { NextCaseTeaser } from "@/components/case-study/NextCaseTeaser";
 import { StorySpine } from "@/components/case-study/StorySpine";
 
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return caseStudies.map((c) => ({ slug: c.slug }));
 }
