@@ -20,8 +20,8 @@ export const releases: Release[] = [
 ];
 
 export const articles: Article[] = [
-  { slug: "north-star-release-note", title: "Kofi North finds the signal again", date: "2026-06-20", tags: ["Release", "Artist"], body: "North Star is a record about movement without losing the thread back home. We talk to Kofi North about making an album that leaves the door open.", imageQuery: "music studio analog equipment moody", related: { artists: ["kofi-north"], releases: ["north-star"], projects: ["north-star-world"] } },
-  { slug: "radar-sessions-season-two", title: "RADAR Sessions returns after hours", date: "2026-08-04", tags: ["RADAR Sessions", "News"], body: "Twelve new sessions, recorded close and left human. Season two is now live across the RADAR ecosystem.", imageQuery: "band live performance blue stage", related: { artists: ["luna-vale"], events: ["radar-live-london"] } },
+  { slug: "north-star-release-note", title: "Kofi North finds the signal again", date: "2026-06-20", tags: ["Release", "Artist"], categories: ["Motherland"], body: "North Star is a record about movement without losing the thread back home. We talk to Kofi North about making an album that leaves the door open.", imageQuery: "music studio analog equipment moody", related: { artists: ["kofi-north"], releases: ["north-star"], projects: ["north-star-world"] } },
+  { slug: "radar-sessions-season-two", title: "RADAR Sessions returns after hours", date: "2026-08-04", tags: ["RADAR Sessions", "News"], categories: ["Motherland"], body: "Twelve new sessions, recorded close and left human. Season two is now live across the RADAR ecosystem.", imageQuery: "band live performance blue stage", related: { artists: ["luna-vale"], events: ["radar-live-london"] } },
 ];
 
 export const magazine: MagazineStory[] = [

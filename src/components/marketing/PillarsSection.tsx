@@ -16,7 +16,7 @@ export function PillarsSection() {
         <p className="font-mono text-right text-xs font-bold uppercase tracking-widest text-muted-foreground md:text-left">ECOSYSTEM</p>
       </div>
       <div className="brut-border-t">
-        {(pillars.length ? pillars : homepageContent.pillars.map((pillar) => ({ ...pillar, href: pillar.label === "ARTICLES" ? "/ontheradar/articles" : pillar.label === "MUSIC" ? "/radarmusic" : pillar.label === "MAGAZINE" ? "/ontheradar/magazine" : "/ontheradar/projects" }))).map((pillar) => (
+        {(pillars.length ? pillars : homepageContent.pillars.map((pillar) => ({ ...pillar, href: pillar.label === "ARTICLES" ? "/ontheradar/articles" : pillar.label === "MUSIC" ? "/radarmusic" : pillar.label === "MAGAZINE" ? "/ontheradar/magazine" : "/motherland" }))).map((pillar) => (
           <FadeIn key={pillar.number}>
             <Link href={pillar.href} onPointerDown={() => { if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate(8); }} className="group brut-border-b relative block overflow-hidden transition-transform duration-150 active:scale-[0.995] active:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-flare">
               <div className="pointer-events-none absolute inset-0 origin-left scale-x-0 bg-flare transition-transform duration-500 ease-[var(--ease-slam)] group-hover:scale-x-100" />

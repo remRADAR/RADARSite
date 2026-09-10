@@ -47,7 +47,7 @@ const defaultEcosystemNav: EcosystemNavItem[] = [
   { label: "ARTICLES", slug: "/ontheradar/articles", order: 1, visible: true },
   { label: "MUSIC", slug: "/radarmusic", order: 2, visible: true },
   { label: "MAGAZINE", slug: "/ontheradar/magazine", order: 3, visible: true },
-  { label: "MOTHERLand", slug: "/ontheradar/projects", order: 4, visible: true },
+  { label: "MOTHERLand", slug: "/motherland", order: 4, visible: true },
 ];
 
 export const defaultSiteOverrides: SiteOverrides = {

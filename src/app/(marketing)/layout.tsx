@@ -1,5 +1,5 @@
-import { SiteHeader } from "@/components/marketing/SiteHeader";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
+import { MarketingChrome } from "@/components/marketing/MarketingChrome";
 import { SmoothScrollProvider } from "@/components/motion/SmoothScrollProvider";
 import { CursorProvider } from "@/components/motion/CursorProvider";
 import { PlaylistFloater } from "@/components/marketing/PlaylistFloater";
@@ -12,7 +12,7 @@ export default function MarketingLayout({
   return (
     <CursorProvider>
       <SmoothScrollProvider>
-        <SiteHeader />
+        <MarketingChrome />
         <main id="main-content" className="flex-1">{children}</main>
         <SiteFooter />
         <PlaylistFloater />
