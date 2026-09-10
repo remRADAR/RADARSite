@@ -81,7 +81,7 @@ export function Hero() {
         <p data-hero-meta className="hero-readable-support mt-6 max-w-[34rem] font-mono text-[11px] font-bold uppercase leading-[1.45] tracking-[0.12em] !text-[#f7f7f2] md:text-xs">{subheadline}</p>
       </div>
 
-      <div className="pointer-events-none relative z-10 brut-border-t border-paper bg-ink text-paper">
+      <div className="pointer-events-none relative z-10 brut-border-t border-b-2 border-paper bg-ink text-paper">
         <Marquee durationSeconds={26} className="py-3">
           {ticker.map((item, index) => (
             <span key={`${item}-${index}`} className="mx-3 whitespace-nowrap font-mono text-sm font-bold uppercase tracking-widest md:mx-6">
