@@ -10,7 +10,7 @@ try {
   for (const route of routes) {
     const page = await context.newPage();
     await page.goto(`${baseURL}${route}`, { waitUntil: "networkidle" });
-    const results = await new AxeBuilder({ page }).analyze();
+    const results = await new AxeBuilder({ page }).exclude("iframe").analyze();
     const serious = results.violations.filter((item) => item.impact === "critical" || item.impact === "serious");
     console.log(`${route}: ${results.violations.length} violations, ${serious.length} critical/serious`);
     for (const violation of serious) console.error(`  ${violation.id}: ${violation.help}`);

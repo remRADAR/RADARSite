@@ -95,7 +95,7 @@ export function SelectedWork({
             ref={(el) => {
               entryRefs.current[i] = el;
             }}
-            className={cn("absolute inset-0", i !== 0 && "invisible")}
+            className={cn("pointer-events-none absolute inset-0", i !== 0 && "invisible")}
           >
             <WorkEntry
               project={project}

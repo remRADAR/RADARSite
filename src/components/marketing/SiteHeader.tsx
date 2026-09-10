@@ -53,7 +53,7 @@ export function SiteHeader() {
         </div>
       </div>
 
-      <div
+      <nav
         id="mobile-navigation"
         aria-label="Expanded navigation"
         aria-hidden={!menuOpen}
@@ -76,7 +76,7 @@ export function SiteHeader() {
           </div>
           <a href={radarMeUrl} target="_blank" rel="noreferrer" className="block border-b-2 border-ink bg-flare px-4 py-4 font-mono text-[clamp(0.75rem,2.4vw,0.95rem)] font-bold uppercase tracking-[0.08em] text-flare-foreground">Open RADARMe ↗</a>
         </div>
-      </div>
+      </nav>
     </header>
   );
 }

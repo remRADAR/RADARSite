@@ -82,7 +82,12 @@ export function DragCarousel({ children, className, trackClassName }: DragCarous
   }, []);
 
   return (
-    <div ref={wrapRef} className={cn(enhanced ? "overflow-hidden" : "overflow-x-auto", className)}>
+    <div
+      ref={wrapRef}
+      tabIndex={enhanced ? undefined : 0}
+      aria-label={enhanced ? undefined : "Scrollable carousel"}
+      className={cn(enhanced ? "overflow-hidden" : "overflow-x-auto", className)}
+    >
       <div
         ref={trackRef}
         className={cn("flex w-max gap-6", enhanced && "cursor-grab active:cursor-grabbing", trackClassName)}

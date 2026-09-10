@@ -22,7 +22,7 @@ export function PillarsSection() {
               <div className="pointer-events-none absolute inset-0 origin-left scale-x-0 bg-flare transition-transform duration-500 ease-[var(--ease-slam)] group-hover:scale-x-100" />
               <div className="relative grid min-w-0 grid-cols-[2.25rem_minmax(0,1fr)_minmax(7rem,40%)] items-center gap-x-3 px-4 py-6 md:grid-cols-[8rem_minmax(0,1fr)_28rem] md:gap-8 md:px-8 md:py-10">
                 <span className="whitespace-nowrap font-mono text-[clamp(.55rem,1.8vw,.875rem)] font-bold">{pillar.number}</span>
-                <h3 className={`display min-w-0 whitespace-nowrap !text-[clamp(1.45rem,7vw,6rem)] ![overflow-wrap:normal] ![word-break:keep-all] leading-none ${pillar.label.toLowerCase().includes("motherland") ? "text-[#31d158]" : ""}`}>{pillar.label}</h3>
+                <h2 className={`display min-w-0 whitespace-nowrap !text-[clamp(1.45rem,7vw,6rem)] ![overflow-wrap:normal] ![word-break:keep-all] leading-none ${pillar.label.toLowerCase().includes("motherland") ? "text-[#31d158]" : ""}`}>{pillar.label}</h2>
                 <p className={`min-w-0 text-right font-mono text-[clamp(.6rem,1.5vw,.875rem)] uppercase leading-tight tracking-[.02em] text-muted-foreground group-hover:text-ink md:whitespace-nowrap md:leading-none ${pillar.label.toLowerCase().includes("motherland") ? "text-[#31d158] group-hover:text-[#31d158]" : ""}`}>{pillar.description}</p>
               </div>
             </Link>
