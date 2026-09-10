@@ -104,9 +104,52 @@
   --duration-fast: 0.3s;
   --duration-base: 0.6s;
   --duration-slow: 1s;
+  --theme-transition: 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root.theme-light {
+  --paper: #f7f7f2;
+  --ink: #050505;
+  --flare: #31d158;
+  --flare-foreground: #050505;
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--paper);
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --secondary: #e7e7df;
+  --secondary-foreground: var(--ink);
+  --muted: #e7e7df;
+  --muted-foreground: #55554f;
+  --accent: var(--flare);
+  --accent-foreground: var(--flare-foreground);
+  --border: var(--ink);
+  --input: var(--ink);
+  --ring: var(--flare);
+  --sidebar: var(--paper);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--ink);
+  --sidebar-primary-foreground: var(--paper);
+  --sidebar-accent: var(--flare);
+  --sidebar-accent-foreground: var(--flare-foreground);
+  --sidebar-border: var(--ink);
+  --sidebar-ring: var(--flare);
 }
 
 @layer base {
+  html,
+  body,
+  body *,
+  body *::before,
+  body *::after {
+    transition-property: background-color, color, border-color, outline-color, box-shadow, fill, stroke;
+    transition-duration: var(--theme-transition);
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
   * {
     @apply border-border;
   }
@@ -136,6 +179,17 @@
   ::selection {
     background: var(--flare);
     color: var(--flare-foreground);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html,
+  body,
+  body *,
+  body *::before,
+  body *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
   }
 }
 
@@ -219,8 +273,21 @@
   }
 
   .hero-readable-support {
-    -webkit-text-stroke: 1px rgb(255 255 255 / 0.68);
+    -webkit-text-stroke: 0;
     paint-order: stroke fill;
+  }
+
+  .hero-shell.bg-ink {
+    background-color: #050505 !important;
+    color: #f7f7f2 !important;
+  }
+
+  .hero-shell .text-paper {
+    color: #f7f7f2 !important;
+  }
+
+  .hero-shell .border-paper {
+    border-color: #f7f7f2 !important;
   }
 }
 

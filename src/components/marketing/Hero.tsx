@@ -51,7 +51,7 @@ export function Hero() {
   }, []);
 
   return (
-    <section ref={rootRef} className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden [contain:paint] bg-ink pt-14 text-paper">
+    <section ref={rootRef} className="hero-shell relative flex min-h-[100svh] flex-col justify-end overflow-hidden [contain:paint] bg-ink pt-14 text-paper">
       <div className="absolute inset-0 bg-ink" aria-hidden>
         {(() => {
           const slide = slides[active] ?? slides[0];
@@ -72,26 +72,23 @@ export function Hero() {
         })()}
       </div>
 
-      <div className="pointer-events-none absolute right-4 top-20 z-10 max-w-[calc(100%-2rem)] text-right font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#050505] md:right-8 md:text-[11px]" data-hero-meta>14.7167°N / 17.4677°W</div>
+      <div className="pointer-events-none absolute right-4 top-20 z-10 max-w-[calc(100%-2rem)] text-right font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-paper md:right-8 md:text-[11px]" data-hero-meta>{overrides.geoSignature}</div>
 
       <div data-hero-type className="pointer-events-none relative z-10 w-full px-4 pb-8 md:px-8">
         <h1 className="display max-w-[11ch] text-[clamp(2.25rem,11vw,11rem)] leading-[0.9] text-[#050505]">
           {headline.map((line, index) => <span className="block overflow-hidden" key={`${line}-${index}`}><span data-hero-line className={index === headline.length - 1 ? "block" : "hero-readable-ink block"}>{index === headline.length - 1 ? <><span className="bg-flare px-2 text-flare-foreground">{line}</span></> : line}</span></span>)}
         </h1>
-        <p data-hero-meta className="hero-readable-support mt-6 max-w-[34rem] font-mono text-[11px] font-bold uppercase leading-[1.45] tracking-[0.12em] text-[#050505]/75 md:text-xs">{subheadline}</p>
+        <p data-hero-meta className="hero-readable-support mt-6 max-w-[34rem] font-mono text-[11px] font-bold uppercase leading-[1.45] tracking-[0.12em] text-paper/80 md:text-xs">{subheadline}</p>
       </div>
 
       <div className="pointer-events-none relative z-10 brut-border-t border-paper bg-ink text-paper">
         <Marquee durationSeconds={26} className="py-3">
           {ticker.map((item, index) => (
             <span key={`${item}-${index}`} className="mx-3 whitespace-nowrap font-mono text-sm font-bold uppercase tracking-widest md:mx-6">
-              {item}<span className="mx-3 text-flare md:mx-6" aria-hidden>{overrides.tickerIcon || "❇️"}</span>
+              {item}{overrides.tickerIconImage ? <span className="mx-3 inline-flex items-center text-flare md:mx-6" aria-hidden><Image src={overrides.tickerIconImage} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" /></span> : null}
             </span>
           ))}
         </Marquee>
-      </div>
-      <div className="absolute bottom-20 right-4 z-20 flex gap-2 md:right-8" aria-label="Hero slides">
-        {slides.map((slide, index) => <button key={slide.id} type="button" aria-label={`Show slide ${index + 1}`} onClick={() => setActive(index)} className={`h-2 w-10 border border-paper transition-colors ${index === active ? "bg-flare" : "bg-transparent"}`} />)}
       </div>
     </section>
   );

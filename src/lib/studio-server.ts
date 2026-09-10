@@ -1,13 +1,10 @@
 import { neon } from "@neondatabase/serverless";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { defaultSiteOverrides, type SiteOverrides } from "@/lib/site-overrides";
+import { normalizeSiteOverrides as normalizeSharedSiteOverrides, type SiteOverrides } from "@/lib/site-overrides";
 
 const SESSION_COOKIE = "radar_studio_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 const MAX_SETTINGS_BYTES = 256 * 1024;
-const MAX_TEXT_LENGTH = 2_000;
-const MAX_ARRAY_ITEMS = 100;
-const MAX_MEDIA_ITEMS = 100;
 
 export function getSessionCookieName() {
   return SESSION_COOKIE;
@@ -26,69 +23,8 @@ function getSql() {
   return neon(process.env.DATABASE_URL);
 }
 
-function boundedText(value: unknown, fallback: string) {
-  return typeof value === "string" ? value.trim().slice(0, MAX_TEXT_LENGTH) : fallback;
-}
-
-function boundedStringArray(value: unknown, fallback: string[]) {
-  if (!Array.isArray(value)) return fallback;
-  return value
-    .filter((item): item is string => typeof item === "string")
-    .map((item) => item.trim().slice(0, MAX_TEXT_LENGTH))
-    .filter(Boolean)
-    .slice(0, MAX_ARRAY_ITEMS);
-}
-
-function safeUrl(value: unknown, fallback: string) {
-  const candidate = boundedText(value, fallback);
-  if (!candidate) return "";
-  try {
-    const url = new URL(candidate);
-    return ["http:", "https:"].includes(url.protocol) ? candidate : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function boundedSocialLinks(value: unknown) {
-  if (!Array.isArray(value)) return defaultSiteOverrides.socialLinks;
-  return value.slice(0, 20).flatMap((item) => {
-    if (!item || typeof item !== "object") return [];
-    const link = item as { label?: unknown; href?: unknown; enabled?: unknown };
-    const label = boundedText(link.label, "");
-    const href = safeUrl(link.href, "");
-    return label && href ? [{ label, href, enabled: link.enabled !== false }] : [];
-  });
-}
-
 export function normalizeSiteOverrides(input: unknown): SiteOverrides {
-  const value = input && typeof input === "object" ? input as Partial<SiteOverrides> : {};
-  const media: Record<string, string> = {};
-  if (value.media && typeof value.media === "object" && !Array.isArray(value.media)) {
-    for (const [key, url] of Object.entries(value.media).slice(0, MAX_MEDIA_ITEMS)) {
-      const cleanKey = key.trim().slice(0, 120);
-      const cleanUrl = safeUrl(url, "");
-      if (cleanKey && cleanUrl) media[cleanKey] = cleanUrl;
-    }
-  }
-  return {
-    media,
-    logoText: boundedText(value.logoText, defaultSiteOverrides.logoText),
-    logoImage: safeUrl(value.logoImage, defaultSiteOverrides.logoImage),
-    tickerIcon: boundedText(value.tickerIcon, defaultSiteOverrides.tickerIcon),
-    heroHeadline: boundedStringArray(value.heroHeadline, defaultSiteOverrides.heroHeadline),
-    heroSubheadline: boundedText(value.heroSubheadline, defaultSiteOverrides.heroSubheadline),
-    tickerItems: boundedStringArray(value.tickerItems, defaultSiteOverrides.tickerItems),
-    featuredSlugs: boundedStringArray(value.featuredSlugs, defaultSiteOverrides.featuredSlugs),
-    seoTitle: boundedText(value.seoTitle, defaultSiteOverrides.seoTitle),
-    seoDescription: boundedText(value.seoDescription, defaultSiteOverrides.seoDescription),
-    socialImage: safeUrl(value.socialImage, defaultSiteOverrides.socialImage),
-    socialLinks: boundedSocialLinks(value.socialLinks),
-    radarMeUrl: safeUrl(value.radarMeUrl, defaultSiteOverrides.radarMeUrl),
-    playlistId: boundedText(value.playlistId, defaultSiteOverrides.playlistId),
-    playlistLabel: boundedText(value.playlistLabel, defaultSiteOverrides.playlistLabel),
-    playlistEnabled: value.playlistEnabled !== false,
-  };
+  return normalizeSharedSiteOverrides(input);
 }
 
 export function isAdminPasswordValid(password: string) {

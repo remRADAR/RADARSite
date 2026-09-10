@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { Logo } from "@/components/Logo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { RADARME_URL } from "@/lib/ia-content";
 import { getSiteOverridesServerSnapshot, getSiteOverridesSnapshot, parseSiteOverrides, subscribeToSiteOverrides } from "@/lib/site-overrides";
 
@@ -39,6 +40,7 @@ export function SiteHeader() {
             </div>
           ))}
           <a href={radarMeUrl} target="_blank" rel="noreferrer" className="flex shrink-0 items-center whitespace-nowrap border-l-2 border-ink bg-flare px-3 font-mono text-[clamp(0.625rem,0.7vw,0.75rem)] font-bold uppercase tracking-[0.1em] text-flare-foreground xl:px-4">RADARMe ↗</a>
+          <ThemeToggle />
         </nav>
 
         <div className="flex shrink-0 items-stretch lg:hidden">
@@ -47,6 +49,7 @@ export function SiteHeader() {
             {menuOpen ? <X aria-hidden size={16} /> : <Menu aria-hidden size={16} />}
             <span>{menuOpen ? "Close" : "Menu"}</span>
           </button>
+          <ThemeToggle />
         </div>
       </div>
 
