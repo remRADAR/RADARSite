@@ -110,7 +110,7 @@
 :root.theme-light {
   --paper: #f7f7f2;
   --ink: #050505;
-  --flare: #31d158;
+  --flare: #168a3a;
   --flare-foreground: #050505;
   --background: var(--paper);
   --foreground: var(--ink);
