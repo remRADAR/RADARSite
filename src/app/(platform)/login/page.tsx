@@ -22,7 +22,7 @@ export default function LoginPage() {
         <h1 className="mt-10 display text-[clamp(2.5rem,7vw,4rem)] leading-none">
           Studio
           <br />
-          Sign In<span className="text-flare">.</span>
+          <span className="punctuation-lock">Sign In<span className="text-flare">.</span></span>
         </h1>
         <p className="mt-4 font-mono text-xs uppercase leading-relaxed tracking-wide text-muted-foreground">
           Design preview — enter any email to continue. No account is created.

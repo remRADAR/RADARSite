@@ -14,7 +14,7 @@ export default function BriefsPage() {
             (Briefs)
           </p>
           <h1 className="mt-3 display text-[clamp(2.5rem,6vw,4.5rem)] leading-none">
-            Submitted<span className="text-flare">.</span>
+            <span className="punctuation-lock">Submitted<span className="text-flare">.</span></span>
           </h1>
         </div>
         <Link

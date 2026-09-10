@@ -9,7 +9,7 @@ export default function ProjectsPage() {
         (Projects)
       </p>
       <h1 className="mt-3 display text-[clamp(2.5rem,6vw,4.5rem)] leading-none">
-        All Projects<span className="text-flare">.</span>
+        <span className="punctuation-lock">All Projects<span className="text-flare">.</span></span>
       </h1>
       <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2">
         {projects.map((p, i) => (

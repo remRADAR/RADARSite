@@ -21,7 +21,7 @@ export default async function WorkPage() {
           <h1 className="mt-4 display text-[clamp(3rem,11vw,11rem)] leading-[0.85]">
             On the
             <br />
-            Radar<span className="text-flare">.</span>
+            <span className="punctuation-lock">Radar<span className="text-flare">.</span></span>
           </h1>
         </div>
         <p className="hidden max-w-xs text-right font-mono text-xs font-bold uppercase leading-relaxed tracking-widest text-muted-foreground md:block">

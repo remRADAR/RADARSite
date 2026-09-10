@@ -255,6 +255,12 @@
     text-align: left;
   }
 
+  /* Keep terminal punctuation attached to the word it decorates. */
+  .punctuation-lock {
+    display: inline-block;
+    white-space: nowrap;
+  }
+
   /* Faint dot-grid — brutalist newsprint texture, always present as the
      WebGL halftone's static fallback. */
   .dot-grid {
