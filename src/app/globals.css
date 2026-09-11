@@ -208,6 +208,18 @@
     border-color: var(--ink) !important;
   }
 
+  /* Tickers intentionally invert the active field: dark theme = white field /
+     black type; light theme = black field / warm-white type. Explicit tokens
+     prevent inherited utility colors from collapsing into one low-contrast hue. */
+  .ticker-surface {
+    background-color: var(--ink) !important;
+    color: var(--paper) !important;
+    border-color: var(--ink) !important;
+  }
+  .ticker-surface [data-ticker-text] {
+    color: var(--paper) !important;
+  }
+
   /* Inverted section: full-ink block with paper type — used aggressively as
      brutalist tonal slams between paper sections. */
   .on-dark {
@@ -322,6 +334,11 @@
   stroke-dashoffset: 100;
   animation: logo-draw 0.9s var(--ease-slam) 0.35s forwards;
 }
+.logo-scan {
+  top: -10%;
+  opacity: 0;
+  animation: logo-scan 7s linear 2.4s infinite;
+}
 @keyframes logo-reveal {
   from {
     clip-path: inset(100% 0 0 0);
@@ -334,11 +351,6 @@
   to {
     stroke-dashoffset: 0;
   }
-}
-.logo-scan {
-  top: -10%;
-  opacity: 0;
-  animation: logo-scan 7s linear 2.4s infinite;
 }
 @keyframes logo-scan {
   0% {

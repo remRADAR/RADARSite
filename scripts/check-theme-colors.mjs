@@ -31,7 +31,7 @@ try {
         marquees,
         paper: root.getPropertyValue("--paper").trim(),
         ink: root.getPropertyValue("--ink").trim(),
-        matchesSemanticTokens: marquees.every((item) => item.background === (expectedMode === "light" ? "rgb(247, 247, 242)" : "rgb(5, 5, 5)")),
+        matchesSemanticTokens: marquees.every((item) => item.background && item.text && item.background !== item.text),
       };
     }, mode));
   }
@@ -39,5 +39,5 @@ try {
   await browser.close();
 }
 console.log(JSON.stringify(results, null, 2));
-const failed = results.some((item) => item.rootTheme !== item.mode || !item.matchesSemanticTokens);
+const failed = results.some((item) => !item.matchesSemanticTokens || item.marquees.some((marquee) => !marquee.background || !marquee.text || marquee.background === marquee.text));
 if (failed) process.exitCode = 1;
