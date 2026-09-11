@@ -112,3 +112,14 @@ The standalone browser run required killing an orphaned Next dev process because
 ## Developer Handoff Notes
 
 Do not rewrite the application or introduce a second motion/player system. Reuse the current content model, semantic tokens, GSAP/Lenis setup, and Playwright suite. Keep the distinction between **user intent** and **confirmed provider state** in the player. Preserve the documented limitations and update this file whenever verification status changes.
+
+
+## Header and Lighthouse Follow-up — 2026-09-11
+
+The public header coverage defect was fixed. `MarketingChrome` previously returned `SiteHeader` only for `/`; it now renders the header for every route under the marketing layout. The root-level `/privacy` and `/terms` pages were outside that layout, so both now render `SiteHeader` explicitly and use `main#main-content` for the root skip-link target.
+
+Added `tests/e2e/header.spec.ts` with 17 public marketing/legal routes. All 17 header tests passed. Expanded `scripts/check-accessibility.mjs` to 12 public routes; no critical or serious axe violations were reported. Lighthouse Accessibility scored 100/100 on the production homepage audit.
+
+A valid Lighthouse run against `next start` scored Performance 34/100, Accessibility 100/100, FCP 5.3 seconds, LCP 11.8 seconds, TBT 1.85 seconds, CLS 0, and Speed Index 5.3 seconds. The earlier development-server Lighthouse result was discarded as non-production evidence. Performance remains a follow-up task focused on JavaScript execution, unused payload, forced reflow, and image delivery; no speculative optimization was applied in this header-focused pass.
+
+See `LIGHTHOUSE_ACCESSIBILITY_AUDIT.md` for the detailed evidence and recommended next performance pass.
