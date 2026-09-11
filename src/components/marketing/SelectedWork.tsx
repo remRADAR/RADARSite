@@ -69,7 +69,7 @@ export function SelectedWork({
 
   return (
     <section className="bg-paper">
-      <div className="brut-border-b bg-ink text-paper">
+      <div className="brut-border-b bg-paper text-ink">
         <Marquee durationSeconds={30} reverse className="py-3">
           <span className="ml-0 mr-6 display whitespace-nowrap text-2xl">Selected Work</span>
           <span className="mx-6 text-flare">✳</span>
