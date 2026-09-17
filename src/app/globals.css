@@ -424,7 +424,9 @@
 .editorial-body ol { list-style: decimal; }
 .editorial-body a { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
 .editorial-body blockquote { border-left: 4px solid currentColor; padding: .5rem 0 .5rem 1.25rem; font-size: 1.2em; font-weight: 800; }
-.editorial-body img { display: block; width: 100%; max-width: 100%; height: auto; object-fit: contain; }
+.editorial-body img { display: block; width: 100%; max-width: 100%; height: auto; max-height: min(78svh, 72rem); margin-inline: auto; object-fit: contain; object-position: 50% 50%; background: color-mix(in srgb, currentColor 5%, transparent); }
+.editorial-body figure { width: 100%; max-width: 100%; overflow: hidden; }
+.editorial-body figure img { width: 100%; }
 .editorial-body figcaption { margin-top: .5rem; font-family: ui-monospace, monospace; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; opacity: .7; }
 .editorial-body .editorial-embed { position: relative; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; margin: 2rem 0; overflow: hidden; }
 .editorial-body .editorial-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }

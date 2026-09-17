@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element -- imported CMS hosts are intentionally rendered directly. */
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { UnsplashPhoto } from "@/lib/unsplash";
@@ -26,14 +27,11 @@ type MediaFrameProps = {
   imageUrl?: string;
   sizes?: string;
   priority?: boolean;
+  /** Focal point for editorial photography; percentages keep the subject centered across crops. */
+  objectPosition?: string;
   /** Set false when nested inside another <Link>/<a> to avoid invalid anchors. */
   attribution?: boolean;
-  /**
-   * Seamless hover reveal for interactive/clickable media: the image sits
-   * gently desaturated + dimmed and eases to full colour with a slow zoom on
-   * hover, plus a flare underline that draws in. Reacts to the frame's own
-   * hover (group/frame).
-   */
+  /** Seamless hover reveal for interactive/clickable media. */
   reveal?: boolean;
 };
 
@@ -49,6 +47,7 @@ export function MediaFrame({
   priority = false,
   attribution = true,
   reveal = false,
+  objectPosition = "50% 50%",
 }: MediaFrameProps) {
   return (
     <div data-visual-regression-mask className={cn("relative isolate overflow-hidden bg-ink", aspect, className)}>
@@ -66,7 +65,19 @@ export function MediaFrame({
           )}
         />
       ) : imageUrl ? (
-        <div role="img" aria-label={label || "Featured image"} className={cn("absolute inset-0 bg-cover bg-center", reveal && "transform-gpu transition-transform duration-[800ms] ease-[var(--ease-out)] group-hover/card:scale-[1.06]")} style={{ backgroundImage: `url(${imageUrl})` }} />
+        // Imported WordPress URLs are intentionally rendered directly: the CMS can contain
+        // many valid hosts, and this keeps the media path resilient without remote config churn.
+        <img
+          src={imageUrl}
+          alt={label || "Featured image"}
+          loading={priority ? "eager" : "lazy"}
+          decoding="async"
+          className={cn(
+            "absolute inset-0 h-full w-full object-cover",
+            reveal && "transform-gpu transition-transform duration-[800ms] ease-[var(--ease-out)] group-hover/card:scale-[1.06]"
+          )}
+          style={{ objectPosition }}
+        />
       ) : (
         <div
           className={cn(
