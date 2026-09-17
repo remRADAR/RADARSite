@@ -1,3 +1,4 @@
 import { AdminSplitStudio } from "@/components/admin/AdminSplitStudio";
+import { MigrationControlPanel } from "@/components/admin/MigrationControlPanel";
 export const metadata = { title: "RADAR Studio Control" };
-export default function AdminPage() { return <AdminSplitStudio />; }
+export default function AdminPage() { return <><AdminSplitStudio /><MigrationControlPanel /></>; }
