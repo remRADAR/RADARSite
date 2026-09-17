@@ -5,14 +5,14 @@ const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
 const results = [];
 try {
-  await page.goto(baseURL, { waitUntil: "networkidle" });
   for (const mode of ["dark", "light"]) {
-    const currentMode = await page.evaluate(() => document.documentElement.classList.contains("theme-light") ? "light" : "dark");
-    if (currentMode !== mode) {
-      const toggle = page.getByRole("button", { name: new RegExp(`Switch to ${mode} mode`, "i") });
-      await toggle.click();
-    }
-    await page.waitForTimeout(100);
+    await page.goto(baseURL, { waitUntil: "domcontentloaded" });
+    await page.evaluate((expectedMode) => window.localStorage.setItem("radarcharts-theme", expectedMode), mode);
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.waitForFunction((expectedMode) => {
+      const root = document.documentElement;
+      return (root.classList.contains("theme-light") ? "light" : "dark") === expectedMode;
+    }, mode);
     results.push(await page.evaluate((expectedMode) => {
       const computed = (node) => node ? getComputedStyle(node) : null;
       const root = getComputedStyle(document.documentElement);
@@ -31,6 +31,7 @@ try {
         marquees,
         paper: root.getPropertyValue("--paper").trim(),
         ink: root.getPropertyValue("--ink").trim(),
+        matchesExpectedTheme: (document.documentElement.classList.contains("theme-light") ? "light" : "dark") === expectedMode,
         matchesSemanticTokens: marquees.every((item) => item.background && item.text && item.background !== item.text),
       };
     }, mode));
@@ -39,5 +40,5 @@ try {
   await browser.close();
 }
 console.log(JSON.stringify(results, null, 2));
-const failed = results.some((item) => !item.matchesSemanticTokens || item.marquees.some((marquee) => !marquee.background || !marquee.text || marquee.background === marquee.text));
+const failed = results.some((item) => !item.matchesExpectedTheme || !item.matchesSemanticTokens || item.marquees.some((marquee) => !marquee.background || !marquee.text || marquee.background === marquee.text));
 if (failed) process.exitCode = 1;
