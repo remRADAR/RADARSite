@@ -10,6 +10,7 @@ import { caseStudies } from "@/lib/case-studies";
 import { cn } from "@/lib/utils";
 import type { UnsplashPhoto } from "@/lib/unsplash";
 import { getSiteOverridesServerSnapshot, getSiteOverridesSnapshot, parseSiteOverrides, subscribeToSiteOverrides } from "@/lib/site-overrides";
+import { useSiteConfig } from "@/lib/site-config-context";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -26,7 +27,9 @@ export function SelectedWork({
   const entryRefs = useRef<(HTMLDivElement | null)[]>([]);
   const overrideSnapshot = useSyncExternalStore(subscribeToSiteOverrides, getSiteOverridesSnapshot, getSiteOverridesServerSnapshot);
   const overrides = parseSiteOverrides(overrideSnapshot);
+  const { config } = useSiteConfig();
   const visibleStudies = useMemo(() => overrides.featuredSlugs.length ? caseStudies.filter((study) => overrides.featuredSlugs.includes(study.slug)) : caseStudies, [overrides.featuredSlugs]);
+  const tickerProjects = useMemo(() => visibleStudies.filter((study) => config.tickers.ticker5_projectSelector.projectSlugs.includes(study.slug)), [config.tickers.ticker5_projectSelector.projectSlugs, visibleStudies]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -70,12 +73,7 @@ export function SelectedWork({
   return (
     <section className="bg-paper">
       <div className="brut-border-b bg-paper text-ink">
-        <Marquee durationSeconds={30} reverse className="py-3">
-          <span className="ml-0 mr-6 display whitespace-nowrap text-2xl">Selected Work</span>
-          <span className="mx-6 text-flare">✳</span>
-          <span className="mx-6 display text-2xl text-flare">2024 — 2026</span>
-          <span className="mx-6 text-flare">✳</span>
-        </Marquee>
+        {config.tickers.ticker5_projectSelector.enabled && <Marquee durationSeconds={config.tickers.ticker5_projectSelector.speedSeconds} reverse className="py-3"><span className="ml-0 mr-6 display whitespace-nowrap text-2xl">{config.tickers.ticker5_projectSelector.label}</span>{(tickerProjects.length ? tickerProjects : visibleStudies).map((project) => <span key={project.slug} className="mx-6 display whitespace-nowrap text-2xl text-flare">{project.client}</span>)}<span className="mx-6 text-flare">✳</span></Marquee>}
       </div>
 
       {/* Mobile / reduced-motion: stacked list. */}

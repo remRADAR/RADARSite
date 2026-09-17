@@ -4,7 +4,7 @@ export interface SelectedWorkItem { id: string; number: string; yearTag: string;
 export interface ProcessStepItem { id: string; stepNumber: string; title: string; description?: string; visible: boolean }
 export interface SocialProfile { visible: boolean; url: string }
 export interface GlobalSiteConfig {
-  tickers: { ticker1_audioPlayer: { enabled: boolean; trackTitle: string; playlistStatusText: string; audioStreamUrl: string; autoPlay: boolean }; ticker2_heroMarquee: { enabled: boolean; speedSeconds: number; items: TickerItem[] }; ticker3_partnerMarquee: { enabled: boolean; speedSeconds: number; items: string[] }; ticker4_footerMarquee: { enabled: boolean; speedSeconds: number; text: string; separatorSymbol: string } };
+  tickers: { ticker1_audioPlayer: { enabled: boolean; trackTitle: string; playlistStatusText: string; audioStreamUrl: string; autoPlay: boolean }; ticker2_heroMarquee: { enabled: boolean; speedSeconds: number; items: TickerItem[] }; ticker3_partnerMarquee: { enabled: boolean; speedSeconds: number; items: string[] }; ticker4_footerMarquee: { enabled: boolean; speedSeconds: number; text: string; separatorSymbol: string }; ticker5_projectSelector: { enabled: boolean; speedSeconds: number; label: string; projectSlugs: string[] } };
   homepage: { hero: { coordinates: string; line1: string; line2: string; line3: string; subtitle: string; backgroundImages: string[] }; aktivGrid: AktivBoxItem[]; selectedWork: SelectedWorkItem[]; processSteps: ProcessStepItem[]; ctaSection: { headline: string; contactEmail: string; buttonText: string } };
   navigation: { headerLinks: Array<{ label: string; url: string; isExternal?: boolean }>; socialProfiles: Record<"instagram" | "twitter" | "facebook" | "threads" | "linkedin" | "youtube" | "tiktok", SocialProfile> };
 }
@@ -15,6 +15,7 @@ export const defaultSiteConfig: GlobalSiteConfig = {
     ticker2_heroMarquee: { enabled: true, speedSeconds: 26, items: ["MOTHERLAND PROJECT", "LIVE ON ARTIZEN", "SEASON 7"].map((text, i) => ({ id: `hero-ticker-${i + 1}`, text, icon: "✳", linkUrl: "" })) },
     ticker3_partnerMarquee: { enabled: true, speedSeconds: 30, items: ["RADARUnit", "RADARMe", "On The Radar", "RADARArticles", "RADAR Sessions", "RADAR Live"] },
     ticker4_footerMarquee: { enabled: true, speedSeconds: 32, text: "remRADAR", separatorSymbol: "✳" },
+    ticker5_projectSelector: { enabled: true, speedSeconds: 30, label: "SELECT PROJECT", projectSlugs: ["luna-vale-first-light", "after-hours-vol-02", "north-star-release"] },
   },
   homepage: {
     hero: { coordinates: "14.7167°N / 17.4677°W", line1: "ON", line2: "THE", line3: "RADAR", subtitle: "A music ecosystem for artists, releases, stories, and the people moving culture forward.", backgroundImages: ["/hero-new/banner-1.webp", "/hero-new/banner-3.webp", "/hero-new/banner-4.webp"] },
