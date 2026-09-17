@@ -2,13 +2,12 @@
 
 import { FadeIn } from "@/components/motion/FadeIn";
 import { homepageContent } from "@/lib/radar-content";
-import { getSiteOverridesServerSnapshot, getSiteOverridesSnapshot, parseSiteOverrides, subscribeToSiteOverrides } from "@/lib/site-overrides";
-import { useSyncExternalStore } from "react";
 import Link from "next/link";
+import { useSiteConfig } from "@/lib/site-config-context";
 
 export function PillarsSection() {
-  const overrides = parseSiteOverrides(useSyncExternalStore(subscribeToSiteOverrides, getSiteOverridesSnapshot, getSiteOverridesServerSnapshot));
-  const pillars = overrides.ecosystemNav.filter((item) => item.visible).sort((a, b) => a.order - b.order).map((item, index) => ({ number: String(index + 1).padStart(2, "0"), label: item.label, description: homepageContent.pillars.find((pillar) => pillar.label.toLowerCase() === item.label.toLowerCase())?.description || item.slug, href: item.slug }));
+  const { config } = useSiteConfig();
+  const pillars = config.homepage.aktivGrid.filter((item) => item.visible).map((item) => ({ number: item.badgeNumber, label: item.title, description: item.subtitle, href: item.linkUrl }));
   return (
     <section className="bg-paper">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 px-4 py-8 md:grid-cols-[8rem_minmax(0,1fr)_28rem] md:gap-8 md:px-8">

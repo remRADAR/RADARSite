@@ -2,13 +2,11 @@
 
 import { FadeIn } from "@/components/motion/FadeIn";
 import { Magnetic } from "@/components/motion/Magnetic";
-import { homepageContent } from "@/lib/radar-content";
-import { getSiteOverridesServerSnapshot, getSiteOverridesSnapshot, parseSiteOverrides, subscribeToSiteOverrides } from "@/lib/site-overrides";
-import { useSyncExternalStore } from "react";
+import { useSiteConfig } from "@/lib/site-config-context";
 
 export function CTASection() {
-  const overrides = parseSiteOverrides(useSyncExternalStore(subscribeToSiteOverrides, getSiteOverridesSnapshot, getSiteOverridesServerSnapshot));
-  const cta = overrides.contactCTA.visible ? overrides.contactCTA : homepageContent.cta;
+  const { config } = useSiteConfig();
+  const cta = { headline: config.homepage.ctaSection.headline.split(" "), email: config.homepage.ctaSection.contactEmail };
   return (
     <section className="on-dark bg-ink text-paper">
       <div className="flex items-center justify-between px-4 py-6 md:px-8">
