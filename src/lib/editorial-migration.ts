@@ -22,8 +22,8 @@ function safeUrl(value: string, kind: "link" | "image" | "iframe") {
 function socialFallbacks(source: string) {
   return source.replace(/<blockquote\b[\s\S]*?<\/blockquote>/gi, (block) => {
     if (!/(instagram-media|data-instgrm-permalink|data-permalink)/i.test(block)) return block;
-    const raw = block.match(/data-instgrm-permalink\s*=\s*["']([^"']+)|data-permalink\s*=\s*["']([^"']+)/i);
-    const url = safeUrl(decodeEntities(raw?.[1] || raw?.[2] || ""), "link");
+    const raw = block.match(/data-instgrm-permalink\s*=\s*["']([^"']+)|data-permalink\s*=\s*["']([^"']+)|((?:https?:)?\/\/(?:www\.)?instagram\.com\/(?:p|reel)\/[^"'\s?]+)/i);
+    const url = safeUrl(decodeEntities(raw?.[1] || raw?.[2] || raw?.[3] || ""), "link");
     return url ? `<p class="editorial-embed-fallback">Instagram embed preserved as a safe link: <a href="${escapeAttr(url)}">View the original post on Instagram</a></p>` : `<p class="editorial-embed-fallback">An Instagram embed was preserved as an unavailable external post.</p>`;
   }).replace(/<script\b[^>]*src\s*=\s*["'][^"']*instagram[^"']*["'][^>]*>[\s\S]*?<\/script>/gi, "");
 }
