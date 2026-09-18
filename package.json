@@ -9,6 +9,7 @@
     "lint": "eslint",
     "cms:diagnose": "node scripts/cms-diagnose.mjs",
     "cms:reconcile": "tsx scripts/cms-reconcile.ts",
+    "media:contract-test": "tsx scripts/wordpress-media-contract-test.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:a11y": "node scripts/check-accessibility.mjs"
