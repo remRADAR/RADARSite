@@ -8,14 +8,25 @@ export function mediaStorageConfig(): MediaStorageConfig {
   const accountId = required("R2_ACCOUNT_ID");
   return { provider: "r2", bucket: required("R2_BUCKET"), endpoint: process.env.R2_ENDPOINT || `https://${accountId}.r2.cloudflarestorage.com`, publicBaseUrl: process.env.R2_PUBLIC_BASE_URL?.replace(/\/$/, "") };
 }
+export function mediaStorageDiagnostics() {
+  const accountId = process.env.R2_ACCOUNT_ID || "";
+  const bucket = process.env.R2_BUCKET || "";
+  const endpoint = process.env.R2_ENDPOINT || (accountId ? `https://${accountId}.r2.cloudflarestorage.com` : "");
+  let parsed: URL | undefined;
+  try { parsed = endpoint ? new URL(endpoint) : undefined; } catch { parsed = undefined; }
+  const expectedEndpoint = accountId ? `https://${accountId}.r2.cloudflarestorage.com` : "";
+  return { accountId, bucket, endpoint, endpointSource: process.env.R2_ENDPOINT ? "explicit" : "derived", accountIdFormatValid: /^[a-f0-9]{32}$/.test(accountId), bucketMatchesTarget: bucket === "radarsite-media", credentialsPresent: Boolean(process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY), endpointFormatValid: Boolean(parsed && parsed.protocol === "https:" && parsed.hostname === `${accountId}.r2.cloudflarestorage.com` && parsed.pathname === "/" && !parsed.search && !parsed.hash && !parsed.username && !parsed.password && !parsed.port), endpointMatchesDerivedAccount: endpoint === expectedEndpoint };
+}
+function assertMediaStorageConfig(config: MediaStorageConfig) { const diagnostics = mediaStorageDiagnostics(); if (!diagnostics.accountIdFormatValid || !diagnostics.bucketMatchesTarget || !diagnostics.credentialsPresent || !diagnostics.endpointFormatValid) throw new Error(`Invalid R2 configuration: ${JSON.stringify({ ...diagnostics, accountId: diagnostics.accountId ? "valid-format" : "missing", endpoint: diagnostics.endpoint ? "present" : "missing" })}`); return config; }
 function client(config = mediaStorageConfig()) { return new S3Client({ region: "auto", endpoint: config.endpoint, forcePathStyle: false, credentials: { accessKeyId: required("R2_ACCESS_KEY_ID"), secretAccessKey: required("R2_SECRET_ACCESS_KEY") } }); }
 function publicUrl(key: string, config: MediaStorageConfig) { return config.publicBaseUrl ? `${config.publicBaseUrl}/${key.split("/").map(encodeURIComponent).join("/")}` : undefined; }
 function etag(value?: string) { return value?.replaceAll('"', ""); }
 
 export async function checkMediaStorage() {
-  const config = mediaStorageConfig();
+  const diagnostics = mediaStorageDiagnostics();
+  const config = assertMediaStorageConfig(mediaStorageConfig());
   await client(config).send(new HeadBucketCommand({ Bucket: config.bucket }));
-  return { provider: config.provider, bucket: config.bucket, endpoint: config.endpoint, publicBaseUrlConfigured: Boolean(config.publicBaseUrl) };
+  return { provider: config.provider, bucket: config.bucket, endpoint: config.endpoint, publicBaseUrlConfigured: Boolean(config.publicBaseUrl), diagnostics: { accountIdFormatValid: diagnostics.accountIdFormatValid, bucketMatchesTarget: diagnostics.bucketMatchesTarget, credentialsPresent: diagnostics.credentialsPresent, endpointFormatValid: diagnostics.endpointFormatValid, endpointMatchesDerivedAccount: diagnostics.endpointMatchesDerivedAccount, endpointSource: diagnostics.endpointSource } };
 }
 
 export async function putMediaObject(input: { key: string; body: Uint8Array | Buffer; contentType: string; cacheControl?: string; metadata?: Record<string, string> }): Promise<StoredMedia> {
