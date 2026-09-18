@@ -102,3 +102,38 @@ The authenticated endpoint returned HTTP 502 with `uploaded: false` and the sani
 The health test stopped before any R2 network request, object creation, or `content_media` write. This supersedes the earlier TLS-level classification: the current production runtime is receiving an invalid `R2_ACCOUNT_ID`, so the client cannot form the required account endpoint correctly.
 
 **Required action:** Replace the Production `R2_ACCOUNT_ID` value with the verified Cloudflare account ID for the `radarsite-media` bucket, ensuring it is exactly 32 lowercase hexadecimal characters and contains no quotes, whitespace, or newline. Keep the existing access-key values only if they were generated for that same Cloudflare account. Redeploy, confirm READY, and rerun the authenticated health test. Do not start the WordPress media dry run until the complete health sequence passes.
+
+
+## Successful authenticated Production health test — 2026-09-18
+
+The corrected Production deployment was verified as READY and the authenticated Studio health endpoint was executed successfully.
+
+- **Deployment:** `dpl_Efgve4zmd8VniJkicnYvFeJhuFDv`
+- **Commit:** `cde71c4ac2cd8cfac13db456057d2b8d16baa8f9`
+- **HTTP status:** `200`
+- **R2 provider:** Cloudflare R2
+- **Bucket:** `radarsite-media`
+- **Endpoint:** Correct derived account endpoint; no custom public URL was used as the S3 API endpoint.
+
+| Gate | Result |
+|---|---|
+| Upload | PASS — temporary text object uploaded |
+| Object existence/read path | PASS — health sequence completed |
+| Retrieval/content validation | PASS |
+| Metadata/head | PASS — `text/plain`, 25 bytes |
+| URL generation | PASS |
+| Deletion | PASS |
+| Temporary `content_media` record | Created and cleaned up |
+| Orphan check | PASS — no orphaned record remains |
+| Account ID format | PASS |
+| Bucket match | PASS |
+| Credential presence | PASS |
+| Endpoint HTTPS/account match | PASS |
+
+Temporary object key used by the reversible test:
+
+```text
+site-assets/health-check/252bcd86-0682-4780-8293-c07a8ba1ac8b.txt
+```
+
+The health response reported `ok: true`, `deletion.ok: true`, `contentMedia.configured: true`, `contentMedia.temporaryRecordCreated: true`, and `contentMedia.orphanFree: true`. The test object and temporary metadata were cleaned up. No WordPress media was accessed, no production WebP derivatives were generated, and no bulk content migration was performed.
