@@ -1,4 +1,3 @@
-import "server-only";
 import { DeleteObjectCommand, GetObjectCommand, HeadBucketCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 export type MediaStorageConfig = { provider: "r2"; bucket: string; endpoint: string; publicBaseUrl?: string };
