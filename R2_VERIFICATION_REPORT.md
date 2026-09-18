@@ -53,3 +53,21 @@ No production CMS or media writes were attempted. The WordPress media dry run wa
 **Impact:** Upload, retrieval, metadata, URL, deletion, and cleanup gates cannot be verified; the media dry run must not proceed.
 
 **Required action:** Verify the Vercel Production values without exposing them, especially `R2_ENDPOINT`, `R2_ACCOUNT_ID`, and the R2 access-key pair. `R2_ENDPOINT` must be the HTTPS S3 endpoint for the same Cloudflare account, normally `https://<account-id>.r2.cloudflarestorage.com`, with no malformed scheme, path, whitespace, or custom-domain certificate mismatch. After correcting the environment and redeploying, rerun the authenticated health test. Proceed to the WordPress media dry run only after every R2 gate passes.
+
+
+## Vercel Production environment inspection — 2026-09-18
+
+The authenticated Vercel project settings page was inspected for project `radarsite`. The following variables are present in the **Production** environment; values were not opened, copied, or logged:
+
+| Variable | Production presence |
+|---|---|
+| `R2_ACCOUNT_ID` | Present |
+| `R2_ACCESS_KEY_ID` | Present |
+| `R2_SECRET_ACCESS_KEY` | Present |
+| `R2_BUCKET` | Present |
+| `R2_ENDPOINT` | **Missing** |
+| `R2_PUBLIC_BASE_URL` | **Missing** |
+
+The adapter is coded to derive the R2 endpoint when `R2_ENDPOINT` is absent, using `https://<R2_ACCOUNT_ID>.r2.cloudflarestorage.com`. `R2_PUBLIC_BASE_URL` is optional for the upload operation, but its absence means the adapter falls back to an S3 endpoint URL for generated object URLs.
+
+The four present R2 variables are masked secrets/configuration values. Their contents and pairing could not be validated without exposing them. The TLS handshake failure therefore remains unresolved; the next safe action is to verify the account ID and access-key pair in Vercel/Cloudflare, and optionally add an explicit correctly formed `R2_ENDPOINT`, then redeploy and rerun the authenticated health test.
