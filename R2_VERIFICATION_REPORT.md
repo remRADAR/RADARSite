@@ -71,3 +71,34 @@ The authenticated Vercel project settings page was inspected for project `radars
 The adapter is coded to derive the R2 endpoint when `R2_ENDPOINT` is absent, using `https://<R2_ACCOUNT_ID>.r2.cloudflarestorage.com`. `R2_PUBLIC_BASE_URL` is optional for the upload operation, but its absence means the adapter falls back to an S3 endpoint URL for generated object URLs.
 
 The four present R2 variables are masked secrets/configuration values. Their contents and pairing could not be validated without exposing them. The TLS handshake failure therefore remains unresolved; the next safe action is to verify the account ID and access-key pair in Vercel/Cloudflare, and optionally add an explicit correctly formed `R2_ENDPOINT`, then redeploy and rerun the authenticated health test.
+
+
+## Production runtime diagnostic — 2026-09-18
+
+The fresh diagnostics deployment reached **READY** and the authenticated Studio health route executed against it.
+
+| Check | Result |
+|---|---|
+| `R2_ACCOUNT_ID` present | PASS |
+| `R2_ACCOUNT_ID` format | **FAIL** — not a valid 32-character lowercase hexadecimal Cloudflare account ID |
+| `R2_BUCKET` value | PASS — matches `radarsite-media` |
+| Access-key variables present | PASS — values not exposed |
+| Endpoint source | PASS — derived because `R2_ENDPOINT` is absent |
+| Endpoint/account format | FAIL as a consequence of the invalid account ID |
+| Upload | NOT ATTEMPTED |
+
+The authenticated endpoint returned HTTP 502 with `uploaded: false` and the sanitized diagnostic:
+
+```json
+{
+  "accountIdFormatValid": false,
+  "bucketMatchesTarget": true,
+  "credentialsPresent": true,
+  "endpointSource": "derived",
+  "endpointMatchesDerivedAccount": true
+}
+```
+
+The health test stopped before any R2 network request, object creation, or `content_media` write. This supersedes the earlier TLS-level classification: the current production runtime is receiving an invalid `R2_ACCOUNT_ID`, so the client cannot form the required account endpoint correctly.
+
+**Required action:** Replace the Production `R2_ACCOUNT_ID` value with the verified Cloudflare account ID for the `radarsite-media` bucket, ensuring it is exactly 32 lowercase hexadecimal characters and contains no quotes, whitespace, or newline. Keep the existing access-key values only if they were generated for that same Cloudflare account. Redeploy, confirm READY, and rerun the authenticated health test. Do not start the WordPress media dry run until the complete health sequence passes.
