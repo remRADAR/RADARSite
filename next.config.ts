@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "cdn.radarcharts.net",
       },
+      {
+        protocol: "https",
+        hostname: "remradar.wordpress.com",
+      },
     ],
   },
   async redirects() {
@@ -31,7 +35,7 @@ const nextConfig: NextConfig = {
       { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
     ];
     return [
-      { source: "/(.*)", headers: securityHeaders },
+      { source: "/(.*)", headers: securityHeaders.map((header) => header.key === "Content-Security-Policy" ? { ...header, value: header.value.replace("https://cdn.radarcharts.net;", "https://cdn.radarcharts.net https://remradar.wordpress.com;") } : header) },
       { source: "/sw.js", headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }, ...securityHeaders] },
       { source: "/hero-new/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
       { source: "/api/:path*", headers: [{ key: "Cache-Control", value: "no-store, max-age=0" }] },
