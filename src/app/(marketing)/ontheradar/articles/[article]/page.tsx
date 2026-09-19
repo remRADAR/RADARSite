@@ -4,6 +4,7 @@ import { IaDetail } from "@/components/marketing/IaPages";
 import { readPublishedContent } from "@/lib/content-server";
 import { findBySlug } from "@/lib/ia-content";
 import { articlePath, normalizeEditorialRecord } from "@/lib/editorial-normalization";
+import { getEffectiveImageUrl } from "@/lib/effective-image-url";
 export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: Promise<{ article: string }> }): Promise<Metadata> {
   const { article } = await params;
@@ -13,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ article: 
 
   const record = normalizeEditorialRecord(item);
   const canonical = articlePath(record);
-  const image = record.imageUrl || record.featuredImage;
+  const image = getEffectiveImageUrl(record.imageUrl || record.featuredImage).effectiveUrl;
   return {
     title: record.metaTitle || record.title,
     description: record.metaDescription || record.excerpt,

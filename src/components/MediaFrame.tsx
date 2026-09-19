@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element -- imported CMS hosts are intentionally rendered directly. */
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { getEffectiveImageUrl } from "@/lib/effective-image-url";
 import type { UnsplashPhoto } from "@/lib/unsplash";
 
 export type MediaTone = "warm" | "cool" | "mono" | "flare";
@@ -49,6 +50,7 @@ export function MediaFrame({
   reveal = false,
   objectPosition = "50% 50%",
 }: MediaFrameProps) {
+  const effectiveImage = getEffectiveImageUrl(imageUrl);
   return (
     <div data-visual-regression-mask className={cn("relative isolate overflow-hidden bg-ink", aspect, className)}>
       {photo ? (
@@ -68,7 +70,7 @@ export function MediaFrame({
         // Imported WordPress URLs are intentionally rendered directly: the CMS can contain
         // many valid hosts, and this keeps the media path resilient without remote config churn.
         <img
-          src={imageUrl}
+          src={effectiveImage.effectiveUrl}
           alt={label || "Featured image"}
           loading={priority ? "eager" : "lazy"}
           decoding="async"
