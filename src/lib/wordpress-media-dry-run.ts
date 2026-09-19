@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import type { ContentMediaRecord } from "@/lib/content-server";
+import { type MediaDeliveryUrlValidation } from "@/lib/media-storage";
 import type { StoredMedia } from "@/lib/media-storage";
 
 /** Compatibility-preserving provider vocabulary from the existing importer. */
@@ -22,6 +23,7 @@ export type DryRunMediaResult = {
   key: string;
   checksum: string;
   deliveryUrl: string;
+  deliveryUrlValidation: MediaDeliveryUrlValidation;
   contentMedia: ContentMediaRecord;
   uploaded: boolean;
   reused: boolean;
@@ -32,6 +34,7 @@ export type DryRunMediaStorage = {
   head(key: string): Promise<{ key: string; url: string; contentType: string; size: number; checksum?: string; metadata?: Record<string, string> }>;
   get(key: string): Promise<Buffer>;
   delete(key: string): Promise<void>;
+  validateDeliveryUrl(input: { key: string; url: string }): MediaDeliveryUrlValidation;
 };
 
 export type DryRunMediaRepository = {
@@ -63,6 +66,25 @@ function assertAttachment(attachment: SyntheticWordPressAttachment) {
   if (!/^https:\/\//.test(attachment.sourceUrl)) throw new Error("Synthetic attachment source URL must use HTTPS");
 }
 
+type CleanupAwareError = Error & { cleanupErrors?: string[] };
+
+function preserveCleanupErrors(error: unknown, cleanupErrors: string[]) {
+  if (!cleanupErrors.length) return;
+  const target = error instanceof Error ? error as CleanupAwareError : new Error(String(error)) as CleanupAwareError;
+  target.cleanupErrors = cleanupErrors;
+}
+
+async function cleanupAfterFailure(input: { key: string; mediaId: string; uploadAttempted: boolean; persisted: boolean; storage: DryRunMediaStorage; repository: DryRunMediaRepository }) {
+  const cleanupErrors: string[] = [];
+  if (input.persisted) {
+    try { await input.repository.delete(input.mediaId); } catch (error) { cleanupErrors.push(`record:${error instanceof Error ? error.message : String(error)}`); }
+  }
+  if (input.uploadAttempted) {
+    try { await input.storage.delete(input.key); } catch (error) { cleanupErrors.push(`object:${error instanceof Error ? error.message : String(error)}`); }
+  }
+  return cleanupErrors;
+}
+
 export async function migrateSyntheticAttachment(input: {
   attachment: SyntheticWordPressAttachment;
   runId: string;
@@ -78,22 +100,30 @@ export async function migrateSyntheticAttachment(input: {
   const key = dryRunObjectKey({ ...attachment, runId: input.runId });
   const existing = await input.repository.findByIdentity(identity);
   if (existing) {
-    if (existing.checksum !== checksum) throw new Error(`MEDIA_CHECKSUM_CONFLICT:${identity}`);
+    const existingBytes = await input.storage.get(existing.storageKey);
+    if (sourceChecksum(existingBytes) !== checksum) throw new Error(`MEDIA_CHECKSUM_CONFLICT:${identity}`);
     const head = await input.storage.head(existing.storageKey);
     if (head.size !== attachment.sourceBytes.byteLength || head.contentType !== attachment.mimeType) throw new Error(`MEDIA_METADATA_CONFLICT:${identity}`);
-    return { mediaId: existing.id, key: existing.storageKey, checksum, deliveryUrl: existing.deliveryUrl || head.url, contentMedia: existing, uploaded: false, reused: true };
+    const deliveryUrlValidation = input.storage.validateDeliveryUrl({ key: existing.storageKey, url: existing.deliveryUrl || head.url });
+    if (!deliveryUrlValidation.ok) throw new Error(`MEDIA_DELIVERY_URL_INVALID:${identity}`);
+    return { mediaId: existing.id, key: existing.storageKey, checksum, deliveryUrl: existing.deliveryUrl || head.url, deliveryUrlValidation, contentMedia: existing, uploaded: false, reused: true };
   }
 
-  const uploaded = await input.storage.put({ key, body: attachment.sourceBytes, contentType: attachment.mimeType, metadata: { source_provider: attachment.provider, source_id: attachment.attachmentId, source_checksum: checksum, dry_run: "true" } });
+  let uploadAttempted = false;
   let persisted = false;
+  const mediaId = mediaRecordId(identity, input.runId);
   try {
+    uploadAttempted = true;
+    const uploaded = await input.storage.put({ key, body: attachment.sourceBytes, contentType: attachment.mimeType, metadata: { source_provider: attachment.provider, source_id: attachment.attachmentId, source_checksum: checksum, dry_run: "true" } });
+    const deliveryUrlValidation = input.storage.validateDeliveryUrl({ key, url: uploaded.url });
+    if (!deliveryUrlValidation.ok) throw new Error(`MEDIA_DELIVERY_URL_INVALID:${identity}`);
     if (input.failAfterUpload) throw new Error("FORCED_FAILURE_AFTER_UPLOAD");
     const head = await input.storage.head(key);
     if (head.size !== attachment.sourceBytes.byteLength || head.contentType !== attachment.mimeType) throw new Error("MEDIA_UPLOAD_VERIFICATION_FAILED");
     if (!Buffer.from(await input.storage.get(key)).equals(attachment.sourceBytes)) throw new Error("MEDIA_BYTE_VERIFICATION_FAILED");
     if (input.failDuringPersistence) throw new Error("FORCED_FAILURE_DURING_PERSISTENCE");
     const record: ContentMediaRecord = {
-      id: mediaRecordId(identity, input.runId),
+      id: mediaId,
       sourceProvider: attachment.provider,
       sourceId: attachment.attachmentId,
       sourceUrl: attachment.sourceUrl,
@@ -110,12 +140,12 @@ export async function migrateSyntheticAttachment(input: {
       migrationStatus: "migrated",
       provenance: { dryRun: true, mediaIdentity: identity, wordpress: attachment.wordpressMetadata || {} },
     };
-    await input.repository.upsert(record);
     persisted = true;
-    return { mediaId: record.id, key, checksum, deliveryUrl: uploaded.url, contentMedia: record, uploaded: true, reused: false };
+    await input.repository.upsert(record);
+    return { mediaId: record.id, key, checksum, deliveryUrl: uploaded.url, deliveryUrlValidation, contentMedia: record, uploaded: true, reused: false };
   } catch (error) {
-    if (persisted) await input.repository.delete(mediaRecordId(identity, input.runId));
-    try { await input.storage.delete(key); } catch { /* cleanup is reported by the caller */ }
+    const cleanupErrors = await cleanupAfterFailure({ key, mediaId, uploadAttempted, persisted, storage: input.storage, repository: input.repository });
+    preserveCleanupErrors(error, cleanupErrors);
     throw error;
   }
 }
