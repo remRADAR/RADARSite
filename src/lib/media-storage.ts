@@ -1,7 +1,9 @@
+import { createHash } from "node:crypto";
 import { DeleteObjectCommand, GetObjectCommand, HeadBucketCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 export type MediaStorageConfig = { provider: "r2"; bucket: string; endpoint: string; publicBaseUrl?: string };
 export type StoredMedia = { key: string; url: string; provider: "r2"; bucket: string; contentType: string; size: number; etag?: string; checksum?: string; width?: number; height?: number };
+export type MediaDeliveryUrlValidation = { ok: boolean; configuredBaseUrl: boolean; protocol: "https" | "other"; hostValid: boolean; semantics: "public-base" | "r2-endpoint-fallback" | "invalid" };
 
 function required(name: string) { const value = process.env[name]; if (!value) throw new Error(`${name} is not configured`); return value; }
 export function mediaStorageConfig(): MediaStorageConfig {
@@ -20,7 +22,30 @@ export function mediaStorageDiagnostics() {
 function assertMediaStorageConfig(config: MediaStorageConfig) { const diagnostics = mediaStorageDiagnostics(); if (!diagnostics.accountIdFormatValid || !diagnostics.bucketMatchesTarget || !diagnostics.credentialsPresent || !diagnostics.endpointFormatValid) throw new Error(`Invalid R2 configuration: ${JSON.stringify({ ...diagnostics, accountId: diagnostics.accountId ? "valid-format" : "missing", endpoint: diagnostics.endpoint ? "present" : "missing" })}`); return config; }
 function client(config = mediaStorageConfig()) { return new S3Client({ region: "auto", endpoint: config.endpoint, forcePathStyle: false, credentials: { accessKeyId: required("R2_ACCESS_KEY_ID"), secretAccessKey: required("R2_SECRET_ACCESS_KEY") } }); }
 function publicUrl(key: string, config: MediaStorageConfig) { return config.publicBaseUrl ? `${config.publicBaseUrl}/${key.split("/").map(encodeURIComponent).join("/")}` : undefined; }
+function mediaObjectUrl(key: string, config: MediaStorageConfig) { return publicUrl(key, config) || `${config.endpoint}/${config.bucket}/${key}`; }
 function etag(value?: string) { return value?.replaceAll('"', ""); }
+
+export function checksumSha256(value: Uint8Array | Buffer) { return createHash("sha256").update(value).digest("hex"); }
+
+export async function bodyToBuffer(body: { transformToByteArray?: () => Promise<Uint8Array> } | undefined) {
+  if (!body || typeof body.transformToByteArray !== "function") throw new Error("R2 object body is unavailable");
+  return Buffer.from(await body.transformToByteArray());
+}
+
+export function validateMediaDeliveryUrl(input: { key: string; url: string; config: MediaStorageConfig }): MediaDeliveryUrlValidation {
+  try {
+    const parsed = new URL(input.url);
+    const protocol = parsed.protocol === "https:" ? "https" : "other";
+    const endpoint = new URL(input.config.endpoint);
+    const expected = mediaObjectUrl(input.key, input.config);
+    const hostValid = Boolean(parsed.hostname) && parsed.hostname === new URL(expected).hostname;
+    const semantics = input.config.publicBaseUrl ? "public-base" : "r2-endpoint-fallback";
+    const pathValid = parsed.href === expected;
+    return { ok: protocol === "https" && hostValid && pathValid, configuredBaseUrl: Boolean(input.config.publicBaseUrl), protocol, hostValid: hostValid && endpoint.protocol === "https:", semantics: protocol === "https" && hostValid && pathValid ? semantics : "invalid" };
+  } catch {
+    return { ok: false, configuredBaseUrl: Boolean(input.config.publicBaseUrl), protocol: "other", hostValid: false, semantics: "invalid" };
+  }
+}
 
 export async function checkMediaStorage() {
   const diagnostics = mediaStorageDiagnostics();
@@ -31,11 +56,13 @@ export async function checkMediaStorage() {
 
 export async function putMediaObject(input: { key: string; body: Uint8Array | Buffer; contentType: string; cacheControl?: string; metadata?: Record<string, string> }): Promise<StoredMedia> {
   const config = mediaStorageConfig();
+  const url = mediaObjectUrl(input.key, config);
   const response = await client(config).send(new PutObjectCommand({ Bucket: config.bucket, Key: input.key, Body: input.body, ContentType: input.contentType, CacheControl: input.cacheControl || "public, max-age=31536000, immutable", Metadata: input.metadata }));
-  return { key: input.key, url: publicUrl(input.key, config) || `${config.endpoint}/${config.bucket}/${input.key}`, provider: config.provider, bucket: config.bucket, contentType: input.contentType, size: input.body.byteLength, etag: etag(response.ETag) };
+  return { key: input.key, url, provider: config.provider, bucket: config.bucket, contentType: input.contentType, size: input.body.byteLength, etag: etag(response.ETag) };
 }
-export async function headMediaObject(key: string) { const config = mediaStorageConfig(); const response = await client(config).send(new HeadObjectCommand({ Bucket: config.bucket, Key: key })); return { key, url: publicUrl(key, config) || `${config.endpoint}/${config.bucket}/${key}`, provider: config.provider, bucket: config.bucket, contentType: response.ContentType || "application/octet-stream", size: response.ContentLength || 0, etag: etag(response.ETag), checksum: response.ChecksumSHA256, metadata: response.Metadata || {} }; }
+export async function headMediaObject(key: string) { const config = mediaStorageConfig(); const response = await client(config).send(new HeadObjectCommand({ Bucket: config.bucket, Key: key })); return { key, url: mediaObjectUrl(key, config), provider: config.provider, bucket: config.bucket, contentType: response.ContentType || "application/octet-stream", size: response.ContentLength || 0, etag: etag(response.ETag), checksum: response.ChecksumSHA256, metadata: response.Metadata || {} }; }
 export async function getMediaObject(key: string) { const config = mediaStorageConfig(); return client(config).send(new GetObjectCommand({ Bucket: config.bucket, Key: key })); }
+export async function readMediaObjectBytes(key: string) { const object = await getMediaObject(key); return bodyToBuffer(object.Body as { transformToByteArray?: () => Promise<Uint8Array> } | undefined); }
 export async function deleteMediaObject(key: string) { const config = mediaStorageConfig(); await client(config).send(new DeleteObjectCommand({ Bucket: config.bucket, Key: key })); }
 
 export async function createWebpDerivatives(input: { source: Buffer; keyPrefix: string; width?: number; height?: number; quality?: number }) {

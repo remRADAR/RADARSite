@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { countMediaRecords, deleteMediaRecord, hasContentDatabase, upsertMediaRecord } from "@/lib/content-server";
-import { checkMediaStorage, deleteMediaObject, headMediaObject, putMediaObject } from "@/lib/media-storage";
+import { checkMediaStorage, checksumSha256, deleteMediaObject, headMediaObject, mediaStorageConfig, putMediaObject, readMediaObjectBytes, validateMediaDeliveryUrl } from "@/lib/media-storage";
 import { getSessionCookieName, isSessionValid } from "@/lib/studio-server";
 
 export const dynamic = "force-dynamic";
@@ -10,14 +10,23 @@ export async function POST(request: NextRequest) {
   if (!isSessionValid(request.cookies.get(getSessionCookieName())?.value)) return json({ error: "Admin authentication required" }, { status: 401 });
   const key = `site-assets/health-check/${crypto.randomUUID()}.txt`;
   const mediaId = `health-check-${crypto.randomUUID()}`;
+  let uploadAttempted = false;
   let uploaded = false;
   let mediaRecord = false;
+  let contentValidation: { ok: boolean; expectedSize: number; actualSize: number; checksumMatch: boolean } | undefined;
+  let deliveryUrl: ReturnType<typeof validateMediaDeliveryUrl> | undefined;
   try {
     const storage = await checkMediaStorage();
     const beforeRecords = await countMediaRecords();
     const body = Buffer.from("RADARSite R2 health check", "utf8");
+    uploadAttempted = true;
     const uploadedObject = await putMediaObject({ key, body, contentType: "text/plain", metadata: { purpose: "health-check" } });
     uploaded = true;
+    deliveryUrl = validateMediaDeliveryUrl({ key, url: uploadedObject.url, config: mediaStorageConfig() });
+    if (!deliveryUrl.ok) throw new Error("R2 delivery URL validation failed");
+    const retrieved = await readMediaObjectBytes(key);
+    contentValidation = { ok: retrieved.byteLength === body.byteLength && checksumSha256(retrieved) === checksumSha256(body), expectedSize: body.byteLength, actualSize: retrieved.byteLength, checksumMatch: checksumSha256(retrieved) === checksumSha256(body) };
+    if (!contentValidation.ok) throw new Error("R2 content validation failed");
     if (hasContentDatabase()) {
       await upsertMediaRecord({ id: mediaId, sourceProvider: "health-check", originalFilename: "health-check.txt", mimeType: uploadedObject.contentType, fileSize: uploadedObject.size, storageProvider: uploadedObject.provider, storageBucket: uploadedObject.bucket, storageKey: uploadedObject.key, deliveryUrl: uploadedObject.url, migrationStatus: "migrated", provenance: { purpose: "temporary-health-check" } });
       mediaRecord = true;
@@ -28,10 +37,10 @@ export async function POST(request: NextRequest) {
     try { await headMediaObject(key); deleted = false; } catch { /* expected not found */ }
     if (mediaRecord) await deleteMediaRecord(mediaId);
     const afterRecords = await countMediaRecords();
-    return json({ ok: deleted && (!mediaRecord || beforeRecords === afterRecords), storage, upload: { ok: uploaded, key, size: uploadedObject.size }, metadata: { ok: head.size === body.byteLength, contentType: head.contentType, size: head.size }, deletion: { ok: deleted }, contentMedia: { configured: hasContentDatabase(), temporaryRecordCreated: mediaRecord, orphanFree: !mediaRecord || beforeRecords === afterRecords } });
+    return json({ ok: deleted && (!mediaRecord || beforeRecords === afterRecords), storage, upload: { ok: uploaded, key, size: uploadedObject.size }, contentValidation, metadata: { ok: head.size === body.byteLength, contentType: head.contentType, size: head.size }, deliveryUrl, deletion: { ok: deleted }, contentMedia: { configured: hasContentDatabase(), temporaryRecordCreated: mediaRecord, orphanFree: !mediaRecord || beforeRecords === afterRecords } });
   } catch (error) {
-    if (uploaded) { try { await deleteMediaObject(key); } catch { /* best effort cleanup */ } }
+    if (uploadAttempted || uploaded) { try { await deleteMediaObject(key); } catch { /* best effort cleanup */ } }
     if (mediaRecord) { try { await deleteMediaRecord(mediaId); } catch { /* best effort cleanup */ } }
-    return json({ ok: false, uploaded, error: error instanceof Error ? error.message : "R2 health test failed", cleanupAttempted: uploaded || mediaRecord }, { status: 502 });
+    return json({ ok: false, uploaded, contentValidation, deliveryUrl, error: error instanceof Error ? error.message : "R2 health test failed", cleanupAttempted: uploadAttempted || uploaded || mediaRecord }, { status: 502 });
   }
 }
