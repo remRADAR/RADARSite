@@ -1,32 +1,76 @@
+import { unstable_cache } from "next/cache";
+import { gunzipSync, gzipSync } from "node:zlib";
 import { neon } from "@neondatabase/serverless";
 import type { Artist, Article, Event, MagazineStory, RadarProject, Release } from "@/lib/ia-content";
 import mergedContentSnapshot from "@/data/merged-content.json";
 
+export const PUBLIC_CONTENT_CACHE_TAG = "radarsite-public-content";
+export const PUBLIC_CONTENT_REVALIDATE_SECONDS = 60 * 60;
+
 export type CmsRecord = { id?: string; sourceId?: string; sourceUrl?: string; slug: string; path?: string; title?: string; name?: string; subtitle?: string; excerpt?: string; description?: string; body?: string; bodyHtml?: string; metaTitle?: string; metaDescription?: string; canonicalUrl?: string; status?: "draft" | "published" | "archived"; imageUrl?: string; featuredImage?: string; publishedAt?: string; date?: string; author?: string; editorialType?: "article" | "interview" | "spotlight" | "magazine"; section?: string; categories?: string[]; tags?: string[]; migrationWarnings?: string[]; [key: string]: unknown };
 export type CmsPage = CmsRecord & { path: string; title: string };
 export type ContentCollections = { artists: Artist[]; releases: Release[]; articles: Article[]; magazine: MagazineStory[]; radarProjects: RadarProject[]; events: Event[]; pages: CmsPage[]; categories: CmsRecord[]; archives: CmsRecord[] };
+
+type ReadContentOptions = { fallbackToSnapshot?: boolean };
 const MAX_CONTENT_BYTES = 20 * 1024 * 1024;
 const mergedSnapshot = normalizeContent(mergedContentSnapshot);
 
 export function hasContentDatabase() { return Boolean(process.env.DATABASE_URL); }
 function sql() { if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not configured"); return neon(process.env.DATABASE_URL); }
+function isProductionBuild() { return process.env.NEXT_PHASE === "phase-production-build" || process.env.RADAR_SKIP_DATABASE === "1"; }
+function errorDetails(error: unknown) { return { name: error instanceof Error ? error.name : "UnknownError", message: error instanceof Error ? error.message : String(error) }; }
+function logContentReadError(error: unknown, context: string) { const details = errorDetails(error); console.error(`[content-server] ${context}`, details); }
+
 export type ContentMediaRecord = { id: string; contentId?: string; sourceProvider?: string; sourceUrl?: string; sourceId?: string; originalFilename?: string; mimeType?: string; fileSize?: number; width?: number; height?: number; storageProvider: string; storageBucket: string; storageKey: string; deliveryUrl?: string; checksum?: string; migrationStatus: "pending" | "migrated" | "failed"; provenance?: Record<string, unknown>; createdAt?: string; updatedAt?: string };
 function cleanString(value: unknown, fallback = "", max = 5000) { return typeof value === "string" ? value.trim().slice(0, max) : fallback; }
 function cleanArray(value: unknown) { return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string").map((item) => item.trim().slice(0, 300)).filter(Boolean).slice(0, 100) : []; }
-function cleanRecords(value: unknown) { return Array.isArray(value) ? value.filter((item) => item && typeof item === "object" && !Array.isArray(item)).slice(0, 10000).map(cleanRecord) : []; }
+function cleanRecords(value: unknown): CmsRecord[] { return Array.isArray(value) ? value.filter((item) => item && typeof item === "object" && !Array.isArray(item)).slice(0, 10000).map(cleanRecord) : []; }
 function cleanRelated(value: unknown) { if (!value || typeof value !== "object" || Array.isArray(value)) return {}; return Object.fromEntries(Object.entries(value).map(([key, items]) => [key, cleanArray(items)])); }
-function cleanRecord(value: unknown) { if (!value || typeof value !== "object" || Array.isArray(value)) return { slug: "" }; const record = value as Record<string, unknown>; const status = record.status === "draft" || record.status === "archived" ? record.status : "published"; return { ...record, id: cleanString(record.id, "", 120), sourceId: cleanString(record.sourceId, "", 120), sourceUrl: cleanString(record.sourceUrl, "", 2000), slug: cleanString(record.slug, "", 300), path: cleanString(record.path, "", 500), title: cleanString(record.title), name: cleanString(record.name), project: cleanString(record.project), artist: cleanString(record.artist), bio: cleanString(record.bio), subtitle: cleanString(record.subtitle), excerpt: cleanString(record.excerpt), description: cleanString(record.description), body: cleanString(record.body, "", 2000000), bodyHtml: cleanString(record.bodyHtml, "", 2000000), brief: cleanString(record.brief), category: cleanString(record.category), section: cleanString(record.section, "", 120), date: cleanString(record.date, "", 100), publishedAt: cleanString(record.publishedAt, "", 100), author: cleanString(record.author), metaTitle: cleanString(record.metaTitle, "", 300), metaDescription: cleanString(record.metaDescription, "", 1000), canonicalUrl: cleanString(record.canonicalUrl, "", 2000), year: cleanString(record.year), location: cleanString(record.location), imageQuery: cleanString(record.imageQuery), imageUrl: cleanString(record.imageUrl, "", 2000), featuredImage: cleanString(record.featuredImage, "", 2000), status, tags: cleanArray(record.tags), categories: cleanArray(record.categories), migrationWarnings: cleanArray(record.migrationWarnings), related: cleanRelated(record.related) }; }
-export function normalizeContent(input: unknown): ContentCollections { const value = input && typeof input === "object" ? input as Partial<ContentCollections> : {}; return { artists: cleanRecords(value.artists) as Artist[], releases: cleanRecords(value.releases) as Release[], articles: cleanRecords(value.articles) as Article[], magazine: cleanRecords(value.magazine) as MagazineStory[], radarProjects: cleanRecords(value.radarProjects) as RadarProject[], events: cleanRecords(value.events) as Event[], pages: cleanRecords(value.pages) as CmsPage[], categories: cleanRecords(value.categories) as CmsRecord[], archives: cleanRecords(value.archives) as CmsRecord[] }; }
+function cleanRecord(value: unknown): CmsRecord { if (!value || typeof value !== "object" || Array.isArray(value)) return { slug: "" }; const record = value as Record<string, unknown>; const status: CmsRecord["status"] = record.status === "draft" || record.status === "archived" ? record.status : "published"; return { ...record, id: cleanString(record.id, "", 120), sourceId: cleanString(record.sourceId, "", 120), sourceUrl: cleanString(record.sourceUrl, "", 2000), slug: cleanString(record.slug, "", 300), path: cleanString(record.path, "", 500), title: cleanString(record.title), name: cleanString(record.name), project: cleanString(record.project), artist: cleanString(record.artist), bio: cleanString(record.bio), subtitle: cleanString(record.subtitle), excerpt: cleanString(record.excerpt), description: cleanString(record.description), body: cleanString(record.body, "", 2000000), bodyHtml: cleanString(record.bodyHtml, "", 2000000), brief: cleanString(record.brief), category: cleanString(record.category), section: cleanString(record.section, "", 120), date: cleanString(record.date, "", 100), publishedAt: cleanString(record.publishedAt, "", 100), author: cleanString(record.author), metaTitle: cleanString(record.metaTitle, "", 300), metaDescription: cleanString(record.metaDescription, "", 1000), canonicalUrl: cleanString(record.canonicalUrl, "", 2000), year: cleanString(record.year), location: cleanString(record.location), imageQuery: cleanString(record.imageQuery), imageUrl: cleanString(record.imageUrl, "", 2000), featuredImage: cleanString(record.featuredImage, "", 2000), status, tags: cleanArray(record.tags), categories: cleanArray(record.categories), migrationWarnings: cleanArray(record.migrationWarnings), related: cleanRelated(record.related) }; }
+export function normalizeContent(input: unknown): ContentCollections { const value = input && typeof input === "object" ? input as Partial<ContentCollections> : {}; return { artists: cleanRecords(value.artists) as Artist[], releases: cleanRecords(value.releases) as Release[], articles: cleanRecords(value.articles) as Article[], magazine: cleanRecords(value.magazine) as MagazineStory[], radarProjects: cleanRecords(value.radarProjects) as RadarProject[], events: cleanRecords(value.events) as Event[], pages: cleanRecords(value.pages) as CmsPage[], categories: cleanRecords(value.categories), archives: cleanRecords(value.archives) }; }
 
 export async function ensureContentTable() { await sql()`CREATE TABLE IF NOT EXISTS studio_content (id integer PRIMARY KEY, content jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`; }
 export async function ensureMediaTable() { await sql()`CREATE TABLE IF NOT EXISTS content_media (id text PRIMARY KEY, content_id text, source_provider text, source_url text, source_id text, original_filename text, mime_type text, file_size bigint, width integer, height integer, storage_provider text NOT NULL, storage_bucket text NOT NULL, storage_key text NOT NULL UNIQUE, delivery_url text, checksum text, migration_status text NOT NULL, provenance jsonb NOT NULL DEFAULT '{}'::jsonb, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now())`; }
 export async function upsertMediaRecord(record: ContentMediaRecord) { await ensureMediaTable(); await sql()`INSERT INTO content_media (id, content_id, source_provider, source_url, source_id, original_filename, mime_type, file_size, width, height, storage_provider, storage_bucket, storage_key, delivery_url, checksum, migration_status, provenance, updated_at) VALUES (${record.id}, ${record.contentId || null}, ${record.sourceProvider || null}, ${record.sourceUrl || null}, ${record.sourceId || null}, ${record.originalFilename || null}, ${record.mimeType || null}, ${record.fileSize || null}, ${record.width || null}, ${record.height || null}, ${record.storageProvider}, ${record.storageBucket}, ${record.storageKey}, ${record.deliveryUrl || null}, ${record.checksum || null}, ${record.migrationStatus}, ${JSON.stringify(record.provenance || {})}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET content_id = EXCLUDED.content_id, source_provider = EXCLUDED.source_provider, source_url = EXCLUDED.source_url, source_id = EXCLUDED.source_id, original_filename = EXCLUDED.original_filename, mime_type = EXCLUDED.mime_type, file_size = EXCLUDED.file_size, width = EXCLUDED.width, height = EXCLUDED.height, storage_provider = EXCLUDED.storage_provider, storage_bucket = EXCLUDED.storage_bucket, storage_key = EXCLUDED.storage_key, delivery_url = EXCLUDED.delivery_url, checksum = EXCLUDED.checksum, migration_status = EXCLUDED.migration_status, provenance = EXCLUDED.provenance, updated_at = now()`; }
 export async function deleteMediaRecord(id: string) { if (!hasContentDatabase()) return; await ensureMediaTable(); await sql()`DELETE FROM content_media WHERE id = ${id}`; }
 export async function countMediaRecords() { if (!hasContentDatabase()) return 0; await ensureMediaTable(); const rows = await sql()`SELECT count(*)::int AS count FROM content_media` as { count: number }[]; return rows[0]?.count || 0; }
-function shouldUseMergedSnapshot(content: ContentCollections) {
-  const demoSlugs = new Set(["north-star-release-note", "radar-sessions-season-two"]);
-  return content.articles.length < mergedSnapshot.articles.length || content.articles.some((article) => demoSlugs.has(article.slug));
+function shouldUseMergedSnapshot(content: ContentCollections) { const demoSlugs = new Set(["north-star-release-note", "radar-sessions-season-two"]); return content.articles.length < mergedSnapshot.articles.length || content.articles.some((article) => demoSlugs.has(article.slug)); }
+
+async function readContentUncached({ fallbackToSnapshot = false }: ReadContentOptions = {}): Promise<ContentCollections> {
+  if (isProductionBuild() || !hasContentDatabase()) return mergedSnapshot;
+  try {
+    await ensureContentTable();
+    const rows = await sql()`SELECT content FROM studio_content WHERE id = 1 LIMIT 1` as { content: unknown }[];
+    if (!rows[0]?.content) return mergedSnapshot;
+    const content = normalizeContent(rows[0].content);
+    return shouldUseMergedSnapshot(content) ? mergedSnapshot : content;
+  } catch (error) {
+    logContentReadError(error, fallbackToSnapshot ? "Public content read failed; using committed snapshot" : "Content read failed");
+    if (fallbackToSnapshot) return mergedSnapshot;
+    throw error;
+  }
 }
-export async function readContent(): Promise<ContentCollections> { if (!hasContentDatabase()) return mergedSnapshot; await ensureContentTable(); const rows = await sql()`SELECT content FROM studio_content WHERE id = 1 LIMIT 1` as { content: unknown }[]; if (!rows[0]?.content) return mergedSnapshot; const content = normalizeContent(rows[0].content); return shouldUseMergedSnapshot(content) ? mergedSnapshot : content; }
-export async function readPublishedContent(): Promise<ContentCollections> { const content = await readContent(); function published<T>(items: T[]): T[] { return items.filter((item) => { const status = item && typeof item === "object" && "status" in item ? (item as { status?: string }).status : undefined; return status !== "draft" && status !== "archived"; }); } return { ...content, artists: published(content.artists), releases: published(content.releases), articles: published(content.articles), magazine: published(content.magazine), radarProjects: published(content.radarProjects), events: published(content.events), pages: published(content.pages), categories: published(content.categories), archives: published(content.archives) }; }
+
+export async function readContent(options?: ReadContentOptions) { return readContentUncached(options); }
+const readCachedPublicContent = unstable_cache(async () => {
+  const content = await readContentUncached({ fallbackToSnapshot: true });
+  return gzipSync(JSON.stringify(content)).toString("base64");
+}, ["radarsite-public-content"], { revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS, tags: [PUBLIC_CONTENT_CACHE_TAG] });
+export async function readPublicContent() {
+  const encoded = await readCachedPublicContent();
+  return normalizeContent(JSON.parse(gunzipSync(Buffer.from(encoded, "base64")).toString("utf8")));
+}
+
+export async function readPublishedContent(): Promise<ContentCollections> {
+  const content = await readPublicContent();
+  function published<T>(items: T[]): T[] { return items.filter((item) => { const status = item && typeof item === "object" && "status" in item ? (item as { status?: string }).status : undefined; return status !== "draft" && status !== "archived"; }); }
+  return { ...content, artists: published(content.artists), releases: published(content.releases), articles: published(content.articles), magazine: published(content.magazine), radarProjects: published(content.radarProjects), events: published(content.events), pages: published(content.pages), categories: published(content.categories), archives: published(content.archives) };
+}
 export async function writeContent(input: unknown) { const content = normalizeContent(input); if (Buffer.byteLength(JSON.stringify(content), "utf8") > MAX_CONTENT_BYTES) throw new Error("CMS content payload is too large"); await ensureContentTable(); await sql()`INSERT INTO studio_content (id, content, updated_at) VALUES (1, ${JSON.stringify(content)}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET content = EXCLUDED.content, updated_at = now()`; return content; }
+export function getContentErrorDetails(error: unknown) { return errorDetails(error); }
+export function getMergedContentSnapshot() { return mergedSnapshot; }
+export function isSnapshotOnlyBuild() { return isProductionBuild(); }
+export function contentCacheTag() { return PUBLIC_CONTENT_CACHE_TAG; }
+export function contentCacheRevalidateSeconds() { return PUBLIC_CONTENT_REVALIDATE_SECONDS; }
+export function logReadContentError(error: unknown, context: string) { logContentReadError(error, context); }
+export function readContentTransferRiskSummary() { return { public: "readPublicContent/readPublishedContent uses one tagged shared cache entry with a 1-hour revalidate; metadata and page rendering share it", studioGet: "GET /api/studio performs one uncached content read per request when DATABASE_URL is configured", studioWrite: "PUT /api/studio writes studio_content but does not read it", build: "Production builds use merged-content.json when NEXT_PHASE=phase-production-build or RADAR_SKIP_DATABASE=1" }; }

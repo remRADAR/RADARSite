@@ -3,7 +3,7 @@ import { IaIndex } from "@/components/marketing/IaPages";
 import { readPublishedContent, type CmsRecord } from "@/lib/content-server";
 import { canonicalSection, SECTION_LABELS, type CanonicalSection } from "@/lib/editorial-normalization";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 const routes: Record<string, CanonicalSection> = {
   discovery: "discovery-spot",

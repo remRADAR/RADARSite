@@ -2,7 +2,7 @@ import Link from "next/link";
 import { readPublishedContent } from "@/lib/content-server";
 import { normalizeEditorialRecord } from "@/lib/editorial-normalization";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export default async function OnTheRadarPage() {
   const { articles, magazine, radarProjects, events } = await readPublishedContent();

@@ -5,7 +5,14 @@ import { readPublishedContent } from "@/lib/content-server";
 import { findBySlug } from "@/lib/ia-content";
 import { articlePath, normalizeEditorialRecord } from "@/lib/editorial-normalization";
 import { getEffectiveImageUrl } from "@/lib/effective-image-url";
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
+  const { articles } = await readPublishedContent();
+  return articles.map((article) => ({ article: article.slug }));
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ article: string }> }): Promise<Metadata> {
   const { article } = await params;
   const { articles } = await readPublishedContent();

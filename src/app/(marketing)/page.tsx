@@ -7,6 +7,8 @@ import { CTASection } from "@/components/marketing/CTASection";
 import { caseStudies } from "@/lib/case-studies";
 import { getHeroPhotosBySlug } from "@/lib/unsplash";
 
+export const revalidate = 3600;
+
 export default async function LandingPage() {
   const workPhotos = await getHeroPhotosBySlug(caseStudies);
 

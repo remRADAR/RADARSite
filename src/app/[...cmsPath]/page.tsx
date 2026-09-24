@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { readPublishedContent } from "@/lib/content-server";
 import { MediaFrame } from "@/components/MediaFrame";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 type Props = { params: Promise<{ cmsPath: string[] }> };
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { defaultSiteOverrides } from "@/lib/site-overrides";
-import { hasContentDatabase, readContent, writeContent } from "@/lib/content-server";
+import { contentCacheTag, hasContentDatabase, logReadContentError, readContent, writeContent } from "@/lib/content-server";
 import { createSessionToken, getSessionCookieName, getSessionMaxAge, hasDatabase, isAdminPasswordValid, isSessionValid, readStudioSettings, writeStudioSettings } from "@/lib/studio-server";
 import { isSameOriginMutation, rateLimit } from "@/lib/request-security";
 
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
   const blocked = limited(request, "studio-read"); if (blocked) return blocked;
   if (!hasDatabase()) return json({ configured: false, contentConfigured: hasContentDatabase(), settings: defaultSiteOverrides, content: await readContent() });
   try { return json({ configured: true, contentConfigured: hasContentDatabase(), settings: await readStudioSettings(), content: await readContent() }); }
-  catch { return json({ configured: false, settings: defaultSiteOverrides, error: "Studio persistence is unavailable" }, { status: 503 }); }
+  catch (error) { logReadContentError(error, "Studio GET persistence read failed"); return json({ configured: false, settings: defaultSiteOverrides, error: "Studio persistence is unavailable" }, { status: 503 }); }
 }
 
 export async function POST(request: NextRequest) {
@@ -45,8 +46,8 @@ export async function PUT(request: NextRequest) {
   const body = await readJson(request) as { settings?: unknown; content?: unknown } | null;
   if (!body || (!Object.prototype.hasOwnProperty.call(body, "settings") && !Object.prototype.hasOwnProperty.call(body, "content"))) return json({ error: "Settings or content payload is required" }, { status: 400 });
   try {
-    if (Object.prototype.hasOwnProperty.call(body, "content")) return json({ saved: true, content: await writeContent(body.content) });
+    if (Object.prototype.hasOwnProperty.call(body, "content")) { const content = await writeContent(body.content); revalidateTag(contentCacheTag(), { expire: 0 }); return json({ saved: true, content }); }
     return json({ saved: true, settings: await writeStudioSettings(body.settings) });
   }
-  catch (error) { const tooLarge = error instanceof Error && error.message === "Studio settings payload is too large"; return json({ error: tooLarge ? error.message : "Unable to save Studio settings" }, { status: tooLarge ? 413 : 500 }); }
+  catch (error) { logReadContentError(error, "Studio PUT persistence write failed"); const tooLarge = error instanceof Error && error.message === "Studio settings payload is too large"; return json({ error: tooLarge ? error.message : "Unable to save Studio settings" }, { status: tooLarge ? 413 : 500 }); }
 }
