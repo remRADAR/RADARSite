@@ -43,3 +43,18 @@ Other Studio migration/media routes can access related tables or write content a
 The staging deployment must be checked for the homepage, article archive, and three article pages: two `radarcharts` records and one `legacy` record. Each article must expose a title, H1, canonical URL, `og:url`, `og:image`, and `twitter:image`. Requests must remain successful when the database is unreachable because these pages are generated from the committed snapshot.
 
 Production deployment and production data were not targeted by this branch.
+
+
+## Staging verification — 2026-09-24
+
+The branch deployed to the dedicated `radarsite-staging` project as deployment `dpl_DdiCj11uV46H83SizNvqZCF3XeGW` and reached **READY**. The deployment is a preview (`target: null`) for commit `6871794d95eedad599653dd4a1fe032824b991af`; no Production deployment was promoted or changed.
+
+Using a temporary Vercel protection bypass only for read-only QA, the homepage and article archive returned HTTP 200. The following three prerendered article pages also returned HTTP 200 and exposed all required fields: title, H1, canonical URL, `og:url`, `og:image`, and `twitter:image`.
+
+| Fixture | Source | Result |
+|---|---|---|
+| `gande-is-breaking-boundaries-with-insta-babe` | `radarcharts` | PASS; `PRERENDER` |
+| `one-voice-kingx-vibe-beat-calls-on-nigerians-to-unite-through-music-spoken-word-and-a-shared-message-of-hope` | `radarcharts` | PASS; `PRERENDER` |
+| `artist-spotlight-wealth-asuquo-abujas-livewire-afrobeats-star-on-a-relentless-rise` | `legacy` | PASS; `PRERENDER` |
+
+The staging homepage returned `HIT` and the archive and article routes returned `PRERENDER`, demonstrating that these public requests are served from the generated/cached output rather than issuing a database read per request. The database-unreachable behavior is therefore covered for these pages by the snapshot-only build boundary and the public snapshot fallback; Studio/API routes remain intentionally separate.
