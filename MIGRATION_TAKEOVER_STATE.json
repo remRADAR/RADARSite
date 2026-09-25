@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "project": "remRADAR/RADARSite",
+  "branch": "main",
+  "head": "e105d81943cff993ebff4080fe8a84ffe051d16",
+  "checkpointedAt": "2026-09-25T12:36:00Z",
+  "classification": {
+    "completed": [
+      "Repository takeover and architecture discovery",
+      "279 legacy articles recorded as migrated",
+      "897 unique legacy image objects recorded as uploaded to R2/WebP",
+      "Legacy migration report records 897 successful uploads and 1186 R2 WebP references",
+      "Public content uses a tagged one-hour compressed cache with snapshot fallback",
+      "CMS/API mutation routes are force-dynamic and no-store",
+      "Successful R2 health test was previously recorded on 2026-09-18",
+      "Cloudflare R2 bucket radarsite-media exists and read-only object inspection succeeded",
+      "Sample legacy R2 objects have image/webp content type and immutable cache headers"
+    ],
+    "inProgress": [
+      "Production stability audit",
+      "Recovery of the authenticated current WordPress media source",
+      "Article-by-article verification of current media relationships"
+    ],
+    "blocked": [
+      "Neon production branch is archived and table inspection returned HTTP 402 quota exceeded",
+      "Current article media audit artifact is absent from the checkout and sandbox",
+      "radarcharts.net TLS certificate verification fails in this environment",
+      "Vercel runtime/deployment observability calls are permission-blocked",
+      "Current media migration must not start without the canonical audit and authenticated source"
+    ],
+    "requiresHumanAction": [
+      "Restore or unarchive the Neon production branch and resolve quota before any database read/write",
+      "Provide or restore current-article-media-audit.json",
+      "Authenticate to an approved WordPress source or provide a legitimate export/backup",
+      "Confirm Vercel/Cloudflare observability permissions if 502 diagnosis must be completed from provider logs"
+    ]
+  },
+  "counts": {
+    "totalArticles": 342,
+    "legacyArticles": 279,
+    "currentArticles": 63,
+    "legacyUniqueImages": 897,
+    "currentUniqueImages": 603,
+    "currentFeaturedMediaArticles": 59,
+    "currentInlineImageArticles": 63,
+    "currentJpegFiles": 582,
+    "currentPngFiles": 21,
+    "committedSnapshotArticles": 342,
+    "committedLegacyManifestObjects": 897,
+    "verifiedCurrentMediaObjects": 0,
+    "verifiedCurrentArticles": 0,
+    "verifiedDatabaseArticleCount": null,
+    "verifiedDatabaseMediaCount": null
+  },
+  "migration": {
+    "legacy": {
+      "status": "COMPLETED_REQUIRES_NON_DESTRUCTIVE_VERIFICATION",
+      "manifest": "legacy-media-migration-manifest.json",
+      "report": "legacy-media-migration-report.json",
+      "successfulUploads": 897,
+      "legacyArticlesChanged": 279,
+      "r2WebpReferences": 1186,
+      "unresolvedWordpressUrls": 0,
+      "doNotRerun": true
+    },
+    "current": {
+      "status": "BLOCKED",
+      "batch": null,
+      "nextBatch": null,
+      "auditArtifact": "current-article-media-audit.json",
+      "auditArtifactPresent": false,
+      "source": "https://radarcharts.net/wp-content/uploads/",
+      "sourceRecovery": "AUTHENTICATED_SOURCE_REQUIRED",
+      "knownBrokenPath": "Unauthenticated radarcharts.net retrieval must not be repeatedly retried",
+      "lastSafeAction": "Read-only source diagnostic; no current media downloads or writes",
+      "nextRequiredAction": "Restore audit artifact, restore Neon access, and obtain authenticated source/export; then run a one-article dry run only"
+    }
+  },
+  "architecture": {
+    "framework": "Next.js 16 App Router / React 19 / TypeScript",
+    "database": "Neon PostgreSQL via @neondatabase/serverless and DATABASE_URL",
+    "cmsTables": ["studio_content", "content_media", "studio_settings"],
+    "publicCache": "Next unstable_cache; compressed shared entry; one-hour revalidate; tag radarsite-public-content",
+    "cacheInvalidation": "PUT /api/studio revalidates tag; POST /api/cache/maintenance revalidates tag and root layout",
+    "adminPolicy": "Authenticated Studio routes are force-dynamic and no-store",
+    "mediaStorage": "Cloudflare R2 via AWS S3-compatible client; bucket radarsite-media",
+    "imagePipeline": "sharp WebP derivatives up to 2400/1600/960/480px without enlargement",
+    "cloudflareWorker": "cloudflare/cache-maintenance-worker; daily 03:00 UTC; configured URL requires production-hostname review"
+  },
+  "stabilityEvidence": {
+    "neon": {
+      "project": "radarcharts-studio",
+      "projectId": "dry-leaf-89473620",
+      "productionBranchId": "br-snowy-block-aehpm8ym",
+      "branchState": "archived",
+      "autoscaling": "0.25-2 CU",
+      "activeTimeSeconds": 43824,
+      "cpuUsedSeconds": 11369,
+      "quotaResetAt": "2026-10-01T00:00:00Z",
+      "tableInspection": "FAILED_HTTP_402_QUOTA_EXCEEDED",
+      "interpretation": "Evidence supports a provider quota/access problem and archived compute state; it does not establish that query shape or connection exhaustion caused the historical 502s."
+    },
+    "sourceDiagnostic": {
+      "currentWordpress": "BLOCKED_OR_UNVERIFIED",
+      "currentWordpressFailure": "TLS_FAILURE: unable to verify the first certificate",
+      "legacyWordpress": "AVAILABLE",
+      "legacyWordpressObserved": "HTTP 200 homepage/feed/sitemap and known article; REST probes did not return JSON"
+    },
+    "r2": {
+      "accountId": "825459f1f313c6c9427bf6718bbd4907",
+      "bucket": "radarsite-media",
+      "bucketList": "PASS_HTTP_200",
+      "legacyObjectList": "PASS_HTTP_200",
+      "sampleCount": 5,
+      "sampleContentType": "image/webp",
+      "sampleCacheControl": "public, max-age=31536000, immutable"
+    },
+    "vercel": {
+      "projectId": "prj_Ntdr68Qf464bFdRMma0MZmmwyyPf",
+      "project": "radarsite",
+      "runtimeLogs": "BLOCKED_HTTP_403",
+      "deploymentDetail": "BLOCKED_OR_NOT_FOUND",
+      "historicalReport": "R2_VERIFICATION_REPORT.md records a successful authenticated R2 health test on deployment dpl_Efgve4zmd8VniJkicnYvFeJhuFDv"
+    }
+  },
+  "relevantFiles": [
+    "src/lib/content-server.ts",
+    "src/lib/media-storage.ts",
+    "src/lib/editorial-migration.ts",
+    "scripts/cms-diagnose.mjs",
+    "scripts/run-legacy-media-migration.py",
+    "legacy-media-migration-manifest.json",
+    "legacy-media-migration-report.json",
+    "R2_VERIFICATION_REPORT.md",
+    "CMS_RECONCILIATION_AUDIT.md",
+    "CLOUDFLARE_MEDIA_CACHE_PLAN.md",
+    "CONTENT_READ_COST_REPORT.md"
+  ],
+  "verification": {
+    "repositoryCleanBeforeCheckpoint": true,
+    "sourceDiagnostic": "PASS_FOR_LEGACY / BLOCKED_CURRENT_TLS",
+    "localContentCount": "PASS_342_ARTICLES",
+    "legacyManifestCount": "PASS_897_OBJECTS",
+    "r2ReadOnlySample": "PASS",
+    "neonSchema": "BLOCKED_QUOTA_AND_ARCHIVED_BRANCH",
+    "vercelObservability": "BLOCKED_PERMISSION",
+    "currentArticleVerification": "NOT_RUN",
+    "productionMigration": "PAUSED"
+  }
+}
