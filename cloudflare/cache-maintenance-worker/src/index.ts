@@ -1,6 +1,7 @@
 export interface Env {
   RADARSITE_CACHE_REVALIDATION_URL: string;
   RADARSITE_CACHE_MAINTENANCE_TOKEN: string;
+  VERCEL_AUTOMATION_BYPASS_SECRET: string;
 }
 
 interface ScheduledController { scheduledTime: number; cron: string; }
@@ -19,6 +20,7 @@ async function runMaintenance(env: Env) {
     method: "POST",
     headers: {
       authorization: `Bearer ${env.RADARSITE_CACHE_MAINTENANCE_TOKEN}`,
+      "x-vercel-protection-bypass": env.VERCEL_AUTOMATION_BYPASS_SECRET,
       "content-type": "application/json",
       "user-agent": "RADARSite-Cloudflare-Cache-Maintenance/1.0",
     },

@@ -10,3 +10,4 @@ RADARSITE_CACHE_REVALIDATION_URL = "https://radarsite-remradars-projects.vercel.
 
 # Set the secret before deployment:
 # wrangler secret put RADARSITE_CACHE_MAINTENANCE_TOKEN
+# wrangler secret put VERCEL_AUTOMATION_BYPASS_SECRET
