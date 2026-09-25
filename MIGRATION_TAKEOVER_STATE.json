@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "project": "remRADAR/RADARSite",
   "branch": "main",
-  "head": "e105d81943cff993ebff4080fe8a84ffe051d16",
-  "checkpointedAt": "2026-09-25T12:36:00Z",
+  "head": "c4f51ab",
+  "checkpointedAt": "2026-09-25T12:53:00Z",
   "classification": {
     "completed": [
       "Repository takeover and architecture discovery",
@@ -14,7 +14,12 @@
       "CMS/API mutation routes are force-dynamic and no-store",
       "Successful R2 health test was previously recorded on 2026-09-18",
       "Cloudflare R2 bucket radarsite-media exists and read-only object inspection succeeded",
-      "Sample legacy R2 objects have image/webp content type and immutable cache headers"
+      "Sample legacy R2 objects have image/webp content type and immutable cache headers",
+      "Isolated WordPress media contract test passed with zero production contact",
+      "Isolated media-health contract test passed with zero production contact",
+      "WebP derivative smoke test passed using sharp",
+      "Lint, TypeScript, and git diff checks passed",
+      "Neon project metadata and snapshot inventory were inspected read-only"
     ],
     "inProgress": [
       "Production stability audit",
@@ -98,6 +103,8 @@
       "cpuUsedSeconds": 11369,
       "quotaResetAt": "2026-10-01T00:00:00Z",
       "tableInspection": "FAILED_HTTP_402_QUOTA_EXCEEDED",
+      "snapshots": [],
+      "recentLogs": [],
       "interpretation": "Evidence supports a provider quota/access problem and archived compute state; it does not establish that query shape or connection exhaustion caused the historical 502s."
     },
     "sourceDiagnostic": {
@@ -138,13 +145,22 @@
   ],
   "verification": {
     "repositoryCleanBeforeCheckpoint": true,
+    "repositoryCleanAfterValidation": true,
     "sourceDiagnostic": "PASS_FOR_LEGACY / BLOCKED_CURRENT_TLS",
     "localContentCount": "PASS_342_ARTICLES",
     "legacyManifestCount": "PASS_897_OBJECTS",
     "r2ReadOnlySample": "PASS",
     "neonSchema": "BLOCKED_QUOTA_AND_ARCHIVED_BRANCH",
+    "neonSnapshots": "EMPTY_LIST",
+    "neonRecentLogs": "EMPTY_LIST",
     "vercelObservability": "BLOCKED_PERMISSION",
     "currentArticleVerification": "NOT_RUN",
-    "productionMigration": "PAUSED"
+    "productionMigration": "PAUSED",
+    "mediaContractTest": "PASS_NO_PRODUCTION_CONTACT",
+    "mediaHealthContractTest": "PASS_NO_PRODUCTION_CONTACT",
+    "webpSmokeTest": "PASS",
+    "lint": "PASS",
+    "typescript": "PASS",
+    "diffCheck": "PASS"
   }
 }

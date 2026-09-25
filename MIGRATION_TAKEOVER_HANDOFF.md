@@ -158,3 +158,69 @@ Machine-readable state is stored in [`MIGRATION_TAKEOVER_STATE.json`](./MIGRATIO
 - **IN PROGRESS:** production stability diagnosis and current-media recovery.
 - **BLOCKED:** Neon schema/query inspection, current-media migration, current-source unauthenticated retrieval, provider runtime observability.
 - **REQUIRES HUMAN ACTION:** restore Neon access/quota, restore the missing audit artifact, provide authenticated WordPress/export access, and restore provider observability permissions if a definitive 502 root cause is required.
+
+
+## Active source-panel prompt execution — 2026-09-25
+
+The Google Doc source prompt was read successfully and executed non-destructively. The prompt’s requirement was infrastructure recovery and safe validation, explicitly **not** bulk migration.
+
+### NEON
+
+- **Restored:** No.
+- **Quota condition:** Project metadata reports the `free_v3` plan, consumption period 2026-09-01 through 2026-10-01, 43,824 seconds active time, and 11,369 CPU seconds. Database inspection still fails with HTTP 402 quota exceeded.
+- **Database health:** Not assessable because the production branch is archived and quota-blocked.
+- **Connection status:** Not assessable; no connection metrics were exposed.
+- **Schema status:** Not assessable; read-only table-size inspection also failed with HTTP 402.
+- **Snapshots:** Neon snapshot inventory returned an empty list.
+- **Recent Neon logs:** Query returned an empty list; this is not evidence that the historical 502s did not occur.
+- **Human action required:** Restore/unarchive the production branch or resolve the Neon quota condition in the Neon dashboard. No restore, reset, snapshot restore, or destructive operation was attempted.
+
+### 502 INVESTIGATION
+
+**Proven:** The current Neon project has an archived production branch and a quota failure. The application’s source code has a shared public cache, one-hour revalidation, no-store admin/API routes, and explicit cache invalidation. R2 is reachable and legacy objects are readable.
+
+**Unverified:** Historical 502 root cause, Vercel runtime error rates, request duration, application resource use, Cloudflare request behavior, Neon connection exhaustion, query latency, indexes, and database error history.
+
+**Remaining observability limitations:** Vercel observability returned HTTP 403; Neon database diagnostics are blocked by HTTP 402. Therefore the historical 502 cause remains **UNKNOWN** and is not attributed to Neon.
+
+### MEDIA AUDIT
+
+- **Recovered:** No.
+- **Location:** `current-article-media-audit.json` remains absent from the checkout, local filesystem, Git refs, and available migration artifacts.
+- **Current assets confirmed:** 0 from a canonical manifest in this environment. The expected handoff counts remain 603 unique URLs, 582 JPEGs, and 21 PNGs; they are not independently re-derived here.
+
+### WORDPRESS
+
+- **Authenticated:** No.
+- **Recovery method:** Not available in the current session. The current source still fails TLS verification from this environment. The required next method is a human-approved WordPress dashboard/media-library session, authenticated REST API, Jetpack/export package, or legitimate filesystem/database backup.
+
+### R2
+
+- **Existing pipeline status:** Verified by source inspection. The existing implementation uses `sharp`, deterministic/provider-qualified identities, SHA-256 checksums, metadata validation, byte verification, immutable cache headers, and cleanup on failure. The existing R2 bucket and legacy WebP samples remain reachable.
+- **Test upload status:** The isolated contract tests passed with `productionContacted: false`; no real current-media upload was attempted.
+- **Conversion test:** WebP smoke test passed with 1200px, 960px, and 480px derivatives.
+
+### DRY RUN
+
+- **Article tested:** None.
+- **Attachment tested:** None.
+- **Conversion result:** No production/current attachment converted; isolated smoke test passed.
+- **R2 result:** No current attachment uploaded; isolated contract tests passed with zero final objects and zero final records.
+- **CMS reference result:** No CMS reference changed.
+- **Rendering verification result:** Not run for a current article because source authentication, audit manifest, and Neon access are unavailable.
+
+### Validation checks
+
+- `npm run media:contract-test` — **PASS**
+- `npm run media-health:contract-test` — **PASS**
+- `npx tsx scripts/media-webp-smoke.ts` — **PASS**
+- `npm run lint` — **PASS**
+- `npx tsc --noEmit` — **PASS**
+- `git diff --check` — **PASS**
+- Working tree — **CLEAN**
+
+### NEXT ACTION
+
+**One precise next action:** Restore/unarchive the Neon `radarcharts-studio` production branch or resolve its quota condition in the Neon dashboard, then rerun the read-only schema/table/index/connection health checks before attempting any media dry run.
+
+Bulk migration remains prohibited until that action succeeds, the current audit is restored, authenticated source media is available, and production stability is demonstrably verified.
