@@ -6,7 +6,7 @@ compatibility_date = "2026-09-24"
 crons = ["0 3 * * *"]
 
 [vars]
-RADARSITE_CACHE_REVALIDATION_URL = "https://radarsite.vercel.app/api/cache/maintenance"
+RADARSITE_CACHE_REVALIDATION_URL = "https://radarsite-remradars-projects.vercel.app/api/cache/maintenance"
 
 # Set the secret before deployment:
 # wrangler secret put RADARSITE_CACHE_MAINTENANCE_TOKEN
