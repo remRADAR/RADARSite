@@ -9,7 +9,7 @@ const SOURCE = {
   attachmentId: 977,
   sourceUrl: "http://radarcharts.net/wp-content/uploads/2026/09/79eb0fd8-f477-422c-bfb1-6ef254d959cc.jpeg",
   expectedBytes: 93215,
-  expectedSha256: "9c79fcd90e064ac61f377b28a7f6d2962e4194f4b3dee9ce6cfcac92882575c",
+  expectedSha256: "9c79fcd90e064ac61f377b28a7f6d2962e4194f4b3dee9ce6cfcac92882575c7",
   articleId: 973,
 };
 

@@ -241,7 +241,7 @@ The correct next phase is not an export from WordPress.com. Once Neon access is 
 
 The controlled test selected article **973**, `gande-is-breaking-boundaries-with-insta-babe`, and its featured WordPress attachment **977**. Through the authenticated `radarcharts.net` browser session, the source file was retrieved successfully over the working HTTP delivery path.
 
-The actual file is a valid JPEG with **93,215 bytes**, exactly matching WordPress metadata; dimensions are **856 × 572**, and the SHA-256 is `9c79fcd90e064ac61f377b28a7f6d2962e4194f4b3dee9ce6cfcac92882575c`. Local MIME detection and `sharp` metadata inspection both passed.
+The actual file is a valid JPEG with **93,215 bytes**, exactly matching WordPress metadata; dimensions are **856 × 572**, and the SHA-256 is `9c79fcd90e064ac61f377b28a7f6d2962e4194f4b3dee9ce6cfcac92882575c7`. Local MIME detection and `sharp` metadata inspection both passed.
 
 The remaining dry-run stages were intentionally not executed. No WebP conversion, R2 upload, Neon write, CMS reference update, or rendering change was performed because Neon remains archived and database inspection still fails HTTP 402 quota exceeded. The detailed result is recorded in `current-article-media-dry-run.report.json`.
 
