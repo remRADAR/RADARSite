@@ -1,0 +1,48 @@
+{
+  "status": "SOURCE_ATTACHMENT_VERIFIED_R2_AND_CMS_STAGED_BUT_NOT_EXECUTED",
+  "article": {
+    "articleId": 973,
+    "slug": "gande-is-breaking-boundaries-with-insta-babe",
+    "sourceUrl": "https://radarcharts.net/2026/09/06/gande-is-breaking-boundaries-with-insta-babe/"
+  },
+  "attachment": {
+    "attachmentId": 977,
+    "role": "featured",
+    "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/79eb0fd8-f477-422c-bfb1-6ef254d959cc.jpeg",
+    "filename": "2026/09/79eb0fd8-f477-422c-bfb1-6ef254d959cc.jpeg",
+    "expectedBytes": 93215,
+    "actualBytes": 93215,
+    "sizeMatch": true,
+    "mimeType": "image/jpeg",
+    "width": 856,
+    "height": 572,
+    "sha256": "9c79fcd90e064ac61f377b28a7f6d2962e4194f4b3dee9ce6cfcac92882575c"
+  },
+  "sourceVerification": {
+    "status": "PASS",
+    "method": "Authenticated browser delivery through logged-in radarcharts.net session plus local file/MIME/sharp inspection"
+  },
+  "conversion": {
+    "status": "NOT_EXECUTED",
+    "reason": "Neon remains quota-blocked and the approved dry-run sequence requires database safety before proceeding"
+  },
+  "r2": {
+    "status": "NOT_EXECUTED",
+    "reason": "No R2 upload was performed before database/CMS safety gate"
+  },
+  "cmsReference": {
+    "status": "NOT_EXECUTED",
+    "reason": "Neon production branch remains archived; database inspection fails HTTP 402 quota exceeded"
+  },
+  "rendering": {
+    "status": "NOT_EXECUTED",
+    "reason": "No CMS reference was changed"
+  },
+  "writes": {
+    "wordpress": false,
+    "neon": false,
+    "cms": false,
+    "r2": false
+  },
+  "nextAction": "Restore/unarchive Neon production access or resolve quota, then run read-only database health checks before converting or uploading this verified attachment."
+}

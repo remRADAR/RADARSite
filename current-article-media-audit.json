@@ -9,8 +9,10 @@
       "/wp-json/wp/v2/posts?per_page=100&page=1",
       "/wp-json/wp/v2/media?include=<referenced attachment IDs>"
     ],
-    "bytesVerified": false,
-    "status": "AUTHENTICATED_METADATA_REGENERATED_ALL_REFERENCED_ATTACHMENT_IDS"
+    "bytesVerified": true,
+    "status": "AUTHENTICATED_METADATA_REGENERATED_ALL_REFERENCED_ATTACHMENT_IDS",
+    "bytesVerifiedCount": 1,
+    "bytesUnverifiedCount": 138
   },
   "summary": {
     "currentArticles": 63,
@@ -22,7 +24,9 @@
     "authenticatedAttachmentRecords": 139,
     "unresolvedAttachmentReferences": 0,
     "metadataRecordsMergedThisPass": 39,
-    "mimeClassification": "inferred from authenticated WordPress attachment filename because API response omitted top-level mime field"
+    "mimeClassification": "inferred from authenticated WordPress attachment filename because API response omitted top-level mime field",
+    "verifiedSourceBytes": 1,
+    "unverifiedSourceBytes": 138
   },
   "articles": [
     {
@@ -3947,7 +3951,15 @@
       "width": 856,
       "height": 572,
       "byteSize": 93215,
-      "metadataStatus": "authenticated-wordpress-api"
+      "metadataStatus": "authenticated-wordpress-api",
+      "sourceBytesVerified": true,
+      "verifiedByteSize": 93215,
+      "verifiedSha256": "9c79fcd90e064ac61f377b28a7f6d2962e4194f4b3dee9ce6cfcac92882575c",
+      "verifiedMimeType": "image/jpeg",
+      "verifiedWidth": 856,
+      "verifiedHeight": 572,
+      "verifiedAt": "2026-09-26T16:14:40Z",
+      "verificationMethod": "Authenticated browser delivery via HTTP source URL; local SHA-256 and sharp metadata inspection"
     },
     {
       "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/89f009ad-bc69-482a-8230-6c6760d0306f.jpeg",

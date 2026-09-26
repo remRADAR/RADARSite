@@ -236,3 +236,11 @@ The prior handoff figure of **603 unique image URLs** represents URL variants ac
 The regenerated files are `current-article-media-audit.json` and `current-article-media-audit.report.json`. They are explicitly marked **metadata confirmed, source bytes and SHA-256 not yet verified**. No WordPress content, Neon records, CMS records, or R2 objects were changed.
 
 The correct next phase is not an export from WordPress.com. Once Neon access is restored, verify the source bytes and checksum for exactly one authenticated attachment, then perform the isolated R2/CMS dry-run sequence. Bulk migration remains paused.
+
+## Controlled single-attachment source verification — 2026-09-26
+
+The controlled test selected article **973**, `gande-is-breaking-boundaries-with-insta-babe`, and its featured WordPress attachment **977**. Through the authenticated `radarcharts.net` browser session, the source file was retrieved successfully over the working HTTP delivery path.
+
+The actual file is a valid JPEG with **93,215 bytes**, exactly matching WordPress metadata; dimensions are **856 × 572**, and the SHA-256 is `9c79fcd90e064ac61f377b28a7f6d2962e4194f4b3dee9ce6cfcac92882575c`. Local MIME detection and `sharp` metadata inspection both passed.
+
+The remaining dry-run stages were intentionally not executed. No WebP conversion, R2 upload, Neon write, CMS reference update, or rendering change was performed because Neon remains archived and database inspection still fails HTTP 402 quota exceeded. The detailed result is recorded in `current-article-media-dry-run.report.json`.

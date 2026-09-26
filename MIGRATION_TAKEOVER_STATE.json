@@ -3,7 +3,7 @@
   "project": "remRADAR/RADARSite",
   "branch": "main",
   "head": "46160fa",
-  "checkpointedAt": "2026-09-26T16:11:00Z",
+  "checkpointedAt": "2026-09-26T16:15:00Z",
   "classification": {
     "completed": [
       "Repository takeover and architecture discovery",
@@ -23,7 +23,8 @@
       "Authenticated self-hosted WordPress REST access confirmed through takeover browser",
       "Current article media audit regenerated from all 63 current posts",
       "All 139 referenced WordPress attachment IDs resolved with metadata",
-      "Current article featured and inline media relationships reconciled with zero unresolved references"
+      "Current article featured and inline media relationships reconciled with zero unresolved references",
+      "Single authenticated source attachment byte and checksum verification passed for WordPress attachment 977"
     ],
     "inProgress": [
       "Production stability audit",
@@ -54,14 +55,16 @@
     "currentPngFiles": 21,
     "committedSnapshotArticles": 342,
     "committedLegacyManifestObjects": 897,
-    "verifiedCurrentMediaObjects": 0,
+    "verifiedCurrentMediaObjects": 1,
     "verifiedCurrentArticles": 63,
     "verifiedDatabaseArticleCount": null,
     "verifiedDatabaseMediaCount": null,
     "currentCanonicalAttachmentAssets": 139,
     "currentUniqueImageUrlsExpectedFromPriorAudit": 603,
     "currentJpegAssetsFromAuthenticatedMetadata": 133,
-    "currentPngAssetsFromAuthenticatedMetadata": 6
+    "currentPngAssetsFromAuthenticatedMetadata": 6,
+    "verifiedSourceBytes": 1,
+    "unverifiedSourceBytes": 138
   },
   "migration": {
     "legacy": {
@@ -75,7 +78,7 @@
       "doNotRerun": true
     },
     "current": {
-      "status": "AUDIT_REGENERATED_METADATA_ONLY_BYTES_UNVERIFIED",
+      "status": "SINGLE_SOURCE_ATTACHMENT_VERIFIED_R2_CMS_BLOCKED",
       "batch": null,
       "nextBatch": null,
       "auditArtifact": "current-article-media-audit.json",
@@ -83,8 +86,8 @@
       "source": "https://radarcharts.net/wp-content/uploads/",
       "sourceRecovery": "AUTHENTICATED_WORDPRESS_REST_API_CONFIRMED",
       "knownBrokenPath": "Unauthenticated radarcharts.net retrieval must not be repeatedly retried",
-      "lastSafeAction": "Regenerated metadata audit from authenticated self-hosted WordPress; no bytes downloaded and no writes performed",
-      "nextRequiredAction": "Restore Neon access, then verify source bytes and SHA-256 for one attachment before any R2/CMS operation"
+      "lastSafeAction": "Verified attachment 977 actual bytes, MIME, dimensions, and SHA-256 through authenticated browser delivery",
+      "nextRequiredAction": "Restore Neon access, run read-only database health checks, then continue this same attachment through local WebP conversion and isolated R2/CMS dry run"
     }
   },
   "architecture": {
@@ -154,7 +157,8 @@
     "CLOUDFLARE_MEDIA_CACHE_PLAN.md",
     "CONTENT_READ_COST_REPORT.md",
     "current-article-media-audit.json",
-    "current-article-media-audit.report.json"
+    "current-article-media-audit.report.json",
+    "current-article-media-dry-run.report.json"
   ],
   "verification": {
     "repositoryCleanBeforeCheckpoint": true,
@@ -167,7 +171,7 @@
     "neonSnapshots": "EMPTY_LIST",
     "neonRecentLogs": "EMPTY_LIST",
     "vercelObservability": "BLOCKED_PERMISSION",
-    "currentArticleVerification": "METADATA_RELATIONSHIPS_PASS_63_ARTICLES_139_ATTACHMENTS",
+    "currentArticleVerification": "ONE_ATTACHMENT_SOURCE_BYTES_PASS_138_UNVERIFIED",
     "productionMigration": "PAUSED",
     "mediaContractTest": "PASS_NO_PRODUCTION_CONTACT",
     "mediaHealthContractTest": "PASS_NO_PRODUCTION_CONTACT",
@@ -175,6 +179,6 @@
     "lint": "PASS",
     "typescript": "PASS",
     "diffCheck": "PASS",
-    "currentMediaAudit": "REGENERATED_AUTHENTICATED_METADATA_BYTES_UNVERIFIED"
+    "currentMediaAudit": "METADATA_RELATIONSHIPS_PASS_63_ARTICLES_139_ATTACHMENTS_ONE_SOURCE_BYTES_VERIFIED"
   }
 }
