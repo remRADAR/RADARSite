@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createWebpDerivatives, checksumSha256, headMediaObject, mediaStorageConfig, putMediaObject, readMediaObjectBytes, validateMediaDeliveryUrl } from "@/lib/media-storage";
+import { createWebpDerivatives, checksumSha256, deleteMediaObject, headMediaObject, mediaStorageConfig, putMediaObject, readMediaObjectBytes, validateMediaDeliveryUrl } from "@/lib/media-storage";
 import { getSessionCookieName, isSessionValid } from "@/lib/studio-server";
 
 export const dynamic = "force-dynamic";
@@ -26,14 +26,16 @@ export async function POST(request: NextRequest) {
   if (body.confirmation !== DRY_RUN_CONFIRMATION) return json({ error: "Explicit dry-run confirmation required", expected: DRY_RUN_CONFIRMATION }, { status: 400 });
 
   const keyPrefix = `dry-run/current-media/attachment-${SOURCE.attachmentId}`;
+  const uploadedKeys: string[] = [];
+  let result: Record<string, unknown>;
+  let status = 200;
+
   try {
     const sourceResponse = await fetch(SOURCE.sourceUrl, { cache: "no-store", redirect: "follow" });
     if (!sourceResponse.ok) throw new Error(`WordPress source returned HTTP ${sourceResponse.status}`);
     const source = Buffer.from(await sourceResponse.arrayBuffer());
     const sourceSha256 = checksumSha256(source);
-    if (source.length !== SOURCE.expectedBytes || sourceSha256 !== SOURCE.expectedSha256) {
-      throw new Error(`Source verification mismatch: bytes=${source.length}, sha256=${sourceSha256}`);
-    }
+    if (source.length !== SOURCE.expectedBytes || sourceSha256 !== SOURCE.expectedSha256) throw new Error(`Source verification mismatch: bytes=${source.length}, sha256=${sourceSha256}`);
 
     const conversion = await createWebpDerivatives({ source, keyPrefix, quality: 82 });
     const uploaded = [];
@@ -44,39 +46,26 @@ export async function POST(request: NextRequest) {
         body: derivative.body,
         contentType: derivative.contentType,
         cacheControl: "public, max-age=31536000, immutable",
-        metadata: {
-          dry_run: "true",
-          source_provider: "radarcharts",
-          source_article_id: String(SOURCE.articleId),
-          source_attachment_id: String(SOURCE.attachmentId),
-          source_sha256: sourceSha256,
-          derivative_sha256: derivativeSha256,
-        },
+        metadata: { dry_run: "true", source_provider: "radarcharts", source_article_id: String(SOURCE.articleId), source_attachment_id: String(SOURCE.attachmentId), source_sha256: sourceSha256, derivative_sha256: derivativeSha256 },
       });
+      uploadedKeys.push(derivative.key);
       const head = await headMediaObject(derivative.key);
       const downloaded = await readMediaObjectBytes(derivative.key);
       const downloadedSha256 = checksumSha256(downloaded);
       const deliveryUrl = validateMediaDeliveryUrl({ key: derivative.key, url: stored.url, config: mediaStorageConfig() });
-      uploaded.push({
-        key: derivative.key,
-        url: stored.url,
-        contentType: head.contentType,
-        uploadedBytes: derivative.body.byteLength,
-        headBytes: head.size,
-        downloadedBytes: downloaded.byteLength,
-        expectedSha256: derivativeSha256,
-        downloadedSha256,
-        bytesMatch: head.size === derivative.body.byteLength && downloaded.byteLength === derivative.body.byteLength,
-        checksumMatch: downloadedSha256 === derivativeSha256,
-        deliveryUrl,
-        metadata: head.metadata,
-        width: derivative.width,
-        height: derivative.height,
-      });
+      uploaded.push({ key: derivative.key, url: stored.url, contentType: head.contentType, uploadedBytes: derivative.body.byteLength, headBytes: head.size, downloadedBytes: downloaded.byteLength, expectedSha256: derivativeSha256, downloadedSha256, bytesMatch: head.size === derivative.body.byteLength && downloaded.byteLength === derivative.body.byteLength, checksumMatch: downloadedSha256 === derivativeSha256, deliveryUrl, metadata: head.metadata, width: derivative.width, height: derivative.height });
     }
-
-    return json({ ok: uploaded.every((item) => item.bytesMatch && item.checksumMatch), source: { ...SOURCE, actualBytes: source.length, actualSha256: sourceSha256, contentType: sourceResponse.headers.get("content-type") }, conversion: { sourceMimeType: conversion.sourceMimeType, sourceWidth: conversion.sourceWidth, sourceHeight: conversion.sourceHeight, quality: 82 }, r2: { bucket: mediaStorageConfig().bucket, keyPrefix, uploaded } });
+    result = { ok: uploaded.every((item) => item.bytesMatch && item.checksumMatch), source: { ...SOURCE, actualBytes: source.length, actualSha256: sourceSha256, contentType: sourceResponse.headers.get("content-type") }, conversion: { sourceMimeType: conversion.sourceMimeType, sourceWidth: conversion.sourceWidth, sourceHeight: conversion.sourceHeight, quality: 82 }, r2: { bucket: mediaStorageConfig().bucket, keyPrefix, uploaded } };
   } catch (error) {
-    return json({ ok: false, error: error instanceof Error ? error.message : "Media dry run failed", source: SOURCE, keyPrefix }, { status: 502 });
+    status = 502;
+    result = { ok: false, error: error instanceof Error ? error.message : "Media dry run failed", source: SOURCE, keyPrefix };
   }
+
+  const cleanupErrors: string[] = [];
+  for (const key of uploadedKeys) {
+    try { await deleteMediaObject(key); } catch (error) { cleanupErrors.push(`${key}:${error instanceof Error ? error.message : String(error)}`); }
+  }
+  result.cleanup = { attempted: uploadedKeys.length > 0, deletedKeys: uploadedKeys.length - cleanupErrors.length, remainingKeys: cleanupErrors.length, complete: cleanupErrors.length === 0, errors: cleanupErrors };
+  if (cleanupErrors.length > 0) { result.ok = false; status = 502; }
+  return json(result, { status });
 }
