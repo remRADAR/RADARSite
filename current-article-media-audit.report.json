@@ -1,0 +1,44 @@
+{
+  "status": "REGENERATED_METADATA_CONFIRMED_BYTES_NOT_YET_VERIFIED",
+  "source": {
+    "provider": "radarcharts.net",
+    "site": "https://radarcharts.net",
+    "method": "authenticated WordPress REST API via logged-in admin session",
+    "apiEndpoints": [
+      "/wp-json/wp/v2/posts?per_page=100&page=1",
+      "/wp-json/wp/v2/media?include=<referenced attachment IDs>"
+    ],
+    "bytesVerified": false,
+    "status": "AUTHENTICATED_METADATA_REGENERATED_ALL_REFERENCED_ATTACHMENT_IDS"
+  },
+  "summary": {
+    "currentArticles": 63,
+    "featuredMediaArticles": 59,
+    "inlineImageArticles": 63,
+    "uniqueImageAssets": 139,
+    "jpegAssets": 133,
+    "pngAssets": 6,
+    "authenticatedAttachmentRecords": 139,
+    "unresolvedAttachmentReferences": 0,
+    "metadataRecordsMergedThisPass": 39,
+    "mimeClassification": "inferred from authenticated WordPress attachment filename because API response omitted top-level mime field"
+  },
+  "reconciliation": {
+    "handoffExpectedCurrentArticles": 63,
+    "actualCurrentArticles": 63,
+    "handoffExpectedFeaturedMediaArticles": 59,
+    "actualFeaturedMediaArticles": 59,
+    "handoffExpectedInlineImageArticles": 63,
+    "actualInlineImageArticles": 63,
+    "handoffExpectedUniqueImageUrls": 603,
+    "actualCanonicalAttachmentAssets": 139,
+    "interpretation": "The prior 603 figure counted image URL variants (src/srcset/derivatives). The authenticated WordPress attachment API resolves those references to 139 canonical attachment records; all 139 referenced IDs were retrieved and all article references resolved."
+  },
+  "notes": [
+    "All 63 current posts were retrieved through the authenticated self-hosted WordPress REST API.",
+    "All 139 referenced attachment IDs were reconciled across two authenticated media API pages.",
+    "Attachment metadata includes canonical source URL, filename, dimensions, and WordPress-reported file size.",
+    "Source bytes and SHA-256 checksums have not yet been downloaded or verified.",
+    "No WordPress, Neon, CMS, or R2 writes were performed."
+  ]
+}

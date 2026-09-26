@@ -1,0 +1,4017 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-25T16:12:46Z",
+  "source": {
+    "provider": "radarcharts.net",
+    "site": "https://radarcharts.net",
+    "method": "authenticated WordPress REST API via logged-in admin session",
+    "apiEndpoints": [
+      "/wp-json/wp/v2/posts?per_page=100&page=1",
+      "/wp-json/wp/v2/media?include=<referenced attachment IDs>"
+    ],
+    "bytesVerified": false,
+    "status": "AUTHENTICATED_METADATA_REGENERATED_ALL_REFERENCED_ATTACHMENT_IDS"
+  },
+  "summary": {
+    "currentArticles": 63,
+    "featuredMediaArticles": 59,
+    "inlineImageArticles": 63,
+    "uniqueImageAssets": 139,
+    "jpegAssets": 133,
+    "pngAssets": 6,
+    "authenticatedAttachmentRecords": 139,
+    "unresolvedAttachmentReferences": 0,
+    "metadataRecordsMergedThisPass": 39,
+    "mimeClassification": "inferred from authenticated WordPress attachment filename because API response omitted top-level mime field"
+  },
+  "articles": [
+    {
+      "articleId": 973,
+      "slug": "gande-is-breaking-boundaries-with-insta-babe",
+      "title": "GANDE IS BREAKING BOUNDARIES WITH “INSTA BABE”",
+      "sourceUrl": "https://radarcharts.net/2026/09/06/gande-is-breaking-boundaries-with-insta-babe/",
+      "date": "2026-09-06T19:36:18",
+      "modified": "2026-09-06T19:36:21",
+      "status": "publish",
+      "featuredMediaId": 977,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 977,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/79eb0fd8-f477-422c-bfb1-6ef254d959cc.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/79eb0fd8-f477-422c-bfb1-6ef254d959cc.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 976,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/3bc16e07-b001-4f1f-8878-af56deb74656-1024x956.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/3bc16e07-b001-4f1f-8878-af56deb74656.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/09/3bc16e07-b001-4f1f-8878-af56deb74656-1024x956.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/09/3bc16e07-b001-4f1f-8878-af56deb74656-300x280.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/09/3bc16e07-b001-4f1f-8878-af56deb74656-768x717.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/09/3bc16e07-b001-4f1f-8878-af56deb74656.jpeg 1080w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 911,
+      "slug": "one-voice-kingx-vibe-beat-calls-on-nigerians-to-unite-through-music-spoken-word-and-a-shared-message-of-hope",
+      "title": "ONE VOICE: Kingx Vibe Beat Calls on Nigerians to Unite Through Music, Spoken Word and a Shared Message of Hope",
+      "sourceUrl": "https://radarcharts.net/2026/09/04/one-voice-kingx-vibe-beat-calls-on-nigerians-to-unite-through-music-spoken-word-and-a-shared-message-of-hope/",
+      "date": "2026-09-04T14:03:01",
+      "modified": "2026-09-04T14:03:04",
+      "status": "publish",
+      "featuredMediaId": 914,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 914,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/89f009ad-bc69-482a-8230-6c6760d0306f.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/89f009ad-bc69-482a-8230-6c6760d0306f.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 913,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/35eb8343-5ee3-4a2c-9ff7-67e289b33242-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/35eb8343-5ee3-4a2c-9ff7-67e289b33242.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/09/35eb8343-5ee3-4a2c-9ff7-67e289b33242-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/09/35eb8343-5ee3-4a2c-9ff7-67e289b33242-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/09/35eb8343-5ee3-4a2c-9ff7-67e289b33242-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/09/35eb8343-5ee3-4a2c-9ff7-67e289b33242-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/09/35eb8343-5ee3-4a2c-9ff7-67e289b33242-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/09/35eb8343-5ee3-4a2c-9ff7-67e289b33242-100x100.jpeg 100w, https://radarcharts.net/wp-content/uploads/2026/09/35eb8343-5ee3-4a2c-9ff7-67e289b33242.jpeg 2046w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 901,
+      "slug": "rhia-bello-invites-everyone-to-celebrate-connect-and-drink-up",
+      "title": "RHIA BELLO INVITES EVERYONE TO CELEBRATE, CONNECT AND “DRINK UP”",
+      "sourceUrl": "https://radarcharts.net/2026/09/04/rhia-bello-invites-everyone-to-celebrate-connect-and-drink-up/",
+      "date": "2026-09-04T13:45:21",
+      "modified": "2026-09-04T13:47:18",
+      "status": "publish",
+      "featuredMediaId": 903,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 903,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/IMG_2325.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/IMG_2325.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 902,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/IMG_2322-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/IMG_2322-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/09/IMG_2322-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/09/IMG_2322-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/09/IMG_2322-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/09/IMG_2322-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/09/IMG_2322-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/09/IMG_2322-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/09/IMG_2322-100x100.jpeg 100w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 907,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/IMG_2324-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/IMG_2324-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/09/IMG_2324-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/09/IMG_2324-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/09/IMG_2324-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/09/IMG_2324-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/09/IMG_2324-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/09/IMG_2324-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/09/IMG_2324-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 3
+    },
+    {
+      "articleId": 864,
+      "slug": "biyo-cin-cera-enters-a-new-era-with-boiling-point-an-ep-about-pressure-identity-and-transformation",
+      "title": "BIYO CIN CERA ENTERS A NEW ERA WITH “BOILING POINT,” AN EP ABOUT PRESSURE, IDENTITY AND TRANSFORMATION",
+      "sourceUrl": "https://radarcharts.net/2026/08/31/biyo-cin-cera-enters-a-new-era-with-boiling-point-an-ep-about-pressure-identity-and-transformation/",
+      "date": "2026-08-31T15:05:35",
+      "modified": "2026-08-31T15:05:38",
+      "status": "publish",
+      "featuredMediaId": 887,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 887,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/18746ACD-7EE8-40AF-B771-9BC163164256_1_201_a-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/18746ACD-7EE8-40AF-B771-9BC163164256_1_201_a-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 888,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/08/2F908FCC-7674-421B-A124-9AAC8E342E63_1_201_a-scaled-e1788184681325-1024x829.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/2F908FCC-7674-421B-A124-9AAC8E342E63_1_201_a-scaled-e1788184681325.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/08/2F908FCC-7674-421B-A124-9AAC8E342E63_1_201_a-scaled-e1788184681325-1024x829.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/08/2F908FCC-7674-421B-A124-9AAC8E342E63_1_201_a-scaled-e1788184681325-300x243.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/08/2F908FCC-7674-421B-A124-9AAC8E342E63_1_201_a-scaled-e1788184681325-768x622.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/08/2F908FCC-7674-421B-A124-9AAC8E342E63_1_201_a-scaled-e1788184681325-1536x1244.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/08/2F908FCC-7674-421B-A124-9AAC8E342E63_1_201_a-scaled-e1788184681325.jpeg 1707w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 877,
+      "slug": "bhadboi-dela-building-his-own-sound-one-record-at-a-time",
+      "title": "BHADBOI DELA: BUILDING HIS OWN SOUND, ONE RECORD AT A TIME",
+      "sourceUrl": "https://radarcharts.net/2026/08/29/bhadboi-dela-building-his-own-sound-one-record-at-a-time/",
+      "date": "2026-08-29T13:04:04",
+      "modified": "2026-08-29T13:04:13",
+      "status": "publish",
+      "featuredMediaId": 882,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 882,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_5006-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_5006-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 879,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_5005-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_5005-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_5005-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_5005-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_5005-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_5005-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_5005-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_5005-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_5005-100x100.jpeg 100w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 883,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3726-819x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3726-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3726-819x1024.jpeg 819w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3726-240x300.jpeg 240w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3726-768x960.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3726-1229x1536.jpeg 1229w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3726-1639x2048.jpeg 1639w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3726-scaled.jpeg 2048w"
+        }
+      ],
+      "imageReferenceCount": 3
+    },
+    {
+      "articleId": 872,
+      "slug": "justone-sukay-emerges-as-a-distinctive-new-voice-in-abujas-music-scene",
+      "title": "JustOne Sukay Emerges as a Distinctive New Voice in Abuja’s Music Scene",
+      "sourceUrl": "https://radarcharts.net/2026/08/27/justone-sukay-emerges-as-a-distinctive-new-voice-in-abujas-music-scene/",
+      "date": "2026-08-27T13:59:53",
+      "modified": "2026-08-27T13:59:56",
+      "status": "publish",
+      "featuredMediaId": 874,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 874,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/80b03f13-5610-4890-957f-0cf99fcbb2f6.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/80b03f13-5610-4890-957f-0cf99fcbb2f6.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 873,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/b68c8295-35d8-45e9-bbcd-ff97d3cc731e-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/b68c8295-35d8-45e9-bbcd-ff97d3cc731e.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/08/b68c8295-35d8-45e9-bbcd-ff97d3cc731e-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/08/b68c8295-35d8-45e9-bbcd-ff97d3cc731e-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/08/b68c8295-35d8-45e9-bbcd-ff97d3cc731e-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/08/b68c8295-35d8-45e9-bbcd-ff97d3cc731e-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/08/b68c8295-35d8-45e9-bbcd-ff97d3cc731e-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/08/b68c8295-35d8-45e9-bbcd-ff97d3cc731e-100x100.jpeg 100w, https://radarcharts.net/wp-content/uploads/2026/08/b68c8295-35d8-45e9-bbcd-ff97d3cc731e.jpeg 1706w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 858,
+      "slug": "emiwizzy-celebrates-life-progress-and-the-journey-on-new-single-happy-day-featuring-david-acekeyz",
+      "title": "EMIWIZZY CELEBRATES LIFE, PROGRESS AND THE JOURNEY ON NEW SINGLE “HAPPY DAY” FEATURING DAVID ACEKEYZ",
+      "sourceUrl": "https://radarcharts.net/2026/08/15/emiwizzy-celebrates-life-progress-and-the-journey-on-new-single-happy-day-featuring-david-acekeyz/",
+      "date": "2026-08-15T15:36:23",
+      "modified": "2026-08-15T15:36:29",
+      "status": "publish",
+      "featuredMediaId": 860,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 860,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3294-1.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3294-1.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 861,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/08/IMG_3295-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3295.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3295-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3295-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3295-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3295-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3295-100x100.jpeg 100w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3295.jpeg 1259w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 850,
+      "slug": "emiwizzy-set-to-bring-a-new-energy-with-happy-day-featuring-david-acekeyz",
+      "title": "EMIWIZZY SET TO BRING A NEW ENERGY WITH “HAPPY DAY” FEATURING DAVID ACEKEYZ",
+      "sourceUrl": "https://radarcharts.net/2026/08/13/emiwizzy-set-to-bring-a-new-energy-with-happy-day-featuring-david-acekeyz/",
+      "date": "2026-08-13T13:31:18",
+      "modified": "2026-08-13T13:31:20",
+      "status": "publish",
+      "featuredMediaId": 852,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 852,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3293.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3293.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 854,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3294-edited.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3294-edited.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3294-edited.jpeg 1246w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3294-edited-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3294-edited-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3294-edited-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3294-edited-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3294-edited-100x100.jpeg 100w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 855,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3331-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3331-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3331-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3331-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3331-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3331-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3331-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3331-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/08/IMG_3331-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 3
+    },
+    {
+      "articleId": 839,
+      "slug": "artist-spotlight-melly-hypa",
+      "title": "Artist Spotlight: Melly Hypa",
+      "sourceUrl": "https://radarcharts.net/2026/07/27/artist-spotlight-melly-hypa/",
+      "date": "2026-07-27T16:18:42",
+      "modified": "2026-07-27T16:18:45",
+      "status": "publish",
+      "featuredMediaId": 842,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 842,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2910-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2910-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 841,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2908-1-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2908-1-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2908-1-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/07/IMG_2908-1-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/07/IMG_2908-1-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/07/IMG_2908-1-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/07/IMG_2908-1-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/07/IMG_2908-1-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/07/IMG_2908-1-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 833,
+      "slug": "tulapro-doubles-down-on-his-lifestyle-with-badboy-ii",
+      "title": "TulaPRO Doubles Down on His Lifestyle With BADBOY II",
+      "sourceUrl": "https://radarcharts.net/2026/07/24/tulapro-doubles-down-on-his-lifestyle-with-badboy-ii/",
+      "date": "2026-07-24T18:18:17",
+      "modified": "2026-07-24T18:18:19",
+      "status": "publish",
+      "featuredMediaId": 835,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 835,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/8F5B2DA2-0763-4322-9488-EE576CB34F82.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/8F5B2DA2-0763-4322-9488-EE576CB34F82.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 834,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2839.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2839.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2839.jpeg 640w, https://radarcharts.net/wp-content/uploads/2026/07/IMG_2839-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/07/IMG_2839-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/07/IMG_2839-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 829,
+      "slug": "feyothegenius-embraces-the-night-on-his-most-personal-project-yet-nocturne",
+      "title": "FeyoTheGenius Embraces the Night on His Most Personal Project Yet: NOCTURNE",
+      "sourceUrl": "https://radarcharts.net/2026/07/24/feyothegenius-embraces-the-night-on-his-most-personal-project-yet-nocturne/",
+      "date": "2026-07-24T17:48:45",
+      "modified": "2026-07-25T15:04:55",
+      "status": "publish",
+      "featuredMediaId": 708,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 708,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_2905-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_2905-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 830,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/NOCTURNE-ARTWORK--1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/NOCTURNE-ARTWORK--scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/07/NOCTURNE-ARTWORK--1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/07/NOCTURNE-ARTWORK--300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/07/NOCTURNE-ARTWORK--150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/07/NOCTURNE-ARTWORK--768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/07/NOCTURNE-ARTWORK--1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/07/NOCTURNE-ARTWORK--2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/07/NOCTURNE-ARTWORK--100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 821,
+      "slug": "creative-spotlight-the-visionaries-behind-afrocamp-young-sudan-makama-the-tripster",
+      "title": "CREATIVE SPOTLIGHT: The Visionaries Behind AfroCamp — Young Sudan, Makama &#038; The Tripster",
+      "sourceUrl": "https://radarcharts.net/2026/07/17/creative-spotlight-the-visionaries-behind-afrocamp-young-sudan-makama-the-tripster/",
+      "date": "2026-07-17T12:44:50",
+      "modified": "2026-07-17T16:37:56",
+      "status": "publish",
+      "featuredMediaId": 814,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 814,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2521.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2521.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 825,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/14264838-2AAD-40F0-8282-B71A1DAA37E2-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/14264838-2AAD-40F0-8282-B71A1DAA37E2.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/07/14264838-2AAD-40F0-8282-B71A1DAA37E2-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/07/14264838-2AAD-40F0-8282-B71A1DAA37E2-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/07/14264838-2AAD-40F0-8282-B71A1DAA37E2-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/07/14264838-2AAD-40F0-8282-B71A1DAA37E2-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/07/14264838-2AAD-40F0-8282-B71A1DAA37E2-100x100.jpeg 100w, https://radarcharts.net/wp-content/uploads/2026/07/14264838-2AAD-40F0-8282-B71A1DAA37E2.jpeg 1121w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 811,
+      "slug": "afrocamp-the-creative-collective-rewriting-abujas-underground-culture",
+      "title": "AfroCamp: The Creative Collective Rewriting Abuja’s Underground Culture",
+      "sourceUrl": "https://radarcharts.net/2026/07/09/afrocamp-the-creative-collective-rewriting-abujas-underground-culture/",
+      "date": "2026-07-09T15:59:19",
+      "modified": "2026-07-09T15:59:22",
+      "status": "publish",
+      "featuredMediaId": 818,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 818,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2530-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2530-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 814,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2521-1024x677.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2521.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2521-1024x677.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/07/IMG_2521-300x198.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/07/IMG_2521-768x508.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/07/IMG_2521.jpeg 1080w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 817,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/66a2a2b1-3aa4-4e19-bf80-40badc44aed0-1-1024x682.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/66a2a2b1-3aa4-4e19-bf80-40badc44aed0-1.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/07/66a2a2b1-3aa4-4e19-bf80-40badc44aed0-1-1024x682.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/07/66a2a2b1-3aa4-4e19-bf80-40badc44aed0-1-300x200.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/07/66a2a2b1-3aa4-4e19-bf80-40badc44aed0-1-768x512.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/07/66a2a2b1-3aa4-4e19-bf80-40badc44aed0-1.jpeg 1280w"
+        }
+      ],
+      "imageReferenceCount": 3
+    },
+    {
+      "articleId": 802,
+      "slug": "mamuzo-announces-burtifly-a-new-chapter-in-nigerias-alte-evolution",
+      "title": "Mamuzo Announces &#8216;Burtifly&#8217; — A New Chapter in Nigeria&#8217;s Alte Evolution",
+      "sourceUrl": "https://radarcharts.net/2026/07/01/mamuzo-announces-burtifly-a-new-chapter-in-nigerias-alte-evolution/",
+      "date": "2026-07-01T09:26:13",
+      "modified": "2026-07-09T14:20:15",
+      "status": "publish",
+      "featuredMediaId": 803,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 803,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2319-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2319-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 804,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/07/Art-Cover-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/Art-Cover-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/07/Art-Cover-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/07/Art-Cover-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/07/Art-Cover-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/07/Art-Cover-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/07/Art-Cover-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/07/Art-Cover-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/07/Art-Cover-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 787,
+      "slug": "ef-moon-the-fearless-afro-fusion-visionary-building-a-world-beyond-genres",
+      "title": "EF MOON: The Fearless Afro-Fusion Visionary Building a World Beyond Genres",
+      "sourceUrl": "https://radarcharts.net/2026/06/27/ef-moon-the-fearless-afro-fusion-visionary-building-a-world-beyond-genres/",
+      "date": "2026-06-27T17:53:49",
+      "modified": "2026-06-27T17:53:51",
+      "status": "publish",
+      "featuredMediaId": 790,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 790,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/DSC00095.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/DSC00095.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 792,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/DSC00093-edited.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/DSC00093-edited.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/06/DSC00093-edited.jpeg 2384w, https://radarcharts.net/wp-content/uploads/2026/06/DSC00093-edited-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/06/DSC00093-edited-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/06/DSC00093-edited-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/06/DSC00093-edited-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/06/DSC00093-edited-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/06/DSC00093-edited-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/06/DSC00093-edited-100x100.jpeg 100w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 788,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/06/DSC00084-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/DSC00084.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/06/DSC00084-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/06/DSC00084-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/06/DSC00084-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/06/DSC00084-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/06/DSC00084-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/06/DSC00084-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/06/DSC00084-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 3
+    },
+    {
+      "articleId": 775,
+      "slug": "keasungs-the-independent-storyteller-turning-nigerias-everyday-realities-into-viral-anthems",
+      "title": "ARTIST SPOTLIGHT: KEASUNGS -The Independent Storyteller Turning Nigeria’s Everyday Realities Into Viral Anthems",
+      "sourceUrl": "https://radarcharts.net/2026/06/24/keasungs-the-independent-storyteller-turning-nigerias-everyday-realities-into-viral-anthems/",
+      "date": "2026-06-24T17:32:56",
+      "modified": "2026-06-24T17:34:59",
+      "status": "publish",
+      "featuredMediaId": 778,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 778,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/Photoroom_20260624_45459-PM.png",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/Photoroom_20260624_45459-PM.png"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 777,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/06/IMG_2088-810x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/IMG_2088.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/06/IMG_2088-810x1024.jpeg 810w, https://radarcharts.net/wp-content/uploads/2026/06/IMG_2088-237x300.jpeg 237w, https://radarcharts.net/wp-content/uploads/2026/06/IMG_2088-768x971.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/06/IMG_2088-1215x1536.jpeg 1215w, https://radarcharts.net/wp-content/uploads/2026/06/IMG_2088-1620x2048.jpeg 1620w, https://radarcharts.net/wp-content/uploads/2026/06/IMG_2088.jpeg 1827w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 779,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/06/IMG_2087.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/IMG_2087.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/06/IMG_2087.jpeg 681w, https://radarcharts.net/wp-content/uploads/2026/06/IMG_2087-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/06/IMG_2087-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/06/IMG_2087-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 3
+    },
+    {
+      "articleId": 769,
+      "slug": "artist-spotlight-makama-the-architect-of-nigerias-alternative-future",
+      "title": "ARTIST SPOTLIGHT: MAKAMA &#8211; The Architect of Nigeria’s Alternative Future",
+      "sourceUrl": "https://radarcharts.net/2026/06/24/artist-spotlight-makama-the-architect-of-nigerias-alternative-future/",
+      "date": "2026-06-24T13:13:28",
+      "modified": "2026-06-24T13:15:31",
+      "status": "publish",
+      "featuredMediaId": 771,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 771,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/C9424T01.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/C9424T01.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 770,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/06/D8689937-AEB8-4861-8EED-E9369A7EFF8D.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/D8689937-AEB8-4861-8EED-E9369A7EFF8D.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/06/D8689937-AEB8-4861-8EED-E9369A7EFF8D.jpeg 974w, https://radarcharts.net/wp-content/uploads/2026/06/D8689937-AEB8-4861-8EED-E9369A7EFF8D-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/06/D8689937-AEB8-4861-8EED-E9369A7EFF8D-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/06/D8689937-AEB8-4861-8EED-E9369A7EFF8D-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/06/D8689937-AEB8-4861-8EED-E9369A7EFF8D-100x100.jpeg 100w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 772,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/06/30268098-17DD-4ACE-B221-DC6F68F6170E.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/30268098-17DD-4ACE-B221-DC6F68F6170E.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/06/30268098-17DD-4ACE-B221-DC6F68F6170E.jpeg 667w, https://radarcharts.net/wp-content/uploads/2026/06/30268098-17DD-4ACE-B221-DC6F68F6170E-200x300.jpeg 200w"
+        }
+      ],
+      "imageReferenceCount": 3
+    },
+    {
+      "articleId": 758,
+      "slug": "gyc-embraces-self-worth-and-confidence-on-inspiring-new-single-worth",
+      "title": "GyC Embraces Self-Worth and Confidence on Inspiring New Single “Worth”",
+      "sourceUrl": "https://radarcharts.net/2026/06/08/gyc-embraces-self-worth-and-confidence-on-inspiring-new-single-worth/",
+      "date": "2026-06-08T14:47:55",
+      "modified": "2026-06-08T14:47:59",
+      "status": "publish",
+      "featuredMediaId": 765,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 765,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/IMG_1909.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/IMG_1909.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 764,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/06/IMG_1911.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/IMG_1911.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/06/IMG_1911.jpeg 608w, https://radarcharts.net/wp-content/uploads/2026/06/IMG_1911-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/06/IMG_1911-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/06/IMG_1911-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 755,
+      "slug": "hillz-turns-aspirations-into-reality-on-inspiring-new-single-dream",
+      "title": "Hillz Turns Aspirations Into Reality on Inspiring New Single “Dream”",
+      "sourceUrl": "https://radarcharts.net/2026/06/08/hillz-turns-aspirations-into-reality-on-inspiring-new-single-dream/",
+      "date": "2026-06-08T12:57:44",
+      "modified": "2026-06-08T12:57:46",
+      "status": "publish",
+      "featuredMediaId": 761,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 761,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/77986e68-3859-4b7f-9b17-baa2da539474.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/77986e68-3859-4b7f-9b17-baa2da539474.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 762,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/06/126a2def-01df-437a-ae4a-e3d21c89b789.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/126a2def-01df-437a-ae4a-e3d21c89b789.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/06/126a2def-01df-437a-ae4a-e3d21c89b789.jpeg 625w, https://radarcharts.net/wp-content/uploads/2026/06/126a2def-01df-437a-ae4a-e3d21c89b789-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/06/126a2def-01df-437a-ae4a-e3d21c89b789-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/06/126a2def-01df-437a-ae4a-e3d21c89b789-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 749,
+      "slug": "king-tedis-just-run-it-is-the-soundtrack-of-motion-ambition-and-a-new-afro-trap-generation",
+      "title": "KING TEDI&#8217;S JUST RUN IT IS THE SOUNDTRACK OF MOTION, AMBITION, AND A NEW AFRO-TRAP GENERATION",
+      "sourceUrl": "https://radarcharts.net/2026/06/03/king-tedis-just-run-it-is-the-soundtrack-of-motion-ambition-and-a-new-afro-trap-generation/",
+      "date": "2026-06-03T11:55:13",
+      "modified": "2026-06-03T11:55:17",
+      "status": "publish",
+      "featuredMediaId": 750,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 750,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/ccf6af9d-fe68-4951-a314-9ce0f2999a85.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/ccf6af9d-fe68-4951-a314-9ce0f2999a85.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 751,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/06/bdb70b09-99cf-4889-a313-976ce492b66d.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/bdb70b09-99cf-4889-a313-976ce492b66d.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/06/bdb70b09-99cf-4889-a313-976ce492b66d.jpeg 632w, https://radarcharts.net/wp-content/uploads/2026/06/bdb70b09-99cf-4889-a313-976ce492b66d-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/06/bdb70b09-99cf-4889-a313-976ce492b66d-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/06/bdb70b09-99cf-4889-a313-976ce492b66d-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 744,
+      "slug": "bbig-koni-the-tema-born-afro-fusion-artist-carrying-ghanas-new-dancehall-evolution",
+      "title": "BBIG KONI: The Tema-Born Afro-Fusion Artist Carrying Ghana’s New Dancehall Evolution",
+      "sourceUrl": "https://radarcharts.net/2026/05/25/bbig-koni-the-tema-born-afro-fusion-artist-carrying-ghanas-new-dancehall-evolution/",
+      "date": "2026-05-25T14:44:07",
+      "modified": "2026-05-25T14:44:09",
+      "status": "publish",
+      "featuredMediaId": 747,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 747,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1637-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1637-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 746,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/05/IMG_1632-768x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1632-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1632-768x1024.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1632-225x300.jpeg 225w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1632-1152x1536.jpeg 1152w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1632-1536x2048.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1632-scaled.jpeg 1920w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 738,
+      "slug": "obi-xtra-turns-up-the-heat-with-seductive-new-afro-pop-release-talk-2-me",
+      "title": "OBI Xtra Turns Up the Heat With Seductive New Afro-Pop Release “Talk 2 Me”",
+      "sourceUrl": "https://radarcharts.net/2026/05/23/obi-xtra-turns-up-the-heat-with-seductive-new-afro-pop-release-talk-2-me/",
+      "date": "2026-05-23T22:04:13",
+      "modified": "2026-05-23T22:04:15",
+      "status": "publish",
+      "featuredMediaId": 739,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 739,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1702.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1702.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 740,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/05/IMG_1700-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1700-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1700-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1700-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1700-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1700-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1700-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1700-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1700-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 716,
+      "slug": "solace-zilla-oaks-deliver-cinematic-energy-with-pe0-visualiser",
+      "title": "Solace &#038; Zilla Oaks Deliver Cinematic Energy With “Pe$0” Visualiser",
+      "sourceUrl": "https://radarcharts.net/2026/05/21/solace-zilla-oaks-deliver-cinematic-energy-with-pe0-visualiser/",
+      "date": "2026-05-21T01:43:35",
+      "modified": "2026-05-21T01:43:41",
+      "status": "publish",
+      "featuredMediaId": 719,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 719,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/5b275b6f-9506-4042-a67d-fe3819f0641c.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/5b275b6f-9506-4042-a67d-fe3819f0641c.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 718,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/05/c909b596-58b5-432b-9b5c-401a0c39829c-1024x576.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/c909b596-58b5-432b-9b5c-401a0c39829c.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/05/c909b596-58b5-432b-9b5c-401a0c39829c-1024x576.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/05/c909b596-58b5-432b-9b5c-401a0c39829c-300x169.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/05/c909b596-58b5-432b-9b5c-401a0c39829c-768x432.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/05/c909b596-58b5-432b-9b5c-401a0c39829c.jpeg 1080w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 704,
+      "slug": "feyothegenius-drops-ekaette-say-make-we-call-her-kathy-a-nocturnal-afro-fusion-experience",
+      "title": "FeyoTheGenius Drops “Ekaette Say Make We Call Her Kathy” — A Nocturnal Afro-Fusion Experience",
+      "sourceUrl": "https://radarcharts.net/2026/05/19/feyothegenius-drops-ekaette-say-make-we-call-her-kathy-a-nocturnal-afro-fusion-experience/",
+      "date": "2026-05-19T11:29:47",
+      "modified": "2026-05-19T12:47:57",
+      "status": "publish",
+      "featuredMediaId": 712,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 712,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_2249-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_2249-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 711,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_2253-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_2253-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_2253-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_2253-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_2253-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_2253-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_2253-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_2253-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_2253-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 698,
+      "slug": "fav4-ignites-the-afrobeats-love-wave-with-peace-harmony-a-soulful-anthem-of-intentional-romance",
+      "title": "Fav4 Ignites the Afrobeats Love Wave with “Peace &#038; Harmony” — A Soulful Anthem of Intentional Romance",
+      "sourceUrl": "https://radarcharts.net/2026/05/18/fav4-ignites-the-afrobeats-love-wave-with-peace-harmony-a-soulful-anthem-of-intentional-romance/",
+      "date": "2026-05-18T19:38:11",
+      "modified": "2026-05-18T19:38:14",
+      "status": "publish",
+      "featuredMediaId": 700,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 700,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1508.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1508.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 699,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/05/IMG_1507-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1507.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1507-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1507-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1507-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1507-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1507-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1507-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1507-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 687,
+      "slug": "abujas-trap-momentum-accelerates-as-riq-zilla-oaks-drop-no-stawpin",
+      "title": "Abuja’s Trap Momentum Accelerates as Riq &#038; Zilla Oaks Drop “NO STAWPIN”",
+      "sourceUrl": "https://radarcharts.net/2026/05/17/abujas-trap-momentum-accelerates-as-riq-zilla-oaks-drop-no-stawpin/",
+      "date": "2026-05-17T20:29:18",
+      "modified": "2026-05-18T13:40:25",
+      "status": "publish",
+      "featuredMediaId": 693,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 693,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/b2c46578-5e90-4c52-a061-f91d542402ee.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/b2c46578-5e90-4c52-a061-f91d542402ee.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 692,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/05/1f6e044e-3c57-45a7-8799-b2dcf9592fea-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/1f6e044e-3c57-45a7-8799-b2dcf9592fea.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/05/1f6e044e-3c57-45a7-8799-b2dcf9592fea-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/05/1f6e044e-3c57-45a7-8799-b2dcf9592fea-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/05/1f6e044e-3c57-45a7-8799-b2dcf9592fea-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/05/1f6e044e-3c57-45a7-8799-b2dcf9592fea-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/05/1f6e044e-3c57-45a7-8799-b2dcf9592fea-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/05/1f6e044e-3c57-45a7-8799-b2dcf9592fea-100x100.jpeg 100w, https://radarcharts.net/wp-content/uploads/2026/05/1f6e044e-3c57-45a7-8799-b2dcf9592fea.jpeg 1920w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 688,
+      "slug": "bbig-koni-unveils-new-single-wavy",
+      "title": "BBIG KONI Unveils New Single “Wavy,”",
+      "sourceUrl": "https://radarcharts.net/2026/05/17/bbig-koni-unveils-new-single-wavy/",
+      "date": "2026-05-17T18:50:48",
+      "modified": "2026-05-17T21:12:31",
+      "status": "publish",
+      "featuredMediaId": null,
+      "featuredImage": null,
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 689,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/05/IMG_1513-938x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1513-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1513-938x1024.jpeg 938w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1513-275x300.jpeg 275w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1513-768x838.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1513-1408x1536.jpeg 1408w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1513-1877x2048.jpeg 1877w"
+        }
+      ],
+      "imageReferenceCount": 1
+    },
+    {
+      "articleId": 682,
+      "slug": "zynovox-drops-vibez-on-vibez-a-smooth-afro-chill-anthem-built-for-the-moment",
+      "title": "Zynovox Drops “Vibez on Vibez” — A Smooth Afro-Chill Anthem Built for the Moment",
+      "sourceUrl": "https://radarcharts.net/2026/05/14/zynovox-drops-vibez-on-vibez-a-smooth-afro-chill-anthem-built-for-the-moment/",
+      "date": "2026-05-14T16:49:53",
+      "modified": "2026-05-14T16:49:56",
+      "status": "publish",
+      "featuredMediaId": 684,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 684,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1474-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1474-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 683,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1475-942x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1475-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1475-942x1024.jpeg 942w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1475-276x300.jpeg 276w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1475-768x835.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1475-1413x1536.jpeg 1413w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1475-1884x2048.jpeg 1884w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 652,
+      "slug": "zynovox-sets-the-tone-for-2026-with-vibez-on-vibez-a-smooth-afro-chill-statement",
+      "title": "Zynovox Sets the Tone for 2026 with “Vibez on Vibez” — A Smooth Afro-Chill Statement",
+      "sourceUrl": "https://radarcharts.net/2026/05/11/zynovox-sets-the-tone-for-2026-with-vibez-on-vibez-a-smooth-afro-chill-statement/",
+      "date": "2026-05-11T23:57:24",
+      "modified": "2026-05-12T00:00:28",
+      "status": "publish",
+      "featuredMediaId": 678,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 678,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/3443f11c-42ad-4891-a746-1eac73f0b268.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/3443f11c-42ad-4891-a746-1eac73f0b268.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 679,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/05/IMG_1455-815x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1455.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1455-815x1024.jpeg 815w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1455-239x300.jpeg 239w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1455-768x965.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/05/IMG_1455.jpeg 1024w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 643,
+      "slug": "mayami-the-evolution-of-a-bold-new-voice-in-afrobeat",
+      "title": "MAYAMi: THE EVOLUTION OF A BOLD NEW VOICE IN AFROBEAT",
+      "sourceUrl": "https://radarcharts.net/2026/05/09/mayami-the-evolution-of-a-bold-new-voice-in-afrobeat/",
+      "date": "2026-05-09T18:19:28",
+      "modified": "2026-05-21T14:12:41",
+      "status": "publish",
+      "featuredMediaId": 645,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 645,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/RIC09238-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/RIC09238-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 644,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/05/RIC09267-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/RIC09267-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/05/RIC09267-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/05/RIC09267-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/05/RIC09267-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/05/RIC09267-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/05/RIC09267-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/05/RIC09267-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/05/RIC09267-100x100.jpeg 100w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 646,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/05/RIC08913-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/RIC08913-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/05/RIC08913-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/05/RIC08913-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/05/RIC08913-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/05/RIC08913-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/05/RIC08913-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/05/RIC08913-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/05/RIC08913-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 3
+    },
+    {
+      "articleId": 633,
+      "slug": "99cookies-steps-into-his-era-with-paper-chase",
+      "title": "99COOKIES STEPS INTO HIS ERA WITH “PAPER CHASE”",
+      "sourceUrl": "https://radarcharts.net/2026/05/03/99cookies-steps-into-his-era-with-paper-chase/",
+      "date": "2026-05-03T13:50:54",
+      "modified": "2026-05-03T14:11:11",
+      "status": "publish",
+      "featuredMediaId": 635,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 635,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/Copy-of-99Cookies2-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/Copy-of-99Cookies2-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 634,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/Copy-of-99Cookies6-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/Copy-of-99Cookies6-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/05/Copy-of-99Cookies6-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/05/Copy-of-99Cookies6-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/05/Copy-of-99Cookies6-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/05/Copy-of-99Cookies6-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/05/Copy-of-99Cookies6-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/05/Copy-of-99Cookies6-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/05/Copy-of-99Cookies6-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 629,
+      "slug": "mamuzos-pasta-with-scottyolorin-blaqdee-gains-momentum",
+      "title": "MAMUZO’S “PASTA” WITH SCOTTYOLORIN &amp; BLAQDEE GAINS MOMENTUM",
+      "sourceUrl": "https://radarcharts.net/2026/05/01/mamuzos-pasta-with-scottyolorin-blaqdee-gains-momentum/",
+      "date": "2026-05-01T17:12:15",
+      "modified": "2026-05-01T17:43:54",
+      "status": "publish",
+      "featuredMediaId": 630,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 630,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1218.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1218.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 631,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/05/ab7b9038-05a7-4b59-8fa8-36d97af44bc7.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/ab7b9038-05a7-4b59-8fa8-36d97af44bc7.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/05/ab7b9038-05a7-4b59-8fa8-36d97af44bc7.jpeg 854w, https://radarcharts.net/wp-content/uploads/2026/05/ab7b9038-05a7-4b59-8fa8-36d97af44bc7-300x200.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/05/ab7b9038-05a7-4b59-8fa8-36d97af44bc7-768x513.jpeg 768w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 618,
+      "slug": "plug-from-the-street-ignites-2026-with-pon-pon-pon-a-new-wave-of-afrobeat-romance",
+      "title": "PLUG FROM THE STREET Ignites 2026 With “Pon Pon Pon” — A New Wave of Afrobeat Romance",
+      "sourceUrl": "https://radarcharts.net/2026/04/26/plug-from-the-street-ignites-2026-with-pon-pon-pon-a-new-wave-of-afrobeat-romance/",
+      "date": "2026-04-26T18:08:07",
+      "modified": "2026-04-26T18:08:10",
+      "status": "publish",
+      "featuredMediaId": 624,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 624,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/Pon-Pon-Pon-main-Cover.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/Pon-Pon-Pon-main-Cover.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 623,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/04/IMG_9677-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_9677-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_9677-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_9677-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_9677-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_9677-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_9677-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_9677-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_9677-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 605,
+      "slug": "artist-spotlight-boylikevilla",
+      "title": "ARTIST SPOTLIGHT: BOYLIKEVILLA",
+      "sourceUrl": "https://radarcharts.net/2026/04/21/artist-spotlight-boylikevilla/",
+      "date": "2026-04-21T12:53:27",
+      "modified": "2026-04-21T12:57:52",
+      "status": "publish",
+      "featuredMediaId": null,
+      "featuredImage": null,
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 606,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/04/IMG_2568-819x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_2568-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_2568-819x1024.jpeg 819w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_2568-240x300.jpeg 240w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_2568-768x960.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_2568-1229x1536.jpeg 1229w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_2568-1638x2048.jpeg 1638w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_2568-scaled.jpeg 2048w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 608,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/04/IMG_2569-819x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_2569-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_2569-819x1024.jpeg 819w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_2569-240x300.jpeg 240w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_2569-768x960.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_2569-1229x1536.jpeg 1229w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_2569-1638x2048.jpeg 1638w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_2569-scaled.jpeg 2048w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 601,
+      "slug": "roxy-volcan-ignites-emotion-on-for-love-a-soulful-afro-rnb-statement",
+      "title": "Roxy Volcan Ignites Emotion on “For Love” — A Soulful Afro RnB Statement",
+      "sourceUrl": "https://radarcharts.net/2026/04/21/roxy-volcan-ignites-emotion-on-for-love-a-soulful-afro-rnb-statement/",
+      "date": "2026-04-21T00:34:29",
+      "modified": "2026-04-21T13:04:46",
+      "status": "publish",
+      "featuredMediaId": 613,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 613,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_0955-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_0955-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 603,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/04/IMG_0910-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_0910-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_0910-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_0910-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_0910-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_0910-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_0910-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_0910-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/04/IMG_0910-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 597,
+      "slug": "vikibraun-unlocks-a-new-era-with-key-2-my-heart",
+      "title": "Vikibraun Unlocks a New Era With Key 2 My Heart",
+      "sourceUrl": "https://radarcharts.net/2026/04/19/vikibraun-unlocks-a-new-era-with-key-2-my-heart/",
+      "date": "2026-04-19T07:48:58",
+      "modified": "2026-04-19T07:49:00",
+      "status": "publish",
+      "featuredMediaId": 599,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 599,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/Brown-Artistic-Wall-and-Hand-Shadow-Album-Cover-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/Brown-Artistic-Wall-and-Hand-Shadow-Album-Cover-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 599,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/04/Brown-Artistic-Wall-and-Hand-Shadow-Album-Cover-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/Brown-Artistic-Wall-and-Hand-Shadow-Album-Cover-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/04/Brown-Artistic-Wall-and-Hand-Shadow-Album-Cover-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/04/Brown-Artistic-Wall-and-Hand-Shadow-Album-Cover-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/04/Brown-Artistic-Wall-and-Hand-Shadow-Album-Cover-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/04/Brown-Artistic-Wall-and-Hand-Shadow-Album-Cover-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/04/Brown-Artistic-Wall-and-Hand-Shadow-Album-Cover-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/04/Brown-Artistic-Wall-and-Hand-Shadow-Album-Cover-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/04/Brown-Artistic-Wall-and-Hand-Shadow-Album-Cover-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 593,
+      "slug": "venmak-ignites-the-streets-with-ka-wo-a-high-energy-afrobeats-statement-built-for-the-culture",
+      "title": "VENMAK Ignites the Streets With “Ká Wọ́” — A High-Energy Afrobeats Statement Built for the Culture",
+      "sourceUrl": "https://radarcharts.net/2026/04/11/venmak-ignites-the-streets-with-ka-wo-a-high-energy-afrobeats-statement-built-for-the-culture/",
+      "date": "2026-04-11T11:23:13",
+      "modified": "2026-04-11T11:23:15",
+      "status": "publish",
+      "featuredMediaId": 595,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 595,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/Venmak-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/Venmak-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 595,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/04/Venmak-1024x731.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/Venmak-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/04/Venmak-1024x731.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/04/Venmak-300x214.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/04/Venmak-768x549.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/04/Venmak-1536x1097.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/04/Venmak-2048x1463.jpeg 2048w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 594,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/04/photo-output-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/photo-output-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/04/photo-output-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/04/photo-output-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/04/photo-output-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/04/photo-output-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/04/photo-output-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/04/photo-output-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/04/photo-output-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 3
+    },
+    {
+      "articleId": 581,
+      "slug": "daniel-strongman-delivers-emotional-precision-on-new-release-man-down",
+      "title": "Daniel Strongman Delivers Emotional Precision on New Release “Man Down”",
+      "sourceUrl": "https://radarcharts.net/2026/04/05/daniel-strongman-delivers-emotional-precision-on-new-release-man-down/",
+      "date": "2026-04-05T12:27:45",
+      "modified": "2026-04-05T12:27:47",
+      "status": "publish",
+      "featuredMediaId": 582,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 582,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/2e3a77cd-fc61-4727-aed7-f66a9c3292ff-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/2e3a77cd-fc61-4727-aed7-f66a9c3292ff-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 583,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/04/b32072ac-d142-47da-930b-2fac5306f2cb-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/b32072ac-d142-47da-930b-2fac5306f2cb-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/04/b32072ac-d142-47da-930b-2fac5306f2cb-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/04/b32072ac-d142-47da-930b-2fac5306f2cb-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/04/b32072ac-d142-47da-930b-2fac5306f2cb-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/04/b32072ac-d142-47da-930b-2fac5306f2cb-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/04/b32072ac-d142-47da-930b-2fac5306f2cb-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/04/b32072ac-d142-47da-930b-2fac5306f2cb-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/04/b32072ac-d142-47da-930b-2fac5306f2cb-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 517,
+      "slug": "mamuzo-ignites-a-new-wave-with-pasta-a-psychedelic-afrobeats-anthem-built-for-the-streets-and-beyond",
+      "title": "MAMUZO IGNITES A NEW WAVE WITH “PASTA” — A PSYCHEDELIC AFROBEATS ANTHEM BUILT FOR THE STREETS AND BEYOND",
+      "sourceUrl": "https://radarcharts.net/2026/03/30/mamuzo-ignites-a-new-wave-with-pasta-a-psychedelic-afrobeats-anthem-built-for-the-streets-and-beyond/",
+      "date": "2026-03-30T20:55:58",
+      "modified": "2026-03-30T20:56:04",
+      "status": "publish",
+      "featuredMediaId": 520,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 520,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/C25B6F70-BE5F-495F-800D-75DB9E484D4C.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/C25B6F70-BE5F-495F-800D-75DB9E484D4C.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 519,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/Artworks-1-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/Artworks-1-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/03/Artworks-1-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/03/Artworks-1-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/03/Artworks-1-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/03/Artworks-1-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/03/Artworks-1-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/03/Artworks-1-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/03/Artworks-1-100x100.jpeg 100w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 518,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/49E47460-5F8C-45C1-AFF2-FB34711DD41A-1024x683.png",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/49E47460-5F8C-45C1-AFF2-FB34711DD41A.png",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/03/49E47460-5F8C-45C1-AFF2-FB34711DD41A-1024x683.png 1024w, https://radarcharts.net/wp-content/uploads/2026/03/49E47460-5F8C-45C1-AFF2-FB34711DD41A-300x200.png 300w, https://radarcharts.net/wp-content/uploads/2026/03/49E47460-5F8C-45C1-AFF2-FB34711DD41A-768x512.png 768w, https://radarcharts.net/wp-content/uploads/2026/03/49E47460-5F8C-45C1-AFF2-FB34711DD41A.png 1536w"
+        }
+      ],
+      "imageReferenceCount": 3
+    },
+    {
+      "articleId": 512,
+      "slug": "preacherwd-unlocks-dual-energy-with-undertaker-canaizzy-a-soundtrack-for-hustlers-and-the-culture",
+      "title": "PreacherWD Unlocks Dual Energy With “Undertaker / Canaizzy” — A Soundtrack for Hustlers and the Culture",
+      "sourceUrl": "https://radarcharts.net/2026/03/26/preacherwd-unlocks-dual-energy-with-undertaker-canaizzy-a-soundtrack-for-hustlers-and-the-culture/",
+      "date": "2026-03-26T07:45:36",
+      "modified": "2026-03-26T07:45:39",
+      "status": "publish",
+      "featuredMediaId": 513,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 513,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/75438c32-d167-4c31-ad3d-f0e8af555f91.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/75438c32-d167-4c31-ad3d-f0e8af555f91.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 514,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/5957c306-6551-464e-b1d2-7e5f65e78df3-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/5957c306-6551-464e-b1d2-7e5f65e78df3.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/03/5957c306-6551-464e-b1d2-7e5f65e78df3-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/03/5957c306-6551-464e-b1d2-7e5f65e78df3-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/03/5957c306-6551-464e-b1d2-7e5f65e78df3-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/03/5957c306-6551-464e-b1d2-7e5f65e78df3-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/03/5957c306-6551-464e-b1d2-7e5f65e78df3-100x100.jpeg 100w, https://radarcharts.net/wp-content/uploads/2026/03/5957c306-6551-464e-b1d2-7e5f65e78df3.jpeg 1440w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 508,
+      "slug": "khalies-momentum-era-from-rising-afro-fusion-voice-to-a-defining-discography-run",
+      "title": "Khalie’s Momentum Era: From Rising Afro-Fusion Voice to a Defining Discography Run",
+      "sourceUrl": "https://radarcharts.net/2026/03/26/khalies-momentum-era-from-rising-afro-fusion-voice-to-a-defining-discography-run/",
+      "date": "2026-03-26T03:55:50",
+      "modified": "2026-03-26T03:55:53",
+      "status": "publish",
+      "featuredMediaId": 510,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 510,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/c9046511-3493-4736-9c92-db3613089d5c.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/c9046511-3493-4736-9c92-db3613089d5c.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 509,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/e1b79446-a52a-44fd-b79a-8dae4f35ac07.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/e1b79446-a52a-44fd-b79a-8dae4f35ac07.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/03/e1b79446-a52a-44fd-b79a-8dae4f35ac07.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/03/e1b79446-a52a-44fd-b79a-8dae4f35ac07-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/03/e1b79446-a52a-44fd-b79a-8dae4f35ac07-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/03/e1b79446-a52a-44fd-b79a-8dae4f35ac07-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/03/e1b79446-a52a-44fd-b79a-8dae4f35ac07-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 485,
+      "slug": "blaqrose-announces-crazzy-days-a-presave-experience-rooted-in-pressure-faith-and-becoming",
+      "title": "BlaqRose Announces “Crazzy Days” — A Presave Experience Rooted in Pressure, Faith, and Becoming",
+      "sourceUrl": "https://radarcharts.net/2026/03/25/blaqrose-announces-crazzy-days-a-presave-experience-rooted-in-pressure-faith-and-becoming/",
+      "date": "2026-03-25T18:19:21",
+      "modified": "2026-03-25T18:19:23",
+      "status": "publish",
+      "featuredMediaId": 486,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 486,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_0094.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_0094.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 487,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/IMG_0095-819x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_0095.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_0095-819x1024.jpeg 819w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_0095-240x300.jpeg 240w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_0095-768x960.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_0095-1229x1536.jpeg 1229w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_0095-1638x2048.jpeg 1638w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_0095.jpeg 2000w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 480,
+      "slug": "liltee-aka-industry-number-7-the-rise-of-abujas-bold-afro-drill-maverick",
+      "title": "LILTEE AKA INDUSTRY NUMBER 7: The Rise of Abuja’s Bold Afro-Drill Maverick",
+      "sourceUrl": "https://radarcharts.net/2026/03/20/liltee-aka-industry-number-7-the-rise-of-abujas-bold-afro-drill-maverick/",
+      "date": "2026-03-20T22:42:44",
+      "modified": "2026-03-20T22:42:47",
+      "status": "publish",
+      "featuredMediaId": 482,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 482,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/5ceb6824-13d1-4598-84a6-bcffffa49d84.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/5ceb6824-13d1-4598-84a6-bcffffa49d84.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 481,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/CD0973D0-C606-4283-B038-08E3535F20C3.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/CD0973D0-C606-4283-B038-08E3535F20C3.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/03/CD0973D0-C606-4283-B038-08E3535F20C3.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/03/CD0973D0-C606-4283-B038-08E3535F20C3-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/03/CD0973D0-C606-4283-B038-08E3535F20C3-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/03/CD0973D0-C606-4283-B038-08E3535F20C3-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/03/CD0973D0-C606-4283-B038-08E3535F20C3-100x100.jpeg 100w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 483,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/2fa6787b-b36b-43e2-a43a-f455dfcde369.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/2fa6787b-b36b-43e2-a43a-f455dfcde369.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/03/2fa6787b-b36b-43e2-a43a-f455dfcde369.jpeg 732w, https://radarcharts.net/wp-content/uploads/2026/03/2fa6787b-b36b-43e2-a43a-f455dfcde369-214x300.jpeg 214w"
+        }
+      ],
+      "imageReferenceCount": 3
+    },
+    {
+      "articleId": 472,
+      "slug": "tulapro-engineering-sound-defining-a-new-wave-of-independent-african-music",
+      "title": "TulaPRO: Engineering Sound, Defining a New Wave of Independent African Music",
+      "sourceUrl": "https://radarcharts.net/2026/03/20/tulapro-engineering-sound-defining-a-new-wave-of-independent-african-music/",
+      "date": "2026-03-20T17:00:39",
+      "modified": "2026-05-21T14:13:25",
+      "status": "publish",
+      "featuredMediaId": 475,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 475,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9959-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9959-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 476,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/IMG_9957-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9957-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9957-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9957-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9957-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9957-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9957-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9957-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9957-100x100.jpeg 100w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 477,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/IMG_9961-1024x797.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9961-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9961-1024x797.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9961-300x234.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9961-768x598.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9961-1536x1196.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9961-2048x1594.jpeg 2048w"
+        }
+      ],
+      "imageReferenceCount": 3
+    },
+    {
+      "articleId": 455,
+      "slug": "scottyolorin-r33nzo-turn-the-studio-hustle-into-a-statement-on-new-single-fl-studio",
+      "title": "Scottyolorin &#038; R33nzo Turn the Studio Hustle Into a Statement on New Single “FL Studio”",
+      "sourceUrl": "https://radarcharts.net/2026/03/13/scottyolorin-r33nzo-turn-the-studio-hustle-into-a-statement-on-new-single-fl-studio/",
+      "date": "2026-03-13T15:15:47",
+      "modified": "2026-03-13T15:15:49",
+      "status": "publish",
+      "featuredMediaId": 456,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 456,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9750.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9750.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 457,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/IMG_9747-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9747.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9747-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9747-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9747-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9747-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9747-100x100.jpeg 100w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9747.jpeg 1080w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 448,
+      "slug": "tkaygnd-introduces-afro-whispers-with-new-single-guilty-pleasures",
+      "title": "Tkaygnd Introduces “Afro-Whispers” With New Single — Guilty Pleasures",
+      "sourceUrl": "https://radarcharts.net/2026/03/13/tkaygnd-introduces-afro-whispers-with-new-single-guilty-pleasures/",
+      "date": "2026-03-13T14:25:50",
+      "modified": "2026-03-13T14:26:22",
+      "status": "publish",
+      "featuredMediaId": 449,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 449,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/A015_01191813_S013_18_12_39_16-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/A015_01191813_S013_18_12_39_16-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 451,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/A015_01191745_S011_17_45_58_23-1024x576.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/A015_01191745_S011_17_45_58_23-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/03/A015_01191745_S011_17_45_58_23-1024x576.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/03/A015_01191745_S011_17_45_58_23-300x169.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/03/A015_01191745_S011_17_45_58_23-768x432.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/03/A015_01191745_S011_17_45_58_23-1536x864.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/03/A015_01191745_S011_17_45_58_23-2048x1152.jpeg 2048w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 450,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/A015_01191844_S016_18_44_31_20-1024x576.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/A015_01191844_S016_18_44_31_20-scaled.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/03/A015_01191844_S016_18_44_31_20-1024x576.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/03/A015_01191844_S016_18_44_31_20-300x169.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/03/A015_01191844_S016_18_44_31_20-768x432.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/03/A015_01191844_S016_18_44_31_20-1536x864.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/03/A015_01191844_S016_18_44_31_20-2048x1152.jpeg 2048w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 444,
+      "slug": "taene-steps-into-her-power-with-bold-afro-fusion-anthem-million-girl",
+      "title": "TAENE Steps Into Her Power With Bold Afro-Fusion Anthem “Million Girl”",
+      "sourceUrl": "https://radarcharts.net/2026/03/11/taene-steps-into-her-power-with-bold-afro-fusion-anthem-million-girl/",
+      "date": "2026-03-11T14:30:04",
+      "modified": "2026-05-21T14:13:36",
+      "status": "publish",
+      "featuredMediaId": 445,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 445,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_8163.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_8163.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 446,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/IMG_8162-1024x1024.jpeg",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/IMG_8162.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_8162-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_8162-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_8162-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_8162-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_8162-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_8162-100x100.jpeg 100w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_8162.jpeg 1632w"
+        }
+      ],
+      "imageReferenceCount": 1
+    },
+    {
+      "articleId": 440,
+      "slug": "templah-stays-focused-on-the-mission-with-new-afrobeats-single-my-lane",
+      "title": "Tempłāh Stays Focused on the Mission With New Afrobeats Single “MY LANE”",
+      "sourceUrl": "https://radarcharts.net/2026/03/11/templah-stays-focused-on-the-mission-with-new-afrobeats-single-my-lane/",
+      "date": "2026-03-11T14:07:23",
+      "modified": "2026-03-11T14:07:25",
+      "status": "publish",
+      "featuredMediaId": 442,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 442,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9684.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9684.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 441,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/IMG_9685-1024x1024.jpeg",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/IMG_9685.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9685-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9685-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9685-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9685-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9685-100x100.jpeg 100w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9685.jpeg 1290w"
+        }
+      ],
+      "imageReferenceCount": 1
+    },
+    {
+      "articleId": 431,
+      "slug": "noahdatrap-steps-into-a-fearless-new-chapter-with-fagbo-featuring-gidi-cowboy",
+      "title": "NOAHDATRAP Steps Into a Fearless New Chapter with “FAGBO” Featuring Gidi Cowboy",
+      "sourceUrl": "https://radarcharts.net/2026/03/04/noahdatrap-steps-into-a-fearless-new-chapter-with-fagbo-featuring-gidi-cowboy/",
+      "date": "2026-03-04T13:38:29",
+      "modified": "2026-03-04T13:38:31",
+      "status": "publish",
+      "featuredMediaId": 434,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 434,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9559-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9559-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 433,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/IMG_9561-1024x1024.jpeg",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/IMG_9561.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9561-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9561-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9561-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9561-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9561-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9561-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/03/IMG_9561-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 1
+    },
+    {
+      "articleId": 426,
+      "slug": "toocoldbaby-owns-the-capital-on-i-dey-abuja-a-statement-record-with-national-energy",
+      "title": "Toocoldbaby Owns the Capital on “I DEY ABUJA” — A Statement Record with National Energy",
+      "sourceUrl": "https://radarcharts.net/2026/03/03/toocoldbaby-owns-the-capital-on-i-dey-abuja-a-statement-record-with-national-energy/",
+      "date": "2026-03-03T09:24:38",
+      "modified": "2026-03-03T09:24:40",
+      "status": "publish",
+      "featuredMediaId": 428,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 428,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/15BE3FCF-72A3-4657-BF67-C3B50F3FE5D7.png",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/15BE3FCF-72A3-4657-BF67-C3B50F3FE5D7.png"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 429,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/bf1f087e-af1f-41ca-9acb-331d302ba683.jpeg",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2026/03/bf1f087e-af1f-41ca-9acb-331d302ba683.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/03/bf1f087e-af1f-41ca-9acb-331d302ba683.jpeg 780w, https://radarcharts.net/wp-content/uploads/2026/03/bf1f087e-af1f-41ca-9acb-331d302ba683-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/03/bf1f087e-af1f-41ca-9acb-331d302ba683-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/03/bf1f087e-af1f-41ca-9acb-331d302ba683-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/03/bf1f087e-af1f-41ca-9acb-331d302ba683-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 1
+    },
+    {
+      "articleId": 421,
+      "slug": "capitol-film-fest-3-0-the-infrastructure-abuja-didnt-know-it-was-missing",
+      "title": "Capitol Film Fest 3.0: The Infrastructure Abuja Didn’t Know It Was Missing",
+      "sourceUrl": "https://radarcharts.net/2026/02/26/capitol-film-fest-3-0-the-infrastructure-abuja-didnt-know-it-was-missing/",
+      "date": "2026-02-26T13:40:57",
+      "modified": "2026-02-26T13:41:00",
+      "status": "publish",
+      "featuredMediaId": 422,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 422,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/381BD2BC-750F-4467-8A0E-593CC02484A3.png",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/381BD2BC-750F-4467-8A0E-593CC02484A3.png"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 423,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/02/IMG_9420-822x1024.jpeg",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2026/02/IMG_9420.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9420-822x1024.jpeg 822w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9420-241x300.jpeg 241w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9420-768x956.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9420.jpeg 1170w"
+        }
+      ],
+      "imageReferenceCount": 1
+    },
+    {
+      "articleId": 416,
+      "slug": "halver-ignites-the-night-with-not-for-all-alcohol-a-neon-soaked-afrobeats-comeback",
+      "title": "HALVER IGNITES THE NIGHT WITH “NOT FOR ALL (ALCOHOL)” — A NEON-SOAKED AFROBEATS COMEBACK",
+      "sourceUrl": "https://radarcharts.net/2026/02/25/halver-ignites-the-night-with-not-for-all-alcohol-a-neon-soaked-afrobeats-comeback/",
+      "date": "2026-02-25T12:26:49",
+      "modified": "2026-02-25T12:26:52",
+      "status": "publish",
+      "featuredMediaId": 419,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 419,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9443-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9443-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 418,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/02/IMG_9444-1024x1024.jpeg",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2026/02/IMG_9444.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9444-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9444-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9444-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9444-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9444-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9444-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9444-100x100.jpeg 100w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 417,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/02/IMG_9445-1024x1024.jpeg",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2026/02/IMG_9445.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9445-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9445-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9445-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9445-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9445-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9445-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9445-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 409,
+      "slug": "sativa-boy-enters-a-new-gear-and-something-bigger-is-coming",
+      "title": "Sativa Boy Enters a New Gear — And Something Bigger Is Coming",
+      "sourceUrl": "https://radarcharts.net/2026/02/25/sativa-boy-enters-a-new-gear-and-something-bigger-is-coming/",
+      "date": "2026-02-25T08:52:09",
+      "modified": "2026-02-25T08:52:12",
+      "status": "publish",
+      "featuredMediaId": 414,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 414,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_5633.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_5633.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 410,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/02/IMG_0788-819x1024.jpeg",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2026/02/IMG_0788.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_0788-819x1024.jpeg 819w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_0788-240x300.jpeg 240w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_0788-768x960.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_0788-1229x1536.jpeg 1229w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_0788-1638x2048.jpeg 1638w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_0788-scaled.jpeg 2048w"
+        }
+      ],
+      "imageReferenceCount": 1
+    },
+    {
+      "articleId": 404,
+      "slug": "daniel-strongman-steps-into-his-truth-with-im-ok-a-defining-chapter-of-growth-discipline-and-global-intent",
+      "title": "Daniel Strongman Steps Into His Truth with ‘I’m Ok’ — A Defining Chapter of Growth, Discipline, and Global Intent",
+      "sourceUrl": "https://radarcharts.net/2026/02/22/daniel-strongman-steps-into-his-truth-with-im-ok-a-defining-chapter-of-growth-discipline-and-global-intent/",
+      "date": "2026-02-22T08:04:53",
+      "modified": "2026-02-22T08:04:57",
+      "status": "publish",
+      "featuredMediaId": 407,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 407,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/c0eee2a7-c057-44a8-8a2d-713a680e6193.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/c0eee2a7-c057-44a8-8a2d-713a680e6193.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 405,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/02/848c6a0f-2dd0-4b72-b00f-4aaf98de12e8.jpeg",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2026/02/848c6a0f-2dd0-4b72-b00f-4aaf98de12e8.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/02/848c6a0f-2dd0-4b72-b00f-4aaf98de12e8.jpeg 900w, https://radarcharts.net/wp-content/uploads/2026/02/848c6a0f-2dd0-4b72-b00f-4aaf98de12e8-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/02/848c6a0f-2dd0-4b72-b00f-4aaf98de12e8-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/02/848c6a0f-2dd0-4b72-b00f-4aaf98de12e8-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/02/848c6a0f-2dd0-4b72-b00f-4aaf98de12e8-100x100.jpeg 100w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 406,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/02/200a4ff7-9f61-4011-85a5-bb6005d519f4.jpeg",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2026/02/200a4ff7-9f61-4011-85a5-bb6005d519f4.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/02/200a4ff7-9f61-4011-85a5-bb6005d519f4.jpeg 900w, https://radarcharts.net/wp-content/uploads/2026/02/200a4ff7-9f61-4011-85a5-bb6005d519f4-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/02/200a4ff7-9f61-4011-85a5-bb6005d519f4-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/02/200a4ff7-9f61-4011-85a5-bb6005d519f4-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/02/200a4ff7-9f61-4011-85a5-bb6005d519f4-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 399,
+      "slug": "feyothegenius-channels-star-power-and-desire-on-new-single-omotola-jalade",
+      "title": "FeyoTheGenius Channels Star Power and Desire on New Single “Omotola Jalade”",
+      "sourceUrl": "https://radarcharts.net/2026/02/17/feyothegenius-channels-star-power-and-desire-on-new-single-omotola-jalade/",
+      "date": "2026-02-17T14:29:13",
+      "modified": "2026-02-17T14:29:15",
+      "status": "publish",
+      "featuredMediaId": 401,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 401,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9001.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9001.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 402,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/02/IMG_8997-1024x1024.jpeg",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2026/02/IMG_8997.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_8997-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_8997-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_8997-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_8997-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_8997-100x100.jpeg 100w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_8997.jpeg 1040w"
+        }
+      ],
+      "imageReferenceCount": 1
+    },
+    {
+      "articleId": 395,
+      "slug": "r33nzo-artsalghul-deliver-a-heart-wrenching-emo-trap-confession-on-mind",
+      "title": "R33nzo &amp; Artsalghul Deliver a Heart-Wrenching Emo-Trap Confession on “Mind”",
+      "sourceUrl": "https://radarcharts.net/2026/02/15/r33nzo-artsalghul-deliver-a-heart-wrenching-emo-trap-confession-on-mind/",
+      "date": "2026-02-15T19:02:24",
+      "modified": "2026-02-15T19:04:00",
+      "status": "publish",
+      "featuredMediaId": 396,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 396,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9247-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9247-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 397,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/02/IMG_9246-1024x1024.jpeg",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2026/02/IMG_9246.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9246-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9246-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9246-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9246-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9246-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9246-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/02/IMG_9246-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 1
+    },
+    {
+      "articleId": 385,
+      "slug": "tupdugg-builds-on-amaka-momentum-with-bass-driven-new-single-me-goes",
+      "title": "TUPDUGG BUILDS ON “AMAKA” MOMENTUM WITH BASS-DRIVEN NEW SINGLE “Me Goes”",
+      "sourceUrl": "https://radarcharts.net/2026/01/30/tupdugg-builds-on-amaka-momentum-with-bass-driven-new-single-me-goes/",
+      "date": "2026-01-30T15:18:23",
+      "modified": "2026-01-30T15:18:24",
+      "status": "publish",
+      "featuredMediaId": null,
+      "featuredImage": null,
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 386,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/272da1f7-217c-4e2a-8aef-be4e3f22373d.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/272da1f7-217c-4e2a-8aef-be4e3f22373d.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/01/272da1f7-217c-4e2a-8aef-be4e3f22373d.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/01/272da1f7-217c-4e2a-8aef-be4e3f22373d-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/01/272da1f7-217c-4e2a-8aef-be4e3f22373d-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/01/272da1f7-217c-4e2a-8aef-be4e3f22373d-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/01/272da1f7-217c-4e2a-8aef-be4e3f22373d-100x100.jpeg 100w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 387,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/f9771f46-3604-4892-90e9-b96170d65d5b.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/f9771f46-3604-4892-90e9-b96170d65d5b.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/01/f9771f46-3604-4892-90e9-b96170d65d5b.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/01/f9771f46-3604-4892-90e9-b96170d65d5b-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/01/f9771f46-3604-4892-90e9-b96170d65d5b-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/01/f9771f46-3604-4892-90e9-b96170d65d5b-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/01/f9771f46-3604-4892-90e9-b96170d65d5b-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 379,
+      "slug": "vuga-kvngz-unleashes-vvs-a-diamond-cut-statement-that-signals-a-new-era",
+      "title": "VUGA KVNGZ UNLEASHES “VVS”: A DIAMOND-CUT STATEMENT THAT SIGNALS A NEW ERA",
+      "sourceUrl": "https://radarcharts.net/2026/01/24/vuga-kvngz-unleashes-vvs-a-diamond-cut-statement-that-signals-a-new-era/",
+      "date": "2026-01-24T18:51:54",
+      "modified": "2026-01-24T18:53:06",
+      "status": "publish",
+      "featuredMediaId": null,
+      "featuredImage": null,
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 382,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/01/7IV01688-1-1024x1024.jpeg",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2026/01/7IV01688-1.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/01/7IV01688-1-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/01/7IV01688-1-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/01/7IV01688-1-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/01/7IV01688-1-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/01/7IV01688-1-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/01/7IV01688-1-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/01/7IV01688-1-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 1
+    },
+    {
+      "articleId": 370,
+      "slug": "ranky-sharpens-his-voice-with-cover-me-sets-the-tone-for-second-shades-of-ranky",
+      "title": "Ranky Sharpens His Voice With “Cover Me,” Sets the Tone for Second Shades of Ranky",
+      "sourceUrl": "https://radarcharts.net/2026/01/22/ranky-sharpens-his-voice-with-cover-me-sets-the-tone-for-second-shades-of-ranky/",
+      "date": "2026-01-22T11:01:02",
+      "modified": "2026-01-22T11:01:04",
+      "status": "publish",
+      "featuredMediaId": 373,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 373,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/ae5bfea8-47d9-4d61-aedd-c4b3c1291788.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/ae5bfea8-47d9-4d61-aedd-c4b3c1291788.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 371,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/01/68339dd4-bb2c-4c24-bf73-644daaa52111.jpeg",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2026/01/68339dd4-bb2c-4c24-bf73-644daaa52111.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/01/68339dd4-bb2c-4c24-bf73-644daaa52111.jpeg 720w, https://radarcharts.net/wp-content/uploads/2026/01/68339dd4-bb2c-4c24-bf73-644daaa52111-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/01/68339dd4-bb2c-4c24-bf73-644daaa52111-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/01/68339dd4-bb2c-4c24-bf73-644daaa52111-100x100.jpeg 100w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 372,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/01/fb04e5b4-5bd6-4482-9e90-11853ce1a711.jpeg",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2026/01/fb04e5b4-5bd6-4482-9e90-11853ce1a711.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/01/fb04e5b4-5bd6-4482-9e90-11853ce1a711.jpeg 720w, https://radarcharts.net/wp-content/uploads/2026/01/fb04e5b4-5bd6-4482-9e90-11853ce1a711-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/01/fb04e5b4-5bd6-4482-9e90-11853ce1a711-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/01/fb04e5b4-5bd6-4482-9e90-11853ce1a711-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 360,
+      "slug": "obi-xtra-is-back-and-hes-asking-the-question-everyone-feels",
+      "title": "OBI Xtra Is Back — And He’s Asking the Question Everyone Feels",
+      "sourceUrl": "https://radarcharts.net/2026/01/21/obi-xtra-is-back-and-hes-asking-the-question-everyone-feels/",
+      "date": "2026-01-21T07:32:16",
+      "modified": "2026-01-21T08:52:13",
+      "status": "publish",
+      "featuredMediaId": 361,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 361,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/IMG_8868-scaled.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/IMG_8868-scaled.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 362,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/01/IMG_8867-1024x982.jpeg",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2026/01/IMG_8867.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/01/IMG_8867-1024x982.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/01/IMG_8867-300x288.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/01/IMG_8867-768x737.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/01/IMG_8867.jpeg 1075w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 363,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/01/IMG_8869-1024x1024.jpeg",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2026/01/IMG_8869.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/01/IMG_8869-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/01/IMG_8869-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/01/IMG_8869-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/01/IMG_8869-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/01/IMG_8869-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/01/IMG_8869-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/01/IMG_8869-100x100.jpeg 100w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 356,
+      "slug": "artist-spotlight-preacher-wd",
+      "title": "ARTIST SPOTLIGHT: PREACHER WD",
+      "sourceUrl": "https://radarcharts.net/2026/01/10/artist-spotlight-preacher-wd/",
+      "date": "2026-01-10T14:24:19",
+      "modified": "2026-05-21T14:14:05",
+      "status": "publish",
+      "featuredMediaId": 359,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 359,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/598561245_923004947563108_652239478331353014_n-Copy.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/598561245_923004947563108_652239478331353014_n-Copy.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 357,
+          "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/606970456_1444414927244832_2259093746298146880_n-Copy-1024x1024.jpeg",
+          "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/606970456_1444414927244832_2259093746298146880_n-Copy.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/01/606970456_1444414927244832_2259093746298146880_n-Copy-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/01/606970456_1444414927244832_2259093746298146880_n-Copy-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/01/606970456_1444414927244832_2259093746298146880_n-Copy-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/01/606970456_1444414927244832_2259093746298146880_n-Copy-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/01/606970456_1444414927244832_2259093746298146880_n-Copy-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/01/606970456_1444414927244832_2259093746298146880_n-Copy-100x100.jpeg 100w, https://radarcharts.net/wp-content/uploads/2026/01/606970456_1444414927244832_2259093746298146880_n-Copy.jpeg 2048w"
+        }
+      ],
+      "imageReferenceCount": 1
+    },
+    {
+      "articleId": 322,
+      "slug": "da-pro-frames-love-with-precision-on-new-single-perfect-picture",
+      "title": "Da-Pro Frames Love With Precision on New Single “Perfect Picture”",
+      "sourceUrl": "https://radarcharts.net/2026/01/01/da-pro-frames-love-with-precision-on-new-single-perfect-picture/",
+      "date": "2026-01-01T15:14:15",
+      "modified": "2026-01-01T18:00:51",
+      "status": "publish",
+      "featuredMediaId": 326,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 326,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/DSC_9241-scaled-e1767279902791.jpeg",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/DSC_9241-scaled-e1767279902791.jpeg"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 324,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/01/DSC_9216-1024x1024.jpeg",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2026/01/DSC_9216.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/01/DSC_9216-1024x1024.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/01/DSC_9216-300x300.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/01/DSC_9216-150x150.jpeg 150w, https://radarcharts.net/wp-content/uploads/2026/01/DSC_9216-768x768.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/01/DSC_9216-1536x1536.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/01/DSC_9216-2048x2048.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/01/DSC_9216-100x100.jpeg 100w, https://radarcharts.net/wp-content/uploads/2026/01/DSC_9216-200x200.jpeg 200w, https://radarcharts.net/wp-content/uploads/2026/01/DSC_9216-400x400.jpeg 400w, https://radarcharts.net/wp-content/uploads/2026/01/DSC_9216-500x500.jpeg 500w"
+        },
+        {
+          "role": "inline",
+          "attachmentId": 325,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2026/01/DSC_1219-1024x614.jpeg",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2026/01/DSC_1219.jpeg",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2026/01/DSC_1219-1024x614.jpeg 1024w, https://radarcharts.net/wp-content/uploads/2026/01/DSC_1219-300x180.jpeg 300w, https://radarcharts.net/wp-content/uploads/2026/01/DSC_1219-768x461.jpeg 768w, https://radarcharts.net/wp-content/uploads/2026/01/DSC_1219-1536x922.jpeg 1536w, https://radarcharts.net/wp-content/uploads/2026/01/DSC_1219-2048x1229.jpeg 2048w, https://radarcharts.net/wp-content/uploads/2026/01/DSC_1219-2000x1200.jpeg 2000w"
+        }
+      ],
+      "imageReferenceCount": 2
+    },
+    {
+      "articleId": 278,
+      "slug": "welcome-to-2026-a-new-phase-for-radarcharts-by-rem",
+      "title": "Welcome to 2026: A New Phase for RADARCharts by REM",
+      "sourceUrl": "https://radarcharts.net/2026/01/01/welcome-to-2026-a-new-phase-for-radarcharts-by-rem/",
+      "date": "2026-01-01T06:55:44",
+      "modified": "2026-01-01T06:55:44",
+      "status": "publish",
+      "featuredMediaId": 252,
+      "featuredImage": {
+        "role": "featured",
+        "attachmentId": 252,
+        "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/9-scaled.png",
+        "canonicalSourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/9-scaled.png"
+      },
+      "inlineImages": [
+        {
+          "role": "inline",
+          "attachmentId": 235,
+          "sourceUrl": "http://radarcharts.net/wp-content/uploads/2025/12/cropped-cropped-Photoroom_20251225_091948.png",
+          "canonicalSourceUrl": "http://radarcharts.net/wp-content/uploads/2025/12/cropped-cropped-Photoroom_20251225_091948.png",
+          "srcset": "https://radarcharts.net/wp-content/uploads/2025/12/cropped-cropped-Photoroom_20251225_091948.png 512w, https://radarcharts.net/wp-content/uploads/2025/12/cropped-cropped-Photoroom_20251225_091948-300x300.png 300w, https://radarcharts.net/wp-content/uploads/2025/12/cropped-cropped-Photoroom_20251225_091948-150x150.png 150w, https://radarcharts.net/wp-content/uploads/2025/12/cropped-cropped-Photoroom_20251225_091948-100x100.png 100w, https://radarcharts.net/wp-content/uploads/2025/12/cropped-cropped-Photoroom_20251225_091948-200x200.png 200w, https://radarcharts.net/wp-content/uploads/2025/12/cropped-cropped-Photoroom_20251225_091948-400x400.png 400w, https://radarcharts.net/wp-content/uploads/2025/12/cropped-cropped-Photoroom_20251225_091948-500x500.png 500w, https://radarcharts.net/wp-content/uploads/2025/12/cropped-cropped-Photoroom_20251225_091948-270x270.png 270w, https://radarcharts.net/wp-content/uploads/2025/12/cropped-cropped-Photoroom_20251225_091948-192x192.png 192w, https://radarcharts.net/wp-content/uploads/2025/12/cropped-cropped-Photoroom_20251225_091948-180x180.png 180w, https://radarcharts.net/wp-content/uploads/2025/12/cropped-cropped-Photoroom_20251225_091948-32x32.png 32w"
+        }
+      ],
+      "imageReferenceCount": 1
+    }
+  ],
+  "assets": [
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2025/12/cropped-cropped-Photoroom_20251225_091948.png",
+      "attachmentId": 235,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        278
+      ],
+      "mimeType": "image/png",
+      "filename": "2025/12/cropped-cropped-Photoroom_20251225_091948.png",
+      "width": 512,
+      "height": 512,
+      "byteSize": 186559,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/272da1f7-217c-4e2a-8aef-be4e3f22373d.jpeg",
+      "attachmentId": 386,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        385
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/01/272da1f7-217c-4e2a-8aef-be4e3f22373d.jpeg",
+      "width": 1024,
+      "height": 1024,
+      "byteSize": 200089,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/598561245_923004947563108_652239478331353014_n-Copy.jpeg",
+      "attachmentId": 359,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        356
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/01/598561245_923004947563108_652239478331353014_n-Copy.jpeg",
+      "width": 2048,
+      "height": 1151,
+      "byteSize": 292636,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/606970456_1444414927244832_2259093746298146880_n-Copy.jpeg",
+      "attachmentId": 357,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        356
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/01/606970456_1444414927244832_2259093746298146880_n-Copy.jpeg",
+      "width": 2048,
+      "height": 2048,
+      "byteSize": 727861,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/68339dd4-bb2c-4c24-bf73-644daaa52111.jpeg",
+      "attachmentId": 371,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        370
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/01/68339dd4-bb2c-4c24-bf73-644daaa52111.jpeg",
+      "width": 720,
+      "height": 720,
+      "byteSize": 102024,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/7IV01688-1-scaled.jpeg",
+      "attachmentId": 382,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        379
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/01/7IV01688-1-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 688153,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/9-scaled.png",
+      "attachmentId": 252,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        278
+      ],
+      "mimeType": "image/png",
+      "filename": "2026/01/9-scaled.png",
+      "width": 2560,
+      "height": 1536,
+      "byteSize": 612792,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/DSC_1219-scaled.jpeg",
+      "attachmentId": 325,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        322
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/01/DSC_1219-scaled.jpeg",
+      "width": 2560,
+      "height": 1536,
+      "byteSize": 194355,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/DSC_9216-scaled.jpeg",
+      "attachmentId": 324,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        322
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/01/DSC_9216-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 433752,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/DSC_9241-scaled-e1767279902791.jpeg",
+      "attachmentId": 326,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        322
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/01/DSC_9241-scaled-e1767279902791.jpeg",
+      "width": 2556,
+      "height": 1536,
+      "byteSize": 190655,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/IMG_8867.jpeg",
+      "attachmentId": 362,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        360
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/01/IMG_8867.jpeg",
+      "width": 1075,
+      "height": 1031,
+      "byteSize": 221171,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/IMG_8868-scaled.jpeg",
+      "attachmentId": 361,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        360
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/01/IMG_8868-scaled.jpeg",
+      "width": 2560,
+      "height": 1706,
+      "byteSize": 261463,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/IMG_8869-scaled.jpeg",
+      "attachmentId": 363,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        360
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/01/IMG_8869-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 641234,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/ae5bfea8-47d9-4d61-aedd-c4b3c1291788.jpeg",
+      "attachmentId": 373,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        370
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/01/ae5bfea8-47d9-4d61-aedd-c4b3c1291788.jpeg",
+      "width": 720,
+      "height": 405,
+      "byteSize": 34523,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/f9771f46-3604-4892-90e9-b96170d65d5b.jpeg",
+      "attachmentId": 387,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        385
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/01/f9771f46-3604-4892-90e9-b96170d65d5b.jpeg",
+      "width": 1024,
+      "height": 1024,
+      "byteSize": 175485,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/01/fb04e5b4-5bd6-4482-9e90-11853ce1a711.jpeg",
+      "attachmentId": 372,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        370
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/01/fb04e5b4-5bd6-4482-9e90-11853ce1a711.jpeg",
+      "width": 720,
+      "height": 720,
+      "byteSize": 127647,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/200a4ff7-9f61-4011-85a5-bb6005d519f4.jpeg",
+      "attachmentId": 406,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        404
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/02/200a4ff7-9f61-4011-85a5-bb6005d519f4.jpeg",
+      "width": 900,
+      "height": 900,
+      "byteSize": 160011,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/381BD2BC-750F-4467-8A0E-593CC02484A3.png",
+      "attachmentId": 422,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        421
+      ],
+      "mimeType": "image/png",
+      "filename": "2026/02/381BD2BC-750F-4467-8A0E-593CC02484A3.png",
+      "width": 1536,
+      "height": 1024,
+      "byteSize": 2272911,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/848c6a0f-2dd0-4b72-b00f-4aaf98de12e8.jpeg",
+      "attachmentId": 405,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        404
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/02/848c6a0f-2dd0-4b72-b00f-4aaf98de12e8.jpeg",
+      "width": 900,
+      "height": 900,
+      "byteSize": 186085,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_0788-scaled.jpeg",
+      "attachmentId": 410,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        409
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/02/IMG_0788-scaled.jpeg",
+      "width": 2048,
+      "height": 2560,
+      "byteSize": 297033,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_5633.jpeg",
+      "attachmentId": 414,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        409
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/02/IMG_5633.jpeg",
+      "width": 2026,
+      "height": 1520,
+      "byteSize": 598841,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_8997.jpeg",
+      "attachmentId": 402,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        399
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/02/IMG_8997.jpeg",
+      "width": 1040,
+      "height": 1040,
+      "byteSize": 167763,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9001.jpeg",
+      "attachmentId": 401,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        399
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/02/IMG_9001.jpeg",
+      "width": 1040,
+      "height": 693,
+      "byteSize": 177455,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9246-scaled.jpeg",
+      "attachmentId": 397,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        395
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/02/IMG_9246-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 820937,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9247-scaled.jpeg",
+      "attachmentId": 396,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        395
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/02/IMG_9247-scaled.jpeg",
+      "width": 2560,
+      "height": 1700,
+      "byteSize": 718080,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9420.jpeg",
+      "attachmentId": 423,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        421
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/02/IMG_9420.jpeg",
+      "width": 1170,
+      "height": 1457,
+      "byteSize": 355746,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9443-scaled.jpeg",
+      "attachmentId": 419,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        416
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/02/IMG_9443-scaled.jpeg",
+      "width": 2560,
+      "height": 1920,
+      "byteSize": 412475,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9444-scaled.jpeg",
+      "attachmentId": 418,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        416
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/02/IMG_9444-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 831489,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9445-scaled.jpeg",
+      "attachmentId": 417,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        416
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/02/IMG_9445-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 815294,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/02/c0eee2a7-c057-44a8-8a2d-713a680e6193.jpeg",
+      "attachmentId": 407,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        404
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/02/c0eee2a7-c057-44a8-8a2d-713a680e6193.jpeg",
+      "width": 895,
+      "height": 501,
+      "byteSize": 82836,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/15BE3FCF-72A3-4657-BF67-C3B50F3FE5D7.png",
+      "attachmentId": 428,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        426
+      ],
+      "mimeType": "image/png",
+      "filename": "2026/03/15BE3FCF-72A3-4657-BF67-C3B50F3FE5D7.png",
+      "width": 1024,
+      "height": 1024,
+      "byteSize": 1531309,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/2fa6787b-b36b-43e2-a43a-f455dfcde369.jpeg",
+      "attachmentId": 483,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        480
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/2fa6787b-b36b-43e2-a43a-f455dfcde369.jpeg",
+      "width": 732,
+      "height": 1024,
+      "byteSize": 68044,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/49E47460-5F8C-45C1-AFF2-FB34711DD41A.png",
+      "attachmentId": 518,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        517
+      ],
+      "mimeType": "image/png",
+      "filename": "2026/03/49E47460-5F8C-45C1-AFF2-FB34711DD41A.png",
+      "width": 1536,
+      "height": 1024,
+      "byteSize": 2432009,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/5957c306-6551-464e-b1d2-7e5f65e78df3.jpeg",
+      "attachmentId": 514,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        512
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/5957c306-6551-464e-b1d2-7e5f65e78df3.jpeg",
+      "width": 1440,
+      "height": 1440,
+      "byteSize": 299408,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/5ceb6824-13d1-4598-84a6-bcffffa49d84.jpeg",
+      "attachmentId": 482,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        480
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/5ceb6824-13d1-4598-84a6-bcffffa49d84.jpeg",
+      "width": 1283,
+      "height": 916,
+      "byteSize": 183394,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/75438c32-d167-4c31-ad3d-f0e8af555f91.jpeg",
+      "attachmentId": 513,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        512
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/75438c32-d167-4c31-ad3d-f0e8af555f91.jpeg",
+      "width": 2560,
+      "height": 1363,
+      "byteSize": 546460,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/A015_01191745_S011_17_45_58_23-scaled.jpeg",
+      "attachmentId": 451,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        448
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/A015_01191745_S011_17_45_58_23-scaled.jpeg",
+      "width": 2560,
+      "height": 1440,
+      "byteSize": 132760,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/A015_01191813_S013_18_12_39_16-scaled.jpeg",
+      "attachmentId": 449,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        448
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/A015_01191813_S013_18_12_39_16-scaled.jpeg",
+      "width": 2560,
+      "height": 1440,
+      "byteSize": 210763,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/A015_01191844_S016_18_44_31_20-scaled.jpeg",
+      "attachmentId": 450,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        448
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/A015_01191844_S016_18_44_31_20-scaled.jpeg",
+      "width": 2560,
+      "height": 1440,
+      "byteSize": 319891,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/Artworks-1-scaled.jpeg",
+      "attachmentId": 519,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        517
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/Artworks-1-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 808587,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/C25B6F70-BE5F-495F-800D-75DB9E484D4C.jpeg",
+      "attachmentId": 520,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        517
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/C25B6F70-BE5F-495F-800D-75DB9E484D4C.jpeg",
+      "width": 1024,
+      "height": 1024,
+      "byteSize": 270405,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/CD0973D0-C606-4283-B038-08E3535F20C3.jpeg",
+      "attachmentId": 481,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        480
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/CD0973D0-C606-4283-B038-08E3535F20C3.jpeg",
+      "width": 1024,
+      "height": 1024,
+      "byteSize": 220022,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_0094.jpeg",
+      "attachmentId": 486,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        485
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/IMG_0094.jpeg",
+      "width": 2000,
+      "height": 1429,
+      "byteSize": 242661,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_0095.jpeg",
+      "attachmentId": 487,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        485
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/IMG_0095.jpeg",
+      "width": 2000,
+      "height": 2500,
+      "byteSize": 2998000,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_8162.jpeg",
+      "attachmentId": 446,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        444
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/IMG_8162.jpeg",
+      "width": 1632,
+      "height": 1632,
+      "byteSize": 375376,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_8163.jpeg",
+      "attachmentId": 445,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        444
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/IMG_8163.jpeg",
+      "width": 1632,
+      "height": 1306,
+      "byteSize": 306778,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9559-scaled.jpeg",
+      "attachmentId": 434,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        431
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/IMG_9559-scaled.jpeg",
+      "width": 2560,
+      "height": 1707,
+      "byteSize": 809055,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9561-scaled.jpeg",
+      "attachmentId": 433,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        431
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/IMG_9561-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 937883,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9684.jpeg",
+      "attachmentId": 442,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        440
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/IMG_9684.jpeg",
+      "width": 1290,
+      "height": 1032,
+      "byteSize": 249735,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9685.jpeg",
+      "attachmentId": 441,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        440
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/IMG_9685.jpeg",
+      "width": 1290,
+      "height": 1290,
+      "byteSize": 231460,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9747.jpeg",
+      "attachmentId": 457,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        455
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/IMG_9747.jpeg",
+      "width": 1080,
+      "height": 1080,
+      "byteSize": 395797,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9750.jpeg",
+      "attachmentId": 456,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        455
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/IMG_9750.jpeg",
+      "width": 1080,
+      "height": 771,
+      "byteSize": 246991,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9957-scaled.jpeg",
+      "attachmentId": 476,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        472
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/IMG_9957-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 983547,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9959-scaled.jpeg",
+      "attachmentId": 475,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        472
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/IMG_9959-scaled.jpeg",
+      "width": 2560,
+      "height": 1829,
+      "byteSize": 564099,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9961-scaled.jpeg",
+      "attachmentId": 477,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        472
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/IMG_9961-scaled.jpeg",
+      "width": 2560,
+      "height": 1993,
+      "byteSize": 393881,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/bf1f087e-af1f-41ca-9acb-331d302ba683.jpeg",
+      "attachmentId": 429,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        426
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/bf1f087e-af1f-41ca-9acb-331d302ba683.jpeg",
+      "width": 780,
+      "height": 780,
+      "byteSize": 96109,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/c9046511-3493-4736-9c92-db3613089d5c.jpeg",
+      "attachmentId": 510,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        508
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/c9046511-3493-4736-9c92-db3613089d5c.jpeg",
+      "width": 1280,
+      "height": 914,
+      "byteSize": 138060,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/03/e1b79446-a52a-44fd-b79a-8dae4f35ac07.jpeg",
+      "attachmentId": 509,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        508
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/03/e1b79446-a52a-44fd-b79a-8dae4f35ac07.jpeg",
+      "width": 1024,
+      "height": 1024,
+      "byteSize": 180810,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/2e3a77cd-fc61-4727-aed7-f66a9c3292ff-scaled.jpeg",
+      "attachmentId": 582,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        581
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/04/2e3a77cd-fc61-4727-aed7-f66a9c3292ff-scaled.jpeg",
+      "width": 2560,
+      "height": 1829,
+      "byteSize": 159766,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/Brown-Artistic-Wall-and-Hand-Shadow-Album-Cover-scaled.jpeg",
+      "attachmentId": 599,
+      "roles": [
+        "featured",
+        "inline"
+      ],
+      "articles": [
+        597
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/04/Brown-Artistic-Wall-and-Hand-Shadow-Album-Cover-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 937518,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_0910-scaled.jpeg",
+      "attachmentId": 603,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        601
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/04/IMG_0910-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 777077,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_0955-scaled.jpeg",
+      "attachmentId": 613,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        601
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/04/IMG_0955-scaled.jpeg",
+      "width": 2560,
+      "height": 1829,
+      "byteSize": 337344,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_2568-scaled.jpeg",
+      "attachmentId": 606,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        605
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/04/IMG_2568-scaled.jpeg",
+      "width": 2048,
+      "height": 2560,
+      "byteSize": 614549,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_2569-scaled.jpeg",
+      "attachmentId": 608,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        605
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/04/IMG_2569-scaled.jpeg",
+      "width": 2048,
+      "height": 2560,
+      "byteSize": 408177,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_9677-scaled.jpeg",
+      "attachmentId": 623,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        618
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/04/IMG_9677-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 481186,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/Pon-Pon-Pon-main-Cover.jpeg",
+      "attachmentId": 624,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        618
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/04/Pon-Pon-Pon-main-Cover.jpeg",
+      "width": 1024,
+      "height": 731,
+      "byteSize": 296920,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/Venmak-scaled.jpeg",
+      "attachmentId": 595,
+      "roles": [
+        "featured",
+        "inline"
+      ],
+      "articles": [
+        593
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/04/Venmak-scaled.jpeg",
+      "width": 2560,
+      "height": 1828,
+      "byteSize": 495674,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/b32072ac-d142-47da-930b-2fac5306f2cb-scaled.jpeg",
+      "attachmentId": 583,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        581
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/04/b32072ac-d142-47da-930b-2fac5306f2cb-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 436064,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/04/photo-output-scaled.jpeg",
+      "attachmentId": 594,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        593
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/04/photo-output-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 879920,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/1f6e044e-3c57-45a7-8799-b2dcf9592fea.jpeg",
+      "attachmentId": 692,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        687
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/1f6e044e-3c57-45a7-8799-b2dcf9592fea.jpeg",
+      "width": 1920,
+      "height": 1920,
+      "byteSize": 1078146,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/3443f11c-42ad-4891-a746-1eac73f0b268.jpeg",
+      "attachmentId": 678,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        652
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/3443f11c-42ad-4891-a746-1eac73f0b268.jpeg",
+      "width": 1536,
+      "height": 1152,
+      "byteSize": 584789,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/5b275b6f-9506-4042-a67d-fe3819f0641c.jpeg",
+      "attachmentId": 719,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        716
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/5b275b6f-9506-4042-a67d-fe3819f0641c.jpeg",
+      "width": 1080,
+      "height": 608,
+      "byteSize": 77524,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/Copy-of-99Cookies2-scaled.jpeg",
+      "attachmentId": 635,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        633
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/Copy-of-99Cookies2-scaled.jpeg",
+      "width": 2560,
+      "height": 1829,
+      "byteSize": 305769,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/Copy-of-99Cookies6-scaled.jpeg",
+      "attachmentId": 634,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        633
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/Copy-of-99Cookies6-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 212514,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1218.jpeg",
+      "attachmentId": 630,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        629
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/IMG_1218.jpeg",
+      "width": 1170,
+      "height": 647,
+      "byteSize": 109863,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1455.jpeg",
+      "attachmentId": 679,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        652
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/IMG_1455.jpeg",
+      "width": 1024,
+      "height": 1286,
+      "byteSize": 186676,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1474-scaled.jpeg",
+      "attachmentId": 684,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        682
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/IMG_1474-scaled.jpeg",
+      "width": 2560,
+      "height": 1829,
+      "byteSize": 596478,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1475-scaled.jpeg",
+      "attachmentId": 683,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        682
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/IMG_1475-scaled.jpeg",
+      "width": 2354,
+      "height": 2560,
+      "byteSize": 636649,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1507.jpeg",
+      "attachmentId": 699,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        698
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/IMG_1507.jpeg",
+      "width": 2400,
+      "height": 2400,
+      "byteSize": 1168221,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1508.jpeg",
+      "attachmentId": 700,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        698
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/IMG_1508.jpeg",
+      "width": 2400,
+      "height": 1714,
+      "byteSize": 806557,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1513-scaled.jpeg",
+      "attachmentId": 689,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        688
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/IMG_1513-scaled.jpeg",
+      "width": 2346,
+      "height": 2560,
+      "byteSize": 529858,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1632-scaled.jpeg",
+      "attachmentId": 746,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        744
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/IMG_1632-scaled.jpeg",
+      "width": 1920,
+      "height": 2560,
+      "byteSize": 648132,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1637-scaled.jpeg",
+      "attachmentId": 747,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        744
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/IMG_1637-scaled.jpeg",
+      "width": 2560,
+      "height": 1829,
+      "byteSize": 249351,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1700-scaled.jpeg",
+      "attachmentId": 740,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        738
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/IMG_1700-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 752834,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1702.jpeg",
+      "attachmentId": 739,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        738
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/IMG_1702.jpeg",
+      "width": 1037,
+      "height": 741,
+      "byteSize": 201591,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_2249-scaled.jpeg",
+      "attachmentId": 712,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        704
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/IMG_2249-scaled.jpeg",
+      "width": 2560,
+      "height": 1828,
+      "byteSize": 791810,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_2253-scaled.jpeg",
+      "attachmentId": 711,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        704
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/IMG_2253-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 905435,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_2905-scaled.jpeg",
+      "attachmentId": 708,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        829
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/IMG_2905-scaled.jpeg",
+      "width": 2560,
+      "height": 1828,
+      "byteSize": 370277,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/RIC08913-scaled.jpeg",
+      "attachmentId": 646,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        643
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/RIC08913-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 1083190,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/RIC09238-scaled.jpeg",
+      "attachmentId": 645,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        643
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/RIC09238-scaled.jpeg",
+      "width": 2560,
+      "height": 1707,
+      "byteSize": 762028,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/RIC09267-scaled.jpeg",
+      "attachmentId": 644,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        643
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/RIC09267-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 1007163,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/ab7b9038-05a7-4b59-8fa8-36d97af44bc7.jpeg",
+      "attachmentId": 631,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        629
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/ab7b9038-05a7-4b59-8fa8-36d97af44bc7.jpeg",
+      "width": 854,
+      "height": 570,
+      "byteSize": 106441,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/b2c46578-5e90-4c52-a061-f91d542402ee.jpeg",
+      "attachmentId": 693,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        687
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/b2c46578-5e90-4c52-a061-f91d542402ee.jpeg",
+      "width": 1920,
+      "height": 1371,
+      "byteSize": 843797,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/05/c909b596-58b5-432b-9b5c-401a0c39829c.jpeg",
+      "attachmentId": 718,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        716
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/05/c909b596-58b5-432b-9b5c-401a0c39829c.jpeg",
+      "width": 1080,
+      "height": 608,
+      "byteSize": 86592,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/126a2def-01df-437a-ae4a-e3d21c89b789.jpeg",
+      "attachmentId": 762,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        755
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/06/126a2def-01df-437a-ae4a-e3d21c89b789.jpeg",
+      "width": 625,
+      "height": 625,
+      "byteSize": 40315,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/30268098-17DD-4ACE-B221-DC6F68F6170E.jpeg",
+      "attachmentId": 772,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        769
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/06/30268098-17DD-4ACE-B221-DC6F68F6170E.jpeg",
+      "width": 667,
+      "height": 1000,
+      "byteSize": 106994,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/77986e68-3859-4b7f-9b17-baa2da539474.jpeg",
+      "attachmentId": 761,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        755
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/06/77986e68-3859-4b7f-9b17-baa2da539474.jpeg",
+      "width": 864,
+      "height": 617,
+      "byteSize": 119443,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/C9424T01.jpeg",
+      "attachmentId": 771,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        769
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/06/C9424T01.jpeg",
+      "width": 1280,
+      "height": 720,
+      "byteSize": 82084,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/D8689937-AEB8-4861-8EED-E9369A7EFF8D.jpeg",
+      "attachmentId": 770,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        769
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/06/D8689937-AEB8-4861-8EED-E9369A7EFF8D.jpeg",
+      "width": 974,
+      "height": 974,
+      "byteSize": 214646,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/DSC00084.jpeg",
+      "attachmentId": 788,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        787
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/06/DSC00084.jpeg",
+      "width": 2384,
+      "height": 2384,
+      "byteSize": 2307066,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/DSC00093-edited.jpeg",
+      "attachmentId": 792,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        787
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/06/DSC00093-edited.jpeg",
+      "width": 2384,
+      "height": 2385,
+      "byteSize": 1533568,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/DSC00095.jpeg",
+      "attachmentId": 790,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        787
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/06/DSC00095.jpeg",
+      "width": 2384,
+      "height": 1703,
+      "byteSize": 1574287,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/IMG_1909.jpeg",
+      "attachmentId": 765,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        758
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/06/IMG_1909.jpeg",
+      "width": 2399,
+      "height": 1714,
+      "byteSize": 843081,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/IMG_1911.jpeg",
+      "attachmentId": 764,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        758
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/06/IMG_1911.jpeg",
+      "width": 608,
+      "height": 608,
+      "byteSize": 125723,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/IMG_2087.jpeg",
+      "attachmentId": 779,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        775
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/06/IMG_2087.jpeg",
+      "width": 681,
+      "height": 681,
+      "byteSize": 165258,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/IMG_2088.jpeg",
+      "attachmentId": 777,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        775
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/06/IMG_2088.jpeg",
+      "width": 1827,
+      "height": 2309,
+      "byteSize": 803127,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/Photoroom_20260624_45459-PM.png",
+      "attachmentId": 778,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        775
+      ],
+      "mimeType": "image/png",
+      "filename": "2026/06/Photoroom_20260624_45459-PM.png",
+      "width": 1280,
+      "height": 720,
+      "byteSize": 785874,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/bdb70b09-99cf-4889-a313-976ce492b66d.jpeg",
+      "attachmentId": 751,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        749
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/06/bdb70b09-99cf-4889-a313-976ce492b66d.jpeg",
+      "width": 632,
+      "height": 632,
+      "byteSize": 64908,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/06/ccf6af9d-fe68-4951-a314-9ce0f2999a85.jpeg",
+      "attachmentId": 750,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        749
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/06/ccf6af9d-fe68-4951-a314-9ce0f2999a85.jpeg",
+      "width": 950,
+      "height": 679,
+      "byteSize": 113763,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/14264838-2AAD-40F0-8282-B71A1DAA37E2.jpeg",
+      "attachmentId": 825,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        821
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/07/14264838-2AAD-40F0-8282-B71A1DAA37E2.jpeg",
+      "width": 1121,
+      "height": 1121,
+      "byteSize": 328043,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/66a2a2b1-3aa4-4e19-bf80-40badc44aed0-1.jpeg",
+      "attachmentId": 817,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        811
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/07/66a2a2b1-3aa4-4e19-bf80-40badc44aed0-1.jpeg",
+      "width": 1280,
+      "height": 853,
+      "byteSize": 115894,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/8F5B2DA2-0763-4322-9488-EE576CB34F82.jpeg",
+      "attachmentId": 835,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        833
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/07/8F5B2DA2-0763-4322-9488-EE576CB34F82.jpeg",
+      "width": 688,
+      "height": 551,
+      "byteSize": 111260,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/Art-Cover-scaled.jpeg",
+      "attachmentId": 804,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        802
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/07/Art-Cover-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 636640,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2319-scaled.jpeg",
+      "attachmentId": 803,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        802
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/07/IMG_2319-scaled.jpeg",
+      "width": 2560,
+      "height": 1828,
+      "byteSize": 428585,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2521.jpeg",
+      "attachmentId": 814,
+      "roles": [
+        "featured",
+        "inline"
+      ],
+      "articles": [
+        811,
+        821
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/07/IMG_2521.jpeg",
+      "width": 1080,
+      "height": 714,
+      "byteSize": 40170,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2530-scaled.jpeg",
+      "attachmentId": 818,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        811
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/07/IMG_2530-scaled.jpeg",
+      "width": 2560,
+      "height": 1920,
+      "byteSize": 617232,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2839.jpeg",
+      "attachmentId": 834,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        833
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/07/IMG_2839.jpeg",
+      "width": 640,
+      "height": 640,
+      "byteSize": 153259,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2908-1-scaled.jpeg",
+      "attachmentId": 841,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        839
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/07/IMG_2908-1-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 367985,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2910-scaled.jpeg",
+      "attachmentId": 842,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        839
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/07/IMG_2910-scaled.jpeg",
+      "width": 2560,
+      "height": 1706,
+      "byteSize": 282788,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/07/NOCTURNE-ARTWORK--scaled.jpeg",
+      "attachmentId": 830,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        829
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/07/NOCTURNE-ARTWORK--scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 1525693,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/18746ACD-7EE8-40AF-B771-9BC163164256_1_201_a-scaled.jpeg",
+      "attachmentId": 887,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        864
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/08/18746ACD-7EE8-40AF-B771-9BC163164256_1_201_a-scaled.jpeg",
+      "width": 2560,
+      "height": 1708,
+      "byteSize": 548172,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/2F908FCC-7674-421B-A124-9AAC8E342E63_1_201_a-scaled-e1788184681325.jpeg",
+      "attachmentId": 888,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        864
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/08/2F908FCC-7674-421B-A124-9AAC8E342E63_1_201_a-scaled-e1788184681325.jpeg",
+      "width": 1707,
+      "height": 1382,
+      "byteSize": 251401,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/80b03f13-5610-4890-957f-0cf99fcbb2f6.jpeg",
+      "attachmentId": 874,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        872
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/08/80b03f13-5610-4890-957f-0cf99fcbb2f6.jpeg",
+      "width": 1254,
+      "height": 896,
+      "byteSize": 357488,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3293.jpeg",
+      "attachmentId": 852,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        850
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/08/IMG_3293.jpeg",
+      "width": 1875,
+      "height": 1250,
+      "byteSize": 943966,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3294-1.jpeg",
+      "attachmentId": 860,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        858
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/08/IMG_3294-1.jpeg",
+      "width": 1246,
+      "height": 890,
+      "byteSize": 182301,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3294-edited.jpeg",
+      "attachmentId": 854,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        850
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/08/IMG_3294-edited.jpeg",
+      "width": 1246,
+      "height": 1246,
+      "byteSize": 136811,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3295.jpeg",
+      "attachmentId": 861,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        858
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/08/IMG_3295.jpeg",
+      "width": 1259,
+      "height": 1259,
+      "byteSize": 242310,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3331-scaled.jpeg",
+      "attachmentId": 855,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        850
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/08/IMG_3331-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 921970,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3726-scaled.jpeg",
+      "attachmentId": 883,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        877
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/08/IMG_3726-scaled.jpeg",
+      "width": 2048,
+      "height": 2560,
+      "byteSize": 629325,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_5005-scaled.jpeg",
+      "attachmentId": 879,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        877
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/08/IMG_5005-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 769297,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_5006-scaled.jpeg",
+      "attachmentId": 882,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        877
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/08/IMG_5006-scaled.jpeg",
+      "width": 2560,
+      "height": 1829,
+      "byteSize": 666812,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/08/b68c8295-35d8-45e9-bbcd-ff97d3cc731e.jpeg",
+      "attachmentId": 873,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        872
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/08/b68c8295-35d8-45e9-bbcd-ff97d3cc731e.jpeg",
+      "width": 1706,
+      "height": 1706,
+      "byteSize": 514543,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/35eb8343-5ee3-4a2c-9ff7-67e289b33242.jpeg",
+      "attachmentId": 913,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        911
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/09/35eb8343-5ee3-4a2c-9ff7-67e289b33242.jpeg",
+      "width": 2046,
+      "height": 2046,
+      "byteSize": 186212,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/3bc16e07-b001-4f1f-8878-af56deb74656.jpeg",
+      "attachmentId": 976,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        973
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/09/3bc16e07-b001-4f1f-8878-af56deb74656.jpeg",
+      "width": 1080,
+      "height": 1008,
+      "byteSize": 90209,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/79eb0fd8-f477-422c-bfb1-6ef254d959cc.jpeg",
+      "attachmentId": 977,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        973
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/09/79eb0fd8-f477-422c-bfb1-6ef254d959cc.jpeg",
+      "width": 856,
+      "height": 572,
+      "byteSize": 93215,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/89f009ad-bc69-482a-8230-6c6760d0306f.jpeg",
+      "attachmentId": 914,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        911
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/09/89f009ad-bc69-482a-8230-6c6760d0306f.jpeg",
+      "width": 1920,
+      "height": 1440,
+      "byteSize": 816996,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/IMG_2322-scaled.jpeg",
+      "attachmentId": 902,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        901
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/09/IMG_2322-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 307215,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/IMG_2324-scaled.jpeg",
+      "attachmentId": 907,
+      "roles": [
+        "inline"
+      ],
+      "articles": [
+        901
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/09/IMG_2324-scaled.jpeg",
+      "width": 2560,
+      "height": 2560,
+      "byteSize": 450026,
+      "metadataStatus": "authenticated-wordpress-api"
+    },
+    {
+      "sourceUrl": "https://radarcharts.net/wp-content/uploads/2026/09/IMG_2325.jpeg",
+      "attachmentId": 903,
+      "roles": [
+        "featured"
+      ],
+      "articles": [
+        901
+      ],
+      "mimeType": "image/jpeg",
+      "filename": "2026/09/IMG_2325.jpeg",
+      "width": 1599,
+      "height": 1279,
+      "byteSize": 642471,
+      "metadataStatus": "authenticated-wordpress-api"
+    }
+  ]
+}

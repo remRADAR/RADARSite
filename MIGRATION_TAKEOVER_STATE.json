@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "project": "remRADAR/RADARSite",
   "branch": "main",
-  "head": "c4f51ab",
-  "checkpointedAt": "2026-09-25T12:53:00Z",
+  "head": "46160fa",
+  "checkpointedAt": "2026-09-26T16:11:00Z",
   "classification": {
     "completed": [
       "Repository takeover and architecture discovery",
@@ -19,16 +19,18 @@
       "Isolated media-health contract test passed with zero production contact",
       "WebP derivative smoke test passed using sharp",
       "Lint, TypeScript, and git diff checks passed",
-      "Neon project metadata and snapshot inventory were inspected read-only"
+      "Neon project metadata and snapshot inventory were inspected read-only",
+      "Authenticated self-hosted WordPress REST access confirmed through takeover browser",
+      "Current article media audit regenerated from all 63 current posts",
+      "All 139 referenced WordPress attachment IDs resolved with metadata",
+      "Current article featured and inline media relationships reconciled with zero unresolved references"
     ],
     "inProgress": [
       "Production stability audit",
-      "Recovery of the authenticated current WordPress media source",
       "Article-by-article verification of current media relationships"
     ],
     "blocked": [
       "Neon production branch is archived and table inspection returned HTTP 402 quota exceeded",
-      "Current article media audit artifact is absent from the checkout and sandbox",
       "radarcharts.net TLS certificate verification fails in this environment",
       "Vercel runtime/deployment observability calls are permission-blocked",
       "Current media migration must not start without the canonical audit and authenticated source"
@@ -53,9 +55,13 @@
     "committedSnapshotArticles": 342,
     "committedLegacyManifestObjects": 897,
     "verifiedCurrentMediaObjects": 0,
-    "verifiedCurrentArticles": 0,
+    "verifiedCurrentArticles": 63,
     "verifiedDatabaseArticleCount": null,
-    "verifiedDatabaseMediaCount": null
+    "verifiedDatabaseMediaCount": null,
+    "currentCanonicalAttachmentAssets": 139,
+    "currentUniqueImageUrlsExpectedFromPriorAudit": 603,
+    "currentJpegAssetsFromAuthenticatedMetadata": 133,
+    "currentPngAssetsFromAuthenticatedMetadata": 6
   },
   "migration": {
     "legacy": {
@@ -69,22 +75,26 @@
       "doNotRerun": true
     },
     "current": {
-      "status": "BLOCKED",
+      "status": "AUDIT_REGENERATED_METADATA_ONLY_BYTES_UNVERIFIED",
       "batch": null,
       "nextBatch": null,
       "auditArtifact": "current-article-media-audit.json",
-      "auditArtifactPresent": false,
+      "auditArtifactPresent": true,
       "source": "https://radarcharts.net/wp-content/uploads/",
-      "sourceRecovery": "AUTHENTICATED_SOURCE_REQUIRED",
+      "sourceRecovery": "AUTHENTICATED_WORDPRESS_REST_API_CONFIRMED",
       "knownBrokenPath": "Unauthenticated radarcharts.net retrieval must not be repeatedly retried",
-      "lastSafeAction": "Read-only source diagnostic; no current media downloads or writes",
-      "nextRequiredAction": "Restore audit artifact, restore Neon access, and obtain authenticated source/export; then run a one-article dry run only"
+      "lastSafeAction": "Regenerated metadata audit from authenticated self-hosted WordPress; no bytes downloaded and no writes performed",
+      "nextRequiredAction": "Restore Neon access, then verify source bytes and SHA-256 for one attachment before any R2/CMS operation"
     }
   },
   "architecture": {
     "framework": "Next.js 16 App Router / React 19 / TypeScript",
     "database": "Neon PostgreSQL via @neondatabase/serverless and DATABASE_URL",
-    "cmsTables": ["studio_content", "content_media", "studio_settings"],
+    "cmsTables": [
+      "studio_content",
+      "content_media",
+      "studio_settings"
+    ],
     "publicCache": "Next unstable_cache; compressed shared entry; one-hour revalidate; tag radarsite-public-content",
     "cacheInvalidation": "PUT /api/studio revalidates tag; POST /api/cache/maintenance revalidates tag and root layout",
     "adminPolicy": "Authenticated Studio routes are force-dynamic and no-store",
@@ -108,10 +118,11 @@
       "interpretation": "Evidence supports a provider quota/access problem and archived compute state; it does not establish that query shape or connection exhaustion caused the historical 502s."
     },
     "sourceDiagnostic": {
-      "currentWordpress": "BLOCKED_OR_UNVERIFIED",
-      "currentWordpressFailure": "TLS_FAILURE: unable to verify the first certificate",
+      "currentWordpress": "AUTHENTICATED_REST_AVAILABLE",
+      "currentWordpressFailure": null,
       "legacyWordpress": "AVAILABLE",
-      "legacyWordpressObserved": "HTTP 200 homepage/feed/sitemap and known article; REST probes did not return JSON"
+      "legacyWordpressObserved": "HTTP 200 homepage/feed/sitemap and known article; REST probes did not return JSON",
+      "currentWordpressObserved": "63 published posts retrieved; 139 referenced attachment IDs resolved across two media API pages"
     },
     "r2": {
       "accountId": "825459f1f313c6c9427bf6718bbd4907",
@@ -141,7 +152,9 @@
     "R2_VERIFICATION_REPORT.md",
     "CMS_RECONCILIATION_AUDIT.md",
     "CLOUDFLARE_MEDIA_CACHE_PLAN.md",
-    "CONTENT_READ_COST_REPORT.md"
+    "CONTENT_READ_COST_REPORT.md",
+    "current-article-media-audit.json",
+    "current-article-media-audit.report.json"
   ],
   "verification": {
     "repositoryCleanBeforeCheckpoint": true,
@@ -154,13 +167,14 @@
     "neonSnapshots": "EMPTY_LIST",
     "neonRecentLogs": "EMPTY_LIST",
     "vercelObservability": "BLOCKED_PERMISSION",
-    "currentArticleVerification": "NOT_RUN",
+    "currentArticleVerification": "METADATA_RELATIONSHIPS_PASS_63_ARTICLES_139_ATTACHMENTS",
     "productionMigration": "PAUSED",
     "mediaContractTest": "PASS_NO_PRODUCTION_CONTACT",
     "mediaHealthContractTest": "PASS_NO_PRODUCTION_CONTACT",
     "webpSmokeTest": "PASS",
     "lint": "PASS",
     "typescript": "PASS",
-    "diffCheck": "PASS"
+    "diffCheck": "PASS",
+    "currentMediaAudit": "REGENERATED_AUTHENTICATED_METADATA_BYTES_UNVERIFIED"
   }
 }

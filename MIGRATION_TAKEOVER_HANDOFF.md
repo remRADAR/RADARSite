@@ -224,3 +224,15 @@ The Google Doc source prompt was read successfully and executed non-destructivel
 **One precise next action:** Restore/unarchive the Neon `radarcharts-studio` production branch or resolve its quota condition in the Neon dashboard, then rerun the read-only schema/table/index/connection health checks before attempting any media dry run.
 
 Bulk migration remains prohibited until that action succeeds, the current audit is restored, authenticated source media is available, and production stability is demonstrably verified.
+
+## Authenticated current-media audit regeneration — 2026-09-26
+
+The self-hosted WordPress account at `radarcharts.net` was authenticated through the takeover browser. This is the correct InfinityFree-hosted WordPress source; the separate WordPress.com site was not used.
+
+A read-only REST audit retrieved all **63 current posts** and their rendered HTML. The article relationships reconcile exactly with the prior handoff counts: **59 articles with featured media**, **63 articles with inline images**, and **zero unresolved attachment references**. The authenticated media API returned metadata for all **139 referenced WordPress attachment IDs** across two pages.
+
+The prior handoff figure of **603 unique image URLs** represents URL variants across `src`, `srcset`, and WordPress derivative sizes. The authenticated API resolves those variants to **139 canonical attachment records**. The regenerated audit classifies **133 JPEG** and **6 PNG** canonical assets from authenticated WordPress filenames. WordPress-reported dimensions, filenames, canonical source URLs, and file sizes are included.
+
+The regenerated files are `current-article-media-audit.json` and `current-article-media-audit.report.json`. They are explicitly marked **metadata confirmed, source bytes and SHA-256 not yet verified**. No WordPress content, Neon records, CMS records, or R2 objects were changed.
+
+The correct next phase is not an export from WordPress.com. Once Neon access is restored, verify the source bytes and checksum for exactly one authenticated attachment, then perform the isolated R2/CMS dry-run sequence. Bulk migration remains paused.
