@@ -244,3 +244,9 @@ The controlled test selected article **973**, `gande-is-breaking-boundaries-with
 The actual file is a valid JPEG with **93,215 bytes**, exactly matching WordPress metadata; dimensions are **856 × 572**, and the SHA-256 is `9c79fcd90e064ac61f377b28a7f6d2962e4194f4b3dee9ce6cfcac92882575c`. Local MIME detection and `sharp` metadata inspection both passed.
 
 The remaining dry-run stages were intentionally not executed. No WebP conversion, R2 upload, Neon write, CMS reference update, or rendering change was performed because Neon remains archived and database inspection still fails HTTP 402 quota exceeded. The detailed result is recorded in `current-article-media-dry-run.report.json`.
+
+## WebP conversion and isolated R2 upload attempt — 2026-09-26
+
+Attachment 977 was converted using the existing `createWebpDerivatives` implementation in `src/lib/media-storage.ts` with quality 82. Because the source is 856 pixels wide, the no-enlargement pipeline produced one derivative: `dry-run/current-media/attachment-977/w-480.webp`, `image/webp`, **480 × 321**, **19,952 bytes**, SHA-256 `0d3149044c8f96b08797e3dc861f1757568dc73e4f200e3d7f5c01652a782194`. Local conversion passed.
+
+The isolated R2 upload was attempted through the existing R2 client but stopped before any network write because this sandbox has no runtime `R2_ACCOUNT_ID`. No object was uploaded or verified. The required runtime configuration is `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `R2_ENDPOINT`, and `R2_PUBLIC_BASE_URL`. Neon and CMS remain untouched.

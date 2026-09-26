@@ -3,7 +3,7 @@
   "project": "remRADAR/RADARSite",
   "branch": "main",
   "head": "46160fa",
-  "checkpointedAt": "2026-09-26T16:15:00Z",
+  "checkpointedAt": "2026-09-26T16:17:10Z",
   "classification": {
     "completed": [
       "Repository takeover and architecture discovery",
@@ -24,7 +24,8 @@
       "Current article media audit regenerated from all 63 current posts",
       "All 139 referenced WordPress attachment IDs resolved with metadata",
       "Current article featured and inline media relationships reconciled with zero unresolved references",
-      "Single authenticated source attachment byte and checksum verification passed for WordPress attachment 977"
+      "Single authenticated source attachment byte and checksum verification passed for WordPress attachment 977",
+      "Existing sharp WebP conversion passed for verified attachment 977"
     ],
     "inProgress": [
       "Production stability audit",
@@ -34,7 +35,8 @@
       "Neon production branch is archived and table inspection returned HTTP 402 quota exceeded",
       "radarcharts.net TLS certificate verification fails in this environment",
       "Vercel runtime/deployment observability calls are permission-blocked",
-      "Current media migration must not start without the canonical audit and authenticated source"
+      "Current media migration must not start without the canonical audit and authenticated source",
+      "Isolated R2 upload is blocked because R2 runtime credentials are absent from this sandbox"
     ],
     "requiresHumanAction": [
       "Restore or unarchive the Neon production branch and resolve quota before any database read/write",
@@ -87,7 +89,7 @@
       "sourceRecovery": "AUTHENTICATED_WORDPRESS_REST_API_CONFIRMED",
       "knownBrokenPath": "Unauthenticated radarcharts.net retrieval must not be repeatedly retried",
       "lastSafeAction": "Verified attachment 977 actual bytes, MIME, dimensions, and SHA-256 through authenticated browser delivery",
-      "nextRequiredAction": "Restore Neon access, run read-only database health checks, then continue this same attachment through local WebP conversion and isolated R2/CMS dry run"
+      "nextRequiredAction": "Configure R2 runtime variables, then retry only the isolated attachment-977 WebP key and verify upload bytes; Neon remains paused"
     }
   },
   "architecture": {
@@ -171,7 +173,7 @@
     "neonSnapshots": "EMPTY_LIST",
     "neonRecentLogs": "EMPTY_LIST",
     "vercelObservability": "BLOCKED_PERMISSION",
-    "currentArticleVerification": "ONE_ATTACHMENT_SOURCE_BYTES_PASS_138_UNVERIFIED",
+    "currentArticleVerification": "ONE_ATTACHMENT_SOURCE_AND_CONVERSION_PASS_R2_BLOCKED",
     "productionMigration": "PAUSED",
     "mediaContractTest": "PASS_NO_PRODUCTION_CONTACT",
     "mediaHealthContractTest": "PASS_NO_PRODUCTION_CONTACT",
@@ -179,6 +181,8 @@
     "lint": "PASS",
     "typescript": "PASS",
     "diffCheck": "PASS",
-    "currentMediaAudit": "METADATA_RELATIONSHIPS_PASS_63_ARTICLES_139_ATTACHMENTS_ONE_SOURCE_BYTES_VERIFIED"
+    "currentMediaAudit": "METADATA_RELATIONSHIPS_PASS_63_ARTICLES_139_ATTACHMENTS_ONE_SOURCE_BYTES_VERIFIED",
+    "webpDryRun": "PASS_ATTACHMENT_977_ONE_W480_DERIVATIVE",
+    "r2DryRun": "BLOCKED_MISSING_RUNTIME_CREDENTIALS"
   }
 }

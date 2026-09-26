@@ -1,5 +1,5 @@
 {
-  "status": "SOURCE_ATTACHMENT_VERIFIED_R2_AND_CMS_STAGED_BUT_NOT_EXECUTED",
+  "status": "SOURCE_VERIFIED_WEBP_CONVERSION_PASS_R2_BLOCKED_MISSING_RUNTIME_CREDENTIALS",
   "article": {
     "articleId": 973,
     "slug": "gande-is-breaking-boundaries-with-insta-babe",
@@ -23,12 +23,39 @@
     "method": "Authenticated browser delivery through logged-in radarcharts.net session plus local file/MIME/sharp inspection"
   },
   "conversion": {
-    "status": "NOT_EXECUTED",
-    "reason": "Neon remains quota-blocked and the approved dry-run sequence requires database safety before proceeding"
+    "status": "PASS",
+    "pipeline": "src/lib/media-storage.ts:createWebpDerivatives",
+    "quality": 82,
+    "sourceMimeType": "image/jpeg",
+    "sourceWidth": 856,
+    "sourceHeight": 572,
+    "derivatives": [
+      {
+        "key": "dry-run/current-media/attachment-977/w-480.webp",
+        "contentType": "image/webp",
+        "width": 480,
+        "height": 321,
+        "bytes": 19952,
+        "sha256": "0d3149044c8f96b08797e3dc861f1757568dc73e4f200e3d7f5c01652a782194"
+      }
+    ]
   },
   "r2": {
-    "status": "NOT_EXECUTED",
-    "reason": "No R2 upload was performed before database/CMS safety gate"
+    "status": "BLOCKED_MISSING_RUNTIME_CREDENTIALS",
+    "attempted": true,
+    "keyPrefix": "dry-run/current-media/attachment-977/",
+    "error": "R2_ACCOUNT_ID is not configured",
+    "requiredRuntimeVariables": [
+      "R2_ACCOUNT_ID",
+      "R2_ACCESS_KEY_ID",
+      "R2_SECRET_ACCESS_KEY",
+      "R2_BUCKET",
+      "R2_ENDPOINT",
+      "R2_PUBLIC_BASE_URL"
+    ],
+    "objectsUploaded": 0,
+    "objectsVerified": 0,
+    "objectsDeleted": 0
   },
   "cmsReference": {
     "status": "NOT_EXECUTED",
@@ -44,5 +71,5 @@
     "cms": false,
     "r2": false
   },
-  "nextAction": "Restore/unarchive Neon production access or resolve quota, then run read-only database health checks before converting or uploading this verified attachment."
+  "nextAction": "Configure the R2 runtime variables for this execution environment, then retry only the isolated key dry-run/current-media/attachment-977/w-480.webp and verify it with HEAD and GET byte comparison."
 }
