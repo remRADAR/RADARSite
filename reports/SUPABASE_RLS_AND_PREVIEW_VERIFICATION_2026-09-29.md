@@ -81,21 +81,31 @@ Secret values were not decrypted or read. Because the existing Preview `DATABASE
 
 The build completed successfully, including dependency installation, Next.js compilation, TypeScript checking, static page generation, and deployment. Vercel emitted non-fatal warnings about package install scripts and missing SWC lockfile entries; the build still reached `READY`.
 
-The deployment URL is protected by the dedicated project’s Vercel SSO setting. An unauthenticated HTTPS request returned `302` to Vercel SSO, and the available Sandbox browser redirected to the Vercel login page. No authenticated browser session was available, so application runtime checks could not be executed. SSO was not disabled or bypassed.
+The deployment URL is protected by the dedicated project’s Vercel SSO setting. An unauthenticated HTTPS request returned `302` to Vercel SSO, and the available Sandbox browser initially redirected to the Vercel login page. After an authorized browser takeover, the user authenticated successfully without changing SSO configuration.
 
 Consequently, the following runtime checks remain **not verified**:
 
-- startup with `DATABASE_PROVIDER=postgres`
-- real adapter connectivity to Supabase PostgreSQL from Vercel Preview
-- representative content reads and Studio writes from the deployed runtime
-- media relationship queries through the deployed runtime
-- runtime authentication/authorization behavior
-- serverless connection pooling behavior
-- absence of accidental Neon or Production environment-variable inheritance
-- authenticated application startup and page reads
-- deployment-time environment value verification beyond names, scopes, and sensitivity metadata
+- exact provider value and database host, because protected Vercel values were not decrypted
+- `content_media` and `content_media_relationships` reads through the deployed app; no read-only application route exists for those tables
+- direct client-side RLS checks through the deployed app; the application has no client-side database access path
 
-No credentials were requested in chat, logged, committed, or printed. The deployment itself is isolated and ready for authenticated runtime verification.
+No credentials were requested in chat, logged, committed, or printed. The deployment remains isolated and no persistent test data was created.
+
+### Authenticated runtime results
+
+- `GET /` → `200`; homepage rendered successfully.
+- `GET /ontheradar/articles` → `200`; article index rendered successfully.
+- `GET /api/studio` → `200`; response reported `configured: true` and `contentConfigured: true`.
+- Secret-free `/api/studio` response counts: 2 artists, 2 releases, 342 articles, 2 magazine entries, 2 RADAR projects, and 2 events.
+- Vercel runtime logs contained no database password, connection string, or Neon hostname in the inspected Preview window.
+- Vercel grouped runtime errors: none found in the selected 30-minute window.
+- No write endpoint was called and no persistent test data was created.
+
+The `/api/studio` runtime emitted PostgreSQL `42P07` NOTICE messages for existing `studio_settings` and `studio_content` relations while executing idempotent `CREATE TABLE IF NOT EXISTS` checks. These were non-error notices; the subsequent request returned `200`.
+
+The environment metadata confirms `DATABASE_PROVIDER` and sensitive `DATABASE_URL` exist with Preview-only scope, but their values were not decrypted. The successful privileged read proves database-backed runtime access, but does not independently prove the exact provider value or database host without reading the protected value.
+
+The application exposes no read-only Preview route for `content_media` or `content_media_relationships`; its media-health route performs temporary storage/database writes and was not invoked. Those table-specific runtime paths remain not tested. Direct client/API RLS denial was already verified against the isolated Supabase POC through the Supabase connector; no client-side database access path was added to this application.
 
 ## Regression verification
 
@@ -140,12 +150,11 @@ The only external mutation was the reviewed RLS migration in the isolated Supaba
 
 ## Remaining blockers and next gate
 
-The success condition is not fully met because authenticated runtime verification could not be performed through the SSO-protected Preview URL. The deployment is ready, and the Preview variable metadata is present with `DATABASE_URL` sensitive and both database variables scoped to Preview; the actual values were not decrypted.
+The success condition is partially met: authenticated application and Studio read-path verification succeeded, while exact provider-target confirmation and table-specific media/relationship reads remain unverified. The Preview variable metadata is present with `DATABASE_URL` sensitive and both database variables scoped to Preview; the actual values were not decrypted.
 
 The remaining requirement is:
 
-1. use an authenticated browser session with access to the SSO-protected Preview URL; then
-2. verify the Preview application and read-only database-backed routes; then
-3. record the runtime results without exposing environment values.
+1. if required for architectural sign-off, add a narrowly scoped read-only diagnostic route or use an approved server-side observability path to verify media and relationship counts without persistent writes; then
+2. record any additional results without exposing environment values.
 
-The hard stop is active after Preview deployment. The exact remaining access requirement is an authorized authenticated Vercel browser session for the SSO-protected Preview. Do not change Vercel Production, Neon Production, production schemas, production data, R2, WordPress, DNS, or perform a database cutover. Do not merge into `main`, disable SSO, bypass authentication, or expose credentials.
+The hard stop is active after Preview verification. Do not change Vercel Production, Neon Production, production schemas, production data, R2, WordPress, DNS, or perform a database cutover. Do not merge into `main`, disable SSO, bypass authentication, or expose credentials.
