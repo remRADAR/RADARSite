@@ -1,8 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { IaIndex } from "@/components/marketing/IaPages";
 import { readPublishedContent } from "@/lib/content-server";
 import { articleCategories, ARTICLES_PER_PAGE, categoryLabelFromSlug, categorySlug, pageCount, sortArticlesCurrentFirst } from "@/lib/article-taxonomy";
+import { publicSiteUrl, readPublicSiteOverrides, safeSocialImageUrl } from "@/lib/public-site";
 
 export const revalidate = 3600;
 export const dynamicParams = false;
@@ -13,6 +15,18 @@ async function getArchive() {
   const { articles } = await readPublishedContent();
   const labels = [...new Set(articles.flatMap(articleCategories))].sort((a, b) => a.localeCompare(b));
   return { articles, labels };
+}
+
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
+  const { category, page } = await params;
+  const { labels } = await getArchive();
+  const label = categoryLabelFromSlug(category, labels);
+  const settings = await readPublicSiteOverrides();
+  const canonical = `/ontheradar/articles/category/${categorySlug(label || category)}/page/${page}`;
+  const title = label ? `${label} Articles` : "RADARArticles";
+  const description = label ? `RADARArticles in the ${label} category.` : settings.socialDescription;
+  const image = safeSocialImageUrl(settings.socialImage);
+  return { title, description, alternates: { canonical }, openGraph: { type: "website", url: `${publicSiteUrl()}${canonical}`, siteName: settings.siteName, title, description, images: [{ url: image, width: 1200, height: 630, alt: title }] }, twitter: { card: "summary_large_image", site: settings.xHandle, title, description, images: [image] } };
 }
 
 export async function generateStaticParams() {

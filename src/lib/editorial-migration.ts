@@ -79,6 +79,7 @@ export function sanitizeEditorialHtml(input: unknown) {
         }
       }
       if (name === "iframe" && !kept.some((item) => item.startsWith("src="))) return "";
+      if (name === "img" && !kept.some((item) => item.startsWith("src="))) return "";
       return `<${name}${kept.length ? ` ${kept.join(" ")}` : ""}>`;
     })
     .replace(/<iframe([^>]*)>/gi, '<div class="editorial-embed"><iframe$1 loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>')

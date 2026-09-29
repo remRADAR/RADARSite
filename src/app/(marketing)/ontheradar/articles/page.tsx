@@ -1,8 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { readPublishedContent } from "@/lib/content-server";
 import { articleCategories, categorySlug, isCurrentRadarchartsArticle, sortArticlesCurrentFirst } from "@/lib/article-taxonomy";
+import { publicSiteUrl, readPublicSiteOverrides, safeSocialImageUrl } from "@/lib/public-site";
 
 export const revalidate = 3600;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await readPublicSiteOverrides();
+  const title = "RADARArticles";
+  const description = "Browse RADARCharts editorial stories by category, with current RADARCharts content surfaced before the legacy archive.";
+  const image = safeSocialImageUrl(settings.socialImage);
+  return { title, description, alternates: { canonical: "/ontheradar/articles" }, openGraph: { type: "website", url: `${publicSiteUrl()}/ontheradar/articles`, siteName: settings.siteName, title, description, images: [{ url: image, width: 1200, height: 630, alt: title }] }, twitter: { card: "summary_large_image", site: settings.xHandle, title, description, images: [image] } };
+}
 
 export default async function ArticlesPage() {
   const { articles } = await readPublishedContent();

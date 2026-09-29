@@ -5,6 +5,7 @@ import { readPublishedContent } from "@/lib/content-server";
 import { findBySlug } from "@/lib/ia-content";
 import { articlePath, normalizeEditorialRecord } from "@/lib/editorial-normalization";
 import { getEffectiveImageUrl } from "@/lib/effective-image-url";
+import { publicSiteUrl, readPublicSiteOverrides, safeSocialImageUrl } from "@/lib/public-site";
 export const revalidate = 3600;
 export const dynamicParams = false;
 
@@ -21,25 +22,30 @@ export async function generateMetadata({ params }: { params: Promise<{ article: 
 
   const record = normalizeEditorialRecord(item);
   const canonical = articlePath(record);
-  const image = getEffectiveImageUrl(record.imageUrl || record.featuredImage).effectiveUrl;
+  const settings = await readPublicSiteOverrides();
+  const image = safeSocialImageUrl(getEffectiveImageUrl(record.imageUrl || record.featuredImage).effectiveUrl || settings.socialImage);
+  const title = record.metaTitle || record.title;
+  const description = record.metaDescription || record.excerpt;
   return {
-    title: record.metaTitle || record.title,
-    description: record.metaDescription || record.excerpt,
+    title,
+    description,
     alternates: { canonical },
     openGraph: {
       type: "article",
-      url: canonical,
-      title: record.metaTitle || record.title,
-      description: record.metaDescription || record.excerpt,
-      ...(image ? { images: [{ url: image, alt: record.title }] } : {}),
+      url: `${publicSiteUrl()}${canonical}`,
+      siteName: settings.siteName,
+      title,
+      description,
+      images: [{ url: image, alt: record.title }],
       ...(record.publishedAt || record.date ? { publishedTime: record.publishedAt || record.date } : {}),
       ...(record.author ? { authors: [record.author] } : {}),
     },
     twitter: {
-      card: image ? "summary_large_image" : "summary",
-      title: record.metaTitle || record.title,
-      description: record.metaDescription || record.excerpt,
-      ...(image ? { images: [image] } : {}),
+      card: "summary_large_image",
+      site: settings.xHandle || "@radarcharts",
+      title,
+      description,
+      images: [image],
     },
   };
 }

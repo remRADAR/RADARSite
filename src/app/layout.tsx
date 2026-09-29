@@ -4,6 +4,7 @@ import "./globals.css";
 import { LiveSiteOverrides } from "@/components/LiveSiteOverrides";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { StructuredData, organizationStructuredData } from "@/components/StructuredData";
+import { publicSiteUrl, readPublicSiteOverrides, safeSocialImageUrl } from "@/lib/public-site";
 
 const archivo = Archivo({
   variable: "--font-grotesk",
@@ -17,17 +18,20 @@ const spaceMono = Space_Mono({
   weight: ["400", "700"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://radarcharts.net"),
-  title: {
-    default: "RADARCharts by REM",
-    template: "%s | RADARCharts by REM",
-  },
-  description: "RADARCharts by REM is a Nigerian and African music discovery, media, culture, artist-development, and intelligence platform.",
-  alternates: { canonical: "/", languages: { "en-NG": "/", "en-GH": "/", "en-GB": "/", "en-US": "/" } },
-  robots: { index: true, follow: true },
-  openGraph: { type: "website", locale: "en_NG", siteName: "RADARCharts by REM", title: "RADARCharts by REM", description: "A Nigerian and African music discovery, media, culture, artist-development, and intelligence platform.", url: "https://radarcharts.net" },
-  twitter: { card: "summary_large_image", site: "@radarcharts", creator: "@radarcharts" },
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await readPublicSiteOverrides();
+  const title = settings.socialTitle || settings.seoTitle;
+  const description = settings.socialDescription || settings.seoDescription;
+  const url = publicSiteUrl();
+  const image = safeSocialImageUrl(settings.socialImage);
+  return {
+    metadataBase: new URL(url),
+    title: { default: title, template: "%s | RADARCharts by REM" },
+    description,
+    alternates: { canonical: "/", languages: { "en-NG": "/", "en-GH": "/", "en-GB": "/", "en-US": "/" } },
+    robots: { index: true, follow: true },
+    openGraph: { type: "website", locale: "en_NG", siteName: settings.siteName, title, description, url, images: [{ url: image, width: 1200, height: 630, type: "image/svg+xml", alt: settings.siteName }] },
+    twitter: { card: "summary_large_image", site: settings.xHandle || "@radarcharts", creator: settings.xHandle || "@radarcharts", title, description, images: [image] },
   icons: {
     icon: [
       { url: "/favicon.ico" },
@@ -37,7 +41,8 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   manifest: "/site.webmanifest",
-};
+  };
+}
 
 export default function RootLayout({
   children,

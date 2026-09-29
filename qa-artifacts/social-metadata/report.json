@@ -1,0 +1,59 @@
+{
+  "generatedAt": "2026-09-29T18:27:29.315Z",
+  "base": "http://127.0.0.1:3101",
+  "ok": true,
+  "results": [
+    {
+      "route": "/",
+      "status": 200,
+      "canonical": "https://radarcharts.net",
+      "ogTitle": "RADARCharts by REM",
+      "ogDescription": "A Nigerian and African music discovery, media, culture, artist-development, and intelligence platform.",
+      "ogUrl": "https://radarcharts.net",
+      "ogImage": "https://radarcharts.net/social/radar-global-card.svg",
+      "twitterCard": "summary_large_image",
+      "twitterTitle": "RADARCharts by REM",
+      "twitterImage": "https://radarcharts.net/social/radar-global-card.svg",
+      "issues": []
+    },
+    {
+      "route": "/ontheradar/articles",
+      "status": 200,
+      "canonical": "https://radarcharts.net/ontheradar/articles",
+      "ogTitle": "RADARArticles",
+      "ogDescription": "Browse RADARCharts editorial stories by category, with current RADARCharts content surfaced before the legacy archive.",
+      "ogUrl": "https://radarcharts.net/ontheradar/articles",
+      "ogImage": "https://radarcharts.net/social/radar-global-card.svg",
+      "twitterCard": "summary_large_image",
+      "twitterTitle": "RADARArticles",
+      "twitterImage": "https://radarcharts.net/social/radar-global-card.svg",
+      "issues": []
+    },
+    {
+      "route": "/ontheradar/articles/category/discovery-spot/page/1",
+      "status": 200,
+      "canonical": "https://radarcharts.net/ontheradar/articles/category/discovery-spot/page/1",
+      "ogTitle": "Discovery Spot Articles",
+      "ogDescription": "RADARArticles in the Discovery Spot category.",
+      "ogUrl": "https://radarcharts.net/ontheradar/articles/category/discovery-spot/page/1",
+      "ogImage": "https://radarcharts.net/social/radar-global-card.svg",
+      "twitterCard": "summary_large_image",
+      "twitterTitle": "Discovery Spot Articles",
+      "twitterImage": "https://radarcharts.net/social/radar-global-card.svg",
+      "issues": []
+    },
+    {
+      "route": "/ontheradar/articles/artist-spotlight-wealth-asuquo-abujas-livewire-afrobeats-star-on-a-relentless-rise",
+      "status": 200,
+      "canonical": "https://radarcharts.net/ontheradar/articles/artist-spotlight-wealth-asuquo-abujas-livewire-afrobeats-star-on-a-relentless-rise",
+      "ogTitle": "ARTIST SPOTLIGHT: Wealth Asuquo— Abuja’s Livewire Afrobeats Star on a Relentless Rise",
+      "ogDescription": "With cultural pride, magnetic stage power, and a growing catalog of crowd-ready records, Wealth Asuquo is fast becoming one of Abuja’s most exciting Afrobeats voices. Her latest single, “Ayan Wodowo,” is both a victory lap and a warning shot.",
+      "ogUrl": "https://radarcharts.net/ontheradar/articles/artist-spotlight-wealth-asuquo-abujas-livewire-afrobeats-star-on-a-relentless-rise",
+      "ogImage": "https://pub-2d7f41f7140544c480801d8b90da765e.r2.dev/legacy/webp/b8/b8e26497ecb49c6e28ac8c314f5a1677848f348514516254a1b91d56606c4391.webp",
+      "twitterCard": "summary_large_image",
+      "twitterTitle": "ARTIST SPOTLIGHT: Wealth Asuquo— Abuja’s Livewire Afrobeats Star on a Relentless Rise",
+      "twitterImage": "https://pub-2d7f41f7140544c480801d8b90da765e.r2.dev/legacy/webp/b8/b8e26497ecb49c6e28ac8c314f5a1677848f348514516254a1b91d56606c4391.webp",
+      "issues": []
+    }
+  ]
+}

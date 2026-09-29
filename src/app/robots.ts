@@ -1,10 +1,9 @@
 import type { MetadataRoute } from "next";
-
-const base = "https://radarsite-two.vercel.app";
+import { publicSiteUrl } from "@/lib/public-site";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [{ userAgent: "*", allow: "/", disallow: ["/admin", "/api/", "/dashboard", "/projects", "/briefs", "/login"] }],
-    sitemap: `${base}/sitemap.xml`,
+    sitemap: `${publicSiteUrl()}/sitemap.xml`,
   };
 }

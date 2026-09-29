@@ -22,6 +22,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "remradar.wordpress.com",
       },
+      {
+        protocol: "https",
+        hostname: "pub-2d7f41f7140544c480801d8b90da765e.r2.dev",
+      },
     ],
   },
   async redirects() {
@@ -32,7 +36,7 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     const securityHeaders = [
-      { key: "Content-Security-Policy", value: "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://images.unsplash.com https://cdn.radarcharts.net https://i0.wp.com; connect-src 'self' https://api.unsplash.com https://va.vercel-scripts.com; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; upgrade-insecure-requests" },
+      { key: "Content-Security-Policy", value: "default-src 'self'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://images.unsplash.com https://cdn.radarcharts.net https://remradar.wordpress.com https://i0.wp.com https://pub-2d7f41f7140544c480801d8b90da765e.r2.dev https://i.ytimg.com; connect-src 'self' https://api.unsplash.com https://va.vercel-scripts.com; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; upgrade-insecure-requests" },
       { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
       { key: "X-Content-Type-Options", value: "nosniff" },
       { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
@@ -42,7 +46,7 @@ const nextConfig: NextConfig = {
       { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
     ];
     return [
-      { source: "/(.*)", headers: securityHeaders.map((header) => header.key === "Content-Security-Policy" ? { ...header, value: header.value.replace("https://cdn.radarcharts.net;", "https://cdn.radarcharts.net https://remradar.wordpress.com;") } : header) },
+      { source: "/(.*)", headers: securityHeaders },
       { source: "/sw.js", headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }, ...securityHeaders] },
       { source: "/hero-new/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
       { source: "/api/:path*", headers: [{ key: "Cache-Control", value: "no-store, max-age=0" }] },
