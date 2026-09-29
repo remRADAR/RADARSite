@@ -6,7 +6,7 @@
 - Preview, localhost, WordPress, Supabase, and other unsafe public-host patterns are rejected from production-facing URL resolution.
 - Global Open Graph metadata: title, description, URL, site name, locale, image, dimensions, MIME type, and alt text.
 - X/Twitter metadata: card, title, description, site/creator handle, and image.
-- The user-supplied RADARCharts stadium image is now the default branded fallback at `/social/radar-global-card.png` (2560×1440 PNG). The original generated SVG remains available at `/social/radar-global-card.svg` as the source/vector variant. Custom configured social images still take precedence.
+- Social previews use a dedicated RADARSite-native card at `/social/radar-global-card.png` (1200×630 PNG), generated from the current black-field, hard-grid, grotesk, and signal-mark system. It is intentionally independent of migrated WordPress article imagery. The editable source is `/social/radar-global-card.svg`; custom configured social images still take precedence.
 - Studio controls for social card title, description, site name, X/Twitter handle, canonical URL, and custom global social image.
 - Article-specific metadata overrides the global card with the article title, excerpt, canonical URL, and migrated featured image; missing images fall back to the global RADAR card without inheriting another article’s image.
 - Article archive and category pages have their own canonical URLs and social metadata.
