@@ -1,0 +1,96 @@
+{
+  "mimeHints": {
+    "image/jpeg": 266,
+    "image/png": 12
+  },
+  "featuredDimensionsProvided": 278,
+  "featuredDimensionTop": [
+    [
+      [
+        1080,
+        608
+      ],
+      44
+    ],
+    [
+      [
+        2000,
+        1125
+      ],
+      18
+    ],
+    [
+      [
+        1080,
+        607
+      ],
+      9
+    ],
+    [
+      [
+        6000,
+        3375
+      ],
+      8
+    ],
+    [
+      [
+        1440,
+        810
+      ],
+      6
+    ],
+    [
+      [
+        3024,
+        1701
+      ],
+      5
+    ],
+    [
+      [
+        1280,
+        720
+      ],
+      5
+    ],
+    [
+      [
+        1079,
+        607
+      ],
+      5
+    ],
+    [
+      [
+        3024,
+        1707
+      ],
+      5
+    ],
+    [
+      [
+        853,
+        480
+      ],
+      5
+    ]
+  ],
+  "inlineAttachmentIds": 565,
+  "uniqueInlineAttachmentIds": 554,
+  "extensionHints": {
+    ".jpeg": 212,
+    ".jpg": 357,
+    ".png": 53,
+    ".gif": 6,
+    ".webp": 1
+  },
+  "duplicateSourceUrls": 9,
+  "totalUrlReferences": 907,
+  "uniqueSourceUrls": 898,
+  "zeroByteFilesVerified": false,
+  "fileSizesVerified": false,
+  "notes": [
+    "WordPress.com media endpoint returned HTTP 403, so byte sizes, zero-byte checks, exact MIME, and reachability were not attempted for the full set. Dimensions and MIME are source metadata hints only."
+  ]
+}
