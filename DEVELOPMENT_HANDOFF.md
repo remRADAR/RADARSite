@@ -157,3 +157,10 @@ The isolated Supabase Preview security gate for `public.studio_settings` is clos
 Preview settings read/write, settings cleanup, Studio library read, article read/write/restore, and public article-route checks passed after remediation. The former critical advisor finding `rls_disabled_in_public` is resolved. The remaining advisor notice is the expected informational `rls_enabled_no_policy` finding for the intentional deny-by-default table. Existing RLS on `studio_content`, `content_media`, and `content_media_relationships` remained enabled and unchanged.
 
 The requested regression suite passed, including the new network-free `npm run postgres:adapter-contract-test`, CMS/media contracts, TypeScript, lint, build, diff check, and 3 focused CMS Playwright tests. Full evidence: `reports/SUPABASE_STUDIO_SETTINGS_RLS_REMEDIATION_2026-09-29.md`. Keep PR #2 draft-only; do not merge, deploy Production, start WordPress/media/R2 migration, activate redirects, or change DNS.
+
+
+## SEO / discovery implementation checkpoint — 2026-09-29
+
+The isolated branch `cms-integration-2026-09-29` now includes canonical-host SEO helpers, consistent root and detail metadata, WebSite/WebPage/ProfilePage/CollectionPage/BreadcrumbList JSON-LD, content-date sitemap entries, robots exclusions, CMS noindex controls, and an explicit attributed source-excerpt/music-context relationship model. The Studio editor exposes noindex, focus topic, and source-excerpt fields without changing the existing safe partial-update behavior.
+
+Local verification passed: TypeScript, production build, lint (one pre-existing Studio preview `<img>` warning), diff check, CMS taxonomy/workflow contracts, PostgreSQL adapter contract, and mock Studio library contract. The implementation remains isolated; no Production variables, Supabase schema, WordPress source data, or migration tables were modified. Next gates are the reviewed WordPress URL inventory/redirect map, route-specific archive metadata and pagination policy, a redirects dry run, and real-device accessibility/performance plus staging crawl validation. PR #2 remains draft-only.

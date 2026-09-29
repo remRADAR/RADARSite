@@ -1,6 +1,7 @@
 import type { CmsRecord } from "@/lib/content-server";
 import { articlePath } from "@/lib/editorial-normalization";
 import { deriveEditorialTaxonomy } from "@/lib/cms-taxonomy";
+import { absoluteUrl } from "@/lib/seo";
 
 export function buildArticleJsonLd(record: CmsRecord) {
   const taxonomy = deriveEditorialTaxonomy(record);
@@ -14,9 +15,10 @@ export function buildArticleJsonLd(record: CmsRecord) {
     ...(record.publishedAt || record.date ? { datePublished: record.publishedAt || record.date } : {}),
     ...((record.sourceModifiedAt || record.updatedAt) ? { dateModified: record.sourceModifiedAt || record.updatedAt } : {}),
     author: { "@type": "Person", name: record.author || "RADARCharts by REM" },
-    publisher: { "@type": "Organization", name: "RADARCharts by REM" },
-    mainEntityOfPage: { "@type": "WebPage", "@id": articlePath(record) },
-    ...(image ? { image: [image] } : {}),
+    publisher: { "@type": "Organization", name: "RADARCharts by REM", url: "https://radarcharts.net", logo: { "@type": "ImageObject", url: "https://radarcharts.net/radar-logo.webp" } },
+    mainEntityOfPage: { "@type": "WebPage", "@id": absoluteUrl(record.canonicalUrl || articlePath(record)) },
+    url: absoluteUrl(record.canonicalUrl || articlePath(record)),
+    ...(image ? { image: [{ "@type": "ImageObject", url: absoluteUrl(image), caption: record.featuredImageAlt || record.title || record.name || "RADAR editorial image" }] } : {}),
     ...(taxonomy.editorialType ? { articleSection: taxonomy.editorialType } : {}),
     ...(taxonomy.magazineSubtype ? { genre: taxonomy.magazineSubtype } : {}),
     ...(taxonomy.projectSection ? { about: { "@type": "Thing", name: taxonomy.projectSection } } : {}),
