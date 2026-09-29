@@ -1,8 +1,8 @@
-/* eslint-disable @next/next/no-img-element -- imported CMS hosts are intentionally rendered directly. */
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { getEffectiveImageUrl } from "@/lib/effective-image-url";
 import type { UnsplashPhoto } from "@/lib/unsplash";
+import { ResilientImage } from "@/components/ResilientImage";
 
 export type MediaTone = "warm" | "cool" | "mono" | "flare";
 
@@ -69,16 +69,15 @@ export function MediaFrame({
       ) : imageUrl ? (
         // Imported WordPress URLs are intentionally rendered directly: the CMS can contain
         // many valid hosts, and this keeps the media path resilient without remote config churn.
-        <img
+        <ResilientImage
           src={effectiveImage.effectiveUrl}
           alt={label || "Featured image"}
           loading={priority ? "eager" : "lazy"}
-          decoding="async"
           className={cn(
             "absolute inset-0 h-full w-full object-cover",
             reveal && "transform-gpu transition-transform duration-[800ms] ease-[var(--ease-out)] group-hover/card:scale-[1.06]"
           )}
-          style={{ objectPosition }}
+          objectPosition={objectPosition}
         />
       ) : (
         <div

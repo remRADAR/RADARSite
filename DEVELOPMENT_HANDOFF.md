@@ -128,3 +128,40 @@ See `LIGHTHOUSE_ACCESSIBILITY_AUDIT.md` for the detailed evidence and recommende
 ## Cross-account continuity supersession — 2026-09-29
 
 The authoritative continuation checkpoint is now [`CONTINUITY_CLAUSE.md`](./CONTINUITY_CLAUSE.md). This file is historical for the earlier interaction/header work; do not use its old commit or working-tree claims as the current repository state. The current repository is `main` at commit `129e0fb`, with the isolated Supabase POC documented in `reports/SUPABASE_POC_REPORT_2026-09-29.md`. Production remains on Neon and is unchanged.
+
+## Article Archive and CMS Media Follow-up — 2026-09-29
+
+### Current State
+
+The public article archive now serves a category-only landing page. It does not render article cards on the landing page. Category pages use explicit paginated routes under `/ontheradar/articles/category/<category>/page/<page>` with 24 entries per page.
+
+The committed snapshot contains 342 published articles: 63 current RADARCharts records from `radarcharts.net` and 279 legacy records. Current-source records are sorted ahead of legacy records on every category page. Current records without explicit WordPress categories inherit the recovered `radar-articles` section as `RADARArticles`; records without either source category or section use `Uncategorized`.
+
+### Recently Completed
+
+- Added shared article taxonomy/source-ordering/pagination helpers in `src/lib/article-taxonomy.ts`.
+- Replaced the all-articles archive landing with category cards and current/legacy counts.
+- Added statically generated, paginated category routes.
+- Added a client-side resilient featured-image component so failed remote CMS media renders an intentional visual fallback rather than a broken-image icon.
+- Applied the verified `i0.wp.com` fallback to current RADARCharts inline WordPress images during sanitization; legacy R2 WebP URLs remain unchanged.
+
+### Verification
+
+| Check | Result |
+|---|---|
+| Snapshot content audit | Passed: 342 articles, 9 category buckets, 0 missing featured/image fields |
+| Current/legacy source audit | Passed: 63 current, 279 legacy; current source ordering is explicit |
+| Media URL probes | Passed: representative current URL delivered through `i0.wp.com`; representative legacy URL delivered from R2 WebP |
+| `npm run lint` | Passed |
+| `npx tsc --noEmit` | Passed |
+| `npm run build` | Passed; 404 static pages generated, including category pages |
+| `git diff --check` | Passed |
+| Production smoke routes | Passed: archive landing 200, category page 200, current article 200, legacy article 200 |
+| Archive landing behavior | Passed: category links present and no `Open entry` article cards rendered |
+| Category behavior | Passed: `RADARArticles` page contains current RADARCharts content and current media uses `i0.wp.com` |
+
+### Known Limitations
+
+- This session did not perform WordPress, Neon, R2, Vercel, or CMS writes. Production migration remains governed by `CONTINUITY_CLAUSE.md` and the existing Neon/R2 safety gates.
+- The current snapshot contains no authoritative WordPress category values for the 63 current records; the `radar-articles` section fallback is deterministic and visible, but editorially finer-grained current categorization still requires a future authenticated source taxonomy pass.
+- Runtime browser visual QA was not performed in this sandbox; the route smoke test used the production server and rendered HTML.

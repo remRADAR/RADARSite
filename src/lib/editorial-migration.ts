@@ -1,6 +1,7 @@
 import { decode } from "html-entities";
 import { readContent, type CmsRecord, type ContentCollections } from "@/lib/content-server";
 import { classifySection, editorialExcerpt, editorialTitle, normalizeEditorialContent } from "@/lib/editorial-normalization";
+import { getEffectiveImageUrl } from "@/lib/effective-image-url";
 
 export type EditorialType = "article" | "interview" | "spotlight" | "magazine";
 export type EditorialStatus = "draft" | "published" | "archived";
@@ -37,7 +38,7 @@ function safeUrl(value: string, kind: "link" | "image" | "iframe") {
     const url = new URL(value);
     if (url.protocol !== "https:") return "";
     if (kind === "iframe" && !allowedHosts.has(url.hostname)) return "";
-    return url.toString();
+    return kind === "image" ? getEffectiveImageUrl(url).effectiveUrl : url.toString();
   } catch {
     return "";
   }
