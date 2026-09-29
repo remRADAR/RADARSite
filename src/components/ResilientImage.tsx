@@ -16,6 +16,7 @@ type Props = {
 
 export function ResilientImage({ src, alt, className, loading = "lazy", objectPosition }: Props) {
   const [failed, setFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   if (failed) return <div className={cn("absolute inset-0", FALLBACK)} role="img" aria-label={`${alt} image unavailable`} />;
-  return <img src={src} alt={alt} loading={loading} decoding="async" onError={() => setFailed(true)} className={className} style={{ objectPosition }} />;
+  return <img src={src} alt={alt} loading={loading} decoding="async" onLoad={() => setLoaded(true)} onError={() => setFailed(true)} className={cn("transition-opacity duration-500 ease-[var(--ease-out)]", loaded ? "opacity-100" : "opacity-0", className)} style={{ objectPosition }} />;
 }

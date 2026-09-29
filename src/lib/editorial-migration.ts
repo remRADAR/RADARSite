@@ -55,7 +55,11 @@ function socialFallbacks(source: string) {
 
 /** Converts known WordPress HTML into the deliberately small, safe editorial subset. */
 export function sanitizeEditorialHtml(input: unknown) {
-  const source = socialFallbacks(typeof input === "string" ? input.slice(0, MAX_HTML) : "");
+  const source = socialFallbacks(typeof input === "string" ? input.slice(0, MAX_HTML) : "")
+    // WordPress oEmbed exports sometimes contain an extra closing iframe after
+    // the wrapper. Collapse it before the allow-list pass so the browser never
+    // has to recover from invalid nested embed markup.
+    .replace(/<\/iframe>(?:\s*<\/div>\s*)*<\/iframe>/gi, "</iframe>");
   return source
     .replace(/<!--[\s\S]*?-->/g, "")
     .replace(/<\/?(script|style|object|embed|form|svg|math|link|meta|noscript)[^>]*>/gi, "")
@@ -73,17 +77,30 @@ export function sanitizeEditorialHtml(input: unknown) {
           if (url) kept.push(`href="${escapeAttr(url)}" rel="noopener noreferrer" target="_blank"`);
         } else if (key === "src" && (name === "img" || name === "iframe")) {
           const url = safeUrl(value, name === "img" ? "image" : "iframe");
-          if (url) kept.push(`src="${escapeAttr(url)}"`);
+          // Iframes are activated by EditorialMediaEnhancer only when they
+          // approach the viewport. This prevents a long article from opening
+          // every Spotify/YouTube connection during the initial page load.
+          if (url) kept.push(`data-src="${escapeAttr(url)}"`);
+        } else if (key === "data-src" && (name === "iframe" || name === "img")) {
+          const url = safeUrl(value, name === "img" ? "image" : "iframe");
+          if (url) kept.push(`data-src="${escapeAttr(url)}"`);
         } else if (["alt", "title", "width", "height", "allow", "allowfullscreen", "loading", "referrerpolicy"].includes(key)) {
           kept.push(`${key}="${escapeAttr(value.slice(0, 300))}"`);
         }
       }
-      if (name === "iframe" && !kept.some((item) => item.startsWith("src="))) return "";
-      if (name === "img" && !kept.some((item) => item.startsWith("src="))) return "";
+      if ((name === "iframe" || name === "img") && !kept.some((item) => item.startsWith("data-src="))) return "";
+      if (name === "img") {
+        kept.push('class="editorial-media"');
+        if (!kept.some((item) => item.startsWith("loading="))) kept.push('loading="lazy"');
+        if (!kept.some((item) => item.startsWith("decoding="))) kept.push('decoding="async"');
+      }
+      if (name === "iframe") {
+        if (!kept.some((item) => item.startsWith("loading="))) kept.push('loading="lazy"');
+        if (!kept.some((item) => item.startsWith("referrerpolicy="))) kept.push('referrerpolicy="strict-origin-when-cross-origin"');
+      }
       return `<${name}${kept.length ? ` ${kept.join(" ")}` : ""}>`;
     })
-    .replace(/<iframe([^>]*)>/gi, '<div class="editorial-embed"><iframe$1 loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>')
-    .replace(/<iframe([^>]*)><\/iframe>/gi, "<iframe$1></iframe>")
+    .replace(/<iframe([^>]*)><\/iframe>/gi, '<div class="editorial-embed"><iframe$1></iframe></div>')
     .replace(/<p>\s*<\/p>/gi, "")
     .trim();
 }

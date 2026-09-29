@@ -165,3 +165,24 @@ The committed snapshot contains 342 published articles: 63 current RADARCharts r
 - This session did not perform WordPress, Neon, R2, Vercel, or CMS writes. Production migration remains governed by `CONTINUITY_CLAUSE.md` and the existing Neon/R2 safety gates.
 - The current snapshot contains no authoritative WordPress category values for the 63 current records; the `radar-articles` section fallback is deterministic and visible, but editorially finer-grained current categorization still requires a future authenticated source taxonomy pass.
 - Runtime browser visual QA was not performed in this sandbox; the route smoke test used the production server and rendered HTML.
+
+## Editorial Media Stability Follow-up — 2026-09-29
+### Implemented
+- Fixed malformed WordPress oEmbed output where duplicate iframe closing tags were being wrapped twice; sanitized output now contains one `.editorial-embed` wrapper per iframe across all 329 migrated embed records.
+- Added `EditorialMediaEnhancer` with viewport-observer activation for all 650 inline article images and 329 embeds. Images and iframes now use `data-src` until they approach the viewport, avoiding large initial connection bursts and reducing crash/load pressure.
+- Added one retry for transient media failures, loading/error states, smooth document scrolling, scroll-driven media reveals, and `prefers-reduced-motion` overrides.
+- Added loaded-state opacity transitions to featured `ResilientImage` slots.
+- Deferred the site-wide autoplay playlist iframe until after hydration so it does not compete with the initial article media load.
+
+### Verification
+| Check | Result |
+|---|---|
+| `npm run lint` | Passed |
+| `npx tsc --noEmit` | Passed |
+| `npm run build` | Passed |
+| Sanitized migrated HTML | Passed: 0 malformed iframe sequences, 650 deferred inline images, 329 deferred embeds, 0 empty media sources |
+| Focused browser QA | Passed on the heaviest migrated article: 16/16 inline images loaded after scroll, 0 deferred images, 0 malformed article iframes |
+| Full-route browser QA | All 369 routes returned HTTP 200; the first run recorded 335 `complete:false` images under aggressive 4-worker scrolling despite direct R2 probes returning HTTP 200. This is treated as a crawler timing result rather than confirmed delivery failure; the focused post-fix route loaded all article images successfully. |
+
+### Notes
+- Existing site-wide React hydration warning telemetry was observed separately from the article media DOM; the global playlist iframe is now hydration-safe/deferred, while article iframe sanitization and wrapper structure are clean.

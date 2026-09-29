@@ -181,14 +181,16 @@ export function PlaylistFloater() {
 
   return (
     <>
-      <iframe
-        ref={frameRef}
-        title="RADAR playlist audio"
-        className="pointer-events-none fixed -left-px -top-px h-px w-px opacity-0"
-        src={`https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(overrides.playlistId)}&autoplay=1&mute=1&enablejsapi=1&controls=0&playsinline=1&origin=${encodeURIComponent(origin)}`}
-        allow="autoplay; encrypted-media"
-        onLoad={resumeIfPreferred}
-      />
+      {mounted && (
+        <iframe
+          ref={frameRef}
+          title="RADAR playlist audio"
+          className="pointer-events-none fixed -left-px -top-px h-px w-px opacity-0"
+          src={`https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(overrides.playlistId)}&autoplay=1&mute=1&enablejsapi=1&controls=0&playsinline=1&origin=${encodeURIComponent(origin)}`}
+          allow="autoplay; encrypted-media"
+          onLoad={resumeIfPreferred}
+        />
+      )}
       <div className="group fixed z-[60]" style={{ left: effectivePosition.x, top: effectivePosition.y }}>
         <span className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-sm border border-ink/20 bg-paper px-2 py-1 font-sans text-[11px] font-normal leading-none text-ink opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
           {overrides.playlistLabel}
