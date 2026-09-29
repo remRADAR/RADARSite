@@ -128,3 +128,14 @@ See `LIGHTHOUSE_ACCESSIBILITY_AUDIT.md` for the detailed evidence and recommende
 ## Cross-account continuity supersession — 2026-09-29
 
 The authoritative continuation checkpoint is now [`CONTINUITY_CLAUSE.md`](./CONTINUITY_CLAUSE.md). This file is historical for the earlier interaction/header work; do not use its old commit or working-tree claims as the current repository state. The current repository is `main` at commit `129e0fb`, with the isolated Supabase POC documented in `reports/SUPABASE_POC_REPORT_2026-09-29.md`. Production remains on Neon and is unchanged.
+
+
+## CMS Preview Provider Validation — 2026-09-29
+
+The CMS integration branch `cms-integration-2026-09-29` was deployed to the isolated Vercel `radarsite-staging` Preview project as deployment `dpl_9Edkd6gtXwohQkWVnzDCDhsrzesM`, commit `343e672eab05d2ab9d5306eacb965149c812dc41`. The deployment reached `READY` and public RADARArticles, individual article, Magazine, and Motherland routes rendered successfully. The representative article’s Article JSON-LD parsed successfully and contained no raw closing-script sequence.
+
+Authentication was verified through the Preview Studio password gate using secure user takeover. The authenticated Studio page opened, but the real article-library request returned HTTP 503. Vercel runtime logs show the Preview Neon provider returned HTTP 402 because its account/project quota was exhausted. No Studio article read/write validation, test-record creation, publication, or cleanup was attempted after this first provider-backed read failed.
+
+The required local contract tests, media regression contracts, lint, TypeScript, diff check, production build, and focused CMS Playwright suite passed. This does not prove live provider behavior. The Preview environment has separate Preview-scoped and Production-scoped `DATABASE_URL` and `STUDIO_ADMIN_PASSWORD` entries; secret values were not decrypted or recorded.
+
+Authoritative detail is in `reports/CMS_PREVIEW_PROVIDER_VALIDATION_2026-09-29.md`. **Next gate:** provide an authorized isolated Preview Neon database with sufficient quota, configure only the Preview-scoped database variable, redeploy the same branch, and rerun the provider-backed Studio matrix. Do not alter Production, merge to main, migrate WordPress content/media, upload to R2, activate redirects, or change DNS.
