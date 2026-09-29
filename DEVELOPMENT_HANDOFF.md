@@ -123,3 +123,8 @@ Added `tests/e2e/header.spec.ts` with 17 public marketing/legal routes. All 17 h
 A valid Lighthouse run against `next start` scored Performance 34/100, Accessibility 100/100, FCP 5.3 seconds, LCP 11.8 seconds, TBT 1.85 seconds, CLS 0, and Speed Index 5.3 seconds. The earlier development-server Lighthouse result was discarded as non-production evidence. Performance remains a follow-up task focused on JavaScript execution, unused payload, forced reflow, and image delivery; no speculative optimization was applied in this header-focused pass.
 
 See `LIGHTHOUSE_ACCESSIBILITY_AUDIT.md` for the detailed evidence and recommended next performance pass.
+
+
+## Cross-account continuity supersession — 2026-09-29
+
+The authoritative continuation checkpoint is now [`CONTINUITY_CLAUSE.md`](./CONTINUITY_CLAUSE.md). This file is historical for the earlier interaction/header work; do not use its old commit or working-tree claims as the current repository state. The current repository is `main` at commit `129e0fb`, with the isolated Supabase POC documented in `reports/SUPABASE_POC_REPORT_2026-09-29.md`. Production remains on Neon and is unchanged.
