@@ -1,6 +1,6 @@
-import { neon } from "@neondatabase/serverless";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { normalizeSiteOverrides as normalizeSharedSiteOverrides, type SiteOverrides } from "@/lib/site-overrides";
+import { getSql, hasDatabase as hasPostgresDatabase } from "@/lib/postgres";
 
 const SESSION_COOKIE = "radar_studio_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
@@ -15,12 +15,7 @@ export function getSessionMaxAge() {
 }
 
 export function hasDatabase() {
-  return Boolean(process.env.DATABASE_URL);
-}
-
-function getSql() {
-  if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not configured");
-  return neon(process.env.DATABASE_URL);
+  return hasPostgresDatabase();
 }
 
 export function normalizeSiteOverrides(input: unknown): SiteOverrides {

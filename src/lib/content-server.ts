@@ -1,9 +1,9 @@
 import { unstable_cache } from "next/cache";
 import { gunzipSync, gzipSync } from "node:zlib";
-import { neon } from "@neondatabase/serverless";
 import type { Artist, Article, Event, MagazineStory, RadarProject, Release } from "@/lib/ia-content";
 import mergedContentSnapshot from "@/data/merged-content.json";
 import { validateMediaRelationship, type ContentMediaRelationship } from "@/lib/media-relationships";
+import { getSql, hasDatabase } from "@/lib/postgres";
 
 export const PUBLIC_CONTENT_CACHE_TAG = "radarsite-public-content";
 export const PUBLIC_CONTENT_REVALIDATE_SECONDS = 60 * 60;
@@ -16,8 +16,8 @@ type ReadContentOptions = { fallbackToSnapshot?: boolean };
 const MAX_CONTENT_BYTES = 20 * 1024 * 1024;
 const mergedSnapshot = normalizeContent(mergedContentSnapshot);
 
-export function hasContentDatabase() { return Boolean(process.env.DATABASE_URL); }
-function sql() { if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not configured"); return neon(process.env.DATABASE_URL); }
+export function hasContentDatabase() { return hasDatabase(); }
+const sql = getSql;
 function isProductionBuild() { return process.env.NEXT_PHASE === "phase-production-build" || process.env.RADAR_SKIP_DATABASE === "1"; }
 function errorDetails(error: unknown) { return { name: error instanceof Error ? error.name : "UnknownError", message: error instanceof Error ? error.message : String(error) }; }
 function logContentReadError(error: unknown, context: string) { const details = errorDetails(error); console.error(`[content-server] ${context}`, details); }

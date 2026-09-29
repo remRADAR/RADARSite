@@ -12,6 +12,7 @@
     "media:contract-test": "tsx scripts/wordpress-media-contract-test.ts",
     "media-health:contract-test": "tsx scripts/media-health-contract-test.ts",
     "media-relationships:contract-test": "tsx scripts/media-relationships-contract-test.ts",
+    "postgres:adapter-contract-test": "tsx scripts/postgres-adapter-contract-test.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:a11y": "node scripts/check-accessibility.mjs"
@@ -33,6 +34,7 @@
     "lenis": "^1.3.25",
     "lucide-react": "^1.26.0",
     "next": "16.2.11",
+    "postgres": "^3.4.9",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-icons": "^5.7.0",
