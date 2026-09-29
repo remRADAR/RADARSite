@@ -1,23 +1,18 @@
+import Link from "next/link";
 import { IaIndex } from "@/components/marketing/IaPages";
 import { readPublishedContent } from "@/lib/content-server";
+import { deriveEditorialTaxonomy } from "@/lib/cms-taxonomy";
+
 export const revalidate = 3600;
 
-function timestamp(article: { publishedAt?: string; date?: string }) {
-  const value = article.publishedAt || article.date || "";
-  const parsed = Date.parse(value);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
+function timestamp(article: { publishedAt?: string; date?: string }) { const value = article.publishedAt || article.date || ""; const parsed = Date.parse(value); return Number.isFinite(parsed) ? parsed : 0; }
+function isCurrentImport(article: unknown) { const sourceUrl = article && typeof article === "object" && "sourceUrl" in article && typeof article.sourceUrl === "string" ? article.sourceUrl : ""; return /(^|\.)radarcharts\.net$/i.test(new URL(sourceUrl || "https://invalid.local").hostname); }
 
-function isCurrentImport(article: unknown) {
-  const sourceUrl = article && typeof article === "object" && "sourceUrl" in article && typeof article.sourceUrl === "string" ? article.sourceUrl : "";
-  return /(^|\.)radarcharts\.net$/i.test(new URL(sourceUrl || "https://invalid.local").hostname);
-}
-
-export default async function ArticlesPage() {
+export default async function ArticlesPage({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
   const { articles } = await readPublishedContent();
-  const orderedArticles = [...articles].sort((a, b) => {
-    const currentGroup = Number(isCurrentImport(b)) - Number(isCurrentImport(a));
-    return currentGroup || timestamp(b) - timestamp(a);
-  });
-  return <IaIndex eyebrow="(On The Radar / Articles)" title="Articles" intro="Shorter, higher-frequency signals: news, updates, announcements, and quick features." items={orderedArticles} basePath="/ontheradar/articles" />;
+  const type = (await searchParams).type;
+  const orderedArticles = articles.filter((article) => { const taxonomy = deriveEditorialTaxonomy(article); return (taxonomy.editorialType === "Press" || taxonomy.editorialType === "Spotlight" || taxonomy.editorialType === "") && (!type || type === taxonomy.editorialType.toLowerCase()); }).sort((a, b) => { const currentGroup = Number(isCurrentImport(b)) - Number(isCurrentImport(a)); return currentGroup || timestamp(b) - timestamp(a); });
+  const press = orderedArticles.filter((article) => deriveEditorialTaxonomy(article).editorialType === "Press").length;
+  const spotlights = orderedArticles.filter((article) => deriveEditorialTaxonomy(article).editorialType === "Spotlight").length;
+  return <div><section className="border-b-2 border-ink px-4 pb-10 pt-24 md:px-8"><p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">(On The Radar / RADARArticles)</p><h1 className="mt-4 display text-[clamp(3rem,11vw,11rem)] leading-[.84]">RADAR<br /><span className="text-flare">Articles.</span></h1><p className="mt-8 max-w-2xl font-mono text-sm uppercase leading-relaxed tracking-wide text-muted-foreground">Press notes and artist spotlights, including Motherland-associated Spotlights. Magazine episodes live in a separate editorial lane.</p></section><section className="grid border-b-2 border-ink md:grid-cols-2"><Link href="/ontheradar/articles?type=press" className="group border-b-2 border-ink p-6 transition-colors hover:bg-flare md:border-b-0 md:border-r-2 md:p-10"><span className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">{press} entries / 01</span><h2 className="mt-20 display text-5xl">Press<span className="text-flare group-hover:text-ink">.</span></h2><p className="mt-4 max-w-sm font-mono text-xs uppercase text-muted-foreground group-hover:text-ink">Announcements, releases, news, and editorial updates.</p></Link><Link href="/ontheradar/articles?type=spotlight" className="group p-6 transition-colors hover:bg-flare md:p-10"><span className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">{spotlights} entries / 02</span><h2 className="mt-20 display text-5xl">Spotlights<span className="text-flare group-hover:text-ink">.</span></h2><p className="mt-4 max-w-sm font-mono text-xs uppercase text-muted-foreground group-hover:text-ink">Artist-led profiles, with Motherland remaining an independent project association.</p></Link></section><IaIndex eyebrow="(RADARArticles / Latest)" title="Latest" intro="The newest press and spotlight signals from the shared editorial archive." items={orderedArticles} basePath="/ontheradar/articles" /></div>;
 }
