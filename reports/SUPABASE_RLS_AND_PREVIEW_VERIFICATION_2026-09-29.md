@@ -3,7 +3,7 @@
 **Date:** 2026-09-29
 **Repository:** `remRADAR/RADARSite`
 **Branch:** `preview/supabase-postgres-adapter`
-**Reviewed commit:** `a5d00f5` (`Add provider-neutral PostgreSQL adapter`)
+**Reviewed commits:** `a5d00f5` (`Add provider-neutral PostgreSQL adapter`), `408ed6a` (`Document Supabase credential setup path`)
 **Supabase target:** `radarsite-supabase-poc` / `eoydzywyacoesnowdlge` only
 **Vercel projects inspected:** existing `radarsite-staging` / `prj_2ePtA6DB9iMq8EP2hfukE3D2W93H`; dedicated unlinked project `radarsite-supabase-preview-20260929` / `prj_rWjoh3BgmTKou28TAht52rhpvYkJ`
 
@@ -73,11 +73,15 @@ An existing separate Vercel project was inspected:
 - Existing latest deployment target: Production for the staging project, not the RADARSite Production project
 - Existing Preview environment variable names: `DATABASE_URL` and `STUDIO_ADMIN_PASSWORD`
 
-Secret values were not decrypted or read. Because the existing Preview `DATABASE_URL` value is unknown, it cannot be asserted that it points to the Supabase POC rather than Neon. No environment variables were modified on the existing staging project. The dedicated project was created without a Git link, deployment, or database environment variables.
+Secret values were not decrypted or read. Because the existing Preview `DATABASE_URL` value is unknown, it cannot be asserted that it points to the Supabase POC rather than Neon. No environment variables were modified on the existing staging project. The dedicated project contains only the reviewed Preview-scoped database variables; no Production variables were present.
 
 ### Preview result
 
-**No Preview deployment was created.** The adapter was reviewed, committed as `a5d00f5`, and pushed only to `preview/supabase-postgres-adapter`. The separate unlinked Vercel project exists, but the required server-side Supabase PostgreSQL URL/password is not available through the Supabase connector. Deploying without it would either fail database verification or require using the existing staging secret whose target is unknown; neither is acceptable.
+**Preview deployment created successfully.** Deployment `dpl_CMNWPcxaGN5zSgKsQd2eyegsRZ72` is `READY` at [radarsite-supabase-preview-20260929-crwyqt2sk.vercel.app](https://radarsite-supabase-preview-20260929-crwyqt2sk.vercel.app). It was built from branch `preview/supabase-postgres-adapter` at commit `408ed6a0112eb081997c5e938c0e93ea224fe38a`. The deployment metadata reports `target: null`, which is Vercel’s Preview behavior when the target is omitted. An earlier API attempt returned `target: production`; that deployment (`dpl_5YwgBbqqhy9urrV9QQ5UkCtXJw9S`) was canceled before completion.
+
+The build completed successfully, including dependency installation, Next.js compilation, TypeScript checking, static page generation, and deployment. Vercel emitted non-fatal warnings about package install scripts and missing SWC lockfile entries; the build still reached `READY`.
+
+The deployment URL is protected by the dedicated project’s Vercel SSO setting. An unauthenticated HTTPS request returned `302` to Vercel SSO, so application runtime checks could not be executed from the unauthenticated sandbox request.
 
 Consequently, the following runtime checks remain **not verified**:
 
@@ -88,9 +92,10 @@ Consequently, the following runtime checks remain **not verified**:
 - runtime authentication/authorization behavior
 - serverless connection pooling behavior
 - absence of accidental Neon or Production environment-variable inheritance
-- deployment logs and generated configuration inspection
+- authenticated application startup and page reads
+- deployment-time environment value verification beyond names, scopes, and sensitivity metadata
 
-This is an intentional hard stop, not a failed deployment. No credentials were requested in chat, logged, committed, or printed.
+No credentials were requested in chat, logged, committed, or printed. The deployment itself is isolated and ready for authenticated runtime verification.
 
 ## Regression verification
 
@@ -135,12 +140,12 @@ The only external mutation was the reviewed RLS migration in the isolated Supaba
 
 ## Remaining blockers and next gate
 
-The success condition is not fully met because real Supabase PostgreSQL adapter verification from an isolated Vercel Preview could not be performed without the server-side Supabase POC connection URL/password. The dedicated project is ready for the next safe step, but no environment variables or deployment were created.
+The success condition is not fully met because authenticated runtime verification could not be performed through the SSO-protected Preview URL. The deployment is ready, and the Preview variable metadata is present with `DATABASE_URL` sensitive and both database variables scoped to Preview; the actual values were not decrypted.
 
 The remaining requirement is:
 
-1. complete the manual POC password reset and secure connection-string handoff described above; then
-2. configure only the dedicated project’s Preview environment with `DATABASE_PROVIDER=postgres` and a server-side `DATABASE_URL` belonging to Supabase project ref `eoydzywyacoesnowdlge`; then
-3. deploy commit `a5d00f5` to that Preview and run the runtime checks above.
+1. use an authenticated browser session with access to the SSO-protected Preview URL; then
+2. verify the Preview application and read-only database-backed routes; then
+3. record the runtime results without exposing environment values.
 
-The hard stop is active. Do not change Vercel Production, Neon Production, production schemas, production data, R2, WordPress, DNS, or perform a database cutover. Do not deploy with an unknown database target or expose credentials. The reviewed branch is committed and pushed; no merge into `main` occurred.
+The hard stop is active after Preview deployment. Do not change Vercel Production, Neon Production, production schemas, production data, R2, WordPress, DNS, or perform a database cutover. Do not merge into `main` or expose credentials.
