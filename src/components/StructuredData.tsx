@@ -1,10 +1,11 @@
 import { publicSiteUrl } from "@/lib/public-site";
 import { defaultSiteOverrides } from "@/lib/site-overrides";
+import { serializeJsonLd } from "@/lib/seo-schema";
 
 type StructuredDataProps = { data: Record<string, unknown> };
 
 export function StructuredData({ data }: StructuredDataProps) {
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, "\\u003c") }} />;
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(data) }} />;
 }
 
 export const organizationStructuredData = {

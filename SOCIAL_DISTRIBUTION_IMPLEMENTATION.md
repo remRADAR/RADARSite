@@ -6,7 +6,7 @@
 - Preview, localhost, WordPress, Supabase, and other unsafe public-host patterns are rejected from production-facing URL resolution.
 - Global Open Graph metadata: title, description, URL, site name, locale, image, dimensions, MIME type, and alt text.
 - X/Twitter metadata: card, title, description, site/creator handle, and image.
-- Deterministic branded fallback card at `/social/radar-global-card.svg`; it contains only RADAR branding, site name, approved tagline, and public URL.
+- Deterministic branded fallback cards at `/social/radar-global-card.png` and `/social/radar-global-card.svg`; metadata uses the 1200×630 PNG for broader crawler compatibility while the SVG remains available as the source/vector variant. Both contain only RADAR branding, site name, approved tagline, and public URL.
 - Studio controls for social card title, description, site name, X/Twitter handle, canonical URL, and custom global social image.
 - Article-specific metadata overrides the global card with the article title, excerpt, canonical URL, and migrated featured image; missing images fall back to the global RADAR card without inheriting another article’s image.
 - Article archive and category pages have their own canonical URLs and social metadata.

@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-09-29T18:27:29.315Z",
-  "base": "http://127.0.0.1:3101",
+  "generatedAt": "2026-09-29T18:43:02.701Z",
+  "base": "http://127.0.0.1:3203",
   "ok": true,
   "results": [
     {
@@ -10,10 +10,10 @@
       "ogTitle": "RADARCharts by REM",
       "ogDescription": "A Nigerian and African music discovery, media, culture, artist-development, and intelligence platform.",
       "ogUrl": "https://radarcharts.net",
-      "ogImage": "https://radarcharts.net/social/radar-global-card.svg",
+      "ogImage": "https://radarcharts.net/social/radar-global-card.png",
       "twitterCard": "summary_large_image",
       "twitterTitle": "RADARCharts by REM",
-      "twitterImage": "https://radarcharts.net/social/radar-global-card.svg",
+      "twitterImage": "https://radarcharts.net/social/radar-global-card.png",
       "issues": []
     },
     {
@@ -23,10 +23,10 @@
       "ogTitle": "RADARArticles",
       "ogDescription": "Browse RADARCharts editorial stories by category, with current RADARCharts content surfaced before the legacy archive.",
       "ogUrl": "https://radarcharts.net/ontheradar/articles",
-      "ogImage": "https://radarcharts.net/social/radar-global-card.svg",
+      "ogImage": "https://radarcharts.net/social/radar-global-card.png",
       "twitterCard": "summary_large_image",
       "twitterTitle": "RADARArticles",
-      "twitterImage": "https://radarcharts.net/social/radar-global-card.svg",
+      "twitterImage": "https://radarcharts.net/social/radar-global-card.png",
       "issues": []
     },
     {
@@ -36,10 +36,10 @@
       "ogTitle": "Discovery Spot Articles",
       "ogDescription": "RADARArticles in the Discovery Spot category.",
       "ogUrl": "https://radarcharts.net/ontheradar/articles/category/discovery-spot/page/1",
-      "ogImage": "https://radarcharts.net/social/radar-global-card.svg",
+      "ogImage": "https://radarcharts.net/social/radar-global-card.png",
       "twitterCard": "summary_large_image",
       "twitterTitle": "Discovery Spot Articles",
-      "twitterImage": "https://radarcharts.net/social/radar-global-card.svg",
+      "twitterImage": "https://radarcharts.net/social/radar-global-card.png",
       "issues": []
     },
     {
