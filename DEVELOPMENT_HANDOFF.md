@@ -139,3 +139,12 @@ Authentication was verified through the Preview Studio password gate using secur
 The required local contract tests, media regression contracts, lint, TypeScript, diff check, production build, and focused CMS Playwright suite passed. This does not prove live provider behavior. The Preview environment has separate Preview-scoped and Production-scoped `DATABASE_URL` and `STUDIO_ADMIN_PASSWORD` entries; secret values were not decrypted or recorded.
 
 Authoritative detail is in `reports/CMS_PREVIEW_PROVIDER_VALIDATION_2026-09-29.md`. **Next gate:** provide an authorized isolated Preview Neon database with sufficient quota, configure only the Preview-scoped database variable, redeploy the same branch, and rerun the provider-backed Studio matrix. Do not alter Production, merge to main, migrate WordPress content/media, upload to R2, activate redirects, or change DNS.
+
+
+## Supabase Preview adapter validation — 2026-09-29
+
+The dedicated branch `cms-integration-2026-09-29` now includes an opt-in provider-neutral PostgreSQL adapter (`b1ac62c`). Neon remains the default provider. The staging Vercel Preview was configured only with `DATABASE_PROVIDER=postgres` and the isolated Supabase POC connection for project ref `eoydzywyacoesnowdlge`; Production was not changed.
+
+Deployment `dpl_F9efpdawJBCp59anKHr1RzBhaZBn` reached `READY` at `https://radarsite-staging-lzv9xkr24-remradars-projects.vercel.app`. Public homepage rendering passed. Authenticated Studio library read returned HTTP 200 with 5 bounded items from 342 records. A reversible article metadata write/read/restore round trip returned HTTP 200 throughout and left no temporary marker behind. Local TypeScript, lint, diff, CMS, mock-library, and media relationship checks passed; lint retains the prior non-blocking `<img>` warning.
+
+Supabase verification confirmed RLS enabled with deny-by-default policies on `studio_content`, `content_media`, and `content_media_relationships`. `studio_settings` remains RLS-disabled and is the next isolated POC security task; its advisor remediation was not auto-applied. Neon, Vercel Production, Cloudflare R2, WordPress, and Production editorial data remain unchanged. Full evidence: `reports/SUPABASE_PREVIEW_ADAPTER_VALIDATION_2026-09-29.md`.
