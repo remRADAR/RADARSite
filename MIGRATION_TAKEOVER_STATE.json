@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "project": "remRADAR/RADARSite",
   "branch": "main",
-  "head": "46160fa",
-  "checkpointedAt": "2026-09-26T16:17:10Z",
+  "head": "0cd76cc",
+  "checkpointedAt": "2026-09-29T13:56:49Z",
   "classification": {
     "completed": [
       "Repository takeover and architecture discovery",
@@ -25,11 +25,12 @@
       "All 139 referenced WordPress attachment IDs resolved with metadata",
       "Current article featured and inline media relationships reconciled with zero unresolved references",
       "Single authenticated source attachment byte and checksum verification passed for WordPress attachment 977",
-      "Existing sharp WebP conversion passed for verified attachment 977"
+      "Existing sharp WebP conversion passed for verified attachment 977",
+      "Authenticated source bytes and SHA-256 verified for all 139 canonical current-media attachments"
     ],
     "inProgress": [
       "Production stability audit",
-      "Article-by-article verification of current media relationships"
+      "Current-media WebP/R2/CMS migration remains paused pending Neon safety gate and isolated upload confirmation"
     ],
     "blocked": [
       "Neon production branch is archived and table inspection returned HTTP 402 quota exceeded",
@@ -57,7 +58,7 @@
     "currentPngFiles": 21,
     "committedSnapshotArticles": 342,
     "committedLegacyManifestObjects": 897,
-    "verifiedCurrentMediaObjects": 1,
+    "verifiedCurrentMediaObjects": 139,
     "verifiedCurrentArticles": 63,
     "verifiedDatabaseArticleCount": null,
     "verifiedDatabaseMediaCount": null,
@@ -65,8 +66,8 @@
     "currentUniqueImageUrlsExpectedFromPriorAudit": 603,
     "currentJpegAssetsFromAuthenticatedMetadata": 133,
     "currentPngAssetsFromAuthenticatedMetadata": 6,
-    "verifiedSourceBytes": 1,
-    "unverifiedSourceBytes": 138
+    "verifiedSourceBytes": 139,
+    "unverifiedSourceBytes": 0
   },
   "migration": {
     "legacy": {
@@ -80,7 +81,7 @@
       "doNotRerun": true
     },
     "current": {
-      "status": "SINGLE_SOURCE_ATTACHMENT_VERIFIED_R2_CMS_BLOCKED",
+      "status": "SOURCE_BYTES_VERIFIED_ALL_139_R2_CMS_PAUSED",
       "batch": null,
       "nextBatch": null,
       "auditArtifact": "current-article-media-audit.json",
@@ -88,8 +89,8 @@
       "source": "https://radarcharts.net/wp-content/uploads/",
       "sourceRecovery": "AUTHENTICATED_WORDPRESS_REST_API_CONFIRMED",
       "knownBrokenPath": "Unauthenticated radarcharts.net retrieval must not be repeatedly retried",
-      "lastSafeAction": "Verified attachment 977 actual bytes, MIME, dimensions, and SHA-256 through authenticated browser delivery",
-      "nextRequiredAction": "Configure R2 runtime variables, then retry only the isolated attachment-977 WebP key and verify upload bytes; Neon remains paused"
+      "lastSafeAction": "Verified HTTP 200 delivery, MIME, byte length, and SHA-256 for all 139 canonical attachment source URLs through authenticated WordPress browser session",
+      "nextRequiredAction": "Run the already-scoped isolated WebP/R2 dry run for attachment 977 only; keep Neon and CMS writes paused until database access is restored"
     }
   },
   "architecture": {
@@ -147,20 +148,21 @@
     }
   },
   "relevantFiles": [
-    "src/lib/content-server.ts",
-    "src/lib/media-storage.ts",
-    "src/lib/editorial-migration.ts",
-    "scripts/cms-diagnose.mjs",
-    "scripts/run-legacy-media-migration.py",
-    "legacy-media-migration-manifest.json",
-    "legacy-media-migration-report.json",
-    "R2_VERIFICATION_REPORT.md",
-    "CMS_RECONCILIATION_AUDIT.md",
     "CLOUDFLARE_MEDIA_CACHE_PLAN.md",
+    "CMS_RECONCILIATION_AUDIT.md",
     "CONTENT_READ_COST_REPORT.md",
+    "R2_VERIFICATION_REPORT.md",
     "current-article-media-audit.json",
     "current-article-media-audit.report.json",
-    "current-article-media-dry-run.report.json"
+    "current-article-media-byte-verification.json",
+    "current-article-media-dry-run.report.json",
+    "legacy-media-migration-manifest.json",
+    "legacy-media-migration-report.json",
+    "scripts/cms-diagnose.mjs",
+    "scripts/run-legacy-media-migration.py",
+    "src/lib/content-server.ts",
+    "src/lib/editorial-migration.ts",
+    "src/lib/media-storage.ts"
   ],
   "verification": {
     "repositoryCleanBeforeCheckpoint": true,
@@ -173,7 +175,7 @@
     "neonSnapshots": "EMPTY_LIST",
     "neonRecentLogs": "EMPTY_LIST",
     "vercelObservability": "BLOCKED_PERMISSION",
-    "currentArticleVerification": "ONE_ATTACHMENT_SOURCE_AND_CONVERSION_PASS_R2_BLOCKED",
+    "currentArticleVerification": "SOURCE_BYTES_SHA256_PASS_139_CANONICAL_ATTACHMENTS",
     "productionMigration": "PAUSED",
     "mediaContractTest": "PASS_NO_PRODUCTION_CONTACT",
     "mediaHealthContractTest": "PASS_NO_PRODUCTION_CONTACT",
@@ -181,7 +183,7 @@
     "lint": "PASS",
     "typescript": "PASS",
     "diffCheck": "PASS",
-    "currentMediaAudit": "METADATA_RELATIONSHIPS_PASS_63_ARTICLES_139_ATTACHMENTS_ONE_SOURCE_BYTES_VERIFIED",
+    "currentMediaAudit": "METADATA_AND_SOURCE_BYTES_PASS_63_ARTICLES_139_ATTACHMENTS",
     "webpDryRun": "PASS_ATTACHMENT_977_ONE_W480_DERIVATIVE",
     "r2DryRun": "BLOCKED_MISSING_RUNTIME_CREDENTIALS"
   }

@@ -1,5 +1,5 @@
 {
-  "status": "REGENERATED_METADATA_CONFIRMED_BYTES_NOT_YET_VERIFIED",
+  "status": "SOURCE_BYTES_VERIFIED_ALL_139_R2_CMS_PAUSED",
   "source": {
     "provider": "radarcharts.net",
     "site": "https://radarcharts.net",
@@ -8,8 +8,10 @@
       "/wp-json/wp/v2/posts?per_page=100&page=1",
       "/wp-json/wp/v2/media?include=<referenced attachment IDs>"
     ],
-    "bytesVerified": false,
-    "status": "AUTHENTICATED_METADATA_REGENERATED_ALL_REFERENCED_ATTACHMENT_IDS"
+    "bytesVerified": true,
+    "status": "AUTHENTICATED_METADATA_AND_SOURCE_BYTES_VERIFIED_ALL_CANONICAL_ATTACHMENTS",
+    "bytesVerifiedCount": 139,
+    "bytesUnverifiedCount": 0
   },
   "summary": {
     "currentArticles": 63,
@@ -21,7 +23,9 @@
     "authenticatedAttachmentRecords": 139,
     "unresolvedAttachmentReferences": 0,
     "metadataRecordsMergedThisPass": 39,
-    "mimeClassification": "inferred from authenticated WordPress attachment filename because API response omitted top-level mime field"
+    "mimeClassification": "inferred from authenticated WordPress attachment filename because API response omitted top-level mime field",
+    "verifiedSourceBytes": 139,
+    "unverifiedSourceBytes": 0
   },
   "reconciliation": {
     "handoffExpectedCurrentArticles": 63,
@@ -40,5 +44,12 @@
     "Attachment metadata includes canonical source URL, filename, dimensions, and WordPress-reported file size.",
     "Source bytes and SHA-256 checksums have not yet been downloaded or verified.",
     "No WordPress, Neon, CMS, or R2 writes were performed."
-  ]
+  ],
+  "byteVerification": {
+    "status": "PASS",
+    "count": 139,
+    "httpStatus": 200,
+    "method": "Authenticated browser fetch with SHA-256 over served original bytes",
+    "manifest": "current-article-media-byte-verification.json"
+  }
 }

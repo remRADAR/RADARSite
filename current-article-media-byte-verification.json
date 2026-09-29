@@ -1,0 +1,1130 @@
+{
+  "schemaVersion": 1,
+  "status": "COMPLETE_READ_ONLY_SOURCE_BYTE_VERIFICATION",
+  "verifiedAt": "2026-09-29T13:56:49Z",
+  "source": "radarcharts.net authenticated WordPress media delivery",
+  "method": "Browser fetch with cache:no-store and crypto.subtle SHA-256",
+  "count": 139,
+  "httpStatusCounts": {
+    "200": 139
+  },
+  "mimeCounts": {
+    "image/jpeg": 133,
+    "image/png": 6
+  },
+  "totalBytes": 71324955,
+  "records": [
+    {
+      "attachmentId": 235,
+      "url": "https://radarcharts.net/wp-content/uploads/2025/12/cropped-cropped-Photoroom_20251225_091948.png",
+      "status": 200,
+      "contentType": "image/png",
+      "bytes": 186559,
+      "sha256": "1aed0a589fe01316ed1cdec78db48498e656fe4e6c99aa22117d23a0b6e594d1"
+    },
+    {
+      "attachmentId": 252,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/01/9-scaled.png",
+      "status": 200,
+      "contentType": "image/png",
+      "bytes": 612792,
+      "sha256": "66397e746ee10fe4d3fe9d4ceafb773b493ed7a5b2c85e09355819ec6a18c3b1"
+    },
+    {
+      "attachmentId": 324,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/01/DSC_9216-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 433752,
+      "sha256": "ce541eda0a0883e45bee08495ef9386ff5e87128fc57f6d2b8eb1f8089403f26"
+    },
+    {
+      "attachmentId": 325,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/01/DSC_1219-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 194355,
+      "sha256": "3e4a9142119b40b7948860a33bf1b10c96fe93c1fb8c9c9c873d94a043a6f199"
+    },
+    {
+      "attachmentId": 326,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/01/DSC_9241-scaled-e1767279902791.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 190655,
+      "sha256": "e5658e12d5b7a4424a3627a70bdc8b8f84855b0753cbe2aa17e7b19741742a4a"
+    },
+    {
+      "attachmentId": 357,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/01/606970456_1444414927244832_2259093746298146880_n-Copy.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 727861,
+      "sha256": "56b6d9ef05142831eac040b79235f0a2cce6355a21b834b02c8ccaef4e42f0a6"
+    },
+    {
+      "attachmentId": 359,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/01/598561245_923004947563108_652239478331353014_n-Copy.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 292636,
+      "sha256": "7d64e5b7be3e2f46c5a8cf453e5e56dc5d952974b1c73c4b0f95c653aa3ad0f5"
+    },
+    {
+      "attachmentId": 361,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/01/IMG_8868-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 261463,
+      "sha256": "d5a166d967c4ff724cb9221c85d10719bf01bac9476b9f446a7362c1f01977fb"
+    },
+    {
+      "attachmentId": 362,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/01/IMG_8867.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 221171,
+      "sha256": "5d5379354dda14417f92a7683ccd4e929f0c2597a9e2d2bc9bb2ad306778db6a"
+    },
+    {
+      "attachmentId": 363,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/01/IMG_8869-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 641234,
+      "sha256": "87aed3c8822bd239c7e94f091194a39d10dc12c1f188d91187b2895cb7bc4c94"
+    },
+    {
+      "attachmentId": 371,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/01/68339dd4-bb2c-4c24-bf73-644daaa52111.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 102024,
+      "sha256": "439983e0d4c0e1142f5fa4acb7931d1ab80f49f9623a2ad7f42fd46d959ef223"
+    },
+    {
+      "attachmentId": 372,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/01/fb04e5b4-5bd6-4482-9e90-11853ce1a711.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 127647,
+      "sha256": "2896d27569c73e4bae07fe000c93212ab41748ebd4887a32ffc222179057cc4b"
+    },
+    {
+      "attachmentId": 373,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/01/ae5bfea8-47d9-4d61-aedd-c4b3c1291788.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 34523,
+      "sha256": "0fbd9bf2a9e616fa25f2eae54ffcad78255a0f9cef4e1277186589ff87ff2e08"
+    },
+    {
+      "attachmentId": 382,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/01/7IV01688-1-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 688153,
+      "sha256": "4635f5717bc84f5d0b6a0c93273b4b8d153f3d2c42dd6da7fc4a095861ec2a1d"
+    },
+    {
+      "attachmentId": 386,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/01/272da1f7-217c-4e2a-8aef-be4e3f22373d.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 200089,
+      "sha256": "1872169cfe5ddeafccb7092b4824cd2fce8d7fb4494ba5f50f2799454f76eb42"
+    },
+    {
+      "attachmentId": 387,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/01/f9771f46-3604-4892-90e9-b96170d65d5b.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 175485,
+      "sha256": "b3bb1cbcf84d339fb61ca2334154c1e620a42016cea84b761ae9b6d424fe44e7"
+    },
+    {
+      "attachmentId": 396,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9247-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 718080,
+      "sha256": "babce56ce2c8694d5ba39ad9884424419a8fab6bb6c306fd57472c678737b9bd"
+    },
+    {
+      "attachmentId": 397,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9246-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 820937,
+      "sha256": "008b485f3e73d6b8fdc862c1900cbab901cdbec2982c4498f066a330713274bf"
+    },
+    {
+      "attachmentId": 401,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9001.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 177455,
+      "sha256": "a8518e93e38967bbd2943a94d422ab5a56e5c1a2003aa5a1d434ca16dfacfc38"
+    },
+    {
+      "attachmentId": 402,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_8997.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 167763,
+      "sha256": "d4f50c7eca88914c549bee93fc2436b9ad84f8a3a57c1268cd62bd9747e893fa"
+    },
+    {
+      "attachmentId": 405,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/02/848c6a0f-2dd0-4b72-b00f-4aaf98de12e8.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 186085,
+      "sha256": "bd2160df3d3ac1040a7eb40a38a663291f2ce27cbd825abf16a52fd62dc7043e"
+    },
+    {
+      "attachmentId": 406,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/02/200a4ff7-9f61-4011-85a5-bb6005d519f4.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 160011,
+      "sha256": "6caad9bea33745b5c8ae07004b1c19228b94524b92fafedce985aec6eea4c3c5"
+    },
+    {
+      "attachmentId": 407,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/02/c0eee2a7-c057-44a8-8a2d-713a680e6193.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 82836,
+      "sha256": "27ca8f2a8126089472f2eeb5f7de65c9c1165d6ea2b5bae3b89bff5f34419206"
+    },
+    {
+      "attachmentId": 410,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_0788-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 297033,
+      "sha256": "9245a03df9d17d36cc22c264b3771ff5a6b360f17caaaced238d1e522546d2f6"
+    },
+    {
+      "attachmentId": 414,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_5633.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 598841,
+      "sha256": "a633843bbab7ffc259a6e87b4414d5a283f2029c45979a452524fa9cd1a65494"
+    },
+    {
+      "attachmentId": 417,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9445-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 815294,
+      "sha256": "770dce913919c64c87a86dae2985b08658e41cadfc7f6a32616df48345168638"
+    },
+    {
+      "attachmentId": 418,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9444-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 831489,
+      "sha256": "7f8f5217b603a77a6a1c12efe760764e27c09b066c84a8574d9e889d2e364a5e"
+    },
+    {
+      "attachmentId": 419,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9443-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 412475,
+      "sha256": "47196c34bb887f0841584b1b5e824d055940deab371737837692626183356e57"
+    },
+    {
+      "attachmentId": 422,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/02/381BD2BC-750F-4467-8A0E-593CC02484A3.png",
+      "status": 200,
+      "contentType": "image/png",
+      "bytes": 2272911,
+      "sha256": "7aa2511d309565a461310cd919f5713a3dfe7e3ba06b1f1d96046758f0341290"
+    },
+    {
+      "attachmentId": 423,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/02/IMG_9420.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 355746,
+      "sha256": "5660cc1cf7b4604429ae13c058233cd5852b2b03f8df9a88935bc8ff9ef55a9b"
+    },
+    {
+      "attachmentId": 428,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/15BE3FCF-72A3-4657-BF67-C3B50F3FE5D7.png",
+      "status": 200,
+      "contentType": "image/png",
+      "bytes": 1531309,
+      "sha256": "8fb8d5aab8ce3c3a1e6142cad7c38d1aff8cd465a2ded6fe1adbe27bc6871ecc"
+    },
+    {
+      "attachmentId": 429,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/bf1f087e-af1f-41ca-9acb-331d302ba683.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 96109,
+      "sha256": "f01d8dda6401df2280d0eb1b74321137d235e46a79b25c6021a9b0df1dcb4bdb"
+    },
+    {
+      "attachmentId": 433,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9561-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 937883,
+      "sha256": "e706db735c253543e8e4ece1ac7fe045eace5a8a48dcc0eb22716e6e60af7dcb"
+    },
+    {
+      "attachmentId": 434,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9559-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 809055,
+      "sha256": "47338876a24e1142b0e0cb3182707f0d9880c8ab0c7703b6f8c9de229f4e7ed2"
+    },
+    {
+      "attachmentId": 441,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9685.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 231460,
+      "sha256": "d393968fff72e3434ff5df1dab7eb14c1524f9f5759c85d280fd15c5bc2896e1"
+    },
+    {
+      "attachmentId": 442,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9684.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 249735,
+      "sha256": "d996e2c795763639d134312a47615b90a787f7864a8dfdd2fe294e45b944f934"
+    },
+    {
+      "attachmentId": 445,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_8163.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 306778,
+      "sha256": "15ce5dd89255ad853c7ee11edda43d1b2d7d8d2eb548455d96dce817499127fb"
+    },
+    {
+      "attachmentId": 446,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_8162.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 375376,
+      "sha256": "b323bc9752a37c4b3ebb9b532da07a06c00320f4f01da295db41fce0d6c46092"
+    },
+    {
+      "attachmentId": 449,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/A015_01191813_S013_18_12_39_16-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 210763,
+      "sha256": "fdebd8bcbbd56ff3931c26b145deb3b9777f4748c6cd2bb27890fbbc802449e1"
+    },
+    {
+      "attachmentId": 450,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/A015_01191844_S016_18_44_31_20-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 319891,
+      "sha256": "701191bf4ca5b2bde1fd3823331908465db1ec50817fc62eee24fbebdbedad91"
+    },
+    {
+      "attachmentId": 451,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/A015_01191745_S011_17_45_58_23-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 132760,
+      "sha256": "4398157f417cabc5359f39e304604ec34efd650bf34ab4c652cd941750490941"
+    },
+    {
+      "attachmentId": 456,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9750.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 246991,
+      "sha256": "9c47be1558b79c45a39fea1e759c90c3cf1b4967900638adb42dff66797356a0"
+    },
+    {
+      "attachmentId": 457,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9747.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 395797,
+      "sha256": "1b4518a74ff521bcec61e80e0ea6767b323deac09a0f4c8d6fab487f8fa5e836"
+    },
+    {
+      "attachmentId": 475,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9959-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 564099,
+      "sha256": "bc75549626999e66562bc7c9aeb20913a0ba3f8b54607a96c01fceacf87a8710"
+    },
+    {
+      "attachmentId": 476,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9957-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 983547,
+      "sha256": "a3ff94c104e0a9f942b135f79f6a91c9dc88cbd3cdfdfe30eb8c6d5d475482d6"
+    },
+    {
+      "attachmentId": 477,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_9961-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 393881,
+      "sha256": "59dad9e335383399cf4a4f64ab15472eda6a16307b97409f3cd452bfa26ba458"
+    },
+    {
+      "attachmentId": 481,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/CD0973D0-C606-4283-B038-08E3535F20C3.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 220022,
+      "sha256": "b70ddf5f21016678cbd9dfa5c131a6a10bd2f15cb83414cc85c6557d403f44ab"
+    },
+    {
+      "attachmentId": 482,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/5ceb6824-13d1-4598-84a6-bcffffa49d84.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 183394,
+      "sha256": "d711257a57d6ce31ca262c480436615398874c083e2544a65704d0134989b66c"
+    },
+    {
+      "attachmentId": 483,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/2fa6787b-b36b-43e2-a43a-f455dfcde369.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 68044,
+      "sha256": "b8aae843fe8fe14668dad580f7e0db092bee1cf5700d55ff76dd5b2416356583"
+    },
+    {
+      "attachmentId": 486,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_0094.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 242661,
+      "sha256": "0673d6ecd903619eee2cd928fa0e78cc2bab24f84f0f6fbf8b30adba634ba1d5"
+    },
+    {
+      "attachmentId": 487,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/IMG_0095.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 2998000,
+      "sha256": "20dd32663a22a80c8b6548dd0a9b9434cf47ba8de270b00e22e0c44e1dbead94"
+    },
+    {
+      "attachmentId": 509,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/e1b79446-a52a-44fd-b79a-8dae4f35ac07.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 180810,
+      "sha256": "c633339a6e73395a974dcf7c7de2ae1a73c53b78a525835dc7dd30708ac15eda"
+    },
+    {
+      "attachmentId": 510,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/c9046511-3493-4736-9c92-db3613089d5c.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 138060,
+      "sha256": "b732d4fc0ff9ee2b8776689965e3c53a8a8cea0b223cf0780f66734ef1ef97d2"
+    },
+    {
+      "attachmentId": 513,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/75438c32-d167-4c31-ad3d-f0e8af555f91.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 546460,
+      "sha256": "1968658ccbd3491b2a8db31e5df30c8b9f5bd4f1fc627e2e077fd3b461750b18"
+    },
+    {
+      "attachmentId": 514,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/5957c306-6551-464e-b1d2-7e5f65e78df3.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 299408,
+      "sha256": "cfffd0c6715448504736b68ec9c045085efc55d0ee25be3c4d7673c9313c1b3f"
+    },
+    {
+      "attachmentId": 518,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/49E47460-5F8C-45C1-AFF2-FB34711DD41A.png",
+      "status": 200,
+      "contentType": "image/png",
+      "bytes": 2432009,
+      "sha256": "33b582ac61a37ecdc265cd572cc1344b3ad33e9757e7dcbe027df1783f90bc69"
+    },
+    {
+      "attachmentId": 519,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/Artworks-1-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 808587,
+      "sha256": "9628e8f97d5c9a84f65612ba5686f9474a757f2f05a6ddab2c82cf17c22dce15"
+    },
+    {
+      "attachmentId": 520,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/03/C25B6F70-BE5F-495F-800D-75DB9E484D4C.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 270405,
+      "sha256": "da4fdb33e52339fe1c1d632546d96c9e99845b29bf4d74d6ccadda1c06674d57"
+    },
+    {
+      "attachmentId": 582,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/04/2e3a77cd-fc61-4727-aed7-f66a9c3292ff-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 159766,
+      "sha256": "74a8205523b6d12b79c0384c424bc924e091d9dadf5fcda847ffc3c2c394143f"
+    },
+    {
+      "attachmentId": 583,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/04/b32072ac-d142-47da-930b-2fac5306f2cb-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 436064,
+      "sha256": "63a6dc75dc39dc923ba6d03390c45acfd2a72237b90076900678e88cf546ceef"
+    },
+    {
+      "attachmentId": 594,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/04/photo-output-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 879920,
+      "sha256": "1a73e3f20c5e6b19ad423f8dee838894d9c96cd036329b7213531de26759fbd3"
+    },
+    {
+      "attachmentId": 595,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/04/Venmak-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 495674,
+      "sha256": "a34e8fd85b17bc5f0b18b4e7beaea72b114c51b9c27213a0d537f7bf5bc50ab7"
+    },
+    {
+      "attachmentId": 599,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/04/Brown-Artistic-Wall-and-Hand-Shadow-Album-Cover-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 937518,
+      "sha256": "e5e2464d64a7c0a0314350237df237faf47494df30d6ee7177d9adac175c8cd6"
+    },
+    {
+      "attachmentId": 603,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_0910-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 777077,
+      "sha256": "ebfbc1c28c25530b50ea8c55fb32bc0afcf108ca4bb44410d59627ca008499b6"
+    },
+    {
+      "attachmentId": 606,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_2568-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 614549,
+      "sha256": "cc1c69a75a733601ea47a311d3260da731e488e5652587f3a14d1bb42643c14b"
+    },
+    {
+      "attachmentId": 608,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_2569-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 408177,
+      "sha256": "7a6981b2851c46305a9219fa99d3e0eb7a70b9354b521d9809fa524a9c5c6589"
+    },
+    {
+      "attachmentId": 613,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_0955-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 337344,
+      "sha256": "3dc1206afca5bbd81f048e2e685fb392d288a13f82c2c70276069811d405b65c"
+    },
+    {
+      "attachmentId": 623,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/04/IMG_9677-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 481186,
+      "sha256": "b601cd022cfe71d57cb809580ff6ff444d9685de2f1196f125498455b39c9dc7"
+    },
+    {
+      "attachmentId": 624,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/04/Pon-Pon-Pon-main-Cover.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 296920,
+      "sha256": "230e706ba317ae854733a9de1b250f477a86afc8bb30e8be7790bd642a4861ee"
+    },
+    {
+      "attachmentId": 630,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1218.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 109863,
+      "sha256": "5c3456763f115f6078972dfb2f7e266031fd2c8de5df7d9b7b80e846022fc5f8"
+    },
+    {
+      "attachmentId": 631,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/ab7b9038-05a7-4b59-8fa8-36d97af44bc7.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 106441,
+      "sha256": "bb1c3eef8439a43d0567a6cef8c39f339158b38e55b72e95a6b96c695bdcfe7b"
+    },
+    {
+      "attachmentId": 634,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/Copy-of-99Cookies6-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 212514,
+      "sha256": "da287b5e394b9f8cc97ae46d0e6e752c78f91be788dc6928ccfb4093bfd53828"
+    },
+    {
+      "attachmentId": 635,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/Copy-of-99Cookies2-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 305769,
+      "sha256": "4cf19099668c1aeb1517c6af1279293815a8af7a913fbed9951d065876e912bb"
+    },
+    {
+      "attachmentId": 644,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/RIC09267-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 1007163,
+      "sha256": "96b5736d5fbde0a33d8af37a65cef2a4f28b16852a4e4b79afaac5847b8994fe"
+    },
+    {
+      "attachmentId": 645,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/RIC09238-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 762028,
+      "sha256": "3e7c411580517056a33ff8888bb5cd63b433a2377e7ece9b3558d0bc75f69d02"
+    },
+    {
+      "attachmentId": 646,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/RIC08913-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 1083190,
+      "sha256": "449dd374562d07bf2b7ae4e894ac8718478b6b87bd3d676b246aee610db863db"
+    },
+    {
+      "attachmentId": 678,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/3443f11c-42ad-4891-a746-1eac73f0b268.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 584789,
+      "sha256": "7d5a51ca803d27e15d8e7c3785c2faf1117fe686236e2048cb16b750e80798e1"
+    },
+    {
+      "attachmentId": 679,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1455.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 186676,
+      "sha256": "977536d4f71f3d37eece70dff9b6ea5f63ed8c573d765a9698f14847e4442809"
+    },
+    {
+      "attachmentId": 683,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1475-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 636649,
+      "sha256": "b5eab2977c6620c669f82d81980bda84d3f00a80ea168051911c269a878a29c9"
+    },
+    {
+      "attachmentId": 684,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1474-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 596478,
+      "sha256": "6cdc5edc804e53aa5808dbf455c2fe8df46ad4b86e036f32ee5acf2047da3fd4"
+    },
+    {
+      "attachmentId": 689,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1513-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 529858,
+      "sha256": "baf00bab8158f14a5889eda16a99661c56956ed87fba3f2218b6cf1b52c4dba8"
+    },
+    {
+      "attachmentId": 692,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/1f6e044e-3c57-45a7-8799-b2dcf9592fea.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 1078146,
+      "sha256": "44a45626cd5ba2b3d9a168185e5743535b88cd77f30900804da1df50d46a6c3d"
+    },
+    {
+      "attachmentId": 693,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/b2c46578-5e90-4c52-a061-f91d542402ee.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 843797,
+      "sha256": "8041bd82ad5e611f583e30b023699ecf5fcd2f45f30e9f96b1fa395bfa39ecf3"
+    },
+    {
+      "attachmentId": 699,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1507.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 1168221,
+      "sha256": "7d3f54080641df7e651ed6027101ab8281671f965209206cb55bd78870ba2c5d"
+    },
+    {
+      "attachmentId": 700,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1508.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 806557,
+      "sha256": "7cb59943408664ee34e46a7f73389a1d9fbaa7ceee6bbcf442685087048ff9f0"
+    },
+    {
+      "attachmentId": 708,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_2905-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 370277,
+      "sha256": "3423a1eda780f30134383cdfeef6521b89f344fc147c4bc0fca0855933a59394"
+    },
+    {
+      "attachmentId": 711,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_2253-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 905435,
+      "sha256": "3902e12460e0f9319f4ab50ed09ca7d0545c8f6e5695b67d09d5f4f298197f5a"
+    },
+    {
+      "attachmentId": 712,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_2249-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 791810,
+      "sha256": "075f52f391544783dc2c5a2291b540b36c13960ae0e99f7c77c34418bd71c9a0"
+    },
+    {
+      "attachmentId": 718,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/c909b596-58b5-432b-9b5c-401a0c39829c.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 86592,
+      "sha256": "d02aaa639738526adc2256f2432f4a94253ed9b0b43b9cb91659c9c105173fab"
+    },
+    {
+      "attachmentId": 719,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/5b275b6f-9506-4042-a67d-fe3819f0641c.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 77524,
+      "sha256": "03cea76e2f9df93d6d40f52045cdeab64fb8f50eae09d80a52e83f839fd07fba"
+    },
+    {
+      "attachmentId": 739,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1702.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 201591,
+      "sha256": "4c794095b206ee70e0b48c2fad7d720b355dd96a2cfc81aaf938d9d6b89377d0"
+    },
+    {
+      "attachmentId": 740,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1700-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 752834,
+      "sha256": "1a4694015c612909e4729dbb9c562d8595186f23cbd483e029206c4c370cdbad"
+    },
+    {
+      "attachmentId": 746,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1632-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 648132,
+      "sha256": "0eb5a848c0fb49982d623b76c9487ff96a8736b5c3c4d543a22d3ed683f29a20"
+    },
+    {
+      "attachmentId": 747,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/05/IMG_1637-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 249351,
+      "sha256": "027998e24c56b8b02713cacda364affac698be32938e7988f60bb009ba5e1303"
+    },
+    {
+      "attachmentId": 750,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/06/ccf6af9d-fe68-4951-a314-9ce0f2999a85.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 113763,
+      "sha256": "b787e8f75d548e7917479916c88867b83e532024978505e71dcff71e81059903"
+    },
+    {
+      "attachmentId": 751,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/06/bdb70b09-99cf-4889-a313-976ce492b66d.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 64908,
+      "sha256": "d836903843dc71a3e6bf6eb8094730deb1727ea5fdee75771d512ec60ba5a630"
+    },
+    {
+      "attachmentId": 761,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/06/77986e68-3859-4b7f-9b17-baa2da539474.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 119443,
+      "sha256": "13929e6705d8bfe263882ff10b631a8a4e511d77c19e6d51a2b1ac882574621f"
+    },
+    {
+      "attachmentId": 762,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/06/126a2def-01df-437a-ae4a-e3d21c89b789.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 40315,
+      "sha256": "031be4c76d356901a030f1ec4a38a3b42046cfe66fe5e4589e0efe512e38f923"
+    },
+    {
+      "attachmentId": 764,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/06/IMG_1911.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 125723,
+      "sha256": "a97c036a937f5d1f6771bb08a1adcd78d1046c6012dae0bb17e1376c7d448dc2"
+    },
+    {
+      "attachmentId": 765,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/06/IMG_1909.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 843081,
+      "sha256": "634e3f31f1a68c062eff48c98f24029e047bbdf12af125f0738fc4dd3573e6d4"
+    },
+    {
+      "attachmentId": 770,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/06/D8689937-AEB8-4861-8EED-E9369A7EFF8D.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 214646,
+      "sha256": "5147bde159ebc03274eaca1cf69a8341f52fb4f38ba6c036d35e931d1a54a3f6"
+    },
+    {
+      "attachmentId": 771,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/06/C9424T01.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 82084,
+      "sha256": "6739c597ece763bc19139adedfe32341276cc0b03e440b4d938f89992fe4b80c"
+    },
+    {
+      "attachmentId": 772,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/06/30268098-17DD-4ACE-B221-DC6F68F6170E.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 106994,
+      "sha256": "36d356227bb8e255147c732a7d33e65cc7bdcdfe0727bc64a7869bbc34a4e995"
+    },
+    {
+      "attachmentId": 777,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/06/IMG_2088.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 803127,
+      "sha256": "1238f018ebf0b576bc8714e09cee2d4d60a8df384ce7e984d93aee062a51b9d8"
+    },
+    {
+      "attachmentId": 778,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/06/Photoroom_20260624_45459-PM.png",
+      "status": 200,
+      "contentType": "image/png",
+      "bytes": 785874,
+      "sha256": "a68019c1ceea6115107c0417c64511a5f0d582db9b90973b9b53157ef0d4bf1c"
+    },
+    {
+      "attachmentId": 779,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/06/IMG_2087.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 165258,
+      "sha256": "b32ab8fbbcd7663bf8f815da06bf12867b1c4bbbacc43ebc55334ab2857d087b"
+    },
+    {
+      "attachmentId": 788,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/06/DSC00084.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 2307066,
+      "sha256": "f3a7a5de4dc4365868dfadaf76f8f85e477d6ace66a9e3ad9ed8114cf72599f5"
+    },
+    {
+      "attachmentId": 790,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/06/DSC00095.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 1574287,
+      "sha256": "f5d5b42ab98ef3a66d9b568c3cf366ff26088a8681ec17e0762b52fc7d23be26"
+    },
+    {
+      "attachmentId": 792,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/06/DSC00093-edited.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 1533568,
+      "sha256": "5069b26587c40ac09fcf735c377d820819016b84249bdd17c7554f1e3a1b12a7"
+    },
+    {
+      "attachmentId": 803,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2319-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 428585,
+      "sha256": "1b6c9741f050bb23051bc895f211dcbebbf78c43816b95278e9904024128571d"
+    },
+    {
+      "attachmentId": 804,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/07/Art-Cover-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 636640,
+      "sha256": "8e284bde117e7b417eb52d9b6e00ef10e4b8e6327a92845b0461b472adc0f7ad"
+    },
+    {
+      "attachmentId": 814,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2521.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 40170,
+      "sha256": "60da4f153b62298b6d3d42a99fb5bcabfd103c8ee31d41a5f74a20727f385764"
+    },
+    {
+      "attachmentId": 817,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/07/66a2a2b1-3aa4-4e19-bf80-40badc44aed0-1.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 115894,
+      "sha256": "b9a98b45d27ce420b9669afab982a625a9092e0396e1c201cfe374c0c6c456cc"
+    },
+    {
+      "attachmentId": 818,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2530-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 617232,
+      "sha256": "7961b888ccb14400c394b519be2ac62c09418c0268888d25cc112f3871e9cfa0"
+    },
+    {
+      "attachmentId": 825,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/07/14264838-2AAD-40F0-8282-B71A1DAA37E2.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 328043,
+      "sha256": "c5cf6b74dea5c5f8d9fa74ba58c8daafcc97ce56830a4b46b79bad7b1cfb35fd"
+    },
+    {
+      "attachmentId": 830,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/07/NOCTURNE-ARTWORK--scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 1525693,
+      "sha256": "236b132dd2704cdf7bb7bdfb5e9e08b038a87b57d2425063d8be3f058a470230"
+    },
+    {
+      "attachmentId": 834,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2839.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 153259,
+      "sha256": "a7cabb82c9c7dc9ec08d30dec40e65a49dbd8058eaa38b96e1c71a265c494879"
+    },
+    {
+      "attachmentId": 835,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/07/8F5B2DA2-0763-4322-9488-EE576CB34F82.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 111260,
+      "sha256": "0539acc74e93acd61497cba310f9e78d62c3c3abf720ba14fc1026f4453bf541"
+    },
+    {
+      "attachmentId": 841,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2908-1-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 367985,
+      "sha256": "87a33e66e90749d21ff29acd4567a3e7d1b8dc533b9c0e774a2db3280a809625"
+    },
+    {
+      "attachmentId": 842,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/07/IMG_2910-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 282788,
+      "sha256": "0499d464e92e2a93a450e13eaed0fe92ff3e89dcb2feb94a1de253a8c11ccdc5"
+    },
+    {
+      "attachmentId": 852,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3293.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 943966,
+      "sha256": "c7297e922851d9da43fa17f41e27b910698180884caa453ec3c5bf4d18d723c3"
+    },
+    {
+      "attachmentId": 854,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3294-edited.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 136811,
+      "sha256": "10922070f36b134c2705c8de53913bcfb09d9889a3fa813e220a6cb97e12d9fc"
+    },
+    {
+      "attachmentId": 855,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3331-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 921970,
+      "sha256": "a83b6633667a75ca21cc3c619945792ec01e59f1afaa002ad3a8d280052769b9"
+    },
+    {
+      "attachmentId": 860,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3294-1.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 182301,
+      "sha256": "bce7edbe3fb676df5720bab12463a25ea52cdf8db66ccb0f85e67b18f8dad5b1"
+    },
+    {
+      "attachmentId": 861,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3295.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 242310,
+      "sha256": "afa7153d88e2e72af71f1788276e6db99de77123b9076295626781ab6c6d81ab"
+    },
+    {
+      "attachmentId": 873,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/08/b68c8295-35d8-45e9-bbcd-ff97d3cc731e.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 514543,
+      "sha256": "04a63b86f9fabd8d636d93c76819cecacc7872ebcc4a1a6d3a4f780a9c767af0"
+    },
+    {
+      "attachmentId": 874,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/08/80b03f13-5610-4890-957f-0cf99fcbb2f6.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 357488,
+      "sha256": "c82c6d334228de654ff3fa2037e0e3a6a13d6a79f476b3c128f8cbacaedb6e30"
+    },
+    {
+      "attachmentId": 879,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_5005-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 769297,
+      "sha256": "694fefe19d11474238ac4347709436dca9f3272204fab3457a5c9bb3a4c0b146"
+    },
+    {
+      "attachmentId": 882,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_5006-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 666812,
+      "sha256": "04b4bc05f907199b7274a449ec8af5a1392d0b30f93c73d1f52f9de6e79d1ce5"
+    },
+    {
+      "attachmentId": 883,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/08/IMG_3726-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 629325,
+      "sha256": "217e4a619e0279de3136dd6dc8241556909e95576d2c364ab2315b20b1b8975e"
+    },
+    {
+      "attachmentId": 887,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/08/18746ACD-7EE8-40AF-B771-9BC163164256_1_201_a-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 548172,
+      "sha256": "05ce7375d2263f41081345e691c6ae0d692fc446a8194a688d489848b3de7a10"
+    },
+    {
+      "attachmentId": 888,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/08/2F908FCC-7674-421B-A124-9AAC8E342E63_1_201_a-scaled-e1788184681325.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 251401,
+      "sha256": "f1086360acf55bd04f4ca1154b9ef2cb62a242762a65dd3b888e0f003af4e69a"
+    },
+    {
+      "attachmentId": 902,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/09/IMG_2322-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 307215,
+      "sha256": "ad91e9ce54dfd082164f1e7ed9f4213d17601254ceec962323b68bb2d4a90e05"
+    },
+    {
+      "attachmentId": 903,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/09/IMG_2325.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 642471,
+      "sha256": "5b2a04aade3b4a19877040c9cbd4d066a1b938f91cc3df50f2e18738b6d227be"
+    },
+    {
+      "attachmentId": 907,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/09/IMG_2324-scaled.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 450026,
+      "sha256": "88d6cee08a0ad94b626624abd7b1a0df541c662ab6d535580919171593471d79"
+    },
+    {
+      "attachmentId": 913,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/09/35eb8343-5ee3-4a2c-9ff7-67e289b33242.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 186212,
+      "sha256": "df5db692695a2a12abd5f5fb30c384e136cd8ecb7b13c5da4086d813b3c18b96"
+    },
+    {
+      "attachmentId": 914,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/09/89f009ad-bc69-482a-8230-6c6760d0306f.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 816996,
+      "sha256": "bacba22ccfeecb9387ecfc5043878c49bc741b9556fafb062a5db47eba21e716"
+    },
+    {
+      "attachmentId": 976,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/09/3bc16e07-b001-4f1f-8878-af56deb74656.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 90209,
+      "sha256": "f6b7275dd7715ae9373f58629092ce87ad4b1aefda5828d0419a33b0652ae5a2"
+    },
+    {
+      "attachmentId": 977,
+      "url": "https://radarcharts.net/wp-content/uploads/2026/09/79eb0fd8-f477-422c-bfb1-6ef254d959cc.jpeg",
+      "status": 200,
+      "contentType": "image/jpeg",
+      "bytes": 93215,
+      "sha256": "9c79fcd90e064ac61f377b28a7f6d2962e4194f4b3dee9ce6cfcac92882575c7"
+    }
+  ]
+}
