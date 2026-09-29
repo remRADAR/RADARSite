@@ -104,3 +104,21 @@ The API now bounds the browser response and avoids sending article bodies in lis
 ## 11. Git/safety status
 
 Work remains on the dedicated preview branch. No merge into `main` was performed. No secrets were added. The working tree should be reviewed and committed only after the final diff inspection.
+
+## Follow-up verification
+
+The complete isolated workflow contract test now exercises the same normalization path used by the Studio route: Add creates a draft, Edit changes title/body, Save Draft keeps the draft state, and Publish changes the same record to `published`. It also proves that `tags` and `tagsApproved` are preserved when an edit payload omits those fields. The test does not contact a database or Production because this sandbox has no `DATABASE_URL` or `STUDIO_ADMIN_PASSWORD` configured.
+
+The public article JSON-LD builder emits the following model for all three editorial types:
+
+- `@context`: `https://schema.org`
+- `@type`: `Article`
+- `headline`, `description`, `datePublished` when available
+- `dateModified` when `sourceModifiedAt` or `updatedAt` exists
+- `author` as a Person
+- `publisher` as the RADARCharts by REM Organization
+- `mainEntityOfPage` as a WebPage using the canonical article URL
+- `image` when a featured/image URL exists
+- `keywords` from tags when tags exist
+
+Press articles additionally emit `articleSection: "Press"`. Spotlight articles emit `articleSection: "Spotlight"`; Motherland-associated Spotlights also emit `about: { "@type": "Thing", name: "Motherland" }`. Magazine articles emit `articleSection: "Magazine"` and use `genre` for `Special Episode` or `Magazine Episode`.

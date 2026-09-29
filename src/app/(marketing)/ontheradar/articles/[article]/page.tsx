@@ -5,6 +5,7 @@ import { readPublishedContent } from "@/lib/content-server";
 import { findBySlug } from "@/lib/ia-content";
 import { articlePath, normalizeEditorialRecord } from "@/lib/editorial-normalization";
 import { getEffectiveImageUrl } from "@/lib/effective-image-url";
+import { buildArticleJsonLd } from "@/lib/article-schema";
 export const revalidate = 3600;
 export const dynamicParams = false;
 
@@ -43,4 +44,4 @@ export async function generateMetadata({ params }: { params: Promise<{ article: 
     },
   };
 }
-export default async function ArticleDetail({ params }: { params: Promise<{ article: string }> }) { const { article } = await params; const { articles } = await readPublishedContent(); const item = findBySlug(articles, article); if (!item) notFound(); const record = normalizeEditorialRecord(item); const image = getEffectiveImageUrl(record.imageUrl || record.featuredImage).effectiveUrl; const schema = { "@context": "https://schema.org", "@type": "Article", headline: record.title, description: record.metaDescription || record.excerpt, datePublished: record.publishedAt || record.date, author: { "@type": "Person", name: record.author || "RADARCharts by REM" }, mainEntityOfPage: { "@type": "WebPage", "@id": articlePath(record) }, ...(image ? { image: [image] } : {}), ...(record.editorialType ? { articleSection: record.editorialType } : {}) }; return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} /><IaDetail item={item} kind="article" backPath="/ontheradar/articles" /></>; }
+export default async function ArticleDetail({ params }: { params: Promise<{ article: string }> }) { const { article } = await params; const { articles } = await readPublishedContent(); const item = findBySlug(articles, article); if (!item) notFound(); const record = normalizeEditorialRecord(item); const schema = buildArticleJsonLd(record); return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} /><IaDetail item={item} kind="article" backPath="/ontheradar/articles" /></>; }

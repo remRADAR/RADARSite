@@ -15,6 +15,7 @@
     "media-manifest:build": "python3 scripts/build-wordpress-media-manifest.py",
     "media-manifest:validate": "tsx scripts/validate-wordpress-media-manifest.ts",
     "cms:taxonomy-contract-test": "tsx scripts/cms-taxonomy-contract-test.ts",
+    "cms:workflow-contract-test": "tsx scripts/cms-article-workflow-contract-test.ts",
     "postgres:adapter-contract-test": "tsx scripts/postgres-adapter-contract-test.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
