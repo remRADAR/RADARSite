@@ -81,7 +81,7 @@ Secret values were not decrypted or read. Because the existing Preview `DATABASE
 
 The build completed successfully, including dependency installation, Next.js compilation, TypeScript checking, static page generation, and deployment. Vercel emitted non-fatal warnings about package install scripts and missing SWC lockfile entries; the build still reached `READY`.
 
-The deployment URL is protected by the dedicated project’s Vercel SSO setting. An unauthenticated HTTPS request returned `302` to Vercel SSO, so application runtime checks could not be executed from the unauthenticated sandbox request.
+The deployment URL is protected by the dedicated project’s Vercel SSO setting. An unauthenticated HTTPS request returned `302` to Vercel SSO, and the available Sandbox browser redirected to the Vercel login page. No authenticated browser session was available, so application runtime checks could not be executed. SSO was not disabled or bypassed.
 
 Consequently, the following runtime checks remain **not verified**:
 
@@ -148,4 +148,4 @@ The remaining requirement is:
 2. verify the Preview application and read-only database-backed routes; then
 3. record the runtime results without exposing environment values.
 
-The hard stop is active after Preview deployment. Do not change Vercel Production, Neon Production, production schemas, production data, R2, WordPress, DNS, or perform a database cutover. Do not merge into `main` or expose credentials.
+The hard stop is active after Preview deployment. The exact remaining access requirement is an authorized authenticated Vercel browser session for the SSO-protected Preview. Do not change Vercel Production, Neon Production, production schemas, production data, R2, WordPress, DNS, or perform a database cutover. Do not merge into `main`, disable SSO, bypass authentication, or expose credentials.
