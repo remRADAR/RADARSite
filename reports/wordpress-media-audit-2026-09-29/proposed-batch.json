@@ -1,0 +1,169 @@
+{
+  "provider": "legacy",
+  "batchSize": 5,
+  "candidates": {
+    "featuredJpeg": {
+      "url": "https://remradar.wordpress.com/wp-content/uploads/2025/12/img_8211.jpg",
+      "references": [
+        {
+          "postId": 4754,
+          "slug": "artist-spotlight-wealth-asuquo-abujas-livewire-afrobeats-star-on-a-relentless-rise",
+          "role": "featured",
+          "attachmentId": null,
+          "url": "https://remradar.wordpress.com/wp-content/uploads/2025/12/img_8211.jpg",
+          "mimeHint": "image/jpeg"
+        }
+      ]
+    },
+    "inlinePng": {
+      "url": "https://remradar.wordpress.com/wp-content/uploads/2025/12/img_6963.png",
+      "references": [
+        {
+          "postId": 4708,
+          "slug": "capitol-film-fest-3-0-abujas-creative-capital-comes-alive-on-december-14-2025",
+          "role": "inline",
+          "attachmentId": "4694",
+          "url": "https://remradar.wordpress.com/wp-content/uploads/2025/12/img_6963.png",
+          "mimeHint": null
+        }
+      ]
+    },
+    "sharedMedia": {
+      "url": "https://remradar.wordpress.com/wp-content/uploads/2025/10/img_7922-teegha-daplug.jpg",
+      "references": [
+        {
+          "postId": 4509,
+          "slug": "teegha-daplug-returns-with-talk-2-me-a-bold-new-anthem-from-the-norths-rising-voice",
+          "role": "inline",
+          "attachmentId": "4420",
+          "url": "https://remradar.wordpress.com/wp-content/uploads/2025/10/img_7922-teegha-daplug.jpg",
+          "mimeHint": null
+        },
+        {
+          "postId": 4427,
+          "slug": "artist-spotlight-teegha-daplug-the-northern-force-redefining-afro-drill-and-alternative-hip-hop",
+          "role": "inline",
+          "attachmentId": "4420",
+          "url": "https://remradar.wordpress.com/wp-content/uploads/2025/10/img_7922-teegha-daplug.jpg",
+          "mimeHint": null
+        }
+      ]
+    },
+    "attachmentIdReference": {
+      "url": "https://remradar.wordpress.com/wp-content/uploads/2025/12/f2335313-364e-4d15-a268-bfe6529d7f8a.jpeg",
+      "references": [
+        {
+          "postId": 4754,
+          "slug": "artist-spotlight-wealth-asuquo-abujas-livewire-afrobeats-star-on-a-relentless-rise",
+          "role": "inline",
+          "attachmentId": "4755",
+          "url": "https://remradar.wordpress.com/wp-content/uploads/2025/12/f2335313-364e-4d15-a268-bfe6529d7f8a.jpeg",
+          "mimeHint": null
+        }
+      ]
+    },
+    "urlOnlyReference": {
+      "url": "https://remradar.wordpress.com/wp-content/uploads/2025/10/img_4760.jpg?w=1024",
+      "references": [
+        {
+          "postId": 4262,
+          "slug": "mosa-temple-ignites-abuja-airwaves-with-strategic-radio-tour-ahead-of-new-release",
+          "role": "inline",
+          "attachmentId": null,
+          "url": "https://remradar.wordpress.com/wp-content/uploads/2025/10/img_4760.jpg?w=1024",
+          "mimeHint": null
+        }
+      ]
+    }
+  },
+  "fixtures": [
+    {
+      "sourceUrl": "https://remradar.wordpress.com/wp-content/uploads/2025/12/img_8211.jpg",
+      "roles": [
+        "featuredJpeg"
+      ],
+      "references": [
+        {
+          "postId": 4754,
+          "slug": "artist-spotlight-wealth-asuquo-abujas-livewire-afrobeats-star-on-a-relentless-rise",
+          "role": "featured",
+          "attachmentId": null,
+          "url": "https://remradar.wordpress.com/wp-content/uploads/2025/12/img_8211.jpg",
+          "mimeHint": "image/jpeg"
+        }
+      ]
+    },
+    {
+      "sourceUrl": "https://remradar.wordpress.com/wp-content/uploads/2025/12/img_6963.png",
+      "roles": [
+        "inlinePng"
+      ],
+      "references": [
+        {
+          "postId": 4708,
+          "slug": "capitol-film-fest-3-0-abujas-creative-capital-comes-alive-on-december-14-2025",
+          "role": "inline",
+          "attachmentId": "4694",
+          "url": "https://remradar.wordpress.com/wp-content/uploads/2025/12/img_6963.png",
+          "mimeHint": null
+        }
+      ]
+    },
+    {
+      "sourceUrl": "https://remradar.wordpress.com/wp-content/uploads/2025/10/img_7922-teegha-daplug.jpg",
+      "roles": [
+        "sharedMedia"
+      ],
+      "references": [
+        {
+          "postId": 4509,
+          "slug": "teegha-daplug-returns-with-talk-2-me-a-bold-new-anthem-from-the-norths-rising-voice",
+          "role": "inline",
+          "attachmentId": "4420",
+          "url": "https://remradar.wordpress.com/wp-content/uploads/2025/10/img_7922-teegha-daplug.jpg",
+          "mimeHint": null
+        },
+        {
+          "postId": 4427,
+          "slug": "artist-spotlight-teegha-daplug-the-northern-force-redefining-afro-drill-and-alternative-hip-hop",
+          "role": "inline",
+          "attachmentId": "4420",
+          "url": "https://remradar.wordpress.com/wp-content/uploads/2025/10/img_7922-teegha-daplug.jpg",
+          "mimeHint": null
+        }
+      ]
+    },
+    {
+      "sourceUrl": "https://remradar.wordpress.com/wp-content/uploads/2025/12/f2335313-364e-4d15-a268-bfe6529d7f8a.jpeg",
+      "roles": [
+        "attachmentIdReference"
+      ],
+      "references": [
+        {
+          "postId": 4754,
+          "slug": "artist-spotlight-wealth-asuquo-abujas-livewire-afrobeats-star-on-a-relentless-rise",
+          "role": "inline",
+          "attachmentId": "4755",
+          "url": "https://remradar.wordpress.com/wp-content/uploads/2025/12/f2335313-364e-4d15-a268-bfe6529d7f8a.jpeg",
+          "mimeHint": null
+        }
+      ]
+    },
+    {
+      "sourceUrl": "https://remradar.wordpress.com/wp-content/uploads/2025/10/img_4760.jpg?w=1024",
+      "roles": [
+        "urlOnlyReference"
+      ],
+      "references": [
+        {
+          "postId": 4262,
+          "slug": "mosa-temple-ignites-abuja-airwaves-with-strategic-radio-tour-ahead-of-new-release",
+          "role": "inline",
+          "attachmentId": null,
+          "url": "https://remradar.wordpress.com/wp-content/uploads/2025/10/img_4760.jpg?w=1024",
+          "mimeHint": null
+        }
+      ]
+    }
+  ]
+}
