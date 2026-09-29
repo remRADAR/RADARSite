@@ -186,3 +186,105 @@ The committed snapshot contains 342 published articles: 63 current RADARCharts r
 
 ### Notes
 - Existing site-wide React hydration warning telemetry was observed separately from the article media DOM; the global playlist iframe is now hydration-safe/deferred, while article iframe sanitization and wrapper structure are clean.
+
+
+## Dependency Install-Script Policy — 2026-09-29
+
+### Implemented
+
+Added version-pinned top-level `allowScripts` entries to `package.json` for the reviewed native/binary dependencies:
+
+- `esbuild@0.28.2`
+- `sharp@0.34.5`
+- `unrs-resolver@1.12.2`
+
+These packages require install scripts to select or initialize platform-native binaries. The entries are pinned to exact versions so a future package upgrade requires an explicit review.
+
+### Verification
+
+| Check | Result |
+|---|---|
+| npm 11.16 install warning reproduction before change | Confirmed the same three pending scripts |
+| npm 11 pending approval check after change | Passed: no packages with unreviewed install scripts |
+| Native esbuild runtime check | Passed: `0.28.2` |
+| Sharp runtime check | Passed: `0.34.5`, libvips `8.17.3` |
+| unrs-resolver runtime check | Passed: native resolver module loaded |
+| `npm run lint` | Passed |
+| `npx tsc --noEmit` | Passed |
+| `npm run build` | Passed; all listed routes generated |
+| `git diff --check` | Passed |
+
+### Known limitation
+
+Next.js 16.2.11 still has a separate SWC lockfile-layout warning under newer npm/Vercel installs. The required Linux x64 SWC package is present and the production build succeeds; no direct `@next/swc-*` dependency was added.
+
+
+## Dependency Security Audit — 2026-09-29
+
+### Script-policy result
+
+- npm 11.16 `approve-scripts --allow-scripts-pending`: **Passed** — no packages with unreviewed install scripts.
+- Clean npm 11.16 install from `package.json` and `package-lock.json`: **Passed** — no `allowScripts` warnings; exit code 0.
+- Registry integrity: **Passed** — 1,012 packages with verified registry signatures and 209 with verified attestations.
+- `npm ci --ignore-scripts --dry-run`: **Passed** — lockfile resolves successfully.
+
+### Vulnerability result
+
+`npm audit` reported 12 advisories across the installed tree: 1 critical, 8 high, and 3 moderate. Findings include:
+
+- Direct `next@16.2.11`: critical advisories; npm reports `16.3.7` as the available non-major fix.
+- Direct `sharp@0.34.5`: high advisories inherited from libvips/libheif; npm reports `0.35.5`, a major-version upgrade.
+- Transitive high/moderate findings in `postcss`, `fast-uri`, `ip-address`, `undici`, `js-yaml`, `nanoid`, `brace-expansion`, `qs`, `hono`, and `@hono/node-server`.
+
+No dependency upgrades were applied during this audit. Next.js and Sharp upgrades require compatibility testing, native-binary verification, and a fresh production deployment review. The current production deployment remains the previously verified build; this audit did not change production.
+
+
+## Next.js Security Upgrade — 2026-09-29
+
+### Implemented
+
+Upgraded and exact-pinned both `next` and `eslint-config-next` from `16.2.11` to `16.3.7`. The lockfile now resolves `@next/swc-linux-x64-gnu@16.3.7`.
+
+### Verification
+
+| Check | Result |
+|---|---|
+| `npm run lint` | Passed |
+| `npx tsc --noEmit` | Passed |
+| `npm run build` | Passed under Next.js 16.3.7; all listed routes generated |
+| Next.js SWC lockfile warning | Not observed in the upgraded build |
+| npm 11 pending install-script review | Passed: no packages with unreviewed install scripts |
+| `npm audit` | Critical findings reduced from 1 to 0; 10 advisories remain (3 moderate, 7 high) |
+| `git diff --check` | Passed |
+
+### Remaining security work
+
+The critical Next.js advisory is resolved. Remaining advisories include the direct `sharp@0.34.5` native dependency and transitive packages such as `fast-uri`, `ip-address`, `undici`, `js-yaml`, `nanoid`, `brace-expansion`, `qs`, `hono`, and `@hono/node-server`. Those upgrades remain separate compatibility work; this change did not upgrade Sharp or deploy production.
+
+
+## Remaining Vulnerability Remediation — 2026-09-29
+
+### Implemented
+
+The non-breaking `npm audit fix --package-lock-only` pass patched the nine transitive vulnerability groups. The remaining direct Sharp finding was then remediated by upgrading and exact-pinning:
+
+- `sharp`: `0.34.5` → `0.35.5`
+- `@img/sharp-linux-x64`: `0.34.5` → `0.35.5`
+- `@img/sharp-libvips-linux-x64`: `1.2.4` → `1.3.4`
+
+The reviewed `allowScripts` entry was updated from `sharp@0.34.5` to `sharp@0.35.5`.
+
+### Verification
+
+| Check | Result |
+|---|---|
+| npm audit | Passed: 0 vulnerabilities — 0 moderate, 0 high, 0 critical |
+| npm 11 pending install-script review | Passed: no packages with unreviewed install scripts |
+| Sharp runtime | Passed: Sharp `0.35.5`, libvips `8.18.7`, 19 formats available |
+| `npm run media:contract-test` | Passed: all contract cases; no production contact or real R2 dry run |
+| `npm run lint` | Passed |
+| `npx tsc --noEmit` | Passed |
+| `npm run build` | Passed under Next.js `16.3.7`; all listed routes generated |
+| `git diff --check` | Passed |
+
+This supersedes the earlier audit notes that described Sharp and the transitive packages as unresolved. No production deployment or external storage/database write was performed by this remediation.
