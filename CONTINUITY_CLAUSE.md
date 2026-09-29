@@ -170,3 +170,12 @@ The dedicated branch `cms-integration-2026-09-29` now includes an opt-in provide
 Vercel deployment `dpl_F9efpdawJBCp59anKHr1RzBhaZBn` reached READY. Public homepage rendering, authenticated Studio library pagination, and a reversible article write/read/restore round trip all passed against the Supabase-backed Preview. The three CMS/media tables have RLS enabled with deny-by-default policies for `anon` and `authenticated`. The current remaining POC security finding is `public.studio_settings`, which still has RLS disabled; do not expose it through Supabase client APIs and do not auto-apply remediation without reviewing the exact policy SQL.
 
 Evidence is in `reports/SUPABASE_PREVIEW_ADAPTER_VALIDATION_2026-09-29.md`. No Neon, Production Vercel, WordPress, Cloudflare R2, Production CMS, or Production media data changed. The next one-step action is to review and test `studio_settings` RLS in the isolated POC only, followed by a backup/restore drill. No Production cutover is authorized by this checkpoint.
+
+
+## studio_settings RLS gate closed — 2026-09-29
+
+The isolated POC security gate is complete. `public.studio_settings` now has RLS enabled, no `anon`/`authenticated` policies, and `FORCE ROW LEVEL SECURITY` remains false. This is the intended deny-by-default model because the application accesses settings through privileged server-side PostgreSQL code and exposes normalized configuration only through its application routes. Anonymous and authenticated direct database reads returned zero visible rows and rolled-back insert probes were denied; the server-side `postgres` role continued to work.
+
+The previous critical Supabase advisor finding for RLS disabled is resolved. The advisor now reports only the expected informational `rls_enabled_no_policy` notice for this intentionally private table. The existing RLS posture on `studio_content`, `content_media`, and `content_media_relationships` remains enabled and unchanged. Preview settings and Studio article read/write/restore validation passed after the change, and the temporary settings row was cleaned up so the POC table is empty again.
+
+Authoritative evidence is in `reports/SUPABASE_STUDIO_SETTINGS_RLS_REMEDIATION_2026-09-29.md`. The next gate is human review of the RLS decision and draft PR #2. Do not merge to `main`, deploy Production, migrate WordPress/media/R2, activate redirects, or change DNS.

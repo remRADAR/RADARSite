@@ -148,3 +148,12 @@ The dedicated branch `cms-integration-2026-09-29` now includes an opt-in provide
 Deployment `dpl_F9efpdawJBCp59anKHr1RzBhaZBn` reached `READY` at `https://radarsite-staging-lzv9xkr24-remradars-projects.vercel.app`. Public homepage rendering passed. Authenticated Studio library read returned HTTP 200 with 5 bounded items from 342 records. A reversible article metadata write/read/restore round trip returned HTTP 200 throughout and left no temporary marker behind. Local TypeScript, lint, diff, CMS, mock-library, and media relationship checks passed; lint retains the prior non-blocking `<img>` warning.
 
 Supabase verification confirmed RLS enabled with deny-by-default policies on `studio_content`, `content_media`, and `content_media_relationships`. `studio_settings` remains RLS-disabled and is the next isolated POC security task; its advisor remediation was not auto-applied. Neon, Vercel Production, Cloudflare R2, WordPress, and Production editorial data remain unchanged. Full evidence: `reports/SUPABASE_PREVIEW_ADAPTER_VALIDATION_2026-09-29.md`.
+
+
+## Supabase studio_settings RLS remediation — 2026-09-29
+
+The isolated Supabase Preview security gate for `public.studio_settings` is closed. RLS was enabled with no `anon` or `authenticated` policies and without `FORCE ROW LEVEL SECURITY`, matching the application’s server-side access model. Anonymous and authenticated direct database reads returned zero visible rows and insert probes were denied; the privileged server-side `postgres` role continued to read successfully.
+
+Preview settings read/write, settings cleanup, Studio library read, article read/write/restore, and public article-route checks passed after remediation. The former critical advisor finding `rls_disabled_in_public` is resolved. The remaining advisor notice is the expected informational `rls_enabled_no_policy` finding for the intentional deny-by-default table. Existing RLS on `studio_content`, `content_media`, and `content_media_relationships` remained enabled and unchanged.
+
+The requested regression suite passed, including the new network-free `npm run postgres:adapter-contract-test`, CMS/media contracts, TypeScript, lint, build, diff check, and 3 focused CMS Playwright tests. Full evidence: `reports/SUPABASE_STUDIO_SETTINGS_RLS_REMEDIATION_2026-09-29.md`. Keep PR #2 draft-only; do not merge, deploy Production, start WordPress/media/R2 migration, activate redirects, or change DNS.
