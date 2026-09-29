@@ -2,7 +2,7 @@
 
 **Checkpoint:** 2026-09-25 12:36 UTC  
 **Repository:** `remRADAR/RADARSite`  
-**Branch / HEAD:** `main` / `e105d81` (`Migrate legacy article media to R2 WebP`)  
+**Branch / HEAD:** `main` / `ea5c456` (`Verify all current media source bytes`)
 **Working-tree baseline:** clean before this checkpoint
 
 ## Executive status
