@@ -2,10 +2,10 @@
 
 **Date:** 2026-09-29
 **Repository:** `remRADAR/RADARSite`
-**Branch:** `main`
-**Code checkpoint:** `52a3dac`
+**Branch:** `preview/supabase-postgres-adapter`
+**Reviewed commit:** `a5d00f5` (`Add provider-neutral PostgreSQL adapter`)
 **Supabase target:** `radarsite-supabase-poc` / `eoydzywyacoesnowdlge` only
-**Vercel staging project inspected:** `radarsite-staging` / `prj_2ePtA6DB9iMq8EP2hfukE3D2W93H`
+**Vercel projects inspected:** existing `radarsite-staging` / `prj_2ePtA6DB9iMq8EP2hfukE3D2W93H`; dedicated unlinked project `radarsite-supabase-preview-20260929` / `prj_rWjoh3BgmTKou28TAht52rhpvYkJ`
 
 ## Implemented
 
@@ -73,11 +73,11 @@ An existing separate Vercel project was inspected:
 - Existing latest deployment target: Production for the staging project, not the RADARSite Production project
 - Existing Preview environment variable names: `DATABASE_URL` and `STUDIO_ADMIN_PASSWORD`
 
-Secret values were not decrypted or read. Because the existing Preview `DATABASE_URL` value is unknown, it cannot be asserted that it points to the Supabase POC rather than Neon. No environment variables were modified.
+Secret values were not decrypted or read. Because the existing Preview `DATABASE_URL` value is unknown, it cannot be asserted that it points to the Supabase POC rather than Neon. No environment variables were modified on the existing staging project. The dedicated project was created without a Git link, deployment, or database environment variables.
 
 ### Preview result
 
-**No new Preview deployment was created.** The local adapter implementation remains uncommitted, and the sandbox has no Vercel CLI or authenticated local deployment session. Deploying from Git would require pushing the unreviewed changes, which the prompt explicitly prohibited. The available Vercel deployment API path would require uploading the complete local source tree and separately supplying a server-side Supabase PostgreSQL URL; the Supabase connector exposes SQL/project access but does not provide that database password/connection URL.
+**No Preview deployment was created.** The adapter was reviewed, committed as `a5d00f5`, and pushed only to `preview/supabase-postgres-adapter`. The separate unlinked Vercel project exists, but the required server-side Supabase PostgreSQL URL/password is not available through the Supabase connector. Deploying without it would either fail database verification or require using the existing staging secret whose target is unknown; neither is acceptable.
 
 Consequently, the following runtime checks remain **not verified**:
 
@@ -129,9 +129,11 @@ The only external mutation was the reviewed RLS migration in the isolated Supaba
 
 ## Remaining blockers and next gate
 
-The success condition is not fully met because real Supabase PostgreSQL adapter verification from an isolated Vercel Preview could not be performed without either:
+The success condition is not fully met because real Supabase PostgreSQL adapter verification from an isolated Vercel Preview could not be performed without the server-side Supabase POC connection URL/password. The dedicated project is ready for the next safe step, but no environment variables or deployment were created.
 
-1. a safe local Vercel deployment session/CLI that can deploy the uncommitted working tree, and a server-side Supabase POC connection URL; or
-2. an explicitly reviewed commit/branch pushed to GitHub and a Preview environment configured with a server-side Supabase POC connection URL, without inheriting the existing secret value.
+The remaining requirement is:
 
-The hard stop is active. Do not change Vercel Production, Neon Production, production schemas, production data, R2, WordPress, DNS, or perform a database cutover. Do not commit or push until the implementation and the missing Preview verification path have been reviewed.
+1. configure only the dedicated project’s Preview environment with `DATABASE_PROVIDER=postgres` and a server-side `DATABASE_URL` belonging to Supabase project ref `eoydzywyacoesnowdlge`; then
+2. deploy commit `a5d00f5` to that Preview and run the runtime checks above.
+
+The hard stop is active. Do not change Vercel Production, Neon Production, production schemas, production data, R2, WordPress, DNS, or perform a database cutover. Do not deploy with an unknown database target or expose credentials. The reviewed branch is committed and pushed; no merge into `main` occurred.
