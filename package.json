@@ -11,6 +11,7 @@
     "cms:reconcile": "tsx scripts/cms-reconcile.ts",
     "media:contract-test": "tsx scripts/wordpress-media-contract-test.ts",
     "media-health:contract-test": "tsx scripts/media-health-contract-test.ts",
+    "media-relationships:contract-test": "tsx scripts/media-relationships-contract-test.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:a11y": "node scripts/check-accessibility.mjs"
