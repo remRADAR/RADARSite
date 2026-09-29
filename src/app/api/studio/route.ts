@@ -30,6 +30,21 @@ function slugify(value: string) { return value.toLowerCase().normalize("NFKD").r
 function timestamp(record: CmsRecord) { const parsed = Date.parse(String(record.publishedAt || record.date || "")); return Number.isFinite(parsed) ? parsed : 0; }
 function summary(record: CmsRecord): ArticleListItem { const taxonomy = deriveEditorialTaxonomy(record); return { id: text(record.id, 120), sourceId: text(record.sourceId, 120) || undefined, slug: text(record.slug, 300), title: text(record.title || record.name, 300) || "Untitled article", excerpt: text(record.excerpt || record.subtitle || record.description, 500), status: text(record.status) || "published", editorialType: taxonomy.editorialType, magazineSubtype: taxonomy.magazineSubtype, projectSection: taxonomy.projectSection, needsTaxonomyReview: taxonomy.needsReview, featuredImage: text(record.featuredImage || record.imageUrl, 2000), date: text(record.publishedAt || record.date, 100), tags: array(record.tags), categories: array(record.categories), sourceProvider: text(record.sourceProvider) || "radarsite" }; }
 function articleForEditor(record: CmsRecord) { const taxonomy = deriveEditorialTaxonomy(record); const seo = suggestSeoMetadata(record); return { ...record, editorialType: taxonomy.editorialType || "Press", magazineSubtype: taxonomy.magazineSubtype, projectSection: taxonomy.projectSection, tags: array(record.tags), tagsApproved: array(record.tagsApproved), tagsSuggested: suggestArticleTags({ ...record, editorialType: taxonomy.editorialType, projectSection: taxonomy.projectSection }), metaTitle: seo.metaTitle, metaDescription: seo.metaDescription, socialImage: seo.socialImage, taxonomyNeedsReview: taxonomy.needsReview, taxonomyEvidence: taxonomy.evidence }; }
+export function buildArticleLibrary(records: CmsRecord[], params: URLSearchParams) {
+  const page = Math.max(1, Number(params.get("page") || 1) || 1);
+  const pageSize = Math.min(MAX_LIBRARY_PAGE_SIZE, Math.max(5, Number(params.get("pageSize") || 12) || 12));
+  const search = text(params.get("search"), 120).toLowerCase();
+  const editorialType = text(params.get("editorialType"));
+  const projectSection = text(params.get("projectSection"));
+  const magazineSubtype = text(params.get("magazineSubtype"));
+  const status = text(params.get("status"));
+  const sort = params.get("sort") === "title" ? "title" : params.get("sort") === "updated" ? "updated" : "date";
+  const direction = params.get("direction") === "asc" ? 1 : -1;
+  const filtered = records.filter((record) => { const item = summary(record); const haystack = `${item.title} ${item.excerpt} ${item.slug} ${item.tags.join(" ")} ${item.categories.join(" ")}`.toLowerCase(); return (!search || haystack.includes(search)) && (!editorialType || item.editorialType === editorialType) && (!projectSection || item.projectSection === projectSection) && (!magazineSubtype || item.magazineSubtype === magazineSubtype) && (!status || item.status === status); });
+  filtered.sort((a, b) => { const av = sort === "title" ? text(a.title).toLowerCase() : sort === "updated" ? text(a.updatedAt || a.date) : timestamp(a); const bv = sort === "title" ? text(b.title).toLowerCase() : sort === "updated" ? text(b.updatedAt || b.date) : timestamp(b); return av < bv ? -direction : av > bv ? direction : 0; });
+  const total = filtered.length;
+  return { items: filtered.slice((page - 1) * pageSize, page * pageSize).map(summary), pagination: { page, pageSize, total, pageCount: Math.max(1, Math.ceil(total / pageSize)) }, taxonomy: { editorialTypes: EDITORIAL_TYPES, magazineSubtypes: MAGAZINE_SUBTYPES, projectSections: ["Motherland"] } };
+}
 function defaultArticle(): CmsRecord { return { id: `studio-${randomUUID()}`, sourceProvider: "radarsite", slug: "", title: "", excerpt: "", subtitle: "", body: "", bodyHtml: "<p></p>", status: "draft", editorialType: "Press", magazineSubtype: "", projectSection: "", section: "radar-articles", categories: ["RADARArticles"], tags: [], tagsApproved: [], tagsSuggested: [], featuredImage: "", imageUrl: "", featuredImageAlt: "", featuredImageCaption: "", metaTitle: "", metaDescription: "", canonicalUrl: "", socialImage: "", date: new Date().toISOString().slice(0, 10), author: "RADARCharts by REM" }; }
 export function normalizeArticleInput(input: Record<string, unknown>, existing?: CmsRecord): CmsRecord {
   const base = existing || defaultArticle();
@@ -108,21 +123,7 @@ export async function GET(request: NextRequest) {
         const record = records.find((item) => item.id === id || item.slug === id);
         return record ? json({ article: articleForEditor(record) }) : json({ error: "Article not found" }, { status: 404 });
       }
-      const params = request.nextUrl.searchParams;
-      const page = Math.max(1, Number(params.get("page") || 1) || 1);
-      const pageSize = Math.min(MAX_LIBRARY_PAGE_SIZE, Math.max(5, Number(params.get("pageSize") || 12) || 12));
-      const search = text(params.get("search"), 120).toLowerCase();
-      const editorialType = text(params.get("editorialType"));
-      const projectSection = text(params.get("projectSection"));
-      const magazineSubtype = text(params.get("magazineSubtype"));
-      const status = text(params.get("status"));
-      const sort = params.get("sort") === "title" ? "title" : params.get("sort") === "updated" ? "updated" : "date";
-      const direction = params.get("direction") === "asc" ? 1 : -1;
-      const filtered = records.filter((record) => { const item = summary(record); const haystack = `${item.title} ${item.excerpt} ${item.slug} ${item.tags.join(" ")} ${item.categories.join(" ")}`.toLowerCase(); return (!search || haystack.includes(search)) && (!editorialType || item.editorialType === editorialType) && (!projectSection || item.projectSection === projectSection) && (!magazineSubtype || item.magazineSubtype === magazineSubtype) && (!status || item.status === status); });
-      filtered.sort((a, b) => { const av = sort === "title" ? text(a.title).toLowerCase() : sort === "updated" ? text(a.updatedAt || a.date) : timestamp(a); const bv = sort === "title" ? text(b.title).toLowerCase() : sort === "updated" ? text(b.updatedAt || b.date) : timestamp(b); return av < bv ? -direction : av > bv ? direction : 0; });
-      const total = filtered.length;
-      const items = filtered.slice((page - 1) * pageSize, page * pageSize).map(summary);
-      return json({ items, pagination: { page, pageSize, total, pageCount: Math.max(1, Math.ceil(total / pageSize)) }, taxonomy: { editorialTypes: EDITORIAL_TYPES, magazineSubtypes: MAGAZINE_SUBTYPES, projectSections: ["Motherland"] } });
+      return json(buildArticleLibrary(records, request.nextUrl.searchParams));
     } catch (error) { logReadContentError(error, "Studio article library read failed"); return json({ error: "Article library is unavailable" }, { status: 503 }); }
   }
   if (!hasDatabase()) return json({ configured: false, contentConfigured: hasContentDatabase(), settings: defaultSiteOverrides });
