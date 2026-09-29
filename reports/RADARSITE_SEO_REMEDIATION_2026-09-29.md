@@ -55,13 +55,13 @@ Local development and isolated preview environments are not blocked by this gate
 
 ### Social fallback
 
-Rasterized the existing branded SVG identity into:
+The generated fallback was subsequently replaced with the user-supplied RADARCharts stadium image at:
 
 ```text
 public/social/radar-global-card.png
 ```
 
-The PNG is **1200×630**, `image/png`, and is now the default metadata fallback. The original SVG remains at `/social/radar-global-card.svg`. Custom configured social images still take precedence over both fallbacks.
+The supplied PNG is **2560×1440**, `image/png`, and is now the default metadata fallback. Root Open Graph metadata reports the actual 2560×1440 dimensions and `image/png` type. The original SVG remains at `/social/radar-global-card.svg`. Custom configured social images still take precedence over both fallbacks.
 
 ### Focused automated QA
 
@@ -94,7 +94,7 @@ All returned HTTP 200 in the isolated production runtime:
 | JSON-LD QA | Passed: 6/6 representative routes; exactly one Article node on each Article route |
 | Existing social metadata QA | Passed: 4/4 routes; canonical production URLs and PNG fallback present |
 | Canonical/unsafe-host checks | Passed; no localhost, Vercel Preview, temporary, WordPress, or Supabase host leaked in tested JSON-LD or metadata |
-| PNG fallback dimensions | Passed: 1200×630 |
+| PNG fallback dimensions | Passed: 2560×1440 |
 | PNG fallback MIME | Passed: `image/png` |
 | Runtime route smoke | Passed: all listed URLs HTTP 200 |
 | `git diff --check` | Passed |

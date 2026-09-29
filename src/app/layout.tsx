@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description,
     alternates: { canonical: "/", languages: { "en-NG": "/", "en-GH": "/", "en-GB": "/", "en-US": "/" } },
     robots: { index: true, follow: true },
-    openGraph: { type: "website", locale: "en_NG", siteName: settings.siteName, title, description, url, images: [{ url: image, width: 1200, height: 630, type: "image/svg+xml", alt: settings.siteName }] },
+    openGraph: { type: "website", locale: "en_NG", siteName: settings.siteName, title, description, url, images: [{ url: image, width: 2560, height: 1440, type: "image/png", alt: settings.siteName }] },
     twitter: { card: "summary_large_image", site: settings.xHandle || "@radarcharts", creator: settings.xHandle || "@radarcharts", title, description, images: [image] },
   icons: {
     icon: [
