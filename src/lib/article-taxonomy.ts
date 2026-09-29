@@ -1,6 +1,6 @@
 import type { CmsRecord } from "@/lib/content-server";
 
-export const ARTICLES_PER_PAGE = 24;
+export const ARTICLES_PER_PAGE = 10;
 export const UNCATEGORIZED_LABEL = "Uncategorized";
 
 export function isCurrentRadarchartsArticle(record: unknown) {
