@@ -112,6 +112,12 @@ The server-side PostgreSQL adapter remains privileged because the current applic
 
 The existing Vercel staging Preview environment contains a secret `DATABASE_URL` entry whose value was deliberately not read. Until a reviewed Preview deployment explicitly overrides it with the Supabase POC connection URL, provider/environment isolation cannot be proven.
 
+## Credential-path assessment
+
+The Supabase connector exposes project metadata and SQL execution, but it has no operation to reset the database password or return a PostgreSQL connection string containing the password. Official Supabase documentation confirms the supported path: the project owner must open the isolated POC’s **Database Settings**, reset or create its database password, then open **Connect** and copy the **Shared Pooler / transaction mode** connection string for serverless application traffic. The password must be inserted only into the secure Vercel Preview environment for `radarsite-supabase-preview-20260929`; it must not be placed in GitHub, source files, reports, logs, or chat.
+
+The exact manual action required from the project owner is therefore: reset the database password for Supabase project ref `eoydzywyacoesnowdlge`, obtain the transaction-pooler connection string for that same project, and provide it through an approved secret-management/deployment workflow so only the dedicated Vercel Preview receives `DATABASE_PROVIDER=postgres` and the POC `DATABASE_URL`. Do not use the existing `radarsite-staging` secret.
+
 ## Production impact
 
 **None observed.** The following remained unchanged and were not accessed for mutation:
@@ -133,7 +139,8 @@ The success condition is not fully met because real Supabase PostgreSQL adapter 
 
 The remaining requirement is:
 
-1. configure only the dedicated project’s Preview environment with `DATABASE_PROVIDER=postgres` and a server-side `DATABASE_URL` belonging to Supabase project ref `eoydzywyacoesnowdlge`; then
-2. deploy commit `a5d00f5` to that Preview and run the runtime checks above.
+1. complete the manual POC password reset and secure connection-string handoff described above; then
+2. configure only the dedicated project’s Preview environment with `DATABASE_PROVIDER=postgres` and a server-side `DATABASE_URL` belonging to Supabase project ref `eoydzywyacoesnowdlge`; then
+3. deploy commit `a5d00f5` to that Preview and run the runtime checks above.
 
 The hard stop is active. Do not change Vercel Production, Neon Production, production schemas, production data, R2, WordPress, DNS, or perform a database cutover. Do not deploy with an unknown database target or expose credentials. The reviewed branch is committed and pushed; no merge into `main` occurred.
