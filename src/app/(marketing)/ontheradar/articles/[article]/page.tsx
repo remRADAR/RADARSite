@@ -5,6 +5,7 @@ import { readPublishedContent } from "@/lib/content-server";
 import { findBySlug } from "@/lib/ia-content";
 import { articlePath, normalizeEditorialRecord } from "@/lib/editorial-normalization";
 import { getEffectiveImageUrl } from "@/lib/effective-image-url";
+import { buildArticleJsonLd, serializeJsonLd } from "@/lib/article-schema";
 export const revalidate = 3600;
 export const dynamicParams = false;
 
@@ -43,4 +44,4 @@ export async function generateMetadata({ params }: { params: Promise<{ article: 
     },
   };
 }
-export default async function ArticleDetail({ params }: { params: Promise<{ article: string }> }) { const { article } = await params; const { articles } = await readPublishedContent(); const item = findBySlug(articles, article); if (!item) notFound(); return <IaDetail item={item} kind="article" backPath="/ontheradar/articles" />; }
+export default async function ArticleDetail({ params }: { params: Promise<{ article: string }> }) { const { article } = await params; const { articles } = await readPublishedContent(); const item = findBySlug(articles, article); if (!item) notFound(); const record = normalizeEditorialRecord(item); const schema = buildArticleJsonLd(record); return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(schema) }} /><IaDetail item={item} kind="article" backPath="/ontheradar/articles" /></>; }

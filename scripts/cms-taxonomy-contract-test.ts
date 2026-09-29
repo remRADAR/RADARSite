@@ -1,0 +1,22 @@
+import assert from "node:assert/strict";
+import { deriveEditorialTaxonomy, suggestArticleTags, suggestSeoMetadata, validateEditorialTaxonomy } from "@/lib/cms-taxonomy";
+
+assert.deepEqual(validateEditorialTaxonomy({ editorialType: "Press", magazineSubtype: "", projectSection: "" }), { ok: true });
+assert.deepEqual(validateEditorialTaxonomy({ editorialType: "Magazine", magazineSubtype: "Special Episode", projectSection: "Motherland" }), { ok: true });
+assert.equal(validateEditorialTaxonomy({ editorialType: "Magazine", magazineSubtype: "", projectSection: "" }).ok, false);
+assert.equal(validateEditorialTaxonomy({ editorialType: "Spotlight", magazineSubtype: "Magazine Episode", projectSection: "" }).ok, false);
+const legacy = deriveEditorialTaxonomy({ slug: "old", title: "Old article", editorialType: "article", categories: ["RADARArticles"] });
+assert.equal(legacy.editorialType, "Press");
+assert.equal(legacy.needsReview, true);
+const motherland = deriveEditorialTaxonomy({ slug: "mother", title: "Motherland story", editorialType: "spotlight", categories: ["MOTHERLand"] });
+assert.equal(motherland.editorialType, "Spotlight");
+assert.equal(motherland.projectSection, "Motherland");
+const tags = suggestArticleTags({ title: "Abuja Afrobeats spotlight", excerpt: "A new music story", body: "Nigeria and culture", bodyHtml: "", tags: [], categories: [], editorialType: "Spotlight", projectSection: "Motherland" });
+assert.ok(tags.includes("Afrobeats"));
+assert.ok(tags.includes("Abuja"));
+assert.ok(tags.includes("Motherland"));
+const seo = suggestSeoMetadata({ slug: "signal", title: "Signal", excerpt: "A short deck", featuredImage: "https://example.com/image.webp" });
+assert.equal(seo.metaTitle, "Signal");
+assert.equal(seo.metaDescription, "A short deck");
+assert.equal(seo.socialImage, "https://example.com/image.webp");
+console.log(JSON.stringify({ validation: "PASS", legacyReview: "PASS", projectInference: "PASS", tagSuggestions: "PASS", seoSuggestions: "PASS", databaseContacted: false }, null, 2));
