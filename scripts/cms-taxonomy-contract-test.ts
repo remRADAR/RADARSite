@@ -7,7 +7,15 @@ assert.equal(validateEditorialTaxonomy({ editorialType: "Magazine", magazineSubt
 assert.equal(validateEditorialTaxonomy({ editorialType: "Spotlight", magazineSubtype: "Magazine Episode", projectSection: "" }).ok, false);
 const legacy = deriveEditorialTaxonomy({ slug: "old", title: "Old article", editorialType: "article", categories: ["RADARArticles"] });
 assert.equal(legacy.editorialType, "Press");
-assert.equal(legacy.needsReview, true);
+assert.equal(legacy.needsReview, false);
+const artistSpotlight = deriveEditorialTaxonomy({ slug: "artist-spotlight-example", title: "Artist Spotlight: Example", editorialType: "interview", categories: ["MOTHERLand", "RADARArticles"] });
+assert.equal(artistSpotlight.editorialType, "Spotlight");
+assert.equal(artistSpotlight.projectSection, "Motherland");
+assert.equal(artistSpotlight.needsReview, false);
+const magazineReview = deriveEditorialTaxonomy({ slug: "magazine-without-format", title: "Magazine record", editorialType: "Magazine" });
+assert.equal(magazineReview.editorialType, "Magazine");
+assert.equal(magazineReview.magazineSubtype, "");
+assert.equal(magazineReview.needsReview, true);
 const motherland = deriveEditorialTaxonomy({ slug: "mother", title: "Motherland story", editorialType: "spotlight", categories: ["MOTHERLand"] });
 assert.equal(motherland.editorialType, "Spotlight");
 assert.equal(motherland.projectSection, "Motherland");
@@ -19,4 +27,4 @@ const seo = suggestSeoMetadata({ slug: "signal", title: "Signal", excerpt: "A sh
 assert.equal(seo.metaTitle, "Signal");
 assert.equal(seo.metaDescription, "A short deck");
 assert.equal(seo.socialImage, "https://example.com/image.webp");
-console.log(JSON.stringify({ validation: "PASS", legacyReview: "PASS", projectInference: "PASS", tagSuggestions: "PASS", seoSuggestions: "PASS", databaseContacted: false }, null, 2));
+console.log(JSON.stringify({ validation: "PASS", legacyPress: "PASS", artistSpotlightOverlap: "PASS", magazineReviewGate: "PASS", tagSuggestions: "PASS", seoSuggestions: "PASS", databaseContacted: false }, null, 2));

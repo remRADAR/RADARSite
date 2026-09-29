@@ -36,21 +36,22 @@ export function validateEditorialTaxonomy(input: { editorialType?: unknown; maga
 
 export function deriveEditorialTaxonomy(record: CmsRecord): EditorialTaxonomy {
   const explicit = text(record.editorialType);
-  const explicitType = EDITORIAL_TYPES.find((value) => value.toLowerCase() === explicit.toLowerCase());
+  const explicitType = EDITORIAL_TYPES.find((value) => value === explicit);
   const projectSection = text(record.projectSection || record.project) || (hasCategory(record, /^(motherland|motherland-radar|motherland project)$/i) ? "Motherland" : "");
   const subtype = text(record.magazineSubtype);
   if (explicitType) {
-    const validSubtype = MAGAZINE_SUBTYPES.find((value) => value.toLowerCase() === subtype.toLowerCase()) || (explicitType === "Magazine" && hasCategory(record, /special guest/i) ? "Special Episode" : explicitType === "Magazine" ? "Magazine Episode" : "");
-    const valid = validateEditorialTaxonomy({ editorialType: explicitType, magazineSubtype: validSubtype, projectSection });
-    return { editorialType: explicitType, magazineSubtype: valid.ok ? validSubtype : "", projectSection, confidence: valid.ok ? "explicit" : "review", needsReview: !valid.ok, evidence: valid.ok ? "explicit CMS taxonomy" : "invalid taxonomy combination" };
+    const normalizedSubtype = MAGAZINE_SUBTYPES.find((value) => value.toLowerCase() === subtype.toLowerCase()) || "";
+    const valid = validateEditorialTaxonomy({ editorialType: explicitType, magazineSubtype: normalizedSubtype, projectSection });
+    return { editorialType: explicitType, magazineSubtype: valid.ok ? normalizedSubtype : "", projectSection, confidence: valid.ok ? "explicit" : "review", needsReview: !valid.ok, evidence: valid.ok ? "explicit CMS taxonomy" : "invalid or incomplete taxonomy combination" };
   }
   const legacy = lower(record.editorialType);
-  if (legacy === "spotlight" || hasCategory(record, /discovery spot/i)) return { editorialType: "Spotlight", magazineSubtype: "", projectSection, confidence: "inferred", needsReview: false, evidence: "legacy spotlight/discovery taxonomy" };
+  const titleAndSlug = lower(`${record.title || ""} ${record.slug || ""}`);
+  if (legacy === "spotlight" || hasCategory(record, /discovery spot/i) || /artist[\s-]+(spotlight|discovery)|\bspotlight\b/.test(titleAndSlug)) return { editorialType: "Spotlight", magazineSubtype: "", projectSection, confidence: "inferred", needsReview: false, evidence: "legacy spotlight/discovery taxonomy or artist-spotlight title" };
   if (legacy === "magazine" || hasCategory(record, /talk to us.*(magazine|special guest)/i)) {
     const inferredSubtype = hasCategory(record, /special guest/i) ? "Special Episode" : "Magazine Episode";
     return { editorialType: "Magazine", magazineSubtype: inferredSubtype, projectSection, confidence: "inferred", needsReview: false, evidence: "legacy magazine taxonomy" };
   }
-  if (legacy === "article" || legacy === "interview" || hasCategory(record, /radararticles/i)) return { editorialType: "Press", magazineSubtype: "", projectSection, confidence: "review", needsReview: true, evidence: "legacy article/interview record requires editorial confirmation" };
+  if (legacy === "article" || legacy === "interview" || hasCategory(record, /radararticles/i)) return { editorialType: "Press", magazineSubtype: "", projectSection, confidence: "inferred", needsReview: false, evidence: "legacy RADARArticles article/interview taxonomy" };
   return { editorialType: "", magazineSubtype: "", projectSection, confidence: "review", needsReview: true, evidence: "no authoritative editorial category" };
 }
 

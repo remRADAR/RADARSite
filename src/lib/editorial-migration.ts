@@ -1,6 +1,7 @@
 import { decode } from "html-entities";
 import { readContent, type CmsRecord, type ContentCollections } from "@/lib/content-server";
 import { classifySection, editorialExcerpt, editorialTitle, normalizeEditorialContent } from "@/lib/editorial-normalization";
+import { deriveEditorialTaxonomy } from "@/lib/cms-taxonomy";
 
 export type EditorialType = "article" | "interview" | "spotlight" | "magazine";
 export type EditorialStatus = "draft" | "published" | "archived";
@@ -178,8 +179,10 @@ function toRecord(post: WordPressPost, source: MigrationSource): CmsRecord {
     canonicalUrl: post.URL || post.link || "",
     migrationWarnings: sourceWarnings(post, !originalImage && Boolean(image), html),
   };
+  const derivedTaxonomy = deriveEditorialTaxonomy(base);
+  const section = derivedTaxonomy.projectSection === "Motherland" ? "motherland-radar" : derivedTaxonomy.editorialType === "Magazine" ? "magazine" : derivedTaxonomy.editorialType === "Spotlight" ? "discovery-spot" : "radar-articles";
   const classification = classifySection(base);
-  return { ...base, section: classification.section, migrationWarnings: [...(base.migrationWarnings || []), ...(classification.confidence === "low" ? ["Low-confidence section classification requires editorial review."] : [])] };
+  return { ...base, editorialType: derivedTaxonomy.editorialType || undefined, magazineSubtype: derivedTaxonomy.magazineSubtype, projectSection: derivedTaxonomy.projectSection, section, migrationWarnings: [...(base.migrationWarnings || []), ...(classification.confidence === "low" ? ["Low-confidence section classification requires editorial review."] : []), ...(derivedTaxonomy.needsReview ? ["Canonical editorial taxonomy requires manual review."] : [])] };
 }
 
 function reconcileRecord(existing: CmsRecord, incoming: CmsRecord): CmsRecord {

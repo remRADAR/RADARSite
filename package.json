@@ -15,6 +15,7 @@
     "postgres:adapter-contract-test": "tsx scripts/postgres-adapter-contract-test.ts",
     "test:e2e": "playwright test",
     "test:ambient": "tsx scripts/radar-ambient-contract-test.ts",
+    "test:editorial-archives": "tsx scripts/editorial-archives-contract-test.ts",
     "test:e2e:ui": "playwright test --ui",
     "test:a11y": "node scripts/check-accessibility.mjs",
     "cms:taxonomy-contract-test": "tsx scripts/cms-taxonomy-contract-test.ts",

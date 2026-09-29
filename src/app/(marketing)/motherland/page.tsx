@@ -1,12 +1,12 @@
 import { IaIndex } from "@/components/marketing/IaPages";
 import { readPublishedContent } from "@/lib/content-server";
-import { deriveEditorialTaxonomy } from "@/lib/cms-taxonomy";
+import { recordsForProject } from "@/lib/editorial-archives";
 
 export const revalidate = 3600;
 
 export default async function MotherlandPage() {
   const { articles } = await readPublishedContent();
-  const motherland = articles.filter((article) => deriveEditorialTaxonomy(article).projectSection === "Motherland" || article.categories?.some((category) => /motherland/i.test(category)));
+  const motherland = recordsForProject(articles);
   return (
     <IaIndex
       eyebrow="(MOTHERLand / Music To Her)"
