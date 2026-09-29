@@ -61,7 +61,7 @@ The social fallback is now a dedicated RADARSite-native card, independent of mig
 public/social/radar-global-card.png
 ```
 
-The PNG is **1200×630**, `image/png`, and is now the default metadata fallback. Root Open Graph metadata reports 1200×630 and `image/png`. The SVG source uses the current black-field, hard-grid, grotesk, and signal-mark system. Custom configured social images still take precedence.
+The PNG is **1200×630**, `image/png`, and is now the default metadata fallback. Root Open Graph metadata reports 1200×630 and `image/png`. The final composition uses the supplied RADARCharts image as the background and only a restrained lower write-up bar; the large title block and WordPress article imagery are excluded. Custom configured social images still take precedence.
 
 ### Focused automated QA
 
