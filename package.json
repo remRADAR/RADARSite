@@ -12,6 +12,8 @@
     "media:contract-test": "tsx scripts/wordpress-media-contract-test.ts",
     "media-health:contract-test": "tsx scripts/media-health-contract-test.ts",
     "media-relationships:contract-test": "tsx scripts/media-relationships-contract-test.ts",
+    "media-manifest:build": "python3 scripts/build-wordpress-media-manifest.py",
+    "media-manifest:validate": "tsx scripts/validate-wordpress-media-manifest.ts",
     "postgres:adapter-contract-test": "tsx scripts/postgres-adapter-contract-test.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
