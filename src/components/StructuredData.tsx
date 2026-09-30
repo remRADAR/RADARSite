@@ -1,6 +1,5 @@
-import { publicSiteUrl } from "@/lib/public-site";
-import { defaultSiteOverrides } from "@/lib/site-overrides";
-import { serializeJsonLd } from "@/lib/seo-schema";
+import { serializeJsonLd } from "@/lib/article-schema";
+import { websiteStructuredData } from "@/lib/seo";
 
 type StructuredDataProps = { data: Record<string, unknown> };
 
@@ -12,7 +11,8 @@ export const organizationStructuredData = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: "RADARCharts by REM",
-  url: publicSiteUrl(),
-  logo: { "@type": "ImageObject", url: `${publicSiteUrl()}/radar-logo.webp`, width: 600, height: 60 },
-  sameAs: defaultSiteOverrides.socialLinks.filter((link) => link.enabled).map((link) => link.href),
+  url: "https://radarcharts.net",
+  logo: { "@type": "ImageObject", url: "https://radarcharts.net/radar-logo.webp", width: 600, height: 60 },
+  sameAs: ["https://www.instagram.com/remradar/", "https://x.com/RADARCharts", "https://www.youtube.com/@remradar"],
 };
+export const websiteStructuredDataGraph = websiteStructuredData();

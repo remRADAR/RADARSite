@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
-import { publicSiteUrl } from "@/lib/public-site";
+import { SITE_URL } from "@/lib/seo";
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [{ userAgent: "*", allow: "/", disallow: ["/admin", "/api/", "/dashboard", "/projects", "/briefs", "/login"] }],
-    sitemap: `${publicSiteUrl()}/sitemap.xml`,
+    rules: [{ userAgent: "*", allow: "/", disallow: ["/admin", "/api/", "/dashboard", "/projects", "/briefs", "/login", "/*?*type=", "/*?*page="] }],
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

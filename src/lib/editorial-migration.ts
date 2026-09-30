@@ -1,7 +1,7 @@
 import { decode } from "html-entities";
 import { readContent, type CmsRecord, type ContentCollections } from "@/lib/content-server";
 import { classifySection, editorialExcerpt, editorialTitle, normalizeEditorialContent } from "@/lib/editorial-normalization";
-import { getEffectiveImageUrl } from "@/lib/effective-image-url";
+import { deriveEditorialTaxonomy } from "@/lib/cms-taxonomy";
 
 export type EditorialType = "article" | "interview" | "spotlight" | "magazine";
 export type EditorialStatus = "draft" | "published" | "archived";
@@ -38,7 +38,7 @@ function safeUrl(value: string, kind: "link" | "image" | "iframe") {
     const url = new URL(value);
     if (url.protocol !== "https:") return "";
     if (kind === "iframe" && !allowedHosts.has(url.hostname)) return "";
-    return kind === "image" ? getEffectiveImageUrl(url).effectiveUrl : url.toString();
+    return url.toString();
   } catch {
     return "";
   }
@@ -55,11 +55,7 @@ function socialFallbacks(source: string) {
 
 /** Converts known WordPress HTML into the deliberately small, safe editorial subset. */
 export function sanitizeEditorialHtml(input: unknown) {
-  const source = socialFallbacks(typeof input === "string" ? input.slice(0, MAX_HTML) : "")
-    // WordPress oEmbed exports sometimes contain an extra closing iframe after
-    // the wrapper. Collapse it before the allow-list pass so the browser never
-    // has to recover from invalid nested embed markup.
-    .replace(/<\/iframe>(?:\s*<\/div>\s*)*<\/iframe>/gi, "</iframe>");
+  const source = socialFallbacks(typeof input === "string" ? input.slice(0, MAX_HTML) : "");
   return source
     .replace(/<!--[\s\S]*?-->/g, "")
     .replace(/<\/?(script|style|object|embed|form|svg|math|link|meta|noscript)[^>]*>/gi, "")
@@ -77,30 +73,16 @@ export function sanitizeEditorialHtml(input: unknown) {
           if (url) kept.push(`href="${escapeAttr(url)}" rel="noopener noreferrer" target="_blank"`);
         } else if (key === "src" && (name === "img" || name === "iframe")) {
           const url = safeUrl(value, name === "img" ? "image" : "iframe");
-          // Iframes are activated by EditorialMediaEnhancer only when they
-          // approach the viewport. This prevents a long article from opening
-          // every Spotify/YouTube connection during the initial page load.
-          if (url) kept.push(`data-src="${escapeAttr(url)}"`);
-        } else if (key === "data-src" && (name === "iframe" || name === "img")) {
-          const url = safeUrl(value, name === "img" ? "image" : "iframe");
-          if (url) kept.push(`data-src="${escapeAttr(url)}"`);
+          if (url) kept.push(`src="${escapeAttr(url)}"`);
         } else if (["alt", "title", "width", "height", "allow", "allowfullscreen", "loading", "referrerpolicy"].includes(key)) {
           kept.push(`${key}="${escapeAttr(value.slice(0, 300))}"`);
         }
       }
-      if ((name === "iframe" || name === "img") && !kept.some((item) => item.startsWith("data-src="))) return "";
-      if (name === "img") {
-        kept.push('class="editorial-media"');
-        if (!kept.some((item) => item.startsWith("loading="))) kept.push('loading="lazy"');
-        if (!kept.some((item) => item.startsWith("decoding="))) kept.push('decoding="async"');
-      }
-      if (name === "iframe") {
-        if (!kept.some((item) => item.startsWith("loading="))) kept.push('loading="lazy"');
-        if (!kept.some((item) => item.startsWith("referrerpolicy="))) kept.push('referrerpolicy="strict-origin-when-cross-origin"');
-      }
+      if (name === "iframe" && !kept.some((item) => item.startsWith("src="))) return "";
       return `<${name}${kept.length ? ` ${kept.join(" ")}` : ""}>`;
     })
-    .replace(/<iframe([^>]*)><\/iframe>/gi, '<div class="editorial-embed"><iframe$1></iframe></div>')
+    .replace(/<iframe([^>]*)>/gi, '<div class="editorial-embed"><iframe$1 loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>')
+    .replace(/<iframe([^>]*)><\/iframe>/gi, "<iframe$1></iframe>")
     .replace(/<p>\s*<\/p>/gi, "")
     .trim();
 }
@@ -197,8 +179,10 @@ function toRecord(post: WordPressPost, source: MigrationSource): CmsRecord {
     canonicalUrl: post.URL || post.link || "",
     migrationWarnings: sourceWarnings(post, !originalImage && Boolean(image), html),
   };
+  const derivedTaxonomy = deriveEditorialTaxonomy(base);
+  const section = derivedTaxonomy.projectSection === "Motherland" ? "motherland-radar" : derivedTaxonomy.editorialType === "Magazine" ? "magazine" : derivedTaxonomy.editorialType === "Spotlight" ? "discovery-spot" : "radar-articles";
   const classification = classifySection(base);
-  return { ...base, section: classification.section, migrationWarnings: [...(base.migrationWarnings || []), ...(classification.confidence === "low" ? ["Low-confidence section classification requires editorial review."] : [])] };
+  return { ...base, editorialType: derivedTaxonomy.editorialType || undefined, magazineSubtype: derivedTaxonomy.magazineSubtype, projectSection: derivedTaxonomy.projectSection, section, migrationWarnings: [...(base.migrationWarnings || []), ...(classification.confidence === "low" ? ["Low-confidence section classification requires editorial review."] : []), ...(derivedTaxonomy.needsReview ? ["Canonical editorial taxonomy requires manual review."] : [])] };
 }
 
 function reconcileRecord(existing: CmsRecord, incoming: CmsRecord): CmsRecord {

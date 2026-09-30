@@ -1,6 +1,6 @@
-import { neon } from "@neondatabase/serverless";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { normalizeSiteOverrides as normalizeSharedSiteOverrides, type SiteOverrides } from "@/lib/site-overrides";
+import { databaseSql } from "@/lib/database";
 
 const SESSION_COOKIE = "radar_studio_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
@@ -19,8 +19,7 @@ export function hasDatabase() {
 }
 
 function getSql() {
-  if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not configured");
-  return neon(process.env.DATABASE_URL);
+  return databaseSql();
 }
 
 export function normalizeSiteOverrides(input: unknown): SiteOverrides {
