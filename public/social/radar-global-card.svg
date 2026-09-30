@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">RADARCharts by REM — Protecting The Music</title>
+  <desc id="desc">RADARCharts by REM — music, culture, and the people moving culture forward.</desc>
+  <image href="/social/radar-background.png" x="0" y="0" width="1200" height="450" preserveAspectRatio="xMidYMid slice"/>
+  <rect x="0" y="450" width="1200" height="180" fill="#050505"/>
+  <rect x="0" y="450" width="1200" height="4" fill="#f7f7f2"/>
+  <text x="48" y="500" fill="#f7f7f2" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="900" letter-spacing="1">RADARCharts by REM</text>
+  <text x="1152" y="500" text-anchor="end" fill="#f7f7f2" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" letter-spacing="3">PROTECTING THE MUSIC</text>
+  <text x="48" y="548" fill="#d0d0ca" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="400">Music, culture, and the people moving culture forward.</text>
+  <line x1="48" y1="575" x2="1152" y2="575" stroke="#f7f7f2" stroke-width="1" opacity=".35"/>
+  <text x="48" y="605" fill="#d0d0ca" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" letter-spacing="2">ON THE RADAR</text>
+  <text x="1152" y="605" text-anchor="end" fill="#d0d0ca" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" letter-spacing="2">RADARCHARTS.NET</text>
+</svg>

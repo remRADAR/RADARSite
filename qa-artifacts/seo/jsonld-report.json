@@ -1,0 +1,79 @@
+{
+  "generatedAt": "2026-09-29T18:43:02.251Z",
+  "base": "http://127.0.0.1:3203",
+  "ok": true,
+  "results": [
+    {
+      "label": "Press article",
+      "path": "/ontheradar/articles/mbbszn-unveils-pause-if-you-must-but-dont-stop-a-project-rooted-in-resilience-reinvention-a-new-wave-of-alt-afrofusion-storytelling",
+      "status": 200,
+      "jsonLdTypes": [
+        "Organization",
+        "Article",
+        "BreadcrumbList"
+      ],
+      "articleCount": 1,
+      "issues": []
+    },
+    {
+      "label": "Spotlight article",
+      "path": "/ontheradar/articles/kendol-ignites-a-new-wave-with-get-down-groove-a-bold-soulful-leap-into-afro-fusions-future",
+      "status": 200,
+      "jsonLdTypes": [
+        "Organization",
+        "Article",
+        "BreadcrumbList"
+      ],
+      "articleCount": 1,
+      "issues": []
+    },
+    {
+      "label": "Motherland article",
+      "path": "/ontheradar/articles/artist-spotlight-wealth-asuquo-abujas-livewire-afrobeats-star-on-a-relentless-rise",
+      "status": 200,
+      "jsonLdTypes": [
+        "Organization",
+        "Article",
+        "BreadcrumbList"
+      ],
+      "articleCount": 1,
+      "issues": []
+    },
+    {
+      "label": "Motherland project",
+      "path": "/motherland",
+      "status": 200,
+      "jsonLdTypes": [
+        "Organization",
+        "CollectionPage",
+        "BreadcrumbList"
+      ],
+      "articleCount": 0,
+      "issues": []
+    },
+    {
+      "label": "Magazine archive",
+      "path": "/ontheradar/magazine",
+      "status": 200,
+      "jsonLdTypes": [
+        "Organization",
+        "CollectionPage",
+        "BreadcrumbList"
+      ],
+      "articleCount": 0,
+      "issues": []
+    },
+    {
+      "label": "Magazine story",
+      "path": "/ontheradar/magazine/luna-vale-after-midnight",
+      "status": 200,
+      "jsonLdTypes": [
+        "Organization",
+        "Article",
+        "BreadcrumbList"
+      ],
+      "articleCount": 1,
+      "issues": []
+    }
+  ]
+}

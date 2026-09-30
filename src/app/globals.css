@@ -107,6 +107,11 @@
   --theme-transition: 260ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
 :root.theme-light {
   --paper: #f7f7f2;
   --ink: #050505;
@@ -428,6 +433,38 @@
 .editorial-body figure { width: 100%; max-width: 100%; overflow: hidden; }
 .editorial-body figure img { width: 100%; }
 .editorial-body figcaption { margin-top: .5rem; font-family: ui-monospace, monospace; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; opacity: .7; }
-.editorial-body .editorial-embed { position: relative; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; margin: 2rem 0; overflow: hidden; }
+.editorial-body .editorial-embed { position: relative; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; margin: 2rem 0; overflow: hidden; background: color-mix(in srgb, currentColor 8%, transparent); }
 .editorial-body .editorial-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.editorial-body .editorial-embed.is-loading::after { content: "Loading media"; position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; font: 700 .65rem/1 ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; opacity: .55; animation: editorial-pulse 1.2s ease-in-out infinite; }
+.editorial-body img[data-src] { min-height: 4rem; }
+.editorial-body img.is-error { min-height: 8rem; opacity: .45; }
+.editorial-body .editorial-embed.is-error::after { content: "Media unavailable — retrying"; position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; font: 700 .65rem/1 ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; opacity: .65; }
+.editorial-body .editorial-media,
+.editorial-body .editorial-embed { will-change: opacity, transform; }
 .editorial-body hr { margin: 2.5rem 0; border: 0; border-top: 2px solid currentColor; }
+
+@keyframes editorial-media-reveal {
+  from { opacity: 0; transform: translate3d(0, 1.25rem, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes editorial-pulse {
+  0%, 100% { opacity: .3; }
+  50% { opacity: .75; }
+}
+
+@supports (animation-timeline: view()) {
+  .editorial-body .editorial-media,
+  .editorial-body .editorial-embed {
+    animation: editorial-media-reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 28%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .editorial-body .editorial-media,
+  .editorial-body .editorial-embed { animation: none !important; }
+  .editorial-body .editorial-embed.is-loading::after { animation: none; }
+}

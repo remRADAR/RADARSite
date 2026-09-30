@@ -1,0 +1,21 @@
+"use client";
+
+import { useState } from "react";
+
+const routes = [
+  ["Homepage", "/"],
+  ["Articles archive", "/ontheradar/articles"],
+  ["RADARArticles category", "/ontheradar/articles/category/radararticles/page/1"],
+] as const;
+
+type Preview = { route: string; canonical: string; title: string; description: string; image: string; twitterCard: string; robots: string; issues: string[] };
+function meta(html: string, name: string, attribute = "property") { return html.match(new RegExp(`<meta[^>]+${attribute}=["']${name}["'][^>]+content=["']([^"']*)["']`, "i"))?.[1] || html.match(new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]+${attribute}=["']${name}["']`, "i"))?.[1] || ""; }
+function parse(html: string, route: string): Preview { const canonical = html.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i)?.[1] || ""; const title = meta(html, "og:title"); const description = meta(html, "og:description"); const image = meta(html, "og:image"); const issues = []; if (!title) issues.push("Missing title"); if (!description) issues.push("Missing description"); if (!canonical) issues.push("Missing canonical"); if (!image) issues.push("Missing image"); if (/(localhost|vercel\.app|wordpress|supabase)/i.test(`${canonical}${image}`)) issues.push("Unsafe preview URL"); return { route, canonical, title, description, image, twitterCard: meta(html, "twitter:card", "name"), robots: meta(html, "robots", "name") || "index, follow", issues }; }
+
+export function SharePreviewTester() {
+  const [route, setRoute] = useState<string>(routes[0][1]);
+  const [preview, setPreview] = useState<Preview | null>(null);
+  const [busy, setBusy] = useState(false);
+  async function inspect() { setBusy(true); try { const response = await fetch(route, { cache: "no-store" }); setPreview(parse(await response.text(), route)); } finally { setBusy(false); } }
+  return <section className="mt-14"><div className="flex flex-wrap items-end justify-between gap-4 border-b-2 border-ink pb-3"><div><h2 className="display text-3xl">Share Preview Tester</h2><p className="mt-2 max-w-2xl font-mono text-xs uppercase leading-relaxed text-muted-foreground">Inspect the server-rendered metadata a social crawler receives. This tool never publishes or connects an account.</p></div><div className="flex gap-2"><select value={route} onChange={(event) => setRoute(event.target.value)} className="brut-border bg-transparent p-3 font-mono text-xs">{routes.map(([label, value]) => <option key={value} value={value}>{label}</option>)}</select><button onClick={inspect} disabled={busy} className="brut-border bg-flare px-4 py-3 font-mono text-xs font-bold uppercase tracking-widest text-flare-foreground">{busy ? "Checking…" : "Inspect"}</button></div></div>{preview && <div className="mt-5 grid gap-5 lg:grid-cols-2"><div className="brut-border overflow-hidden"><div className="aspect-[1.91/1] bg-ink bg-cover bg-center" style={{ backgroundImage: preview.image ? `url(${preview.image})` : undefined }} /><div className="p-4"><p className="font-mono text-[10px] uppercase text-muted-foreground">{preview.canonical}</p><h3 className="mt-2 text-xl font-bold">{preview.title || "Untitled"}</h3><p className="mt-2 font-mono text-xs uppercase leading-relaxed text-muted-foreground">{preview.description || "No description"}</p></div></div><div className="brut-border p-4"><p className="font-mono text-[10px] font-bold uppercase tracking-widest">Live metadata diagnostics</p><dl className="mt-4 space-y-3 font-mono text-xs"><div><dt className="text-muted-foreground">OG image</dt><dd className="break-all">{preview.image || "Missing"}</dd></div><div><dt className="text-muted-foreground">X card</dt><dd>{preview.twitterCard || "Missing"}</dd></div><div><dt className="text-muted-foreground">Robots</dt><dd>{preview.robots}</dd></div><div><dt className="text-muted-foreground">Structured data</dt><dd>{preview.route === "/" ? "Organization JSON-LD expected" : "Article/page JSON-LD review"}</dd></div></dl>{preview.issues.length > 0 ? <ul className="mt-5 space-y-1 font-mono text-xs text-flare">{preview.issues.map((issue) => <li key={issue}>Warning: {issue}</li>)}</ul> : <p className="mt-5 font-mono text-xs uppercase text-emerald-700">No metadata warnings detected.</p>}</div></div>}</section>;
+}
