@@ -16238,9 +16238,7 @@
         "events": [
           "radar-live-london"
         ],
-        "magazine": [
-          "luna-vale-after-midnight"
-        ],
+        "magazine": [],
         "projects": [
           "first-light-world"
         ],
@@ -16398,100 +16396,7 @@
       "year": ""
     }
   ],
-  "magazine": [
-    {
-      "artist": "",
-      "author": "",
-      "bio": "",
-      "body": "Luna Vale has learned to let the quiet do some of the work. In a long-form conversation, she tells us about first takes, borrowed rooms, and making a debut that does not ask permission.",
-      "bodyHtml": "",
-      "brief": "",
-      "canonicalUrl": "",
-      "categories": [],
-      "category": "",
-      "date": "",
-      "description": "",
-      "excerpt": "",
-      "featuredImage": "",
-      "id": "",
-      "imageQuery": "artist portrait black and white flash",
-      "imageUrl": "",
-      "location": "",
-      "metaDescription": "",
-      "metaTitle": "",
-      "migrationWarnings": [],
-      "name": "",
-      "path": "",
-      "project": "",
-      "publishedAt": "",
-      "related": {
-        "artists": [
-          "luna-vale"
-        ],
-        "projects": [
-          "first-light-world"
-        ],
-        "releases": [
-          "first-light"
-        ]
-      },
-      "section": "",
-      "slug": "luna-vale-after-midnight",
-      "sourceId": "",
-      "sourceUrl": "",
-      "status": "published",
-      "subtitle": "A conversation about the silence before a first record speaks.",
-      "tags": [],
-      "title": "Luna Vale after midnight",
-      "year": "2026"
-    },
-    {
-      "artist": "",
-      "author": "",
-      "bio": "",
-      "body": "From the first cable check to the last light out, the rooms around music leave a fingerprint. We visit the spaces shaping the next RADAR generation.",
-      "bodyHtml": "",
-      "brief": "",
-      "canonicalUrl": "",
-      "categories": [],
-      "category": "",
-      "date": "",
-      "description": "",
-      "excerpt": "",
-      "featuredImage": "",
-      "id": "",
-      "imageQuery": "recording studio blue neon musician",
-      "imageUrl": "",
-      "location": "",
-      "metaDescription": "",
-      "metaTitle": "",
-      "migrationWarnings": [],
-      "name": "",
-      "path": "",
-      "project": "",
-      "publishedAt": "",
-      "related": {
-        "articles": [
-          "radar-sessions-season-two"
-        ],
-        "artists": [
-          "kofi-north"
-        ],
-        "events": [
-          "radar-live-london"
-        ]
-      },
-      "section": "",
-      "slug": "rooms-that-remember",
-      "sourceId": "",
-      "sourceUrl": "",
-      "status": "published",
-      "subtitle": "Why the best sessions still sound like a place.",
-      "tags": [],
-      "title": "Rooms that remember",
-      "year": "2025"
-    }
-  ],
+  "magazine": [],
   "pages": [],
   "radarProjects": [
     {
@@ -16523,9 +16428,7 @@
         "artists": [
           "luna-vale"
         ],
-        "magazine": [
-          "luna-vale-after-midnight"
-        ],
+        "magazine": [],
         "releases": [
           "first-light"
         ]
@@ -16617,9 +16520,7 @@
         "artists": [
           "luna-vale"
         ],
-        "magazine": [
-          "luna-vale-after-midnight"
-        ],
+        "magazine": [],
         "projects": [
           "first-light-world"
         ]
