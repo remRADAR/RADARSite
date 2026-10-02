@@ -70,7 +70,7 @@ export function PlaylistFloater() {
   };
 
   const statusLabel = ambient.status === "ACTIVE"
-    ? ambient.foregroundMuted ? "Ambient muted for foreground media" : `Ambient ${ambient.period}`
+    ? ambient.foregroundMuted ? "Ambient muted for foreground media" : "Ambient active"
     : ambient.status === "ACTIVATING" ? "Activating RADAR audio"
       : ambient.status === "ERROR" ? "Audio unavailable"
         : "Audio off";
