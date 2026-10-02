@@ -1,38 +1,18 @@
 import { test, expect } from "@playwright/test";
 
-const audioContextMock = () => {
-  class Param {
-    value = 0;
-    cancelScheduledValues() {}
-    setValueAtTime(value: number) { this.value = value; }
-    linearRampToValueAtTime(value: number) { this.value = value; }
-  }
-  class Node {
-    gain = new Param();
-    frequency = new Param();
-    detune = new Param();
-    Q = new Param();
-    type = "sine";
-    connect() { return this; }
-    disconnect() {}
-    start() {}
-    stop() {}
-  }
-  class FakeAudioContext {
-    state = "running";
-    currentTime = 0;
-    destination = new Node();
-    createGain() { return new Node(); }
-    createBiquadFilter() { return new Node(); }
-    createOscillator() { return new Node(); }
-    resume() { this.state = "running"; return Promise.resolve(); }
-  }
-  Object.defineProperty(window, "AudioContext", { value: FakeAudioContext });
+const audioMock = () => {
+  HTMLMediaElement.prototype.play = function () {
+    this.dispatchEvent(new Event("play"));
+    return Promise.resolve();
+  };
+  HTMLMediaElement.prototype.pause = function () {
+    this.dispatchEvent(new Event("pause"));
+  };
 };
 
 test.describe("RADAR ambient sound engine", () => {
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript(audioContextMock);
+    await page.addInitScript(audioMock);
     await page.goto("/");
     await expect(page.getByRole("button", { name: /Enter RADAR — activate ambient sound/ })).toBeVisible();
   });
@@ -42,6 +22,7 @@ test.describe("RADAR ambient sound engine", () => {
     await expect(page.locator('iframe[title="RADAR playlist audio"]')).toHaveCount(0);
     await activation.click();
     await expect(page.getByRole("button", { name: "Silence RADAR ambient sound" })).toBeVisible();
+    await expect(page.locator('[aria-live="polite"]')).toContainText("Ambient active");
     await page.getByRole("button", { name: "Adjust RADAR ambient volume" }).click();
     const slider = page.getByRole("slider", { name: "RADAR ambient volume" });
     await expect(slider).toHaveAttribute("max", "55");
@@ -72,7 +53,7 @@ test.describe("RADAR ambient sound engine", () => {
     await page.evaluate(() => document.getElementById("foreground-one")?.dispatchEvent(new Event("pause", { bubbles: true })));
     await expect(status).toContainText("Ambient muted for foreground media");
     await page.evaluate(() => document.getElementById("foreground-two")?.dispatchEvent(new Event("pause", { bubbles: true })));
-    await expect(status).toContainText(/Ambient (early-morning|daytime|evening|night|late-night)/);
+    await expect(status).toContainText("Ambient active");
   });
 
   test("keeps one active engine through client-side navigation", async ({ page }) => {
