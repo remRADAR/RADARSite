@@ -2,6 +2,9 @@
   "name": "scaffold",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "RADAR_SKIP_DATABASE=1 next build",
@@ -15,6 +18,7 @@
     "postgres:adapter-contract-test": "tsx scripts/postgres-adapter-contract-test.ts",
     "test:e2e": "playwright test",
     "test:ambient": "tsx scripts/radar-ambient-contract-test.ts",
+    "test:build-environment": "tsx scripts/build-environment-contract-test.ts",
     "test:editorial-archives": "tsx scripts/editorial-archives-contract-test.ts",
     "test:e2e:ui": "playwright test --ui",
     "test:a11y": "node scripts/check-accessibility.mjs",

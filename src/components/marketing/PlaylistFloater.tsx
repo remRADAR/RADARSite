@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertTriangle, LoaderCircle, Pause, Play, Volume2, VolumeX } from "lucide-react";
-import { useState, useSyncExternalStore } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import { radarAmbientEngine } from "@/lib/radar-ambient-engine";
 import {
   getSiteOverridesServerSnapshot,
@@ -42,6 +42,8 @@ export function PlaylistFloater() {
   const [position, setPosition] = useState<Position | null>(null);
   const [volumeOpen, setVolumeOpen] = useState(false);
   const [drag, setDrag] = useState<{ pointerId: number; offsetX: number; offsetY: number } | null>(null);
+  const pointerOrigin = useRef<{ x: number; y: number } | null>(null);
+  const pointerMoved = useRef(false);
   const effectivePosition = position ?? (mounted ? readPosition() : { x: 0, y: 0 });
 
   if (!overrides.playlistEnabled) return null;
@@ -54,13 +56,28 @@ export function PlaylistFloater() {
     await radarAmbientEngine.activate();
   };
 
+  const handlePlayerClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (event.detail > 0 && pointerMoved.current) {
+      pointerMoved.current = false;
+      return;
+    }
+    pointerMoved.current = false;
+    void activateOrSilence();
+  };
+
   const startDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
+    pointerOrigin.current = { x: event.clientX, y: event.clientY };
+    pointerMoved.current = false;
     event.currentTarget.setPointerCapture(event.pointerId);
     setDrag({ pointerId: event.pointerId, offsetX: event.clientX - effectivePosition.x, offsetY: event.clientY - effectivePosition.y });
   };
 
   const moveDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
     if (!drag || drag.pointerId !== event.pointerId) return;
+    const origin = pointerOrigin.current;
+    if (!origin) return;
+    if (!pointerMoved.current && Math.hypot(event.clientX - origin.x, event.clientY - origin.y) < 6) return;
+    pointerMoved.current = true;
     const next = {
       x: Math.min(Math.max(8, event.clientX - drag.offsetX), Math.max(8, window.innerWidth - 56)),
       y: Math.min(Math.max(8, event.clientY - drag.offsetY), Math.max(8, window.innerHeight - 56)),
@@ -70,15 +87,17 @@ export function PlaylistFloater() {
   };
 
   const statusLabel = ambient.status === "ACTIVE"
-    ? ambient.foregroundMuted ? "Ambient muted for foreground media" : `Ambient ${ambient.period}`
+    ? ambient.foregroundMuted ? "Ambient muted for foreground media" : "Ambient active"
     : ambient.status === "ACTIVATING" ? "Activating RADAR audio"
       : ambient.status === "ERROR" ? "Audio unavailable"
         : "Audio off";
   const buttonLabel = ambient.status === "ACTIVE"
     ? "Silence RADAR ambient sound"
-    : ambient.status === "ERROR"
-      ? "Retry RADAR ambient sound activation"
-      : "Enter RADAR — activate ambient sound";
+    : ambient.status === "ACTIVATING"
+      ? "Activating RADAR ambient sound"
+      : ambient.status === "ERROR"
+        ? "Retry RADAR ambient sound activation"
+        : "Enter RADAR — activate ambient sound";
   const volumePercent = Math.round(ambient.volume * 100);
 
   return (
@@ -120,11 +139,12 @@ export function PlaylistFloater() {
           type="button"
           aria-label={buttonLabel}
           title={buttonLabel}
-          onClick={activateOrSilence}
+          disabled={ambient.status === "ACTIVATING"}
+          onClick={handlePlayerClick}
           onPointerDown={startDrag}
           onPointerMove={moveDrag}
-          onPointerUp={() => setDrag(null)}
-          onPointerCancel={() => setDrag(null)}
+          onPointerUp={() => { pointerOrigin.current = null; setDrag(null); }}
+          onPointerCancel={() => { pointerOrigin.current = null; pointerMoved.current = false; setDrag(null); }}
           className="flex h-12 w-12 cursor-grab touch-none items-center justify-center rounded-full border-2 border-paper bg-flare text-flare-foreground shadow-[3px_3px_0_0_var(--paper)] transition-transform active:scale-95 active:cursor-grabbing"
         >
           {ambient.status === "ERROR" ? <AlertTriangle size={17} strokeWidth={2.5} /> : ambient.status === "ACTIVATING" ? <LoaderCircle size={17} strokeWidth={2.5} className="animate-spin motion-reduce:animate-none" /> : ambient.status === "ACTIVE" ? <Pause size={17} strokeWidth={2.5} /> : <Play size={17} strokeWidth={2.5} className="translate-x-px" />}
