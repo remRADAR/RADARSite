@@ -52,6 +52,16 @@ Validated under **Node v24.21.0** after a fresh `npm ci`:
 
 At this local-preparation checkpoint, the GitHub Actions workflow had not yet run and no new Vercel Preview/staging deployment had been triggered. The subsequent PR validation outcome is recorded in the remote-validation addendum below.
 
+## Remote validation addendum — 2026-10-03
+
+Validation was run from the approved draft PR [#5](https://github.com/remRADAR/RADARSite/pull/5), branch `ci/radar-staging-validation-2026-10-03`, code commit `4b083b65f18f8fe071cfb2d052805d702579b908`.
+
+- GitHub Actions run [37086137956](https://github.com/remRADAR/RADARSite/actions/runs/37086137956): **PASS** in 1m26s. Locked install, lint, TypeScript, build-environment contract, ambient-audio contract, and production build all passed.
+- The PR reported **5 successful, 0 failed, and 0 pending checks**.
+- Automatic Vercel deployments completed successfully, all with Preview target (`target: null`): `radarsite-staging` deployment `dpl_DNX74H2kJcJNYoQPivDXcUjHZE8o`; `radarsite` Preview deployment `dpl_AaKP4PLxLR6cgzkYu6qh1FnmHuox`; and isolated `radarsite-supabase-preview-20260929` deployment `dpl_Ed5aFzCG1TvceGAoP1uajWKJ4MJU`.
+- No merge or Production-target deployment occurred. PR #5 remains a draft. It overlaps the existing audio PR #4; reconcile the two before any future merge.
+- Non-blocking log warnings: npm reported **8 high-severity dependency advisories**; GitHub noted the pinned `actions/checkout@v4` and `actions/setup-node@v4` currently target Node 20 (forced to Node 24), the pre-existing `<img>` lint warning, and the upcoming `ubuntu-latest` runner migration. These were not remediated as part of this validation.
+
 ## Vercel runtime environment review
 
 Verify the existing **Production** environment in Vercel without copying secret values into Git, this document, or chat:
