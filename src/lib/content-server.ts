@@ -4,6 +4,7 @@ import type { Artist, Article, Event, MagazineStory, RadarProject, Release } fro
 import mergedContentSnapshot from "@/data/merged-content.json";
 import { validateMediaRelationship, type ContentMediaRelationship } from "@/lib/media-relationships";
 import { databaseSql } from "@/lib/database";
+import { isDatabaseDisabledDuringBuild } from "@/lib/build-environment";
 
 export const PUBLIC_CONTENT_CACHE_TAG = "radarsite-public-content";
 export const PUBLIC_CONTENT_REVALIDATE_SECONDS = 60 * 60;
@@ -19,7 +20,6 @@ const mergedSnapshot = normalizeContent(mergedContentSnapshot);
 
 export function hasContentDatabase() { return Boolean(process.env.DATABASE_URL); }
 function sql() { return databaseSql(); }
-function isProductionBuild() { return process.env.NEXT_PHASE === "phase-production-build" || process.env.RADAR_SKIP_DATABASE === "1"; }
 function errorDetails(error: unknown) { return { name: error instanceof Error ? error.name : "UnknownError", message: error instanceof Error ? error.message : String(error) }; }
 function logContentReadError(error: unknown, context: string) { const details = errorDetails(error); console.error(`[content-server] ${context}`, details); }
 
@@ -44,7 +44,7 @@ export async function countMediaRecords() { if (!hasContentDatabase()) return 0;
 function shouldUseMergedSnapshot(content: ContentCollections) { const demoSlugs = new Set(["north-star-release-note", "radar-sessions-season-two"]); return content.articles.length < mergedSnapshot.articles.length || content.articles.some((article) => demoSlugs.has(article.slug)); }
 
 async function readContentUncached({ fallbackToSnapshot = false }: ReadContentOptions = {}): Promise<ContentCollections> {
-  if (isProductionBuild() || !hasContentDatabase()) return mergedSnapshot;
+  if (isDatabaseDisabledDuringBuild() || !hasContentDatabase()) return mergedSnapshot;
   try {
     await ensureContentTable();
     const rows = await sql()`SELECT content FROM studio_content WHERE id = 1 LIMIT 1` as { content: unknown }[];
@@ -76,7 +76,7 @@ export async function readPublishedContent(): Promise<ContentCollections> {
 export async function writeContent(input: unknown) { const content = normalizeContent(input); if (Buffer.byteLength(JSON.stringify(content), "utf8") > MAX_CONTENT_BYTES) throw new Error("CMS content payload is too large"); await ensureContentTable(); await sql()`INSERT INTO studio_content (id, content, updated_at) VALUES (1, ${JSON.stringify(content)}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET content = EXCLUDED.content, updated_at = now()`; return content; }
 export function getContentErrorDetails(error: unknown) { return errorDetails(error); }
 export function getMergedContentSnapshot() { return mergedSnapshot; }
-export function isSnapshotOnlyBuild() { return isProductionBuild(); }
+export function isSnapshotOnlyBuild() { return isDatabaseDisabledDuringBuild(); }
 export function contentCacheTag() { return PUBLIC_CONTENT_CACHE_TAG; }
 export function contentCacheRevalidateSeconds() { return PUBLIC_CONTENT_REVALIDATE_SECONDS; }
 export function logReadContentError(error: unknown, context: string) { logContentReadError(error, context); }

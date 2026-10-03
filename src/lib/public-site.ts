@@ -1,6 +1,7 @@
 import type { SiteOverrides } from "@/lib/site-overrides";
 import { defaultSiteOverrides, normalizeSiteOverrides } from "@/lib/site-overrides";
 import { readStudioSettings } from "@/lib/studio-server";
+import { isDatabaseDisabledDuringBuild } from "@/lib/build-environment";
 
 const FALLBACK_PUBLIC_SITE_URL = "https://radarcharts.net";
 const PREVIEW_HOSTS = ["localhost", "127.0.0.1", "vercel.app", "radarsite-two", "remradar.wordpress.com", "wordpress.com"];
@@ -26,7 +27,7 @@ export function absolutePublicUrl(pathOrUrl: string) {
 }
 
 export async function readPublicSiteOverrides(): Promise<SiteOverrides> {
-  if (!process.env.DATABASE_URL) return defaultSiteOverrides;
+  if (isDatabaseDisabledDuringBuild() || !process.env.DATABASE_URL) return defaultSiteOverrides;
   try { return normalizeSiteOverrides(await readStudioSettings()); } catch { return defaultSiteOverrides; }
 }
 
