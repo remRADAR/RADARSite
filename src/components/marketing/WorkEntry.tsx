@@ -43,6 +43,7 @@ export function WorkEntry({ project, reverse, className, photo }: WorkEntryProps
           className="h-full w-full"
           label={project.client}
           photo={renderedPhoto}
+          imageUrl={project.heroImageUrl}
           attribution={false}
           reveal
         />

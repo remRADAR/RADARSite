@@ -79,6 +79,9 @@ export async function getUnsplashPhotos(queries: string[]): Promise<(UnsplashPho
 export async function getHeroPhotosBySlug(
   studies: CaseStudy[]
 ): Promise<Record<string, UnsplashPhoto | null>> {
-  const photos = await getUnsplashPhotos(studies.map((s) => s.heroImageQuery));
+  const photos = await getUnsplashPhotos(studies.map((s) => (s.heroImageUrl ? "" : s.heroImageQuery)));
+  studies.forEach((study, index) => {
+    if (study.heroImageUrl) photos[index] = null;
+  });
   return Object.fromEntries(studies.map((s, i) => [s.slug, photos[i]]));
 }
