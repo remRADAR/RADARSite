@@ -57,7 +57,7 @@ export function Logo({
       aria-label="remRADAR — home"
       className={cn("group/logo flex items-center gap-2.5", className)}
     >
-          <LogoMark imageSrc={parseSiteOverrides(overrides).logoImage || "/radar-n-logo.png"} />
+          <LogoMark imageSrc={parseSiteOverrides(overrides).logoImage || "/radar-logo.webp"} />
       {showWordmark && (
         <span className="font-display text-lg font-extrabold leading-none tracking-tight">
           {logoText}

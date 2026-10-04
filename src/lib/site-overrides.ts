@@ -56,7 +56,7 @@ const defaultEcosystemNav: EcosystemNavItem[] = [
 ];
 
 export const defaultSiteOverrides: SiteOverrides = {
-  media: {}, logoText: "remRADAR", logoImage: "/radar-logo.webp", tickerIcon: "✨", tickerIconImage: "/radar-n-logo.png", heroHeadline: [], heroSubheadline: "", tickerItems: [], featuredSlugs: [],
+  media: {}, logoText: "remRADAR", logoImage: "/radar-logo.webp", tickerIcon: "✨", tickerIconImage: "/radar-logo.webp", heroHeadline: [], heroSubheadline: "", tickerItems: [], featuredSlugs: [],
   seoTitle: "RADARCharts — Put it on the RADAR", seoDescription: "RADARCharts is a Nigerian and African music discovery, media, culture, artist-development, and intelligence platform.", socialImage: "", canonicalOverride: "", socialTitle: "RADARCharts by REM", socialDescription: "A Nigerian and African music discovery, media, culture, artist-development, and intelligence platform.", siteName: "RADARCharts by REM", xHandle: "@radarcharts", socialAccounts: {},
   socialLinks: [
     { label: "Instagram", href: "https://www.instagram.com/remradar/", enabled: true }, { label: "X", href: "https://x.com/RADARCharts", enabled: true }, { label: "Facebook", href: "https://www.facebook.com/radarcharts/", enabled: true }, { label: "Threads", href: "https://www.threads.com/@remradar", enabled: true }, { label: "LinkedIn", href: "https://www.linkedin.com/company/radarcharts/", enabled: true }, { label: "YouTube", href: "https://www.youtube.com/@remradar", enabled: true }, { label: "TikTok", href: "https://www.tiktok.com/@radarcharts", enabled: true },
