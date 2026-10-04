@@ -21,6 +21,7 @@ export type CaseStudy = {
   approach: ApproachStep[];
   gallery: GalleryItem[];
   hasVideoMoment: boolean;
+  videoUrl?: string;
   results: ResultStat[];
   credits: { role: string; name: string }[];
   featured: boolean;
@@ -57,6 +58,7 @@ export const caseStudies: CaseStudy[] = [
       { tone: "mono", span: "third", caption: "The next frequency", imageQuery: "Nigerian artist backstage portrait dark light", imageUrl: "/mamuzo/img_3966.jpg" },
     ],
     hasVideoMoment: true,
+    videoUrl: "https://www.youtube.com/embed/FLtDcQjhxNI?rel=0&modestbranding=1",
     results: [
       { value: "150K", label: "Accumulated streams" },
       { value: "19:25", label: "Minutes of music" },

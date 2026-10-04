@@ -9,12 +9,10 @@ import type { UnsplashPhoto } from "@/lib/unsplash";
 gsap.registerPlugin(ScrollTrigger);
 
 /**
- * Pinned, scroll-scrubbed full-bleed media moment. Scrubs scale (GPU transform)
- * plus a darkening overlay's opacity — both cheap to composite — in place of
- * `video.currentTime` until real footage lands. (Previously scrubbed a CSS
- * filter, which forced an expensive full-frame repaint every scroll frame.)
+ * Pinned, scroll-driven full-bleed media moment. Real editorial videos render
+ * as responsive YouTube embeds; fallback photos retain the original treatment.
  */
-export function ScrubVideo({ tone, photo }: { tone: MediaTone; photo?: UnsplashPhoto | null }) {
+export function ScrubVideo({ tone, photo, videoUrl }: { tone: MediaTone; photo?: UnsplashPhoto | null; videoUrl?: string }) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const shadeRef = useRef<HTMLDivElement>(null);
@@ -42,11 +40,24 @@ export function ScrubVideo({ tone, photo }: { tone: MediaTone; photo?: UnsplashP
     <section ref={sectionRef} className="relative h-[130vh] w-full overflow-hidden brut-border-t bg-ink">
       <div className="sticky top-0 h-[100svh] w-full overflow-hidden">
         <div ref={frameRef} className="h-full w-full">
-          <MediaFrame tone={tone} aspect="aspect-auto" className="h-full w-full" grain photo={photo} attribution={false} />
+          {videoUrl ? (
+            <div className="flex h-full w-full items-center justify-center bg-black p-4 md:p-10">
+              <iframe
+                className="aspect-video w-full max-w-6xl border-0"
+                src={videoUrl}
+                title="Mamuzo — DARK ERA official video"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          ) : (
+            <MediaFrame tone={tone} aspect="aspect-auto" className="h-full w-full" grain photo={photo} attribution={false} />
+          )}
         </div>
         <div ref={shadeRef} className="pointer-events-none absolute inset-0 bg-ink" aria-hidden />
         <span className="absolute bottom-6 left-4 z-10 bg-flare px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-widest text-flare-foreground md:left-8">
-          Cinematic moment — scroll to scrub
+          Watch the video — scroll to explore
         </span>
       </div>
     </section>

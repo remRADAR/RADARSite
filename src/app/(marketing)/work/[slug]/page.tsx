@@ -58,7 +58,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
         <FullBleedMedia tone={breakTone} label={`${project.client} — detail`} photo={breakPhoto} imageUrl={project.breakImageUrl} />
         <ApproachSteps steps={project.approach} />
         <DetailGallery items={project.gallery} photos={galleryPhotos} />
-        {project.hasVideoMoment && <ScrubVideo tone={project.heroTone} photo={videoPhoto} />}
+        {project.hasVideoMoment && <ScrubVideo tone={project.heroTone} photo={videoPhoto} videoUrl={project.videoUrl} />}
         <ResultsRow results={project.results} />
         <CreditsBlock credits={project.credits} />
       </div>
