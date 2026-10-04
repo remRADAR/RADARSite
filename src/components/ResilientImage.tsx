@@ -25,5 +25,5 @@ export function ResilientImage({ src, alt, className, loading = "lazy", objectPo
   }, [src]);
 
   if (failed) return <div className={cn("absolute inset-0", FALLBACK)} role="img" aria-label={`${alt} image unavailable`} />;
-  return <img ref={imageRef} src={src} alt={alt} loading={loading} decoding="async" onLoad={() => setLoaded(true)} onError={() => setFailed(true)} className={cn("transition-opacity duration-500 ease-[var(--ease-out)]", loaded ? "opacity-100" : "opacity-0", className)} style={{ objectPosition }} />;
+  return <img ref={imageRef} src={src} alt={alt} loading={loading} decoding="async" onLoad={() => setLoaded(true)} onError={() => setFailed(true)} className={cn("transition-opacity duration-500 ease-[var(--ease-out)]", loaded || loading === "eager" ? "opacity-100" : "opacity-0", className)} style={{ objectPosition }} />;
 }
