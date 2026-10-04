@@ -44,7 +44,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
   const [heroPhoto, breakPhoto, galleryPhotos, videoPhoto, nextPhoto] = await Promise.all([
     project.heroImageUrl ? Promise.resolve(null) : getUnsplashPhoto(project.heroImageQuery),
     project.breakImageUrl ? Promise.resolve(null) : getUnsplashPhoto(project.breakImageQuery),
-    getUnsplashPhotos(project.gallery.map((g) => (g.imageUrl ? "" : g.imageQuery))),
+    Promise.all(project.gallery.map((g) => (g.imageUrl ? Promise.resolve(null) : getUnsplashPhoto(g.imageQuery)))),
     project.hasVideoMoment ? (project.breakImageUrl ? Promise.resolve(null) : getUnsplashPhoto(project.breakImageQuery)) : Promise.resolve(null),
     getUnsplashPhoto(next.heroImageQuery),
   ]);
