@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { caseStudies, getCaseStudy, getAdjacentCaseStudy } from "@/lib/case-studies";
 import { getUnsplashPhoto, getUnsplashPhotos } from "@/lib/unsplash";
 import { CaseHero } from "@/components/case-study/CaseHero";
@@ -16,7 +16,7 @@ import { StorySpine } from "@/components/case-study/StorySpine";
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return caseStudies.map((c) => ({ slug: c.slug }));
+  return [...caseStudies.map((c) => ({ slug: c.slug })), { slug: "luna-vale-first-light" }];
 }
 
 type CaseStudyPageProps = {
@@ -34,6 +34,7 @@ export async function generateMetadata({
 
 export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
   const { slug } = await params;
+  if (slug === "luna-vale-first-light") redirect("/work/mamuzo-dark-era-peak-release");
   const project = getCaseStudy(slug);
   if (!project) notFound();
 
@@ -41,10 +42,10 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
   const breakTone = project.heroTone === "flare" ? "warm" : "flare";
 
   const [heroPhoto, breakPhoto, galleryPhotos, videoPhoto, nextPhoto] = await Promise.all([
-    getUnsplashPhoto(project.heroImageQuery),
-    getUnsplashPhoto(project.breakImageQuery),
-    getUnsplashPhotos(project.gallery.map((g) => g.imageQuery)),
-    project.hasVideoMoment ? getUnsplashPhoto(project.breakImageQuery) : Promise.resolve(null),
+    project.heroImageUrl ? Promise.resolve(null) : getUnsplashPhoto(project.heroImageQuery),
+    project.breakImageUrl ? Promise.resolve(null) : getUnsplashPhoto(project.breakImageQuery),
+    getUnsplashPhotos(project.gallery.map((g) => (g.imageUrl ? "" : g.imageQuery))),
+    project.hasVideoMoment ? (project.breakImageUrl ? Promise.resolve(null) : getUnsplashPhoto(project.breakImageQuery)) : Promise.resolve(null),
     getUnsplashPhoto(next.heroImageQuery),
   ]);
 
@@ -54,7 +55,7 @@ export default async function CaseStudyPage({ params }: CaseStudyPageProps) {
       <div data-story-root>
         <CaseHero project={project} photo={heroPhoto} />
         <CaseBrief brief={project.brief} />
-        <FullBleedMedia tone={breakTone} label={`${project.client} — detail`} photo={breakPhoto} />
+        <FullBleedMedia tone={breakTone} label={`${project.client} — detail`} photo={breakPhoto} imageUrl={project.breakImageUrl} />
         <ApproachSteps steps={project.approach} />
         <DetailGallery items={project.gallery} photos={galleryPhotos} />
         {project.hasVideoMoment && <ScrubVideo tone={project.heroTone} photo={videoPhoto} />}

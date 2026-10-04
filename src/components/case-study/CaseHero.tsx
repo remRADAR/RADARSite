@@ -89,6 +89,7 @@ export function CaseHero({ project, photo }: { project: CaseStudy; photo?: Unspl
           className="w-full"
           grain
           photo={photo}
+          imageUrl={project.heroImageUrl}
           sizes="100vw"
           priority
           attribution={false}

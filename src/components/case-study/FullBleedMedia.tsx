@@ -8,9 +8,10 @@ type FullBleedMediaProps = {
   aspect?: string;
   label?: string;
   photo?: UnsplashPhoto | null;
+  imageUrl?: string;
 };
 
-export function FullBleedMedia({ tone, aspect = "aspect-[16/9]", label, photo }: FullBleedMediaProps) {
+export function FullBleedMedia({ tone, aspect = "aspect-[16/9]", label, photo, imageUrl }: FullBleedMediaProps) {
   return (
     <FadeIn className="brut-border-t">
       <ParallaxImage className={aspect}>
@@ -21,6 +22,7 @@ export function FullBleedMedia({ tone, aspect = "aspect-[16/9]", label, photo }:
           label={label}
           grain
           photo={photo}
+          imageUrl={imageUrl}
         />
       </ParallaxImage>
     </FadeIn>

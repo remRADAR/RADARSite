@@ -41,6 +41,7 @@ export function DetailGallery({
                 className="h-full w-full"
                 label={item.caption}
                 photo={photos[i]}
+                imageUrl={item.imageUrl}
                 reveal
                 attribution={false}
               />

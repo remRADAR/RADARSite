@@ -1,6 +1,6 @@
 export type MediaTone = "warm" | "cool" | "mono" | "flare";
 export type ApproachStep = { label: string; description: string };
-export type GalleryItem = { tone: MediaTone; span: "full" | "half" | "third"; caption: string; imageQuery: string };
+export type GalleryItem = { tone: MediaTone; span: "full" | "half" | "third"; caption: string; imageQuery: string; imageUrl?: string };
 export type ResultStat = { value: string; label: string };
 
 export type CaseStudy = {
@@ -14,7 +14,9 @@ export type CaseStudy = {
   deliverables: string;
   heroTone: MediaTone;
   heroImageQuery: string;
+  heroImageUrl?: string;
   breakImageQuery: string;
+  breakImageUrl?: string;
   brief: string;
   approach: ApproachStep[];
   gallery: GalleryItem[];
@@ -26,43 +28,47 @@ export type CaseStudy = {
 
 export const caseStudies: CaseStudy[] = [
   {
-    slug: "luna-vale-first-light",
-    client: "Luna Vale",
-    title: "Giving a debut artist a world before the first record arrived",
-    oneLiner: "Artist identity, visual language, and a release campaign for a voice built for the night.",
-    role: "Artist Development, Campaign, Film",
+    slug: "mamuzo-dark-era-peak-release",
+    client: "Mamuzo / RADARArtists",
+    title: "Mamuzo Enters His DARK ERA",
+    oneLiner: "An eight-track album bringing together Afro-rooted sounds, collaboration, and a new creative direction.",
+    role: "RADARArtists, Peak Release",
     year: "2026",
-    scope: "Artist identity, debut EP, campaign system",
-    deliverables: "Visual identity, 4-track world, live session, release campaign",
+    scope: "DARK ERA album, eight tracks, 19:25 runtime",
+    deliverables: "Album feature, release story, listening guide, artist credits",
     heroTone: "flare",
-    heroImageQuery: "female singer red stage light live music",
-    breakImageQuery: "musician backstage portrait red light",
-    brief: "Luna Vale had the songs, the voice, and a visual instinct that was impossible to fake. RADAR's job was to build a coherent first chapter without sanding off the mystery that made people lean in.",
+    heroImageQuery: "Nigerian musician dark album artwork",
+    heroImageUrl: "/mamuzo-dark-era.jpg",
+    breakImageQuery: "Nigerian artist studio portrait dark light",
+    breakImageUrl: "/mamuzo-dark-era.jpg",
+    brief: "Mamuzo steps into a new chapter with DARK ERA, an eight-track album that brings together Afrosounds, street-rooted energy and a wide network of collaborators. Released through RADARMusic / PHD Services, the 19-minute project moves through Fl3X, Supreme, Femini$T, Burtifly, Para, Guap Cha$Er, Pasta and Datiemo — presenting an artist still expanding the boundaries of his sound.",
     approach: [
-      { label: "Listen", description: "A deep dive into demos, references, live footage, and the emotional logic behind the EP." },
-      { label: "Frame", description: "A visual system built around contrast: soft focus, hard flash, and the hour after midnight." },
-      { label: "Make", description: "Portraits, a live session, cover art, and a modular release toolkit for every platform." },
-      { label: "Move", description: "A release campaign that made the artist feel present before the algorithm caught up." },
+      { label: "The Signal", description: "DARK ERA marks Mamuzo’s movement from a run of individual singles and collaborations into a more defined album-era identity." },
+      { label: "The Sound", description: "Eight compact tracks move between confidence, ambition, street energy and experimentation, with Mamuzo at the centre of a broad collaborator circle." },
+      { label: "The World", description: "The title, official artwork and range of featured voices establish the first visual and cultural coordinates of this new chapter." },
+      { label: "The Peak", description: "Rather than overstate commercial success, DARK ERA is a credible marker of where Mamuzo’s sound stands now — and where it can go next." },
     ],
     gallery: [
-      { tone: "flare", span: "full", caption: "First light, first take", imageQuery: "singer microphone red spotlight concert" },
-      { tone: "warm", span: "half", caption: "The room before the room", imageQuery: "music studio analog equipment moody" },
-      { tone: "mono", span: "half", caption: "Portrait study 01", imageQuery: "artist portrait black and white flash" },
-      { tone: "flare", span: "third", caption: "Cover world", imageQuery: "abstract red texture album cover" },
-      { tone: "warm", span: "third", caption: "After the show", imageQuery: "backstage concert photography" },
-      { tone: "mono", span: "third", caption: "Track notes", imageQuery: "vinyl record music desk" },
+      { tone: "flare", span: "full", caption: "DARK ERA — official artwork", imageQuery: "Nigerian musician dark album artwork", imageUrl: "/mamuzo-dark-era.jpg" },
+      { tone: "warm", span: "half", caption: "The album world", imageQuery: "Nigerian artist studio portrait dark light" },
+      { tone: "mono", span: "half", caption: "Eight tracks, one chapter", imageQuery: "music studio producer mixing console" },
+      { tone: "flare", span: "third", caption: "Pasta — first listen", imageQuery: "Afro street musician performance" },
+      { tone: "warm", span: "third", caption: "Burtifly — collaborator energy", imageQuery: "African musicians recording studio" },
+      { tone: "mono", span: "third", caption: "The next frequency", imageQuery: "Nigerian musician live performance" },
     ],
     hasVideoMoment: true,
     results: [
-      { value: "4.8M", label: "Streams in the first release cycle" },
-      { value: "32", label: "Editorial placements and playlists" },
-      { value: "01", label: "Debut world, fully formed" },
+      { value: "08", label: "Tracks on DARK ERA" },
+      { value: "19:25", label: "Minutes of music" },
+      { value: "01", label: "New album era" },
     ],
     credits: [
-      { role: "Artist", name: "Luna Vale" },
-      { role: "Creative Direction", name: "RADARCharts" },
-      { role: "Visuals", name: "RADARUnit" },
-      { role: "Management", name: "RADARMe" },
+      { role: "Artist", name: "Mamuzo / Diamond Henry Mamuzo" },
+      { role: "Label / Distributor", name: "RADARMusic / PHD Services" },
+      { role: "Producers", name: "Jimzsounds, Duke Blaq, Harold Courage Teah, colourmixn, Jerrywine, Zen Univrse" },
+      { role: "Featured Artists", name: "Dela cream, Zen Univrse, 14H, scottyolorin, Blaqdee" },
+      { role: "Management", name: "DNNL" },
+      { role: "Editorial", name: "RADARCharts by REM / RADARArtists" },
     ],
     featured: true,
   },

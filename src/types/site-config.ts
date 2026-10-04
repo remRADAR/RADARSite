@@ -15,7 +15,7 @@ export const defaultSiteConfig: GlobalSiteConfig = {
     ticker2_heroMarquee: { enabled: true, speedSeconds: 26, items: ["MOTHERLAND PROJECT", "LIVE ON ARTIZEN", "SEASON 7"].map((text, i) => ({ id: `hero-ticker-${i + 1}`, text, icon: "✳", linkUrl: "" })) },
     ticker3_partnerMarquee: { enabled: true, speedSeconds: 30, items: ["RADARUnit", "RADARMe", "On The Radar", "RADARArticles", "RADAR Sessions", "RADAR Live"] },
     ticker4_footerMarquee: { enabled: true, speedSeconds: 32, text: "remRADAR", separatorSymbol: "✳" },
-    ticker5_projectSelector: { enabled: true, speedSeconds: 30, label: "SELECT PROJECT", projectSlugs: ["luna-vale-first-light", "after-hours-vol-02", "north-star-release"] },
+    ticker5_projectSelector: { enabled: true, speedSeconds: 30, label: "SELECT PROJECT", projectSlugs: ["mamuzo-dark-era-peak-release", "after-hours-vol-02", "north-star-release"] },
   },
   homepage: {
     hero: { coordinates: "14.7167°N / 17.4677°W", line1: "ON", line2: "THE", line3: "RADAR", subtitle: "A music ecosystem for artists, releases, stories, and the people moving culture forward.", backgroundImages: ["/hero-new/banner-1.webp", "/hero-new/banner-3.webp", "/hero-new/banner-4.webp"] },
@@ -23,7 +23,7 @@ export const defaultSiteConfig: GlobalSiteConfig = {
       ["01", "ARTICLES", "Editorial Stories", "/ontheradar/articles"], ["02", "MUSIC", "Music #OnTheRADAR", "/radarmusic"], ["03", "MAGAZINE", "Talk To Us Interviews", "/ontheradar/magazine"], ["04", "MOTHERLand", "The Music To Her", "/motherland"],
     ].map(([badgeNumber, title, subtitle, linkUrl], i) => ({ id: `aktiv-${i + 1}`, badgeNumber, title, subtitle, linkUrl, featuredImage: `/hero-new/banner-${(i % 4) + 1}.webp`, visible: true })),
     selectedWork: [
-      ["01", "2026", "Artist Development", "Luna Vale", "Giving a debut artist a world before the first record arrived", "Artist identity, visual language, and a release campaign for a voice built for the night.", "/work/luna-vale-first-light", "/hero-new/banner-1.webp"],
+      ["01", "2026", "Peak Release", "Mamuzo", "Mamuzo Enters His DARK ERA", "An eight-track album bringing together Afro-rooted sounds, collaboration, and a new creative direction.", "/work/mamuzo-dark-era-peak-release", "/mamuzo-dark-era.jpg"],
       ["02", "2025", "Editorial, Platform, Live", "RADAR Sessions", "Turning a playlist into a place people want to return to", "An editorial platform and live session series for the next wave of independent sound.", "/work/after-hours-vol-02", "/hero-new/banner-3.webp"],
       ["03", "2025", "Release Strategy", "Kofi North", "Building a release campaign that travels beyond the feed", "A tactile campaign system for an album about distance, home, and finding the signal again.", "/work/north-star-release", "/hero-new/banner-4.webp"],
     ].map(([number, yearTag, categoryTag, artistOrProjectName, headline, description, caseStudyUrl, coverImage], i) => ({ id: `work-${i + 1}`, number, yearTag, categoryTag, artistOrProjectName, headline, description, caseStudyUrl, coverImage, visible: true })),
