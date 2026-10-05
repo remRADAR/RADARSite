@@ -8,15 +8,23 @@ export function CTASection() {
   const { config } = useSiteConfig();
   const cta = { headline: config.homepage.ctaSection.headline.split(" "), email: config.homepage.ctaSection.contactEmail };
   return (
-    <section className="on-dark bg-ink text-paper">
-      <div className="flex items-center justify-between px-4 py-6 md:px-8">
+    <section className="on-dark relative isolate overflow-hidden bg-ink text-paper">
+      <img
+        src="/media/homepage-cta.gif"
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-75"
+      />
+      <div className="pointer-events-none absolute inset-0 bg-ink/45" aria-hidden="true" />
+
+      <div className="relative z-10 flex items-center justify-between px-4 py-6 md:px-8">
         <p className="font-mono text-xs font-bold uppercase tracking-widest">(05) Start</p>
         <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
           Put it on the RADAR
         </p>
       </div>
 
-      <FadeIn className="border-t-2 border-paper px-4 py-20 md:px-8 md:py-32">
+      <FadeIn className="relative z-10 border-t-2 border-paper px-4 py-20 md:px-8 md:py-32">
         <h2 className="display text-[clamp(3rem,11vw,12rem)] leading-[0.85]">
           {cta.headline.map((line, index) => (
             <span key={line} className="block">
