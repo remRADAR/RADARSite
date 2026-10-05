@@ -26,7 +26,7 @@ export function WorkEntry({ project, reverse, className, photo }: WorkEntryProps
 
   return (
     <Link
-      href={`/work/${project.slug}`}
+      href={project.destinationUrl || `/work/${project.slug}`}
       onMouseEnter={() => setLabel("View")}
       onMouseLeave={() => setLabel(null)}
       className={cn("group/card group/media grid h-full grid-cols-1 md:grid-cols-2", className)}
@@ -75,7 +75,7 @@ export function WorkEntry({ project, reverse, className, photo }: WorkEntryProps
             {project.oneLiner}
           </p>
           <span className="mt-8 inline-flex items-center gap-3 brut-border bg-ink px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-paper transition-colors group-hover/media:bg-flare group-hover/media:text-flare-foreground">
-            View case study
+            {project.destinationUrl ? "Read article" : "View case study"}
             <span aria-hidden>→</span>
           </span>
         </div>
