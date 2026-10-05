@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs/config";
 import { publicImageOrigins, publicImageRemotePattern } from "./src/lib/public-media-origin";
 
 const imageOrigins = publicImageOrigins(process.env.R2_PUBLIC_BASE_URL);
@@ -18,7 +19,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       `img-src ${imageSourceTokens} https://radarcharts.net`,
-      "connect-src 'self' https://api.unsplash.com https://va.vercel-scripts.com",
+      "connect-src 'self' https://api.unsplash.com https://va.vercel-scripts.com https://*.ingest.de.sentry.io",
       "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://open.spotify.com",
       "upgrade-insecure-requests",
     ].join("; "),
@@ -65,4 +66,8 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  silent: true,
+  telemetry: false,
+  sourcemaps: { disable: true },
+});

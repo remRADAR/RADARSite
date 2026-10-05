@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import { Component, ReactNode, useEffect, useState } from "react";
 
 class SceneErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
@@ -7,6 +8,12 @@ class SceneErrorBoundary extends Component<{ children: ReactNode }, { hasError: 
 
   static getDerivedStateFromError() {
     return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, info: { componentStack: string | null }) {
+    Sentry.captureException(error, {
+      contexts: { react: { componentStack: info.componentStack ?? "" } },
+    });
   }
 
   render() {
