@@ -1,9 +1,14 @@
 "use client";
 
 import { Maximize2, Minimize2, Pause, Play } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  getSiteOverridesServerSnapshot,
+  getSiteOverridesSnapshot,
+  parseSiteOverrides,
+  subscribeToSiteOverrides,
+} from "@/lib/site-overrides";
 
-const PLAYLIST_ID = "PLZ_5O41VO5Mk";
 const POSITION_KEY = "radar-playlist-floater-position-v2";
 const PLAYING_KEY = "radar-playlist-playing";
 const COLLAPSED_KEY = "radar-playlist-collapsed";
@@ -52,6 +57,7 @@ function readCollapsed() {
 }
 
 export function PlaylistFloater() {
+  const overrides = parseSiteOverrides(useSyncExternalStore(subscribeToSiteOverrides, getSiteOverridesSnapshot, getSiteOverridesServerSnapshot));
   const frameRef = useRef<HTMLIFrameElement>(null);
   const dragRef = useRef<DragState | null>(null);
   const didDragRef = useRef(false);
@@ -197,13 +203,15 @@ export function PlaylistFloater() {
     }
   };
 
+  if (!overrides.playlistEnabled) return null;
+
   return (
     <>
       <iframe
         ref={frameRef}
         title="RADAR playlist audio"
         className="pointer-events-none fixed -left-px -top-px h-px w-px opacity-0"
-        src={`https://www.youtube.com/embed/videoseries?list=${PLAYLIST_ID}&autoplay=1&mute=1&enablejsapi=1&controls=0&playsinline=1&origin=${encodeURIComponent(typeof window === "undefined" ? "" : window.location.origin)}`}
+        src={`https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(overrides.playlistId)}&autoplay=1&mute=1&enablejsapi=1&controls=0&playsinline=1&origin=${encodeURIComponent(typeof window === "undefined" ? "" : window.location.origin)}`}
         allow="autoplay; encrypted-media"
         onLoad={resumeIfActive}
       />
@@ -228,12 +236,12 @@ export function PlaylistFloater() {
         ) : (
           <div className="relative h-12 w-12">
             <span className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-sm border border-ink/20 bg-paper px-2 py-1 font-sans text-[11px] font-normal leading-none text-ink opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
-              Top10: *Track
+              {overrides.playlistLabel}
             </span>
             <button
               type="button"
-              aria-label={playing ? "Pause RADAR playlist — Top10: *Track" : "Play RADAR playlist — Top10: *Track"}
-              title="Top10: *Track"
+              aria-label={playing ? `Pause RADAR playlist — ${overrides.playlistLabel}` : `Play RADAR playlist — ${overrides.playlistLabel}`}
+              title={overrides.playlistLabel}
               onClick={handlePlayerClick}
               onPointerDown={startDrag}
               onPointerMove={moveDrag}
