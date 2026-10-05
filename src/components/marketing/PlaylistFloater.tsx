@@ -8,6 +8,7 @@ const POSITION_KEY = "radar-playlist-floater-position-v2";
 const PLAYING_KEY = "radar-playlist-playing";
 const COLLAPSED_KEY = "radar-playlist-collapsed";
 type Position = { x: number; y: number };
+type DragState = { pointerId: number; offsetX: number; offsetY: number; startX: number; startY: number };
 
 function defaultPosition(): Position {
   if (typeof window === "undefined") return { x: 0, y: 0 };
@@ -52,10 +53,13 @@ function readCollapsed() {
 
 export function PlaylistFloater() {
   const frameRef = useRef<HTMLIFrameElement>(null);
-  const dragRef = useRef<{ pointerId: number; offsetX: number; offsetY: number } | null>(null);
+  const dragRef = useRef<DragState | null>(null);
+  const didDragRef = useRef(false);
   const [playing, setPlaying] = useState(readPlaying);
   const [position, setPosition] = useState(readPosition);
   const [collapsed, setCollapsed] = useState(readCollapsed);
+  const hasStoredPosition = position.x !== 0 || position.y !== 0;
+  const visiblePosition = hasStoredPosition ? position : defaultPosition();
 
   const send = (command: "playVideo" | "pauseVideo" | "unMute") => {
     frameRef.current?.contentWindow?.postMessage(JSON.stringify({ event: "command", func: command, args: [] }), "https://www.youtube.com");
@@ -90,6 +94,42 @@ export function PlaylistFloater() {
     };
   }, [resumeIfActive]);
 
+  useEffect(() => {
+    // The server cannot read viewport dimensions or browser storage. Rehydrate
+    // those values on the client so the floater does not remain at (0, 0).
+    let active = true;
+    const frame = window.requestAnimationFrame(() => {
+      if (!active) return;
+      setPosition(readPosition());
+      setPlaying(readPlaying());
+      setCollapsed(readCollapsed());
+    });
+    return () => {
+      active = false;
+      window.cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  useEffect(() => {
+    const keepInViewport = () => {
+      setPosition((current) => {
+        const next = {
+          x: Math.min(Math.max(8, current.x), Math.max(8, window.innerWidth - 56)),
+          y: Math.min(Math.max(8, current.y), Math.max(8, window.innerHeight - 56)),
+        };
+        if (next.x === current.x && next.y === current.y) return current;
+        try {
+          localStorage.setItem(POSITION_KEY, JSON.stringify(next));
+        } catch {
+          // The position remains usable for this session.
+        }
+        return next;
+      });
+    };
+    window.addEventListener("resize", keepInViewport);
+    return () => window.removeEventListener("resize", keepInViewport);
+  }, []);
+
   const toggle = () => {
     if (playing) {
       send("pauseVideo");
@@ -113,18 +153,48 @@ export function PlaylistFloater() {
 
   const startDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
-    dragRef.current = { pointerId: event.pointerId, offsetX: event.clientX - position.x, offsetY: event.clientY - position.y };
+    dragRef.current = {
+      pointerId: event.pointerId,
+      offsetX: event.clientX - visiblePosition.x,
+      offsetY: event.clientY - visiblePosition.y,
+      startX: event.clientX,
+      startY: event.clientY,
+    };
+    didDragRef.current = false;
   };
 
   const moveDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
+    if (Math.abs(event.clientX - drag.startX) > 4 || Math.abs(event.clientY - drag.startY) > 4) {
+      didDragRef.current = true;
+    }
     const next = {
       x: Math.min(Math.max(8, event.clientX - drag.offsetX), Math.max(8, window.innerWidth - 56)),
       y: Math.min(Math.max(8, event.clientY - drag.offsetY), Math.max(8, window.innerHeight - 56)),
     };
     setPosition(next);
-    localStorage.setItem(POSITION_KEY, JSON.stringify(next));
+    try {
+      localStorage.setItem(POSITION_KEY, JSON.stringify(next));
+    } catch {
+      // The position remains usable for this session.
+    }
+  };
+
+  const finishDrag = () => {
+    dragRef.current = null;
+  };
+
+  const handlePlayerClick = () => {
+    if (didDragRef.current) {
+      didDragRef.current = false;
+      return;
+    }
+    if (collapsed) {
+      toggleCollapsed();
+    } else {
+      toggle();
+    }
   };
 
   return (
@@ -137,13 +207,20 @@ export function PlaylistFloater() {
         allow="autoplay; encrypted-media"
         onLoad={resumeIfActive}
       />
-      <div className="group fixed z-[60]" style={{ left: position.x, top: position.y }}>
+      <div
+        className={`group fixed z-[60] ${hasStoredPosition ? "" : "bottom-2 right-2"}`}
+        style={hasStoredPosition ? { left: visiblePosition.x, top: visiblePosition.y } : undefined}
+      >
         {collapsed ? (
           <button
             type="button"
             aria-label="Expand RADAR playlist player"
             title="Expand RADAR playlist player"
-            onClick={toggleCollapsed}
+            onClick={handlePlayerClick}
+            onPointerDown={startDrag}
+            onPointerMove={moveDrag}
+            onPointerUp={finishDrag}
+            onPointerCancel={finishDrag}
             className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-paper bg-flare text-flare-foreground shadow-[2px_2px_0_0_var(--paper)] transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flare"
           >
             <Maximize2 size={14} strokeWidth={2.5} />
@@ -157,11 +234,11 @@ export function PlaylistFloater() {
               type="button"
               aria-label={playing ? "Pause RADAR playlist — Top10: *Track" : "Play RADAR playlist — Top10: *Track"}
               title="Top10: *Track"
-              onClick={toggle}
+              onClick={handlePlayerClick}
               onPointerDown={startDrag}
               onPointerMove={moveDrag}
-              onPointerUp={() => { dragRef.current = null; }}
-              onPointerCancel={() => { dragRef.current = null; }}
+              onPointerUp={finishDrag}
+              onPointerCancel={finishDrag}
               className="flex h-12 w-12 cursor-grab touch-none items-center justify-center rounded-full border-2 border-paper bg-flare text-flare-foreground shadow-[3px_3px_0_0_var(--paper)] active:cursor-grabbing"
             >
               {playing ? <Pause size={17} strokeWidth={2.5} /> : <Play size={17} strokeWidth={2.5} className="translate-x-px" />}
