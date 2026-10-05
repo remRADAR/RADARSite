@@ -1,16 +1,11 @@
 "use client";
 
-import { AlertTriangle, LoaderCircle, Pause, Play, Volume2, VolumeX } from "lucide-react";
-import { useState, useSyncExternalStore } from "react";
-import { radarAmbientEngine } from "@/lib/radar-ambient-engine";
-import {
-  getSiteOverridesServerSnapshot,
-  getSiteOverridesSnapshot,
-  parseSiteOverrides,
-  subscribeToSiteOverrides,
-} from "@/lib/site-overrides";
+import { Pause, Play } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
+const PLAYLIST_ID = "PLZ_5O41VO5Mk";
 const POSITION_KEY = "radar-playlist-floater-position-v2";
+const PLAYING_KEY = "radar-playlist-playing";
 type Position = { x: number; y: number };
 
 function defaultPosition(): Position {
@@ -35,101 +30,110 @@ function readPosition(): Position {
   return fallback;
 }
 
+function readPlaying() {
+  if (typeof window === "undefined") return true;
+  try {
+    const saved = sessionStorage.getItem(PLAYING_KEY);
+    return saved === null ? true : saved === "true";
+  } catch {
+    return true;
+  }
+}
+
 export function PlaylistFloater() {
-  const overrides = parseSiteOverrides(useSyncExternalStore(subscribeToSiteOverrides, getSiteOverridesSnapshot, getSiteOverridesServerSnapshot));
-  const ambient = useSyncExternalStore(radarAmbientEngine.subscribe, radarAmbientEngine.getSnapshot, radarAmbientEngine.getServerSnapshot);
-  const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
-  const [position, setPosition] = useState<Position | null>(null);
-  const [volumeOpen, setVolumeOpen] = useState(false);
-  const [drag, setDrag] = useState<{ pointerId: number; offsetX: number; offsetY: number } | null>(null);
-  const effectivePosition = position ?? (mounted ? readPosition() : { x: 0, y: 0 });
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const dragRef = useRef<{ pointerId: number; offsetX: number; offsetY: number } | null>(null);
+  const [playing, setPlaying] = useState(readPlaying);
+  const [position, setPosition] = useState(readPosition);
 
-  if (!overrides.playlistEnabled) return null;
+  const send = (command: "playVideo" | "pauseVideo" | "unMute") => {
+    frameRef.current?.contentWindow?.postMessage(JSON.stringify({ event: "command", func: command, args: [] }), "https://www.youtube.com");
+  };
 
-  const activateOrSilence = async () => {
-    if (ambient.status === "ACTIVE") {
-      radarAmbientEngine.deactivate();
-      return;
+  const setPlayingState = (next: boolean) => {
+    setPlaying(next);
+    try {
+      sessionStorage.setItem(PLAYING_KEY, String(next));
+    } catch {
+      // Playback remains functional when storage is unavailable.
     }
-    await radarAmbientEngine.activate();
+  };
+
+  const resumeIfActive = useCallback(() => {
+    if (!playing) return;
+    send("unMute");
+    send("playVideo");
+  }, [playing]);
+
+  useEffect(() => {
+    const handleVisibility = () => {
+      // Do not pause when the tab is hidden or the phone screen is locked. If the
+      // browser suspends the iframe, ask YouTube to resume when it is visible again.
+      if (document.visibilityState === "visible") resumeIfActive();
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("pageshow", resumeIfActive);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("pageshow", resumeIfActive);
+    };
+  }, [resumeIfActive]);
+
+  const toggle = () => {
+    if (playing) {
+      send("pauseVideo");
+      setPlayingState(false);
+    } else {
+      send("unMute");
+      send("playVideo");
+      setPlayingState(true);
+    }
   };
 
   const startDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
-    setDrag({ pointerId: event.pointerId, offsetX: event.clientX - effectivePosition.x, offsetY: event.clientY - effectivePosition.y });
+    dragRef.current = { pointerId: event.pointerId, offsetX: event.clientX - position.x, offsetY: event.clientY - position.y };
   };
 
   const moveDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
+    const drag = dragRef.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
     const next = {
       x: Math.min(Math.max(8, event.clientX - drag.offsetX), Math.max(8, window.innerWidth - 56)),
       y: Math.min(Math.max(8, event.clientY - drag.offsetY), Math.max(8, window.innerHeight - 56)),
     };
     setPosition(next);
-    try { localStorage.setItem(POSITION_KEY, JSON.stringify(next)); } catch { /* Position remains usable for this session. */ }
+    localStorage.setItem(POSITION_KEY, JSON.stringify(next));
   };
 
-  const statusLabel = ambient.status === "ACTIVE"
-    ? ambient.foregroundMuted ? "Ambient muted for foreground media" : `Ambient ${ambient.period}`
-    : ambient.status === "ACTIVATING" ? "Activating RADAR audio"
-      : ambient.status === "ERROR" ? "Audio unavailable"
-        : "Audio off";
-  const buttonLabel = ambient.status === "ACTIVE"
-    ? "Silence RADAR ambient sound"
-    : ambient.status === "ERROR"
-      ? "Retry RADAR ambient sound activation"
-      : "Enter RADAR — activate ambient sound";
-  const volumePercent = Math.round(ambient.volume * 100);
-
   return (
-    <div className="group fixed z-[60]" style={{ left: effectivePosition.x, top: effectivePosition.y }}>
-      <span className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-sm border border-ink/20 bg-paper px-2 py-1 font-sans text-[11px] font-normal leading-none text-ink opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
-        {statusLabel}
-      </span>
-      <span className="sr-only" aria-live="polite">RADAR ambient sound: {statusLabel}{ambient.error ? ` — ${ambient.error}` : ""}</span>
-      {volumeOpen && ambient.status === "ACTIVE" && (
-        <label className="absolute bottom-full right-0 mb-3 flex w-44 items-center gap-2 border-2 border-ink bg-paper p-3 font-mono text-[10px] font-bold uppercase tracking-widest text-ink">
-          {volumePercent === 0 ? <VolumeX size={14} aria-hidden="true" /> : <Volume2 size={14} aria-hidden="true" />}
-          <span className="sr-only">RADAR ambient volume</span>
-          <input
-            type="range"
-            min="0"
-            max="55"
-            step="5"
-            value={volumePercent}
-            aria-label="RADAR ambient volume"
-            onChange={(event) => radarAmbientEngine.setVolume(Number(event.target.value) / 100)}
-            className="w-full accent-[var(--flare)]"
-          />
-          <output>{volumePercent}%</output>
-        </label>
-      )}
-      <div className="flex items-center gap-2">
-        {ambient.status === "ACTIVE" && (
-          <button
-            type="button"
-            aria-label="Adjust RADAR ambient volume"
-            title={`Ambient volume ${volumePercent}%`}
-            onClick={() => setVolumeOpen((open) => !open)}
-            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-paper bg-ink text-paper shadow-[3px_3px_0_0_var(--paper)]"
-          >
-            {volumePercent === 0 ? <VolumeX size={15} strokeWidth={2.5} /> : <Volume2 size={15} strokeWidth={2.5} />}
-          </button>
-        )}
+    <>
+      <iframe
+        ref={frameRef}
+        title="RADAR playlist audio"
+        className="pointer-events-none fixed -left-px -top-px h-px w-px opacity-0"
+        src={`https://www.youtube.com/embed/videoseries?list=${PLAYLIST_ID}&autoplay=1&mute=1&enablejsapi=1&controls=0&playsinline=1&origin=${encodeURIComponent(typeof window === "undefined" ? "" : window.location.origin)}`}
+        allow="autoplay; encrypted-media"
+        onLoad={resumeIfActive}
+      />
+      <div className="group fixed z-[60]" style={{ left: position.x, top: position.y }}>
+        <span className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-sm border border-ink/20 bg-paper px-2 py-1 font-sans text-[11px] font-normal leading-none text-ink opacity-0 shadow-sm transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+          Top10: *Track
+        </span>
         <button
           type="button"
-          aria-label={buttonLabel}
-          title={buttonLabel}
-          onClick={activateOrSilence}
+          aria-label={playing ? "Pause RADAR playlist — Top10: *Track" : "Play RADAR playlist — Top10: *Track"}
+          title="Top10: *Track"
+          onClick={toggle}
           onPointerDown={startDrag}
           onPointerMove={moveDrag}
-          onPointerUp={() => setDrag(null)}
-          onPointerCancel={() => setDrag(null)}
-          className="flex h-12 w-12 cursor-grab touch-none items-center justify-center rounded-full border-2 border-paper bg-flare text-flare-foreground shadow-[3px_3px_0_0_var(--paper)] transition-transform active:scale-95 active:cursor-grabbing"
+          onPointerUp={() => { dragRef.current = null; }}
+          onPointerCancel={() => { dragRef.current = null; }}
+          className="flex h-12 w-12 cursor-grab touch-none items-center justify-center rounded-full border-2 border-paper bg-flare text-flare-foreground shadow-[3px_3px_0_0_var(--paper)] active:cursor-grabbing"
         >
-          {ambient.status === "ERROR" ? <AlertTriangle size={17} strokeWidth={2.5} /> : ambient.status === "ACTIVATING" ? <LoaderCircle size={17} strokeWidth={2.5} className="animate-spin motion-reduce:animate-none" /> : ambient.status === "ACTIVE" ? <Pause size={17} strokeWidth={2.5} /> : <Play size={17} strokeWidth={2.5} className="translate-x-px" />}
+          {playing ? <Pause size={17} strokeWidth={2.5} /> : <Play size={17} strokeWidth={2.5} className="translate-x-px" />}
         </button>
       </div>
-    </div>
+    </>
   );
 }
