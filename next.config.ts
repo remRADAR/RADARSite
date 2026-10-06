@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs/config";
 import { publicImageOrigins, publicImageRemotePattern } from "./src/lib/public-media-origin";
+import mergedContentSnapshot from "./src/data/merged-content.json";
 
 const imageOrigins = publicImageOrigins(process.env.R2_PUBLIC_BASE_URL);
 const remotePatterns = imageOrigins.map(publicImageRemotePattern);
@@ -15,11 +16,11 @@ const securityHeaders = [
       "frame-ancestors 'self'",
       "form-action 'self'",
       "object-src 'none'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
-      `img-src ${imageSourceTokens} https://radarcharts.net`,
-      "connect-src 'self' https://api.unsplash.com https://va.vercel-scripts.com https://*.ingest.de.sentry.io",
+      `img-src ${imageSourceTokens} https://radarcharts.net https://www.google-analytics.com https://www.googletagmanager.com`,
+      "connect-src 'self' https://api.unsplash.com https://va.vercel-scripts.com https://*.ingest.de.sentry.io https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com",
       "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://open.spotify.com",
       "upgrade-insecure-requests",
     ].join("; "),
@@ -32,6 +33,28 @@ const securityHeaders = [
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
   { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
 ];
+
+function legacyArticleRedirects() {
+  const redirects = new Map<string, { source: string; destination: string; permanent: true }>();
+  const queryRedirects = new Map<string, { source: string; destination: string; permanent: true; has: [{ type: "query"; key: string; value: string }] }>();
+  for (const record of mergedContentSnapshot.articles || []) {
+    const slug = typeof record.slug === "string" ? record.slug.trim() : "";
+    const sourceUrl = typeof record.sourceUrl === "string" ? record.sourceUrl : "";
+    if (!slug || !sourceUrl) continue;
+    try {
+      const url = new URL(sourceUrl);
+      if (url.hostname !== "radarcharts.net" && url.hostname !== "www.radarcharts.net") continue;
+      const source = url.pathname.replace(/\/+$/, "") || "/";
+      const destination = `/ontheradar/articles/${encodeURIComponent(slug)}`;
+      redirects.set(source, { source, destination, permanent: true });
+      const sourceId = typeof record.sourceId === "string" ? record.sourceId.trim() : "";
+      if (sourceId && !queryRedirects.has(sourceId)) queryRedirects.set(sourceId, { source: "/", destination, permanent: true, has: [{ type: "query", key: "p", value: sourceId }] });
+    } catch {
+      // Invalid source URLs are excluded from routing rather than creating a broad redirect.
+    }
+  }
+  return [...redirects.values(), ...queryRedirects.values()];
+}
 
 const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
@@ -46,6 +69,7 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      ...legacyArticleRedirects(),
       { source: "/on-the-radar", destination: "/ontheradar", permanent: true },
       { source: "/on-the-radar/:path*", destination: "/ontheradar/:path*", permanent: true },
     ];
