@@ -30,7 +30,7 @@ export async function readPublicSiteOverrides(): Promise<SiteOverrides> {
   try { return normalizeSiteOverrides(await readStudioSettings()); } catch { return defaultSiteOverrides; }
 }
 
-export function safeSocialImageUrl(value: string | undefined, fallback = "/social/radar-global-card.png") {
+export function safeSocialImageUrl(value: string | undefined, fallback = "/social/radarcharts-share.jpg") {
   const candidate = value?.trim() || fallback;
   try {
     const parsed = new URL(candidate, publicSiteUrl());

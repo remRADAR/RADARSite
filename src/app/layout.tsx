@@ -4,7 +4,7 @@ import "./globals.css";
 import { LiveSiteOverrides } from "@/components/LiveSiteOverrides";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { StructuredData, organizationStructuredData, websiteStructuredDataGraph } from "@/components/StructuredData";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/seo";
+import { DEFAULT_SOCIAL_IMAGE, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 const archivo = Archivo({
   variable: "--font-grotesk",
@@ -24,8 +24,8 @@ export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
   alternates: { canonical: "/", languages: { "en-NG": "/", "en-GH": "/", "en-GB": "/", "en-US": "/" } },
   robots: { index: true, follow: true },
-  openGraph: { type: "website", locale: "en_NG", siteName: SITE_NAME, title: SITE_NAME, description: SITE_DESCRIPTION, url: SITE_URL, images: [{ url: `${SITE_URL}/radar-logo.webp`, alt: SITE_NAME }] },
-  twitter: { card: "summary_large_image", site: "@radarcharts", creator: "@radarcharts", images: [`${SITE_URL}/radar-logo.webp`] },
+  openGraph: { type: "website", locale: "en_NG", siteName: SITE_NAME, title: SITE_NAME, description: SITE_DESCRIPTION, url: SITE_URL, images: [{ url: `${SITE_URL}${DEFAULT_SOCIAL_IMAGE}`, width: 1200, height: 675, type: "image/jpeg", alt: "RADARCharts city and stadium scene" }] },
+  twitter: { card: "summary_large_image", site: "@radarcharts", creator: "@radarcharts", images: [`${SITE_URL}${DEFAULT_SOCIAL_IMAGE}`] },
   icons: {
     icon: [
       { url: "/favicon.ico" },

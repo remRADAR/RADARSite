@@ -6,7 +6,7 @@
 - Preview, localhost, WordPress, Supabase, and other unsafe public-host patterns are rejected from production-facing URL resolution.
 - Global Open Graph metadata: title, description, URL, site name, locale, image, dimensions, MIME type, and alt text.
 - X/Twitter metadata: card, title, description, site/creator handle, and image.
-- Social previews use the supplied RADARCharts image as a distinct top image panel at `/social/radar-background.png`, with a separate lower information bar only: `RADARCharts by REM`, `PROTECTING THE MUSIC`, the site write-up, `ON THE RADAR`, and the domain. The editable composite source is `/social/radar-global-card.svg`, and the crawler asset is `/social/radar-global-card.png`. No large title block or migrated WordPress article imagery is used; custom configured social images still take precedence.
+- The global homepage/link preview uses the supplied city-and-stadium image at `/social/radarcharts-share.jpg` through Open Graph and X/Twitter metadata only; it is not rendered in the website layout. Custom configured social images and article-specific featured images still take precedence.
 - Studio controls for social card title, description, site name, X/Twitter handle, canonical URL, and custom global social image.
 - Article-specific metadata overrides the global card with the article title, excerpt, canonical URL, and migrated featured image; missing images fall back to the global RADAR card without inheriting another article’s image.
 - Article archive and category pages have their own canonical URLs and social metadata.
@@ -34,7 +34,7 @@ DATABASE_URL=...
 STUDIO_ADMIN_PASSWORD=...
 ```
 
-The global social image can be selected by entering a publicly fetchable HTTPS image URL in **Studio → SEO & social → Social image URL**. Leave it blank to use the bundled RADAR fallback card. Do not place social images behind Studio authentication.
+The global social image can be selected by entering a publicly fetchable HTTPS image URL in **Studio → SEO & social → Social image URL**. Leave it blank to use the bundled city-and-stadium preview image. Do not place social images behind Studio authentication.
 
 ## Admin go-live checklist
 
