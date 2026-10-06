@@ -7,8 +7,9 @@
 - Global Open Graph metadata: title, description, URL, site name, locale, image, dimensions, MIME type, and alt text.
 - X/Twitter metadata: card, title, description, site/creator handle, and image.
 - The global homepage/link preview uses the supplied city-and-stadium image at `/social/radarcharts-share.jpg` through Open Graph and X/Twitter metadata only; it is not rendered in the website layout. Custom configured social images and article-specific featured images still take precedence.
+- Article social previews use `/api/social-card/{slug}` to render a 1200×630 branded card from the article’s featured image, title, excerpt, RADARArticle label, RADARCharts logo, and brand footer. The generated card is metadata-only and is not inserted into article content.
 - Studio controls for social card title, description, site name, X/Twitter handle, canonical URL, and custom global social image.
-- Article-specific metadata overrides the global card with the article title, excerpt, canonical URL, and migrated featured image; missing images fall back to the global RADAR card without inheriting another article’s image.
+- Article-specific metadata uses the generated branded card with the article title, excerpt, canonical URL, and featured image; missing images fall back to the brand logo without inheriting another article’s image.
 - Article archive and category pages have their own canonical URLs and social metadata.
 - Visitor share actions for X, Facebook, LinkedIn, WhatsApp, Threads, copy link, and native Web Share where supported.
 - Studio Share Preview Tester for homepage, archive, category, and live route metadata inspection.
