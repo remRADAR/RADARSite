@@ -39,6 +39,29 @@ export async function upsertMediaRelationship(input: ContentMediaRelationship) {
 export async function deleteMediaRelationship(id: string) { if (!hasContentDatabase()) return; await ensureMediaRelationshipsTable(); await sql()`DELETE FROM content_media_relationships WHERE id = ${id}`; }
 export async function deleteMediaRelationshipsByRun(migrationRunId: string) { if (!hasContentDatabase()) return; await ensureMediaRelationshipsTable(); await sql()`DELETE FROM content_media_relationships WHERE migration_run_id = ${migrationRunId}`; }
 export async function listMediaRelationshipsByContent(contentKey: string) { if (!hasContentDatabase()) return []; await ensureMediaRelationshipsTable(); return await sql()`SELECT id, media_id AS "mediaId", content_key AS "contentKey", content_source_provider AS "contentSourceProvider", content_source_id AS "contentSourceId", role, placement_index AS "placementIndex", source_locator AS "sourceLocator", migration_run_id AS "migrationRunId", provenance FROM content_media_relationships WHERE content_key = ${contentKey} ORDER BY CASE WHEN role = 'featured' THEN 0 ELSE 1 END, placement_index NULLS FIRST, id` as unknown as ContentMediaRelationship[]; }
+async function hydrateMigratedMedia(content: ContentCollections): Promise<ContentCollections> {
+  if (!hasContentDatabase()) return content;
+  try {
+    await ensureMediaRelationshipsTable();
+    const rows = await sql()`SELECT r.content_key AS "contentKey", r.role, r.placement_index AS "placementIndex", m.source_url AS "sourceUrl", m.delivery_url AS "deliveryUrl" FROM content_media_relationships r JOIN content_media m ON m.id = r.media_id WHERE m.delivery_url IS NOT NULL AND m.delivery_url <> '' AND m.migration_status = 'migrated' ORDER BY r.content_key, CASE WHEN r.role = 'featured' THEN 0 ELSE 1 END, r.placement_index NULLS FIRST, r.id` as Array<{ contentKey: string; role: string; placementIndex: number | null; sourceUrl: string | null; deliveryUrl: string }>;
+    if (!rows.length) return content;
+    const byContent = new Map<string, typeof rows>();
+    for (const row of rows) byContent.set(row.contentKey, [...(byContent.get(row.contentKey) || []), row]);
+    const hydrate = (item: CmsRecord) => {
+      const contentKey = `${String(item.sourceProvider || '')}:${String(item.sourceId || '')}`;
+      const media = byContent.get(contentKey);
+      if (!media?.length) return item;
+      const featured = media.find((row) => row.role === 'featured')?.deliveryUrl;
+      let bodyHtml = item.bodyHtml || '';
+      for (const row of media) if (row.role === 'inline' && row.sourceUrl) bodyHtml = bodyHtml.split(row.sourceUrl).join(row.deliveryUrl);
+      return { ...item, ...(featured ? { imageUrl: featured, featuredImage: featured } : {}), ...(bodyHtml !== (item.bodyHtml || '') ? { bodyHtml } : {}) };
+    };
+    return { ...content, articles: content.articles.map((item) => hydrate(item as CmsRecord) as Article), magazine: content.magazine.map((item) => hydrate(item as CmsRecord) as MagazineStory) };
+  } catch (error) {
+    logContentReadError(error, 'Migrated media hydration failed; preserving source media URLs');
+    return content;
+  }
+}
 export async function deleteMediaRecord(id: string) { if (!hasContentDatabase()) return; await ensureMediaTable(); await sql()`DELETE FROM content_media WHERE id = ${id}`; }
 export async function countMediaRecords() { if (!hasContentDatabase()) return 0; await ensureMediaTable(); const rows = await sql()`SELECT count(*)::int AS count FROM content_media` as { count: number }[]; return rows[0]?.count || 0; }
 function shouldUseMergedSnapshot(content: ContentCollections) { const demoSlugs = new Set(["north-star-release-note", "radar-sessions-season-two"]); return content.articles.length < mergedSnapshot.articles.length || content.articles.some((article) => demoSlugs.has(article.slug)); }
@@ -49,7 +72,7 @@ async function readContentUncached({ fallbackToSnapshot = false }: ReadContentOp
     await ensureContentTable();
     const rows = await sql()`SELECT content FROM studio_content WHERE id = 1 LIMIT 1` as { content: unknown }[];
     if (!rows[0]?.content) return mergedSnapshot;
-    const content = normalizeContent(rows[0].content);
+    const content = await hydrateMigratedMedia(normalizeContent(rows[0].content));
     return shouldUseMergedSnapshot(content) ? mergedSnapshot : content;
   } catch (error) {
     logContentReadError(error, fallbackToSnapshot ? "Public content read failed; using committed snapshot" : "Content read failed");

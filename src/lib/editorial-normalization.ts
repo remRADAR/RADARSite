@@ -1,5 +1,6 @@
 import { decode } from "html-entities";
 import type { CmsRecord } from "@/lib/content-server";
+import { applyArticleMediaOverrides } from "@/lib/article-media-overrides";
 
 export const CANONICAL_SECTIONS = ["radar-articles", "discovery-spot", "talk-to-us", "motherland-radar", "magazine", "charts", "editorials", "curated", "legacies"] as const;
 export type CanonicalSection = (typeof CANONICAL_SECTIONS)[number];
@@ -67,7 +68,7 @@ export function editorialExcerpt(record: CmsRecord) { return normalizeEditorialC
 export function looksLikeUrl(value: string) { return /^(?:https?:\/\/|www\.)/i.test(value) || /^(?:https?:\/\/)?[^\s/]+\.[^\s/]+\//i.test(value); }
 
 export function normalizeEditorialRecord(record: CmsRecord): CmsRecord & { section: CanonicalSection; sectionLabel: string; sectionConfidence: string; sectionEvidence: string } {
-  const normalizedRecord = normalizeEditorialContent(record);
+  const normalizedRecord = normalizeEditorialContent(applyArticleMediaOverrides(record));
   const classification = classifySection(normalizedRecord);
   const warnings = [...(record.migrationWarnings || [])];
   if (classification.confidence === "low" && !warnings.includes("Low-confidence section classification requires editorial review.")) warnings.push("Low-confidence section classification requires editorial review.");
