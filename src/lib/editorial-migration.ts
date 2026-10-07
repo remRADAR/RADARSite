@@ -59,8 +59,10 @@ function spotifyEmbeds(source: string) {
     return `<figure class="spotify-embed"><iframe title="Spotify ${type} player" width="100%" height="${height}" frameborder="0" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" src="https://open.spotify.com/embed/${type}/${id}"></iframe></figure>`;
   };
   return source
-    .replace(/<p\b[^>]*>\s*(?:<a\b[^>]*>)?\s*https:\/\/open\.spotify\.com\/(track|album|playlist|episode|show)\/([A-Za-z0-9]+)(?:\?[^<\s]*)?\s*(?:<\/a>)?\s*<\/p>/gi, (_, type: string, id: string) => embed(type, id))
-    .replace(/(?<![\w/])https:\/\/open\.spotify\.com\/(track|album|playlist|episode|show)\/([A-Za-z0-9]+)(?:\?[^\s<]*)?/gi, (_, type: string, id: string) => embed(type, id));
+    .replace(/<p\b[^>]*>\s*<a\b[^>]*\bhref=["']https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}(?:-[A-Z]{2})?\/)?(track|album|playlist|episode|show)\/([A-Za-z0-9]+)(?:\?[^"']*)?["'][^>]*>[\s\S]*?<\/a>\s*<\/p>/gi, (_, type: string, id: string) => embed(type, id))
+    .replace(/<a\b[^>]*\bhref=["']https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}(?:-[A-Z]{2})?\/)?(track|album|playlist|episode|show)\/([A-Za-z0-9]+)(?:\?[^"']*)?["'][^>]*>[\s\S]*?<\/a>/gi, (_, type: string, id: string) => embed(type, id))
+    .replace(/<p\b[^>]*>\s*https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}(?:-[A-Z]{2})?\/)?(track|album|playlist|episode|show)\/([A-Za-z0-9]+)(?:\?[^<\s]*)?\s*<\/p>/gi, (_, type: string, id: string) => embed(type, id))
+    .replace(/(?<![\w/="'])https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}(?:-[A-Z]{2})?\/)?(track|album|playlist|episode|show)\/([A-Za-z0-9]+)(?:\?[^\s<]*)?/gi, (_, type: string, id: string) => embed(type, id));
 }
 
 /** Converts known WordPress HTML into the deliberately small, safe editorial subset. */
