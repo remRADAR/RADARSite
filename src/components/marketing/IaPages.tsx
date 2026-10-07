@@ -26,6 +26,7 @@ function archiveImageUrl(record: CmsRecord) {
   const inline = richBody.match(/<img\b[^>]*\bsrc=["']([^"']+)["']/i)?.[1] || "";
   const candidate = explicit || inline;
   if (!candidate) return undefined;
+  if (candidate.startsWith("/")) return candidate;
   try {
     const url = new URL(candidate);
     if (url.protocol === "http:" && url.hostname === "radarcharts.net") url.protocol = "https:";
