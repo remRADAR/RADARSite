@@ -53,9 +53,19 @@ function socialFallbacks(source: string) {
   }).replace(/<script\b[^>]*src\s*=\s*["'][^"']*instagram[^"']*["'][^>]*>[\s\S]*?<\/script>/gi, "");
 }
 
+function spotifyEmbeds(source: string) {
+  const embed = (type: string, id: string) => {
+    const height = type === "track" ? "152" : "352";
+    return `<figure class="spotify-embed"><iframe title="Spotify ${type} player" width="100%" height="${height}" frameborder="0" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" src="https://open.spotify.com/embed/${type}/${id}"></iframe></figure>`;
+  };
+  return source
+    .replace(/<p\b[^>]*>\s*(?:<a\b[^>]*>)?\s*https:\/\/open\.spotify\.com\/(track|album|playlist|episode|show)\/([A-Za-z0-9]+)(?:\?[^<\s]*)?\s*(?:<\/a>)?\s*<\/p>/gi, (_, type: string, id: string) => embed(type, id))
+    .replace(/(?<![\w/])https:\/\/open\.spotify\.com\/(track|album|playlist|episode|show)\/([A-Za-z0-9]+)(?:\?[^\s<]*)?/gi, (_, type: string, id: string) => embed(type, id));
+}
+
 /** Converts known WordPress HTML into the deliberately small, safe editorial subset. */
 export function sanitizeEditorialHtml(input: unknown) {
-  const source = socialFallbacks(typeof input === "string" ? input.slice(0, MAX_HTML) : "");
+  const source = spotifyEmbeds(socialFallbacks(typeof input === "string" ? input.slice(0, MAX_HTML) : ""));
   return source
     .replace(/<!--[\s\S]*?-->/g, "")
     .replace(/<\/?(script|style|object|embed|form|svg|math|link|meta|noscript)[^>]*>/gi, "")
@@ -79,10 +89,10 @@ export function sanitizeEditorialHtml(input: unknown) {
         }
       }
       if (name === "iframe" && !kept.some((item) => item.startsWith("src="))) return "";
-      return `<${name}${kept.length ? ` ${kept.join(" ")}` : ""}>`;
+      const generatedClass = name === "img" ? ` class="editorial-media"` : "";
+      return `<${name}${generatedClass}${kept.length ? ` ${kept.join(" ")}` : ""}>`;
     })
-    .replace(/<iframe([^>]*)>/gi, '<div class="editorial-embed"><iframe$1 loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>')
-    .replace(/<iframe([^>]*)><\/iframe>/gi, "<iframe$1></iframe>")
+    .replace(/<iframe([^>]*)>(?:\s*<\/iframe>)?/gi, (_, attrs: string) => `<div class="editorial-embed"><iframe${attrs} loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`)
     .replace(/<p>\s*<\/p>/gi, "")
     .trim();
 }

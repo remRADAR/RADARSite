@@ -430,6 +430,8 @@ html {
 .editorial-body a { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
 .editorial-body blockquote { border-left: 4px solid currentColor; padding: .5rem 0 .5rem 1.25rem; font-size: 1.2em; font-weight: 800; }
 .editorial-body img { display: block; width: 100%; max-width: 100%; height: auto; max-height: min(78svh, 72rem); margin-inline: auto; object-fit: contain; object-position: 50% 50%; background: color-mix(in srgb, currentColor 5%, transparent); }
+.editorial-body .editorial-media { transform: scale(1.01); transition: transform 900ms var(--ease-out), filter 900ms var(--ease-out); animation: editorial-media-reveal 900ms var(--ease-out) both; filter: saturate(.82) contrast(1.04); }
+.editorial-body figure:hover .editorial-media { transform: scale(1.035); filter: saturate(1) contrast(1); }
 .editorial-body figure { width: 100%; max-width: 100%; overflow: hidden; }
 .editorial-body figure img { width: 100%; }
 .editorial-body figcaption { margin-top: .5rem; font-family: ui-monospace, monospace; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; opacity: .7; }
@@ -442,6 +444,8 @@ html {
 .editorial-body .editorial-media,
 .editorial-body .editorial-embed { will-change: opacity, transform; }
 .editorial-body hr { margin: 2.5rem 0; border: 0; border-top: 2px solid currentColor; }
+.editorial-featured-media img { animation: editorial-featured-drift 14s ease-in-out infinite alternate; transform-origin: center; filter: saturate(.82) contrast(1.06); }
+.editorial-featured-media::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(120deg, transparent 35%, color-mix(in srgb, #ff3b00 18%, transparent) 50%, transparent 65%); mix-blend-mode: screen; animation: editorial-scan 8s ease-in-out infinite; }
 
 @keyframes editorial-media-reveal {
   from { opacity: 0; transform: translate3d(0, 1.25rem, 0); }
@@ -451,6 +455,17 @@ html {
 @keyframes editorial-pulse {
   0%, 100% { opacity: .3; }
   50% { opacity: .75; }
+}
+
+@keyframes editorial-featured-drift {
+  from { transform: scale(1.01) translate3d(-.5%, -.5%, 0); }
+  to { transform: scale(1.07) translate3d(.5%, .5%, 0); }
+}
+
+@keyframes editorial-scan {
+  0%, 100% { opacity: 0; transform: translateX(-18%); }
+  45%, 60% { opacity: .65; }
+  82% { opacity: 0; transform: translateX(18%); }
 }
 
 @supports (animation-timeline: view()) {
