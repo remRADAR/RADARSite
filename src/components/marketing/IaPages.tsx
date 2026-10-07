@@ -15,6 +15,8 @@ function editorial(item: Entity) {
 }
 
 function itemPath(basePath: string, item: Entity) {
+  const explicitPath = (item as CmsRecord).path;
+  if (typeof explicitPath === "string" && explicitPath.trim()) return explicitPath;
   return basePath === "/ontheradar/articles" ? articlePath(editorial(item)) : `${basePath}/${encodeURIComponent(item.slug)}`;
 }
 
