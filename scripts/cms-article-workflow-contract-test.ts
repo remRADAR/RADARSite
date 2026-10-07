@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { normalizeArticleInput } from "@/app/api/studio/route";
 import { buildArticleJsonLd, serializeJsonLd } from "@/lib/article-schema";
+import { readFileSync } from "node:fs";
 
 const added = normalizeArticleInput({
   id: "workflow-test",
@@ -65,6 +66,16 @@ assert.deepEqual(spotlightSchema.about, { "@type": "Thing", name: "Motherland" }
 assert.equal(magazineSchema.articleSection, "Magazine");
 assert.equal(magazineSchema.genre, "Special Episode");
 assert.equal(pressSchema.keywords, "Afrobeats");
+
+assert.equal(selected.imageUrl, added.featuredImage, "featured image URL must remain available to archive cards");
+const articleRoute = readFileSync("src/app/(marketing)/ontheradar/articles/[article]/page.tsx", "utf8");
+const pressArchiveRoute = readFileSync("src/app/(marketing)/ontheradar/articles/press/page/[page]/page.tsx", "utf8");
+const studioRoute = readFileSync("src/app/api/studio/route.ts", "utf8");
+assert.match(articleRoute, /export const dynamicParams = true/);
+assert.match(pressArchiveRoute, /export const dynamicParams = true/);
+assert.match(studioRoute, /revalidatePath\(articlePath\(record\)\)/);
+assert.match(studioRoute, /revalidatePath\("\/ontheradar\/articles\/press\/page\/\[page\]",\s*"page"\)/);
+assert.match(studioRoute, /revalidatePath\("\/ontheradar\/articles"\)/);
 
 const hostile = serializeJsonLd({ headline: "</script><script>alert('x')</script> & <tag>" });
 assert.ok(!hostile.includes("</script>"), "serialized JSON-LD must not contain a raw closing script tag");

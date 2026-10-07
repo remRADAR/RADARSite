@@ -11,7 +11,7 @@ import { ArticleSourceExcerpt } from "@/components/marketing/ArticleSourceExcerp
 import { buildArticleSourceExcerpt } from "@/lib/source-excerpt";
 import { articleSocialCardUrl } from "@/lib/social-card";
 export const revalidate = 3600;
-export const dynamicParams = false;
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const { articles } = await readPublishedContent();

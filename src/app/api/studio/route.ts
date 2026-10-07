@@ -1,12 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { defaultSiteOverrides } from "@/lib/site-overrides";
 import { contentCacheTag, hasContentDatabase, logReadContentError, normalizeContent, readContent, writeContent, type CmsRecord } from "@/lib/content-server";
 import { createSessionToken, getSessionCookieName, getSessionMaxAge, hasDatabase, isAdminPasswordValid, isSessionValid, readStudioSettings, writeStudioSettings } from "@/lib/studio-server";
 import { deriveEditorialTaxonomy, EDITORIAL_TYPES, MAGAZINE_SUBTYPES, suggestArticleTags, suggestSeoMetadata, validateEditorialTaxonomy } from "@/lib/cms-taxonomy";
 import { sanitizeEditorialHtml } from "@/lib/editorial-migration";
 import { isSameOriginMutation, rateLimit } from "@/lib/request-security";
+import { articlePath } from "@/lib/editorial-normalization";
 
 export const dynamic = "force-dynamic";
 const failedLogins = new Map<string, { count: number; resetAt: number }>();
@@ -30,6 +31,15 @@ function slugify(value: string) { return value.toLowerCase().normalize("NFKD").r
 function timestamp(record: CmsRecord) { const parsed = Date.parse(String(record.publishedAt || record.date || "")); return Number.isFinite(parsed) ? parsed : 0; }
 function summary(record: CmsRecord): ArticleListItem { const taxonomy = deriveEditorialTaxonomy(record); return { id: text(record.id, 120), sourceId: text(record.sourceId, 120) || undefined, slug: text(record.slug, 300), title: text(record.title || record.name, 300) || "Untitled article", excerpt: text(record.excerpt || record.subtitle || record.description, 500), status: text(record.status) || "published", editorialType: taxonomy.editorialType, magazineSubtype: taxonomy.magazineSubtype, projectSection: taxonomy.projectSection, needsTaxonomyReview: taxonomy.needsReview, featuredImage: text(record.featuredImage || record.imageUrl, 2000), date: text(record.publishedAt || record.date, 100), tags: array(record.tags), categories: array(record.categories), sourceProvider: text(record.sourceProvider) || "radarsite" }; }
 function articleForEditor(record: CmsRecord) { const taxonomy = deriveEditorialTaxonomy(record); const seo = suggestSeoMetadata(record); return { ...record, editorialType: taxonomy.editorialType || "Press", magazineSubtype: taxonomy.magazineSubtype, projectSection: taxonomy.projectSection, tags: array(record.tags), tagsApproved: array(record.tagsApproved), tagsSuggested: suggestArticleTags({ ...record, editorialType: taxonomy.editorialType, projectSection: taxonomy.projectSection }), metaTitle: seo.metaTitle, metaDescription: seo.metaDescription, socialImage: seo.socialImage, taxonomyNeedsReview: taxonomy.needsReview, taxonomyEvidence: taxonomy.evidence }; }
+function revalidateArticlePaths(article: CmsRecord, previous?: CmsRecord) {
+  const records = previous ? [previous, article] : [article];
+  for (const record of records) if (record.slug) revalidatePath(articlePath(record));
+  revalidatePath("/ontheradar/articles");
+
+  if (records.some((record) => deriveEditorialTaxonomy(record).editorialType === "Press")) {
+    revalidatePath("/ontheradar/articles/press/page/[page]", "page");
+  }
+}
 export function buildArticleLibrary(records: CmsRecord[], params: URLSearchParams) {
   const page = Math.max(1, Number(params.get("page") || 1) || 1);
   const pageSize = Math.min(MAX_LIBRARY_PAGE_SIZE, Math.max(5, Number(params.get("pageSize") || 12) || 12));
@@ -154,7 +164,9 @@ export async function PUT(request: NextRequest) {
     if (body.article && typeof body.article === "object") {
       const current = await readContent(); const existing = current.articles.map((item) => item as CmsRecord).find((item) => item.id === text(body.article?.id) || item.slug === text(body.article?.slug));
       const article = normalizeArticleInput(body.article, existing); const duplicate = current.articles.some((item) => item.slug === article.slug && item !== existing); if (duplicate) return json({ error: "Another article already uses this slug." }, { status: 409 });
-      const next = normalizeContent({ ...current, articles: existing ? current.articles.map((item) => item === existing ? article : item) : [...current.articles, article] }); await writeContent(next); revalidateTag(contentCacheTag(), { expire: 0 }); return json({ saved: true, article: articleForEditor(article), summary: summary(article) });
+      const next = normalizeContent({ ...current, articles: existing ? current.articles.map((item) => item === existing ? article : item) : [...current.articles, article] }); await writeContent(next); revalidateTag(contentCacheTag(), { expire: 0 });
+      if (article.status === "published" || existing?.status === "published") revalidateArticlePaths(article, existing);
+      return json({ saved: true, article: articleForEditor(article), summary: summary(article) });
     }
     if (Object.prototype.hasOwnProperty.call(body, "content")) { const content = await writeContent(body.content); revalidateTag(contentCacheTag(), { expire: 0 }); return json({ saved: true, content }); }
     return json({ saved: true, settings: await writeStudioSettings(body.settings) });
