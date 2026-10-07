@@ -5,7 +5,7 @@ import { readPublishedContent } from "@/lib/content-server";
 import { EDITORIAL_ARCHIVE_PAGE_SIZE, paginateRecords, parseArchivePage, recordsForEditorialType } from "@/lib/editorial-archives";
 
 export const revalidate = 3600;
-export const dynamicParams = false;
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const { articles } = await readPublishedContent();
