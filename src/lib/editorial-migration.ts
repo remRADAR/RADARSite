@@ -34,6 +34,7 @@ function escapeAttr(value: string) {
 }
 
 function safeUrl(value: string, kind: "link" | "image" | "iframe") {
+  if (kind === "image" && value.startsWith("/") && !value.startsWith("//")) return value;
   try {
     const url = new URL(value);
     if (url.protocol !== "https:") return "";
