@@ -19,12 +19,10 @@ export function applyArticleMediaOverrides(record: CmsRecord): CmsRecord {
   if (record.slug !== TARGET_SLUG) return record;
 
   const source = record.bodyHtml || record.body || "";
-  const sourceUrls = [...source.matchAll(/<img\b[^>]*\bsrc=["']([^"']+)["']/gi)]
-    .map((match) => match[1])
-    .filter((url, index, values) => values.indexOf(url) === index);
-  let bodyHtml = source;
-  sourceUrls.slice(0, TARGET_MEDIA.inline.length).forEach((url, index) => {
-    bodyHtml = bodyHtml.split(url).join(TARGET_MEDIA.inline[index]);
+  let imageIndex = 0;
+  const bodyHtml = source.replace(/(<img\b[^>]*\bsrc=["'])([^"']+)(["'][^>]*>)/gi, (match, prefix: string, _url: string, suffix: string) => {
+    const replacement = TARGET_MEDIA.inline[imageIndex++];
+    return replacement ? `${prefix}${replacement}${suffix}` : match;
   });
 
   return {
