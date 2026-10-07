@@ -19,7 +19,7 @@ const securityHeaders = [
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
-      `img-src ${imageSourceTokens} https://radarcharts.net https://www.google-analytics.com https://www.googletagmanager.com`,
+      `img-src ${imageSourceTokens} https://radarcharts.net https://lh7-rt.googleusercontent.com https://www.google-analytics.com https://www.googletagmanager.com`,
       "connect-src 'self' https://api.unsplash.com https://va.vercel-scripts.com https://*.ingest.de.sentry.io https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com",
       "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://open.spotify.com",
       "upgrade-insecure-requests",
