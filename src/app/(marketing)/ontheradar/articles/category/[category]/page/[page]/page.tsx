@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
 import { IaIndex } from "@/components/marketing/IaPages";
 import { readPublishedContent } from "@/lib/content-server";
 import { articleCategories, ARTICLES_PER_PAGE, categoryLabelFromSlug, categorySlug, pageCount, sortArticlesCurrentFirst } from "@/lib/article-taxonomy";
@@ -54,6 +55,7 @@ export default async function ArticleCategoryPage({ params }: { params: Promise<
 
   return (
     <div>
+      <ArchiveStructuredData name={`${label} Articles`} description={`RADARArticles in the ${label} category.`} path={`/ontheradar/articles/category/${categorySlug(label)}/page/${page}`} breadcrumbs={[{ name: "Home", path: "/" }, { name: "On The Radar", path: "/ontheradar" }, { name: "RADARArticles", path: "/ontheradar/articles" }, { name: label, path: `/ontheradar/articles/category/${categorySlug(label)}/page/${page}` }]} />
       <div className="flex flex-wrap items-center justify-between gap-5 border-b-2 border-ink px-4 pb-6 pt-24 md:px-8">
         <div>
           <Link href="/ontheradar/articles" className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-flare">← All categories</Link>

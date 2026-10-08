@@ -1,13 +1,16 @@
 import fs from "node:fs/promises";
 
 const base = (process.env.QA_BASE_URL || "http://127.0.0.1:3202").replace(/\/$/, "");
+const snapshot = JSON.parse(await fs.readFile("src/data/merged-content.json", "utf8"));
+const magazineArticle = (snapshot.articles || []).find((item) => String(item.editorialType || "").toLowerCase() === "magazine" && typeof item.slug === "string");
 const routes = [
   { label: "Press article", path: "/ontheradar/articles/mbbszn-unveils-pause-if-you-must-but-dont-stop-a-project-rooted-in-resilience-reinvention-a-new-wave-of-alt-afrofusion-storytelling", type: "article" },
   { label: "Spotlight article", path: "/ontheradar/articles/kendol-ignites-a-new-wave-with-get-down-groove-a-bold-soulful-leap-into-afro-fusions-future", type: "article" },
   { label: "Motherland article", path: "/ontheradar/articles/artist-spotlight-wealth-asuquo-abujas-livewire-afrobeats-star-on-a-relentless-rise", type: "article" },
   { label: "Motherland project", path: "/motherland", type: "collection" },
   { label: "Magazine archive", path: "/ontheradar/magazine", type: "collection" },
-  { label: "Magazine story", path: "/ontheradar/magazine/luna-vale-after-midnight", type: "article" },
+  ...(magazineArticle ? [{ label: "Magazine story", path: `/ontheradar/magazine/${magazineArticle.slug}`, type: "article" }] : []),
+  { label: "Missing article", path: "/ontheradar/articles/this-route-does-not-exist-qa", type: "missing" },
 ];
 
 function parseJsonLd(html) {
@@ -27,12 +30,14 @@ for (const route of routes) {
   const breadcrumbNodes = flat.filter((item) => item?.["@type"] === "BreadcrumbList");
   const canonical = html.match(/<link rel="canonical" href="([^"]+)"/i)?.[1];
   const issues = [];
-  if (response.status !== 200) issues.push(`HTTP ${response.status}`);
-  if (!data.length) issues.push("no JSON-LD blocks");
+  if (route.type === "missing") {
+    if (response.status !== 404) issues.push(`expected HTTP 404, got ${response.status}`);
+  } else if (response.status !== 200) issues.push(`HTTP ${response.status}`);
+  if (route.type !== "missing" && !data.length) issues.push("no JSON-LD blocks");
   if (route.type === "article" && articleNodes.length !== 1) issues.push(`expected exactly one Article node, got ${articleNodes.length}`);
   if (route.type === "article" && breadcrumbNodes.length !== 1) issues.push(`expected exactly one BreadcrumbList node, got ${breadcrumbNodes.length}`);
   if (route.type === "collection" && !flat.some((item) => item?.["@type"] === "CollectionPage")) issues.push("missing CollectionPage node");
-  if (!flat.some((item) => item?.["@type"] === "BreadcrumbList")) issues.push("missing BreadcrumbList node");
+  if (route.type !== "missing" && !flat.some((item) => item?.["@type"] === "BreadcrumbList")) issues.push("missing BreadcrumbList node");
   for (const node of articleNodes) {
     for (const field of ["headline", "description", "url", "mainEntityOfPage", "publisher"]) if (!node[field]) issues.push(`Article missing ${field}`);
     if (hasUnsafeHost(JSON.stringify(node))) issues.push("unsafe host in Article JSON-LD");

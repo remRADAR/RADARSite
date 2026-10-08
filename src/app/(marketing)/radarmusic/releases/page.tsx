@@ -1,4 +1,5 @@
 import { IaIndex } from "@/components/marketing/IaPages";
+import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
 import { caseStudies } from "@/lib/case-studies";
 import { readPublishedContent, type CmsRecord } from "@/lib/content-server";
 
@@ -31,5 +32,5 @@ export default async function ReleasesPage() {
     }] : []),
     ...selectedArticles,
   ];
-  return <IaIndex eyebrow="(RADARMusic / Releases)" title="Releases" intro="Records, worlds, and the stories that start when the track begins." items={items} basePath="/radarmusic/releases" />;
+  return <><ArchiveStructuredData name="Releases" description="Records, worlds, and the stories that start when the track begins." path="/radarmusic/releases" breadcrumbs={[{ name: "Home", path: "/" }, { name: "RADARMusic", path: "/radarmusic" }, { name: "Releases", path: "/radarmusic/releases" }]} /><IaIndex eyebrow="(RADARMusic / Releases)" title="Releases" intro="Records, worlds, and the stories that start when the track begins." items={items} basePath="/radarmusic/releases" /></>;
 }

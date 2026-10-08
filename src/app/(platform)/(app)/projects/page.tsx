@@ -1,3 +1,4 @@
+import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
 import { ProjectCard } from "@/components/platform/ProjectCard";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { projects } from "@/data/projects";
@@ -5,6 +6,7 @@ import { projects } from "@/data/projects";
 export default function ProjectsPage() {
   return (
     <div>
+      <ArchiveStructuredData name="Projects" description="All RADAR projects and active creative work." path="/projects" breadcrumbs={[{ name: "Home", path: "/" }, { name: "Projects", path: "/projects" }]} />
       <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
         (Projects)
       </p>

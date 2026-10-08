@@ -72,6 +72,9 @@ const nextConfig: NextConfig = {
       ...legacyArticleRedirects(),
       { source: "/on-the-radar", destination: "/ontheradar", permanent: true },
       { source: "/on-the-radar/:path*", destination: "/ontheradar/:path*", permanent: true },
+      { source: "/ontheradar/discovery", destination: "/ontheradar/articles/spotlight/page/1", permanent: true },
+      { source: "/ontheradar/talk-to-us", destination: "/ontheradar/magazine", permanent: true },
+      { source: "/ontheradar/motherland", destination: "/motherland", permanent: true },
     ];
   },
   async headers() {

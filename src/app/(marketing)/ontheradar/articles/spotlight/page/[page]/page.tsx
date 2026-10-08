@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
 import { IaIndex } from "@/components/marketing/IaPages";
 import { ArchivePagination } from "@/components/marketing/ArchivePagination";
 import { readPublishedContent } from "@/lib/content-server";
@@ -18,5 +19,5 @@ export default async function SpotlightArchive({ params }: { params: Promise<{ p
   const { articles } = await readPublishedContent();
   const paginated = paginateRecords(recordsForEditorialType(articles, "Spotlight"), page);
   if (paginated.page !== page) notFound();
-  return <><IaIndex eyebrow="(RADARArticles / Spotlight)" title="Spotlight" intro="Artist-led Spotlight profiles, including female-artiste Spotlights that also appear on the independent Motherland project surface." items={paginated.items} basePath="/ontheradar/articles" /><ArchivePagination basePath="/ontheradar/articles/spotlight" page={paginated.page} pageCount={paginated.pageCount} /></>;
+  return <><ArchiveStructuredData name={`Spotlight — Page ${paginated.page}`} description="Artist-led Spotlight profiles, including female-artiste Spotlights that also appear on the independent Motherland project surface." path={`/ontheradar/articles/spotlight/page/${paginated.page}`} breadcrumbs={[{ name: "Home", path: "/" }, { name: "On The Radar", path: "/ontheradar" }, { name: "RADARArticles", path: "/ontheradar/articles" }, { name: "Spotlight", path: `/ontheradar/articles/spotlight/page/${paginated.page}` }]} /><IaIndex eyebrow="(RADARArticles / Spotlight)" title="Spotlight" intro="Artist-led Spotlight profiles, including female-artiste Spotlights that also appear on the independent Motherland project surface." items={paginated.items} basePath="/ontheradar/articles" /><ArchivePagination basePath="/ontheradar/articles/spotlight" page={paginated.page} pageCount={paginated.pageCount} /></>;
 }
