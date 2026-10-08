@@ -51,10 +51,12 @@ function editorialType(record) {
   if (explicit === "spotlight") return "Spotlight";
   if (explicit === "magazine" || explicit === "interview") return "Magazine";
   if (explicit === "article") return "Press";
-  const haystack = `${record.title || ""} ${record.slug || ""} ${(record.categories || []).join(" ")}`.toLowerCase();
-  if (/spotlight|discovery/.test(haystack)) return "Spotlight";
-  if (/magazine|talk to us|interview|conversation|q&a/.test(haystack)) return "Magazine";
-  return "Press";
+  const haystack = `${record.title || ""} ${record.slug || ""}`.toLowerCase();
+  const categories = [...(record.categories || []), ...(record.tags || [])].join(" ");
+  if (/discovery spot/i.test(categories) || /artist[\s-]+(spotlight|discovery)|\bspotlight\b/.test(haystack)) return "Spotlight";
+  if (/talk to us.*(magazine|special guest)/i.test(categories)) return "Magazine";
+  if (/radararticles/i.test(categories)) return "Press";
+  return "";
 }
 
 function parseJsonLd(html) {
