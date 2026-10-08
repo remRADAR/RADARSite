@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
+import { useLayoutEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { FadeIn } from "@/components/motion/FadeIn";
@@ -29,9 +29,10 @@ export function SelectedWork({
   const overrides = parseSiteOverrides(overrideSnapshot);
   const { config } = useSiteConfig();
   const visibleStudies = useMemo(() => overrides.featuredSlugs.length ? caseStudies.filter((study) => overrides.featuredSlugs.includes(study.slug)) : caseStudies, [overrides.featuredSlugs]);
+  const visibleStudyKey = visibleStudies.map((study) => study.slug).join("|");
   const tickerProjects = useMemo(() => visibleStudies.filter((study) => config.tickers.ticker5_projectSelector.projectSlugs.includes(study.slug)), [config.tickers.ticker5_projectSelector.projectSlugs, visibleStudies]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
@@ -46,8 +47,9 @@ export function SelectedWork({
       const st = ScrollTrigger.create({
         trigger: section,
         start: "top top",
-        end: () => `+=${(entries.length - 1) * 100}%`,
+        end: () => `+=${Math.max(1, entries.length - 1) * window.innerHeight}`,
         pin: true,
+        anticipatePin: 1,
         scrub: 0.6,
         onUpdate: (self) => {
           const progress = self.progress * (entries.length - 1);
@@ -63,12 +65,16 @@ export function SelectedWork({
           });
         },
       });
+      requestAnimationFrame(() => ScrollTrigger.refresh());
 
-      return () => st.kill();
+      return () => {
+        st.kill();
+        gsap.set(entries, { clearProps: "all" });
+      };
     });
 
     return () => mm.revert();
-  }, [visibleStudies.length]);
+  }, [visibleStudyKey]);
 
   return (
     <section className="bg-paper">
