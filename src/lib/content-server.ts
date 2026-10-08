@@ -87,6 +87,9 @@ const readCachedPublicContent = unstable_cache(async () => {
   return gzipSync(JSON.stringify(content)).toString("base64");
 }, ["radarsite-public-content"], { revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS, tags: [PUBLIC_CONTENT_CACHE_TAG] });
 export async function readPublicContent() {
+  // Static builds always use the committed snapshot. Avoid invoking the runtime
+  // cache, gzip, and JSON round-trip once per prerendered page and metadata pass.
+  if (isProductionBuild()) return mergedSnapshot;
   const encoded = await readCachedPublicContent();
   return normalizeContent(JSON.parse(gunzipSync(Buffer.from(encoded, "base64")).toString("utf8")));
 }
