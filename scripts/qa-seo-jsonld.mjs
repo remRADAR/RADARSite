@@ -24,16 +24,20 @@ for (const route of routes) {
   const data = parseJsonLd(html);
   const flat = flatten(data).flatMap((item) => Array.isArray(item?.["@graph"]) ? item["@graph"] : [item]);
   const articleNodes = flat.filter((item) => item?.["@type"] === "Article");
+  const breadcrumbNodes = flat.filter((item) => item?.["@type"] === "BreadcrumbList");
+  const canonical = html.match(/<link rel="canonical" href="([^"]+)"/i)?.[1];
   const issues = [];
   if (response.status !== 200) issues.push(`HTTP ${response.status}`);
   if (!data.length) issues.push("no JSON-LD blocks");
   if (route.type === "article" && articleNodes.length !== 1) issues.push(`expected exactly one Article node, got ${articleNodes.length}`);
+  if (route.type === "article" && breadcrumbNodes.length !== 1) issues.push(`expected exactly one BreadcrumbList node, got ${breadcrumbNodes.length}`);
   if (route.type === "collection" && !flat.some((item) => item?.["@type"] === "CollectionPage")) issues.push("missing CollectionPage node");
   if (!flat.some((item) => item?.["@type"] === "BreadcrumbList")) issues.push("missing BreadcrumbList node");
   for (const node of articleNodes) {
     for (const field of ["headline", "description", "url", "mainEntityOfPage", "publisher"]) if (!node[field]) issues.push(`Article missing ${field}`);
     if (hasUnsafeHost(JSON.stringify(node))) issues.push("unsafe host in Article JSON-LD");
     if (node.url && !node.url.startsWith("https://radarcharts.net/")) issues.push(`non-production Article URL ${node.url}`);
+    if (canonical && node.url !== canonical) issues.push(`Article URL ${node.url} does not match canonical ${canonical}`);
   }
   if (hasUnsafeHost(JSON.stringify(flat))) issues.push("unsafe host in JSON-LD");
   results.push({ label: route.label, path: route.path, status: response.status, jsonLdTypes: types(data), articleCount: articleNodes.length, issues });

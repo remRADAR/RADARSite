@@ -1,21 +1,23 @@
 import type { CmsRecord } from "@/lib/content-server";
 import { articlePath, normalizeEditorialRecord } from "@/lib/editorial-normalization";
 import { deriveEditorialTaxonomy } from "@/lib/cms-taxonomy";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, canonicalPath } from "@/lib/seo";
 
 export function buildArticleJsonLd(record: CmsRecord) {
   const taxonomy = deriveEditorialTaxonomy(record);
-  const canonical = absoluteUrl(articlePath(normalizeEditorialRecord(record)));
+  const normalized = normalizeEditorialRecord(record);
+  const canonical = absoluteUrl(canonicalPath(normalized.canonicalUrl, articlePath(normalized)));
   const image = typeof record.imageUrl === "string" && record.imageUrl ? record.imageUrl : typeof record.featuredImage === "string" && record.featuredImage ? record.featuredImage : "";
   const tags = Array.isArray(record.tags) ? record.tags.filter((tag): tag is string => typeof tag === "string" && Boolean(tag.trim())) : [];
   return {
     "@context": "https://schema.org",
     "@type": "Article",
-    headline: record.title || record.name || "Editorial record",
-    description: record.metaDescription || record.excerpt || record.subtitle || "",
-    ...(record.publishedAt || record.date ? { datePublished: record.publishedAt || record.date } : {}),
-    ...((record.sourceModifiedAt || record.updatedAt) ? { dateModified: record.sourceModifiedAt || record.updatedAt } : {}),
-    author: { "@type": "Person", name: record.author || "RADARCharts by REM" },
+    "@id": `${canonical}#article`,
+    headline: normalized.title || normalized.name || "Editorial record",
+    description: normalized.metaDescription || normalized.excerpt || normalized.subtitle || "",
+    ...(normalized.publishedAt || normalized.date ? { datePublished: normalized.publishedAt || normalized.date } : {}),
+    ...((normalized.sourceModifiedAt || normalized.updatedAt) ? { dateModified: normalized.sourceModifiedAt || normalized.updatedAt } : {}),
+    author: { "@type": "Person", name: normalized.author || "RADARCharts by REM" },
     publisher: { "@type": "Organization", name: "RADARCharts by REM", url: "https://radarcharts.net", logo: { "@type": "ImageObject", url: "https://radarcharts.net/radar-logo.webp" } },
     mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
     url: canonical,

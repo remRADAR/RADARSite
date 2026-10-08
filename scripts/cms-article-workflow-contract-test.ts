@@ -58,6 +58,7 @@ assert.throws(() => normalizeArticleInput({ ...edited, editorialType: "Magazine"
 const pressSchema = buildArticleJsonLd({ ...added, editorialType: "Press", tags: ["Afrobeats"] });
 const spotlightSchema = buildArticleJsonLd({ ...added, editorialType: "Spotlight", projectSection: "Motherland" });
 const magazineSchema = buildArticleJsonLd({ ...added, editorialType: "Magazine", magazineSubtype: "Special Episode" });
+const canonicalSchema = buildArticleJsonLd({ ...added, canonicalUrl: "https://radarcharts.net/editorial/verified-canonical" });
 assert.equal(pressSchema["@type"], "Article");
 assert.equal(pressSchema.articleSection, "Press");
 assert.equal(spotlightSchema.articleSection, "Spotlight");
@@ -65,6 +66,9 @@ assert.deepEqual(spotlightSchema.about, { "@type": "Thing", name: "Motherland" }
 assert.equal(magazineSchema.articleSection, "Magazine");
 assert.equal(magazineSchema.genre, "Special Episode");
 assert.equal(pressSchema.keywords, "Afrobeats");
+assert.equal(canonicalSchema.url, "https://radarcharts.net/editorial/verified-canonical");
+assert.equal(canonicalSchema["@id"], "https://radarcharts.net/editorial/verified-canonical#article");
+assert.equal((canonicalSchema.mainEntityOfPage as { "@id": string })["@id"], canonicalSchema.url);
 
 const hostile = serializeJsonLd({ headline: "</script><script>alert('x')</script> & <tag>" });
 assert.ok(!hostile.includes("</script>"), "serialized JSON-LD must not contain a raw closing script tag");
@@ -72,4 +76,4 @@ assert.ok(hostile.includes("\\u003c/script\\u003e"), "script delimiters must be 
 const reparsed = JSON.parse(hostile) as { headline: string };
 assert.equal(reparsed.headline, "</script><script>alert('x')</script> & <tag>");
 
-console.log(JSON.stringify({ add: "PASS", partialUpdatePreservation: "PASS", selectedFieldUpdate: "PASS", explicitClear: "PASS", taxonomy: "PASS", approvedTagPreservation: "PASS", pressJsonLd: "PASS", spotlightJsonLd: "PASS", magazineJsonLd: "PASS", jsonLdScriptSafety: "PASS", databaseContacted: false, productionModified: false }, null, 2));
+console.log(JSON.stringify({ add: "PASS", partialUpdatePreservation: "PASS", selectedFieldUpdate: "PASS", explicitClear: "PASS", taxonomy: "PASS", approvedTagPreservation: "PASS", pressJsonLd: "PASS", spotlightJsonLd: "PASS", magazineJsonLd: "PASS", canonicalConsistency: "PASS", jsonLdScriptSafety: "PASS", databaseContacted: false, productionModified: false }, null, 2));
