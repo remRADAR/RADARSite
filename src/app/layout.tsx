@@ -25,7 +25,10 @@ export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
   alternates: { canonical: "/", languages: { "en-NG": "/", "en-GH": "/", "en-GB": "/", "en-US": "/" } },
   robots: { index: true, follow: true },
-  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ? { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } } : {}),
+  verification: {
+    ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } : {}),
+    other: { "msvalidate.01": "54BB84D704A1BDFF8EFF649929A55631" },
+  },
   openGraph: { type: "website", locale: "en_NG", siteName: SITE_NAME, title: SITE_NAME, description: SITE_DESCRIPTION, url: SITE_URL, images: [{ url: `${SITE_URL}${DEFAULT_SOCIAL_IMAGE}`, width: 1200, height: 675, type: "image/jpeg", alt: "RADARCharts city and stadium scene" }] },
   twitter: { card: "summary_large_image", site: "@radarcharts", creator: "@radarcharts", images: [`${SITE_URL}${DEFAULT_SOCIAL_IMAGE}`] },
   icons: {
