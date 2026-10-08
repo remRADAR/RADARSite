@@ -10,8 +10,8 @@ import { ArticleSourceExcerpt } from "@/components/marketing/ArticleSourceExcerp
 import { buildArticleSourceExcerpt } from "@/lib/source-excerpt";
 import { articleSocialCardUrl } from "@/lib/social-card";
 export const revalidate = 3600;
-// CMS articles can be published after a deployment; resolve new slugs on demand.
-export const dynamicParams = true;
+// Only committed published routes are indexable; unknown slugs must be real 404s.
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
   const { articles } = await readPublishedContent();
