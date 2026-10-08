@@ -47,15 +47,14 @@ function articleCategories(record) {
 }
 
 function editorialType(record) {
-  const explicit = String(record.editorialType || "").toLowerCase();
-  if (explicit === "spotlight") return "Spotlight";
-  if (explicit === "magazine" || explicit === "interview") return "Magazine";
-  if (explicit === "article") return "Press";
+  const explicit = String(record.editorialType || "").trim();
+  if (explicit === "Press" || explicit === "Spotlight" || explicit === "Magazine") return explicit;
+  const legacy = explicit.toLowerCase();
   const haystack = `${record.title || ""} ${record.slug || ""}`.toLowerCase();
   const categories = [...(record.categories || []), ...(record.tags || [])].join(" ");
-  if (/discovery spot/i.test(categories) || /artist[\s-]+(spotlight|discovery)|\bspotlight\b/.test(haystack)) return "Spotlight";
-  if (/talk to us.*(magazine|special guest)/i.test(categories)) return "Magazine";
-  if (/radararticles/i.test(categories)) return "Press";
+  if (legacy === "spotlight" || /discovery spot/i.test(categories) || /artist[\s-]+(spotlight|discovery)|\bspotlight\b/.test(haystack)) return "Spotlight";
+  if (legacy === "magazine" || /talk to us.*(magazine|special guest)/i.test(categories)) return "Magazine";
+  if (legacy === "article" || legacy === "interview" || /radararticles/i.test(categories)) return "Press";
   return "";
 }
 
