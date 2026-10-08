@@ -3,6 +3,7 @@ const STATIC_PUBLIC_IMAGE_ORIGINS = [
   "https://cdn.radarcharts.net",
   "https://remradar.wordpress.com",
   "https://i0.wp.com",
+  "https://pub-2d7f41f7140544c480801d8b90da765e.r2.dev",
 ] as const;
 
 export function normalizePublicMediaOrigin(value?: string): string | undefined {

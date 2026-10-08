@@ -2,6 +2,7 @@ import { decode } from "html-entities";
 import { readContent, type CmsRecord, type ContentCollections } from "@/lib/content-server";
 import { classifySection, editorialExcerpt, editorialTitle, normalizeEditorialContent } from "@/lib/editorial-normalization";
 import { deriveEditorialTaxonomy } from "@/lib/cms-taxonomy";
+import { getEffectiveImageUrl } from "@/lib/effective-image-url";
 
 export type EditorialType = "article" | "interview" | "spotlight" | "magazine";
 export type EditorialStatus = "draft" | "published" | "archived";
@@ -86,7 +87,8 @@ export function sanitizeEditorialHtml(input: unknown) {
           if (url) kept.push(`href="${escapeAttr(url)}" rel="noopener noreferrer" target="_blank"`);
         } else if (key === "src" && (name === "img" || name === "iframe")) {
           const url = safeUrl(value, name === "img" ? "image" : "iframe");
-          if (url) kept.push(`src="${escapeAttr(url)}"`);
+          const effectiveUrl = name === "img" ? getEffectiveImageUrl(url).effectiveUrl : url;
+          if (effectiveUrl) kept.push(`src="${escapeAttr(effectiveUrl)}"`);
         } else if (["alt", "title", "width", "height", "allow", "allowfullscreen", "loading", "referrerpolicy"].includes(key)) {
           kept.push(`${key}="${escapeAttr(value.slice(0, 300))}"`);
         }

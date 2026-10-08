@@ -13,6 +13,12 @@ const categoryLabels = [...new Set((snapshot.articles || []).flatMap((article) =
   return categories.length ? categories : article.section === "radar-articles" ? ["RADARArticles"] : ["Uncategorized"];
 }))];
 const articleRoutes = (snapshot.articles || []).map((article) => `/ontheradar/articles/${article.slug}`);
+// Keep recently published CMS routes in coverage even when the committed snapshot
+// has not been refreshed yet. This prevents a sitemap-only article from escaping QA.
+const recentArticleRoutes = [
+  "/ontheradar/articles/styling-is-choosing-life-with-aye-lawa-feat-wyza",
+  "/ontheradar/articles/telman-releases-if-not-god-a-bold-gospel-drill-anthem",
+];
 const categoryCounts = new Map(categoryLabels.map((label) => [label, 0]));
 for (const article of snapshot.articles || []) {
   const categories = Array.isArray(article.categories) && article.categories.length ? article.categories : article.section === "radar-articles" ? ["RADARArticles"] : ["Uncategorized"];
@@ -28,7 +34,7 @@ const routes = [
   "/ontheradar/events",
   "/motherland",
   ...categoryRoutes,
-  ...articleRoutes,
+  ...new Set([...articleRoutes, ...recentArticleRoutes]),
 ];
 
 const browser = await chromium.launch({ headless: true });
