@@ -12,6 +12,7 @@ import { ResultsRow } from "@/components/case-study/ResultsRow";
 import { CreditsBlock } from "@/components/case-study/CreditsBlock";
 import { NextCaseTeaser } from "@/components/case-study/NextCaseTeaser";
 import { StorySpine } from "@/components/case-study/StorySpine";
+import { buildPageMetadata } from "@/lib/seo";
 
 export const dynamicParams = false;
 
@@ -29,7 +30,13 @@ export async function generateMetadata({
   const { slug } = await params;
   const project = getCaseStudy(slug);
   if (!project) return {};
-  return { title: project.title, description: project.oneLiner };
+  return buildPageMetadata({
+    title: project.title,
+    description: project.oneLiner,
+    path: `/work/${project.slug}`,
+    image: project.heroImageUrl,
+    type: "article",
+  });
 }
 
 export default async function CaseStudyPage({ params }: CaseStudyPageProps) {

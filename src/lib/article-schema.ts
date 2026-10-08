@@ -1,10 +1,11 @@
 import type { CmsRecord } from "@/lib/content-server";
-import { articlePath } from "@/lib/editorial-normalization";
+import { articlePath, normalizeEditorialRecord } from "@/lib/editorial-normalization";
 import { deriveEditorialTaxonomy } from "@/lib/cms-taxonomy";
 import { absoluteUrl } from "@/lib/seo";
 
 export function buildArticleJsonLd(record: CmsRecord) {
   const taxonomy = deriveEditorialTaxonomy(record);
+  const canonical = absoluteUrl(articlePath(normalizeEditorialRecord(record)));
   const image = typeof record.imageUrl === "string" && record.imageUrl ? record.imageUrl : typeof record.featuredImage === "string" && record.featuredImage ? record.featuredImage : "";
   const tags = Array.isArray(record.tags) ? record.tags.filter((tag): tag is string => typeof tag === "string" && Boolean(tag.trim())) : [];
   return {
@@ -16,8 +17,8 @@ export function buildArticleJsonLd(record: CmsRecord) {
     ...((record.sourceModifiedAt || record.updatedAt) ? { dateModified: record.sourceModifiedAt || record.updatedAt } : {}),
     author: { "@type": "Person", name: record.author || "RADARCharts by REM" },
     publisher: { "@type": "Organization", name: "RADARCharts by REM", url: "https://radarcharts.net", logo: { "@type": "ImageObject", url: "https://radarcharts.net/radar-logo.webp" } },
-    mainEntityOfPage: { "@type": "WebPage", "@id": absoluteUrl(record.canonicalUrl || articlePath(record)) },
-    url: absoluteUrl(record.canonicalUrl || articlePath(record)),
+    mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
+    url: canonical,
     ...(image ? { image: [{ "@type": "ImageObject", url: absoluteUrl(image), caption: record.featuredImageAlt || record.title || record.name || "RADAR editorial image" }] } : {}),
     ...(taxonomy.editorialType ? { articleSection: taxonomy.editorialType } : {}),
     ...(taxonomy.magazineSubtype ? { genre: taxonomy.magazineSubtype } : {}),

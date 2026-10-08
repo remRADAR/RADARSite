@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const SITE_URL = "https://radarcharts.net";
 export const SITE_NAME = "RADARCharts by REM";
-export const SITE_DESCRIPTION = "RADARCharts by REM is a Nigerian and African music discovery, media, culture, artist-development, and intelligence platform.";
+export const SITE_DESCRIPTION = "RADARCharts by REM — protecting the music as remRADAR. Discover Nigerian and African music, artists, releases, stories, and culture.";
 export const DEFAULT_SOCIAL_IMAGE = "/social/radarcharts-share.jpg";
 
 export function absoluteUrl(pathOrUrl: string): string {
