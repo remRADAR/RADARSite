@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
 import { readPublishedContent } from "@/lib/content-server";
 import { recordsForEditorialType } from "@/lib/editorial-archives";
 
@@ -9,7 +10,9 @@ export default async function ArticlesPage() {
   const press = recordsForEditorialType(articles, "Press");
   const spotlights = recordsForEditorialType(articles, "Spotlight");
   return (
-    <div>
+    <>
+      <ArchiveStructuredData name="RADARArticles" description="Press and Spotlight editorial coverage from RADARCharts." path="/ontheradar/articles" breadcrumbs={[{ name: "Home", path: "/" }, { name: "On The Radar", path: "/ontheradar" }, { name: "RADARArticles", path: "/ontheradar/articles" }]} />
+      <div>
       <section className="border-b-2 border-ink px-4 pb-10 pt-24 md:px-8">
         <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">(On The Radar / RADARArticles)</p>
         <h1 className="mt-4 display text-[clamp(3rem,11vw,11rem)] leading-[.84]">RADAR<br /><span className="text-flare">Articles.</span></h1>
@@ -27,6 +30,7 @@ export default async function ArticlesPage() {
           <p className="mt-4 max-w-sm font-mono text-xs uppercase text-muted-foreground group-hover:text-ink">Artist-led profiles, including Spotlights that are also associated with Motherland.</p>
         </Link>
       </section>
-    </div>
+      </div>
+    </>
   );
 }

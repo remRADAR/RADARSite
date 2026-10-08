@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
 import { WorkGrid } from "@/components/marketing/WorkGrid";
 import { caseStudies } from "@/lib/case-studies";
 import { getHeroPhotosBySlug } from "@/lib/unsplash";
@@ -13,6 +14,7 @@ export default async function WorkPage() {
 
   return (
     <div className="pt-14">
+      <ArchiveStructuredData name="Radar Work" description="Selected artist, release, editorial, and campaign work from RADARCharts." path="/work" breadcrumbs={[{ name: "Home", path: "/" }, { name: "Work", path: "/work" }]} />
       <div className="flex items-end justify-between px-4 pb-8 pt-12 md:px-8 md:pt-20">
         <div>
           <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
