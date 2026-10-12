@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import type { SiteOverrides } from "@/lib/site-overrides";
 import { defaultSiteOverrides, normalizeSiteOverrides } from "@/lib/site-overrides";
 import { readStudioSettings } from "@/lib/studio-server";
@@ -27,8 +28,14 @@ export function absolutePublicUrl(pathOrUrl: string) {
 
 export async function readPublicSiteOverrides(): Promise<SiteOverrides> {
   if (!process.env.DATABASE_URL) return defaultSiteOverrides;
-  try { return normalizeSiteOverrides(await readStudioSettings()); } catch { return defaultSiteOverrides; }
+  try { return await readCachedPublicSiteOverrides(); } catch { return defaultSiteOverrides; }
 }
+
+const readCachedPublicSiteOverrides = unstable_cache(
+  async () => normalizeSiteOverrides(await readStudioSettings()),
+  ["radarsite-public-site-overrides"],
+  { revalidate: 3600, tags: ["radarsite-public-site-overrides"] },
+);
 
 export function safeSocialImageUrl(value: string | undefined, fallback = "/social/radar-global-card.png") {
   const candidate = value?.trim() || fallback;
