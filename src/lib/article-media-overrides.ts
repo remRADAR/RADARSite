@@ -9,6 +9,8 @@ const TARGET_MEDIA = {
     "/editorial/styling-is-choosing-life-with-aye-lawa-feat-wyza/featured.jpg",
   ],
 } as const;
+const RHIA_BELLO_SLUG = "rhia-bello-invites-everyone-to-celebrate-connect-and-drink-up";
+const RHIA_BELLO_FEATURED_IMAGE = "/editorial/rhia-bello-drink-up/featured.png";
 
 /**
  * Reconnects the supplied, verified source assets to the one newly published
@@ -16,6 +18,14 @@ const TARGET_MEDIA = {
  * slug-scoped so unrelated editorial records remain untouched.
  */
 export function applyArticleMediaOverrides(record: CmsRecord): CmsRecord {
+  if (record.slug === RHIA_BELLO_SLUG) {
+    return {
+      ...record,
+      imageUrl: RHIA_BELLO_FEATURED_IMAGE,
+      featuredImage: RHIA_BELLO_FEATURED_IMAGE,
+      featuredImageAlt: record.featuredImageAlt || "Rhia Bello — Drink Up",
+    };
+  }
   if (record.slug !== TARGET_SLUG) return record;
 
   const source = record.bodyHtml || record.body || "";
