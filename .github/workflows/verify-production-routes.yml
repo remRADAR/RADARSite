@@ -14,7 +14,7 @@ concurrency:
 jobs:
   verify:
     name: Verify all live editorial routes
-    if: github.event_name != 'deployment_status' || ((github.event.deployment.environment == 'Production' || github.event.deployment.environment == 'production') && github.event.deployment_status.state == 'success')
+    if: github.event_name != 'deployment_status' || (github.event.deployment.environment == 'Production – radarsite' && github.event.deployment_status.state == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -45,5 +45,5 @@ jobs:
           echo "Production did not become ready within 10 minutes" >&2
           exit 1
 
-      - name: Verify all 371 live editorial routes
+      - name: Verify all live editorial routes
         run: node scripts/verify-live-editorial-routes.mjs
