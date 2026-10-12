@@ -13,6 +13,7 @@ import {
   deterministicCmsId, findNotionCmsRecord, mapNotionPageToDraft, normalizeNotionPageId,
   notionContentFingerprint, readNotionProperty, sameNotionPageRevision, sourceFingerprint, validateEditorialSchema,
   validatePageAuthorization, renderNotionBlockTree, EDITORIAL_PROPERTY_NAMES,
+  notionPageCoverUrl, isSafePublicHttpsUrl,
   NOTION_API_VERSION, type NotionBlock, type NotionDataSource, type NotionPage,
 } from "@/lib/notion-editorial-sync";
 
@@ -259,7 +260,11 @@ export async function POST(request: NextRequest) {
     let draft: ReturnType<typeof mapNotionPageToDraft>;
     try { draft = mapNotionPageToDraft(page, dataSource, rendered.html); }
     catch (error) { throw apiError(error instanceof Error ? error.message.slice(0, 300) : "Notion editorial fields are invalid.", 422, "editorial_content_invalid"); }
-    const featuredSource = draft.featuredImageUrl;
+    // Featured image priority: explicit Featured Image URL, then the Notion page cover.
+    // Notion cover file URLs are short-lived signed links, so the cover URL is always read
+    // fresh from the page payload at publish time and imported into R2 before the CMS write.
+    const coverUrl = notionPageCoverUrl(page);
+    const featuredSource = draft.featuredImageUrl || (coverUrl && isSafePublicHttpsUrl(coverUrl) ? coverUrl : "");
     let featuredImage = "";
     if (featuredSource) {
       if (isDryRun) validateNotionImageUrl(featuredSource);

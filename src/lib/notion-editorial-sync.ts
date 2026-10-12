@@ -25,7 +25,7 @@ export const EDITORIAL_PROPERTY_NAMES = {
 } as const;
 
 export type NotionDataSource = { id: string; properties: Record<string, Record<string, unknown>> };
-export type NotionPage = { id: string; url?: string; parent?: Record<string, unknown>; properties: Record<string, Record<string, unknown>>; last_edited_time?: string };
+export type NotionPage = { id: string; url?: string; parent?: Record<string, unknown>; cover?: Record<string, unknown>; properties: Record<string, Record<string, unknown>>; last_edited_time?: string };
 export type NotionBlock = { id: string; type: string; has_children?: boolean; [key: string]: unknown };
 export type EditorialDraft = {
   pageId: string; title: string; excerpt: string; bodyHtml: string; body: string; slugHint: string;
@@ -116,6 +116,16 @@ function richTextText(value: unknown): string {
     const text = item.plain_text ?? (item.text && typeof item.text === "object" ? (item.text as Record<string, unknown>).content : "");
     return typeof text === "string" ? text : "";
   }).join("").trim();
+}
+
+/** Best-effort extraction of a page cover image URL (file or external) exactly as Notion returned it. */
+export function notionPageCoverUrl(page: NotionPage): string {
+  const cover = page.cover && typeof page.cover === "object" ? page.cover as Record<string, unknown> : undefined;
+  if (!cover || typeof cover.type !== "string") return "";
+  const value = cover[cover.type];
+  if (!value || typeof value !== "object") return "";
+  const url = (value as Record<string, unknown>).url;
+  return typeof url === "string" ? url : "";
 }
 
 export function readNotionProperty(page: NotionPage, name: string, typeHint?: string): unknown {
