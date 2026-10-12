@@ -162,7 +162,7 @@ export function Hero() {
         key={`${slide.id}-${layer}-${source}`}
         src={source}
         alt=""
-        loading={index === 0 ? "eager" : "lazy"}
+        loading={index === active || index === incoming ? "eager" : "lazy"}
         decoding="async"
         fetchPriority={index === 0 ? "high" : "auto"}
         onError={() => {
