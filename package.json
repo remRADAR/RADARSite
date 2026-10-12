@@ -1,5 +1,5 @@
 {
-  "name": "scaffold",
+  "name": "radarsite",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,6 +7,8 @@
     "build": "RADAR_SKIP_DATABASE=1 next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run lint && npm run typecheck",
     "cms:diagnose": "node scripts/cms-diagnose.mjs",
     "cms:reconcile": "tsx scripts/cms-reconcile.ts",
     "media:contract-test": "tsx scripts/wordpress-media-contract-test.ts",
@@ -66,7 +68,6 @@
     "tsx": "^4.23.13",
     "typescript": "^5"
   },
-  "scripts:test:a11y": "node scripts/check-accessibility.mjs",
   "allowScripts": {
     "esbuild@0.28.2": true,
     "unrs-resolver@1.12.2": true,
