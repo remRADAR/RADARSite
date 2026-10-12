@@ -13,9 +13,8 @@ export function CTASection() {
         src="/media/homepage-cta.gif"
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-75"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
       />
-      <div className="pointer-events-none absolute inset-0 bg-ink/45" aria-hidden="true" />
 
       <div className="relative z-10 flex items-center justify-between px-4 py-6 md:px-8">
         <p className="font-mono text-xs font-bold uppercase tracking-widest">(05) Start</p>
