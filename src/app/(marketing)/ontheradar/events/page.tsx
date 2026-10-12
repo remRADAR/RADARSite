@@ -1,3 +1,8 @@
+import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildPageMetadata({ title: "Events", description: "Live rooms, listening sessions, and the next places to find the signal from RADARCharts.", path: "/ontheradar/events" });
+
 import { IaIndex } from "@/components/marketing/IaPages";
 import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
 import { events } from "@/lib/ia-content";

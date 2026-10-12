@@ -1,3 +1,8 @@
+import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildPageMetadata({ title: "Projects", description: "Campaigns, worlds, and creative systems built across the RADARCharts ecosystem.", path: "/ontheradar/projects" });
+
 import { IaIndex } from "@/components/marketing/IaPages";
 import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
 import { radarProjects } from "@/lib/ia-content";

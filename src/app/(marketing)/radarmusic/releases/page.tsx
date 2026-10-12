@@ -1,3 +1,8 @@
+import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildPageMetadata({ title: "Releases", description: "Explore notable releases and new music surfaced by RADARCharts.", path: "/radarmusic/releases" });
+
 import { IaIndex } from "@/components/marketing/IaPages";
 import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
 import { caseStudies } from "@/lib/case-studies";

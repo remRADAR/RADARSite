@@ -10,9 +10,9 @@ import { ArticleSourceExcerpt } from "@/components/marketing/ArticleSourceExcerp
 import { buildArticleSourceExcerpt } from "@/lib/source-excerpt";
 import { articleSocialCardUrl } from "@/lib/social-card";
 export const revalidate = 3600;
-// CMS articles can be published after a deployment; resolve new published slugs on demand.
-// The page still calls notFound() when the slug is absent from published content.
-export const dynamicParams = true;
+// Unknown editorial slugs must be real 404s, not successful static shells with noindex metadata.
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   const { articles } = await readPublishedContent();
   return articles.map((article) => ({ article: article.slug }));

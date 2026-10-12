@@ -1,3 +1,8 @@
+import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildPageMetadata({ title: "RADARMusic", description: "Artists and releases with something to say, curated by RADARCharts.", path: "/radarmusic" });
+
 import Link from "next/link";
 import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
 import { artists, releases } from "@/lib/ia-content";

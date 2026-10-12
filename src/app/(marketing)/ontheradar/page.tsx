@@ -1,3 +1,8 @@
+import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildPageMetadata({ title: "On The Radar", description: "Discover RADARCharts editorial coverage, projects, events, and stories from African music and culture.", path: "/ontheradar" });
+
 import Link from "next/link";
 import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
 import { readPublishedContent } from "@/lib/content-server";

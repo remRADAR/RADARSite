@@ -4,9 +4,19 @@ import { IaIndex } from "@/components/marketing/IaPages";
 import { ArchivePagination } from "@/components/marketing/ArchivePagination";
 import { readPublishedContent } from "@/lib/content-server";
 import { EDITORIAL_ARCHIVE_PAGE_SIZE, paginateRecords, parseArchivePage, recordsForEditorialType } from "@/lib/editorial-archives";
+import { buildPageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 export const dynamicParams = false;
+
+export async function generateMetadata({ params }: { params: Promise<{ page: string }> }) {
+  const page = parseArchivePage((await params).page);
+  return buildPageMetadata({
+    title: `Press Archive — Page ${page}`,
+    description: "The current-first Press archive: ordinary RADAR editorial and news content, newest published entries first.",
+    path: `/ontheradar/articles/press/page/${page}`,
+  });
+}
 
 export async function generateStaticParams() {
   const { articles } = await readPublishedContent();

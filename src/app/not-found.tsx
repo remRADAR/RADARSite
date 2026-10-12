@@ -1,3 +1,7 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Page not found", robots: { index: false, follow: true } };
+
 import Link from "next/link";
 
 const links = [
