@@ -26,10 +26,6 @@ const categoryRoutes = [...counts].flatMap(([label, count]) => Array.from(
   { length: Math.max(1, Math.ceil(count / 24)) },
   (_, index) => `/ontheradar/articles/category/${categorySlug(label)}/page/${index + 1}`,
 ));
-const recentArticleRoutes = [
-  "/ontheradar/articles/styling-is-choosing-life-with-aye-lawa-feat-wyza",
-  "/ontheradar/articles/telman-releases-if-not-god-a-bold-gospel-drill-anthem",
-];
 const routes = [...new Set([
   "/",
   "/ontheradar",
@@ -40,7 +36,6 @@ const routes = [...new Set([
   "/motherland",
   ...categoryRoutes,
   ...articleRoutes,
-  ...recentArticleRoutes,
 ])];
 
 const concurrency = Number(process.env.CONCURRENCY || 16);
