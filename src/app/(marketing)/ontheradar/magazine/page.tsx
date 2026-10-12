@@ -3,8 +3,9 @@ import { IaIndex } from "@/components/marketing/IaPages";
 import { StructuredData } from "@/components/StructuredData";
 import { readPublishedContent } from "@/lib/content-server";
 import { recordsForMagazineSubtype } from "@/lib/editorial-archives";
-import { breadcrumbStructuredData, webPageStructuredData } from "@/lib/seo";
+import { breadcrumbStructuredData, buildPageMetadata, webPageStructuredData } from "@/lib/seo";
 export const revalidate = 3600;
+export const metadata = buildPageMetadata({ title: "Magazine", description: "Special Episodes and Magazine Episodes from the RADARCharts editorial ecosystem.", path: "/ontheradar/magazine" });
 export default async function MagazinePage() {
   const { articles, magazine } = await readPublishedContent();
   const specialEpisodes = recordsForMagazineSubtype(articles, "Special Episode");

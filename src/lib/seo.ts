@@ -47,7 +47,7 @@ export function buildPageMetadata(input: {
   modifiedTime?: string;
   authors?: string[];
 }): Metadata {
-  const canonical = canonicalPath(undefined, input.path);
+  const canonical = canonicalPath(input.path, input.path);
   const title = input.title.trim() || SITE_NAME;
   const description = cleanDescription(input.description);
   const image = input.image ? absoluteUrl(input.image) : absoluteUrl(DEFAULT_SOCIAL_IMAGE);

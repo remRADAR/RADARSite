@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { readPublishedContent } from "@/lib/content-server";
 import { MediaFrame } from "@/components/MediaFrame";
+import { buildPageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
@@ -16,7 +17,10 @@ async function getPage(params: Props["params"]) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const page = await getPage(params);
-  return page ? { title: page.metaTitle || page.title, description: page.metaDescription || page.body } : { title: "Page not found" };
+  if (!page) return { title: "Page not found", robots: { index: false, follow: false } };
+  const { cmsPath } = await params;
+  const path = page.path || `/${cmsPath.join("/")}`;
+  return buildPageMetadata({ title: page.metaTitle || page.title, description: page.metaDescription || page.body, path, image: page.imageUrl || page.featuredImage, indexable: page.noindex !== true });
 }
 
 export default async function CmsPage({ params }: Props) {

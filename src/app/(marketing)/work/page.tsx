@@ -1,13 +1,14 @@
-import type { Metadata } from "next";
 import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
 import { WorkGrid } from "@/components/marketing/WorkGrid";
 import { caseStudies } from "@/lib/case-studies";
 import { getHeroPhotosBySlug } from "@/lib/unsplash";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Radar",
+export const metadata = buildPageMetadata({
+  title: "RADAR Work",
   description: "Selected artist, release, editorial, and campaign work from RADARCharts.",
-};
+  path: "/work",
+});
 
 export default async function WorkPage() {
   const photosBySlug = await getHeroPhotosBySlug(caseStudies);
