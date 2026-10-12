@@ -1,19 +1,17 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { revalidatePath, revalidateTag } from "next/cache";
 import { normalizeArticleInput } from "@/app/api/studio/route";
 import {
-  contentCacheTag, readContentSnapshotReadOnly, readContentWriteSnapshot, writeContentIfUnchanged,
   type CmsRecord, type ContentCollections,
 } from "@/lib/content-server";
 import { articlePath } from "@/lib/editorial-normalization";
 import { createMediaRelationshipId } from "@/lib/media-relationships";
-import { deleteMediaRelationship, listMediaRelationshipsByContent, upsertMediaRelationship } from "@/lib/content-server";
-import { importNotionImage, notionR2ConfigurationReady, type ImportedNotionMedia, validateNotionImageUrl } from "@/lib/notion-media";
+import { type ImportedNotionMedia, validateNotionImageUrl } from "@/lib/notion-media";
+import { notionPublishRuntime } from "@/lib/notion-publish-runtime";
 import {
   buildNotionPageUpdates, cmsContentCollisions, cmsSyncSnapshot, detectNotionCmsConflicts,
   deterministicCmsId, findNotionCmsRecord, mapNotionPageToDraft, normalizeNotionPageId,
-  readNotionProperty, sourceFingerprint, validateEditorialSchema,
+  notionContentFingerprint, readNotionProperty, sameNotionPageRevision, sourceFingerprint, validateEditorialSchema,
   validatePageAuthorization, renderNotionBlockTree, EDITORIAL_PROPERTY_NAMES,
   NOTION_API_VERSION, type NotionBlock, type NotionDataSource, type NotionPage,
 } from "@/lib/notion-editorial-sync";
@@ -145,6 +143,9 @@ function toPublishedRecord(page: NotionPage, dataSource: NotionDataSource, html:
     socialImage: featuredImage || existing?.socialImage || existing?.featuredImage || "",
     noindex: false,
   }, existing);
+  // normalizeArticleInput starts from a fresh Studio UUID by default; override it
+  // for new Notion records so retries always resolve the same CMS identity.
+  article.id = existing?.id || deterministicCmsId(draft.pageId);
   if (!article.canonicalUrl) article.canonicalUrl = `https://radarcharts.net${articlePath(article)}`;
   article.sourceProvider = "notion";
   article.sourceId = draft.pageId;
@@ -169,6 +170,38 @@ async function updateNotionPage(pageId: string, dataSource: NotionDataSource, va
   return await notionJson<NotionPage>(`https://api.notion.com/v1/pages/${encodeURIComponent(pageId)}`, token, {
     method: "PATCH", body: JSON.stringify({ properties }),
   });
+}
+async function assertNotionSourceCurrent(
+  expectedPage: NotionPage,
+  expectedStatus: string,
+  expectedDraft: ReturnType<typeof mapNotionPageToDraft>,
+  expectedRendered: Awaited<ReturnType<typeof renderNotionBlockTree>>,
+  dataSource: NotionDataSource,
+  token: string,
+): Promise<NotionPage> {
+  const pageId = normalizeNotionPageId(expectedPage.id);
+  if (!pageId) throw apiError("Notion page identity is invalid during source revalidation.", 409, "notion_source_changed");
+  const currentPage = await notionJson<NotionPage>(`https://api.notion.com/v1/pages/${encodeURIComponent(pageId)}`, token);
+  const currentPermission = validatePageAuthorization(currentPage, dataSource);
+  if (!currentPermission.ok || currentPermission.status !== expectedStatus || !currentPermission.publishChecked) {
+    throw apiError("Notion approval or publishing authorization changed during the sync. No new CMS content was written; review and retry.", 409, "notion_source_changed");
+  }
+  if (!sameNotionPageRevision(expectedPage, currentPage)) {
+    throw apiError("Notion page properties or edit revision changed during the sync. Review and retry before publishing.", 409, "notion_source_changed");
+  }
+  const currentBlocks = await notionChildren(pageId, token);
+  const currentRendered = await renderNotionBlockTree(
+    currentBlocks,
+    (blockId) => notionChildren(blockId, token),
+    async (_url, blockId) => `https://notion-revision.invalid/${encodeURIComponent(blockId)}`,
+  );
+  let currentDraft: ReturnType<typeof mapNotionPageToDraft>;
+  try { currentDraft = mapNotionPageToDraft(currentPage, dataSource, currentRendered.html); }
+  catch { throw apiError("Notion source content no longer satisfies the publishing contract. Review and retry.", 409, "notion_source_changed"); }
+  if (notionContentFingerprint(currentDraft, currentRendered) !== notionContentFingerprint(expectedDraft, expectedRendered)) {
+    throw apiError("Notion block content changed during the sync. Review and retry before publishing.", 409, "notion_source_changed");
+  }
+  return currentPage;
 }
 function findLinkedRecord(articles: CmsRecord[], pageId: string): CmsRecord | undefined {
   return findNotionCmsRecord(articles, pageId);
@@ -211,7 +244,7 @@ export async function POST(request: NextRequest) {
     try { rendered = await renderNotionBlockTree(topLevelBlocks, (blockId) => notionChildren(blockId, notionToken), async (url, blockId, alt) => {
       if (isDryRun) return validateNotionImageUrl(url).toString();
       let image: ImportedNotionMedia;
-      try { image = await importNotionImage({ url, pageId, blockId, alt }); }
+      try { image = await notionPublishRuntime.importNotionImage({ url, pageId, blockId, alt }); }
       catch {
         try { await updateNotionPage(pageId, dataSource, { syncStatus: "Failed" }, notionToken); } catch { /* the API response below remains the visible failure */ }
         throw apiError("Image import failed before the CMS was updated. Check R2 configuration and secure server logs.", 502, "media_import_failed");
@@ -232,7 +265,7 @@ export async function POST(request: NextRequest) {
       if (isDryRun) validateNotionImageUrl(featuredSource);
       else {
         try {
-          const image = await importNotionImage({ url: featuredSource, pageId, blockId: "featured-image", alt: draft.title });
+          const image = await notionPublishRuntime.importNotionImage({ url: featuredSource, pageId, blockId: "featured-image", alt: draft.title });
           imported.set("featured-image", image);
           featuredImage = image.url;
         } catch {
@@ -244,10 +277,10 @@ export async function POST(request: NextRequest) {
 
     if (isDryRun) {
       const previewRecord = toPublishedRecord(page, dataSource, rendered.html, undefined, featuredSource ? "https://preview.invalid/notion-image" : "");
-      const cmsSnapshot = await readContentSnapshotReadOnly();
+      const cmsSnapshot = await notionPublishRuntime.readContentSnapshotReadOnly();
       const blockers: string[] = [];
       const hasImages = rendered.images.length > 0 || Boolean(featuredSource);
-      const r2Ready = notionR2ConfigurationReady();
+      const r2Ready = notionPublishRuntime.notionR2ConfigurationReady();
       if (hasImages) blockers.push("Dry-run does not download or upload images; actual image content, checksum, and final CDN URLs remain unverified.");
       if (hasImages && !r2Ready) blockers.push("R2 public-media configuration is incomplete for the images in this page.");
       let existing: CmsRecord | undefined;
@@ -291,8 +324,10 @@ export async function POST(request: NextRequest) {
     let finalContent: ContentCollections | undefined;
     let syncAt = "";
     let conflictDetails: string[] = [];
+    let expectedNotionPage = page;
+    let expectedNotionStatus = permission.status;
     for (let attempt = 0; attempt < 3; attempt++) {
-      const snapshot = await readContentWriteSnapshot();
+      const snapshot = await notionPublishRuntime.readContentWriteSnapshot();
       const allRecords = recordsIn(snapshot.content);
       const matchingRecords = allRecords.filter((item) => item.notionPageId === pageId || (item.sourceProvider === "notion" && normalizeNotionPageId(item.sourceId) === pageId));
       if (matchingRecords.length > 1) {
@@ -324,6 +359,7 @@ export async function POST(request: NextRequest) {
           try { await updateNotionPage(pageId, dataSource, { syncStatus: "Conflict" }, notionToken); } catch { /* approval requirement remains in the API response */ }
           return json({ error: "Published content changed in Notion. Set Status back to Approved before applying updates.", code: "reapproval_required" }, { status: 409 });
         }
+        await assertNotionSourceCurrent(expectedNotionPage, expectedNotionStatus, draft, rendered, dataSource, notionToken);
         const unchanged = await writeNotionSyncResult(pageId, dataSource, notionToken, { status: "Published", syncStatus: "Synced", cmsId: existing.id, notionPageId: pageId, canonicalUrl: String(existing.canonicalUrl || ""), syncedAt: String(existing.lastSyncedAt || new Date().toISOString()) });
         if (!unchanged) return json({ error: "Published content remains unchanged, but Notion sync metadata could not be confirmed. Retry the same page.", code: "notion_finalization_failed", cmsId: existing.id }, { status: 502 });
         return json({ ok: true, idempotent: true, pageId, cmsId: existing.id, canonicalUrl: existing.canonicalUrl || "", notionUpdated: unchanged });
@@ -344,7 +380,7 @@ export async function POST(request: NextRequest) {
       const conflicts = existing ? detectNotionCmsConflicts(existing, incoming) : [];
       if (conflicts.length) {
         conflictDetails = conflicts;
-        try { await updateNotionPage(pageId, dataSource, { status: permission.status, syncStatus: "Conflict" }, notionToken); } catch { /* surface conflict without hiding it if Notion writeback is unavailable */ }
+        try { await updateNotionPage(pageId, dataSource, { syncStatus: "Conflict" }, notionToken); } catch { /* surface conflict without hiding it if Notion writeback is unavailable */ }
         return json({ error: "RADARSite contains editorial changes that conflict with this Notion revision.", code: "cms_conflict", fields: conflicts }, { status: 409 });
       }
       const collisions = cmsContentCollisions(allRecords, incoming, existing);
@@ -356,7 +392,7 @@ export async function POST(request: NextRequest) {
       const nextFingerprint = sourceFingerprint(incoming);
       const priorFingerprint = typeof existing?.sourceSnapshotHash === "string" ? existing.sourceSnapshotHash : "";
       if (existing && priorFingerprint && priorFingerprint !== sourceFingerprint(existing)) {
-        try { await updateNotionPage(pageId, dataSource, { status: permission.status, syncStatus: "Conflict" }, notionToken); } catch { /* conflict remains visible in the API result */ }
+        try { await updateNotionPage(pageId, dataSource, { syncStatus: "Conflict" }, notionToken); } catch { /* conflict remains visible in the API result */ }
         return json({ error: "Stored CMS sync metadata is inconsistent; no content was overwritten.", code: "sync_metadata_conflict" }, { status: 409 });
       }
       if (existing && priorFingerprint === nextFingerprint && permission.status === "Publishing") {
@@ -366,21 +402,28 @@ export async function POST(request: NextRequest) {
         break;
       }
       if (permission.status === "Publishing" && existing && priorFingerprint !== nextFingerprint) {
-        try { await updateNotionPage(pageId, dataSource, { status: "Approved", syncStatus: "Conflict" }, notionToken); } catch { /* page can be returned to Approved by the editor */ }
+        try { await updateNotionPage(pageId, dataSource, { syncStatus: "Conflict" }, notionToken); } catch { /* preserve the editor's current approval state */ }
         return json({ error: "Notion content changed while a prior publication was incomplete. Review the page before approving it again.", code: "reapproval_required" }, { status: 409 });
       }
-      try { await updateNotionPage(pageId, dataSource, { status: "Publishing", syncStatus: "Syncing" }, notionToken); }
-      catch (error) { throw apiError(error instanceof Error ? error.message : "Notion could not enter Publishing state.", 502, "notion_status_update_failed"); }
+      expectedNotionPage = await assertNotionSourceCurrent(expectedNotionPage, expectedNotionStatus, draft, rendered, dataSource, notionToken);
+      try {
+        expectedNotionPage = await updateNotionPage(pageId, dataSource, { status: "Publishing", syncStatus: "Syncing" }, notionToken);
+        expectedNotionStatus = "Publishing";
+      } catch (error) { throw apiError(error instanceof Error ? error.message : "Notion could not enter Publishing state.", 502, "notion_status_update_failed"); }
+      expectedNotionPage = await assertNotionSourceCurrent(expectedNotionPage, expectedNotionStatus, draft, rendered, dataSource, notionToken);
       let written: boolean;
-      try { written = await writeContentIfUnchanged(snapshot.revision, content); }
+      try { written = await notionPublishRuntime.writeContentIfUnchanged(snapshot.revision, content); }
       catch {
-        try { await updateNotionPage(pageId, dataSource, { status: permission.status, syncStatus: "Failed" }, notionToken); } catch { /* do not conceal the storage failure */ }
+        try {
+          await assertNotionSourceCurrent(expectedNotionPage, expectedNotionStatus, draft, rendered, dataSource, notionToken);
+          await updateNotionPage(pageId, dataSource, { status: permission.status, syncStatus: "Failed" }, notionToken);
+        } catch { /* never overwrite a newer editor state while recovering */ }
         throw apiError("The CMS write failed; Notion was returned to its prior status when possible.", 503, "cms_write_failed");
       }
       if (!written) {
         if (attempt < 2) continue;
         conflictDetails = ["concurrent CMS update"];
-        try { await updateNotionPage(pageId, dataSource, { status: permission.status, syncStatus: "Conflict" }, notionToken); } catch { /* report the CAS conflict */ }
+        try { await updateNotionPage(pageId, dataSource, { syncStatus: "Conflict" }, notionToken); } catch { /* report the CAS conflict without changing editorial status */ }
         return json({ error: "CMS content changed concurrently; no update was applied. Retry after review.", code: "concurrent_cms_update", fields: conflictDetails }, { status: 409 });
       }
       finalArticle = incoming;
@@ -391,7 +434,7 @@ export async function POST(request: NextRequest) {
     if (!finalArticle || !finalContent) throw apiError("CMS synchronization did not complete.", 503, "cms_sync_unavailable");
 
     const syncRun = `notion-publish:${pageId}`;
-    const desiredRelationships = new Map<string, Parameters<typeof upsertMediaRelationship>[0]>();
+    const desiredRelationships = new Map<string, Parameters<typeof notionPublishRuntime.upsertMediaRelationship>[0]>();
     for (const [blockId, image] of imported) {
       const featuredRole = blockId === "featured-image";
       const placementIndex = featuredRole ? undefined : rendered.images.find((item) => item.blockId === blockId)?.placementIndex;
@@ -406,30 +449,31 @@ export async function POST(request: NextRequest) {
       desiredRelationships.set(id, { ...relationship, id });
     }
     try {
-      const existingRelationships = await listMediaRelationshipsByContent(`notion:${pageId}`);
+      const existingRelationships = await notionPublishRuntime.listMediaRelationshipsByContent(`notion:${pageId}`);
       for (const relation of existingRelationships) {
         // An empty Featured Image URL means preserve the current featured asset.
         if (relation.role === "featured" && !featuredSource) continue;
-        if (!desiredRelationships.has(relation.id)) await deleteMediaRelationship(relation.id);
+        if (!desiredRelationships.has(relation.id)) await notionPublishRuntime.deleteMediaRelationship(relation.id);
       }
-      for (const relation of desiredRelationships.values()) await upsertMediaRelationship(relation);
+      for (const relation of desiredRelationships.values()) await notionPublishRuntime.upsertMediaRelationship(relation);
     } catch {
-      try { await updateNotionPage(pageId, dataSource, { status: "Publishing", syncStatus: "Failed" }, notionToken); } catch { /* retry through the stable Notion/CMS identity */ }
-      throw apiError("CMS content was saved, but media association failed. The page remains Publishing; retry after checking media storage.", 503, "media_relationship_failed");
+      try { await updateNotionPage(pageId, dataSource, { syncStatus: "Failed" }, notionToken); } catch { /* retry through the stable Notion/CMS identity without changing editorial status */ }
+      throw apiError("CMS content was saved, but media association failed. The editor's Status was preserved; retry after checking media storage.", 503, "media_relationship_failed");
     }
     const syncedAt = syncAt || new Date().toISOString();
     try {
-      revalidateTag(contentCacheTag(), { expire: 0 });
-      revalidatePath(articlePath(finalArticle));
-      revalidatePath("/ontheradar/articles");
-      revalidatePath("/ontheradar");
-      if (finalArticle.editorialType === "Magazine") revalidatePath("/ontheradar/magazine");
-      if (finalArticle.projectSection === "Motherland") revalidatePath("/motherland");
+      notionPublishRuntime.revalidateTag(notionPublishRuntime.contentCacheTag(), { expire: 0 });
+      notionPublishRuntime.revalidatePath(articlePath(finalArticle));
+      notionPublishRuntime.revalidatePath("/ontheradar/articles");
+      notionPublishRuntime.revalidatePath("/ontheradar");
+      if (finalArticle.editorialType === "Magazine") notionPublishRuntime.revalidatePath("/ontheradar/magazine");
+      if (finalArticle.projectSection === "Motherland") notionPublishRuntime.revalidatePath("/motherland");
     } catch {
-      try { await updateNotionPage(pageId, dataSource, { status: "Publishing", syncStatus: "Failed" }, notionToken); } catch { /* retry through the stable Notion/CMS identity */ }
-      throw apiError("CMS content was saved, but cache revalidation failed. The page remains Publishing; retry or review deployment logs.", 503, "cache_revalidation_failed");
+      try { await updateNotionPage(pageId, dataSource, { syncStatus: "Failed" }, notionToken); } catch { /* retry through the stable Notion/CMS identity without changing editorial status */ }
+      throw apiError("CMS content was saved, but cache revalidation failed. The editor's Status was preserved; retry or review deployment logs.", 503, "cache_revalidation_failed");
     }
     try {
+      await assertNotionSourceCurrent(expectedNotionPage, expectedNotionStatus, draft, rendered, dataSource, notionToken);
       await updateNotionPage(pageId, dataSource, { status: "Published", syncStatus: "Synced", cmsId: finalArticle.id, notionPageId: pageId, canonicalUrl: String(finalArticle.canonicalUrl || ""), syncedAt }, notionToken);
     } catch {
       return json({ error: "RADARSite content was saved, but Notion status writeback failed. Retry the same page to finish idempotently.", code: "notion_finalization_failed", cmsId: finalArticle.id }, { status: 502 });

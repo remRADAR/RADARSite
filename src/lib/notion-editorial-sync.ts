@@ -350,6 +350,64 @@ export function cmsSyncSnapshot(record: CmsRecord): Record<string, unknown> {
 }
 function sameValue(a: unknown, b: unknown): boolean { return JSON.stringify(a ?? null) === JSON.stringify(b ?? null); }
 
+function stableStringify(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(stableStringify).join(",")}]`;
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    return `{${Object.keys(record).sort().map((key) => `${JSON.stringify(key)}:${stableStringify(record[key])}`).join(",")}}`;
+  }
+  return JSON.stringify(value) ?? "null";
+}
+
+export function sameNotionPageRevision(expected: NotionPage, current: NotionPage): boolean {
+  const expectedId = normalizeNotionPageId(expected.id);
+  if (!expectedId || expectedId !== normalizeNotionPageId(current.id)) return false;
+  if (!expected.last_edited_time || expected.last_edited_time !== current.last_edited_time) return false;
+  if (stableStringify(expected.parent ?? null) !== stableStringify(current.parent ?? null)) return false;
+  return stableStringify(expected.properties) === stableStringify(current.properties);
+}
+
+function normalizedSourceUrl(value: string): string {
+  try {
+    const url = new URL(value);
+    return `${url.protocol}//${url.host}${url.pathname}`;
+  } catch {
+    return value;
+  }
+}
+
+export function notionContentFingerprint(
+  draft: EditorialDraft,
+  rendered: Awaited<ReturnType<typeof renderNotionBlockTree>>,
+): string {
+  let imageIndex = 0;
+  const bodyHtml = rendered.html.replace(/(<img\b[^>]*\bsrc=")[^"]*(")/gi, (_match, prefix: string, suffix: string) => `${prefix}[notion-image-${imageIndex++}]${suffix}`);
+  const images = rendered.images.map((image) => ({
+    blockId: image.blockId,
+    placementIndex: image.placementIndex,
+    source: normalizedSourceUrl(image.sourceUrl),
+  }));
+  const source = {
+    title: draft.title,
+    excerpt: draft.excerpt,
+    body: draft.body,
+    bodyHtml,
+    editorialType: draft.editorialType,
+    magazineSubtype: draft.magazineSubtype,
+    projectSection: draft.projectSection,
+    author: draft.author,
+    tags: draft.tags,
+    featured: draft.featured,
+    featuredImageUrl: draft.featuredImageUrl ? normalizedSourceUrl(draft.featuredImageUrl) : "",
+    seoTitle: draft.seoTitle,
+    seoDescription: draft.seoDescription,
+    canonicalUrl: draft.canonicalUrl,
+    scheduledAt: draft.scheduledAt,
+    images,
+  };
+  return createHash("sha256").update(stableStringify(source)).digest("hex");
+}
+
 export function findNotionCmsRecord(articles: CmsRecord[], pageId: string): CmsRecord | undefined {
   const normalized = normalizeNotionPageId(pageId);
   return articles.find((item) => item.notionPageId === normalized || (item.sourceProvider === "notion" && normalizeNotionPageId(item.sourceId) === normalized));
