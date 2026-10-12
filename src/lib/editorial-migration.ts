@@ -93,6 +93,10 @@ export function sanitizeEditorialHtml(input: unknown) {
           kept.push(`${key}="${escapeAttr(value.slice(0, 300))}"`);
         }
       }
+      // Empty image sources create a second request for the current page and
+      // render as broken media in browsers. They are common in legacy CMS
+      // markup when an editor removed an image but left its placeholder tag.
+      if (name === "img" && !kept.some((item) => item.startsWith("src="))) return "";
       if (name === "iframe" && !kept.some((item) => item.startsWith("src="))) return "";
       const generatedClass = name === "img" ? ` class="editorial-media"` : "";
       return `<${name}${generatedClass}${kept.length ? ` ${kept.join(" ")}` : ""}>`;

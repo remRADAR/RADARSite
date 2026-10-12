@@ -40,15 +40,6 @@ export function Hero() {
   const [incoming, setIncoming] = useState<number | null>(null);
   const [failed, setFailed] = useState<Record<string, boolean>>({});
 
-  const handlePointerMove = useCallback((event: React.PointerEvent<HTMLElement>) => {
-    if (event.pointerType === "touch") return;
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const x = ((event.clientX - bounds.left) / bounds.width - 0.5) * 2;
-    const y = ((event.clientY - bounds.top) / bounds.height - 0.5) * 2;
-    event.currentTarget.style.setProperty("--mist-x", `${Math.max(-1, Math.min(1, x)) * 28}px`);
-    event.currentTarget.style.setProperty("--mist-y", `${Math.max(-1, Math.min(1, y)) * 16}px`);
-  }, []);
-
   useEffect(() => {
     const preload = (source: string) => {
       const image = new window.Image();
@@ -57,25 +48,6 @@ export function Hero() {
     };
     slides.slice(0, 2).forEach((slide) => preload(overrides.media[`hero:${slide.id}`] || slide.src));
   }, [overrides.media, slides]);
-
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      root.style.setProperty("--mist-scroll-y", `${Math.min(window.scrollY, 800) * 0.12}px`);
-    };
-    const onScroll = () => {
-      if (!frame) frame = window.requestAnimationFrame(update);
-    };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (frame) window.cancelAnimationFrame(frame);
-    };
-  }, []);
 
   const cancelTransition = useCallback(() => {
     transitionTokenRef.current += 1;
@@ -164,27 +136,21 @@ export function Hero() {
         alt=""
         loading={index === active || index === incoming ? "eager" : "lazy"}
         decoding="async"
-        fetchPriority={index === 0 ? "high" : "auto"}
+        fetchPriority={index === active || index === incoming ? "high" : "auto"}
         onError={() => {
           setFailed((current) => ({ ...current, [slide.id]: true }));
         }}
-        className={`absolute inset-0 h-full w-full translate-z-0 object-cover object-[center_62%] transition-opacity [will-change:opacity,transform] ease-[var(--ease-in-out)] motion-reduce:transition-none ${layer === "incoming" ? "opacity-100" : incoming === null ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 h-full w-full translate-z-0 object-cover object-center transition-opacity [will-change:opacity,transform] ease-[var(--ease-in-out)] motion-reduce:transition-none ${layer === "incoming" ? "opacity-100" : incoming === null ? "opacity-100" : "opacity-0"}`}
         style={{ transitionDuration: `${FADE_DURATION_MS}ms`, transform: "translateZ(0)" }}
       />
     );
   };
 
   return (
-    <section ref={rootRef} onPointerMove={handlePointerMove} className="hero-shell [--mist-x:0px] [--mist-y:0px] [--mist-scroll-y:0px] relative flex min-h-[100svh] flex-col justify-end overflow-hidden [contain:paint] bg-ink pt-14 text-paper">
+    <section ref={rootRef} className="hero-shell relative flex min-h-[100svh] flex-col justify-end overflow-hidden [contain:paint] bg-ink pt-14 text-paper">
       <div className="absolute inset-0 bg-ink" aria-hidden>
         {renderSlide(active, "active")}
         {incoming !== null ? renderSlide(incoming, "incoming") : null}
-      </div>
-
-      <div className="pointer-events-none absolute inset-[-10%] z-[1] h-[120%] w-[120%] opacity-65 mix-blend-screen [transform:translate3d(var(--mist-x),calc(var(--mist-y)+var(--mist-scroll-y)),0)] [will-change:transform]" aria-hidden>
-        <div className="absolute inset-0 bg-mist-cloud-1 animate-mist-slow opacity-60" />
-        <div className="absolute inset-0 bg-mist-cloud-2 animate-mist-medium opacity-50" />
-        <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/10 via-purple-500/5 to-transparent blur-3xl" />
       </div>
 
       <div className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-t from-ink/80 via-ink/10 to-transparent" aria-hidden>

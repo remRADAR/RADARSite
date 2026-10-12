@@ -87,7 +87,9 @@ export const heroConfig: HeroConfig = {
     order: index + 1,
     active: true,
   })),
-  durationMs: 5200,
+  // Keep each frame on screen long enough for the next full-resolution image
+  // to decode before the crossfade begins.
+  durationMs: 50000,
   transition: "fade",
   reducedMotionFallback: "/hero-new/banner-1.webp",
   eyebrow: "(01 / Signal)\nArtist development & culture",
