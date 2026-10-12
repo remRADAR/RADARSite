@@ -12,7 +12,7 @@ export interface GlobalSiteConfig {
 export const defaultSiteConfig: GlobalSiteConfig = {
   tickers: {
     ticker1_audioPlayer: { enabled: true, trackTitle: "Top10: *Track", playlistStatusText: "PLAYLIST LIVE", audioStreamUrl: "", autoPlay: false },
-    ticker2_heroMarquee: { enabled: true, speedSeconds: 26, items: ["MOTHERLAND PROJECT", "LIVE ON ARTIZEN", "SEASON 7"].map((text, i) => ({ id: `hero-ticker-${i + 1}`, text, icon: "✳", linkUrl: "" })) },
+    ticker2_heroMarquee: { enabled: true, speedSeconds: 26, items: ["NEW OFFICIAL SITE", "AKT!V", "ON THE RADAR"].map((text, i) => ({ id: `hero-ticker-${i + 1}`, text, icon: "•", linkUrl: "" })) },
     ticker3_partnerMarquee: { enabled: true, speedSeconds: 30, items: ["RADARUnit", "RADARMe", "On The Radar", "RADARArticles", "RADAR Sessions", "RADAR Live"] },
     ticker4_footerMarquee: { enabled: true, speedSeconds: 32, text: "remRADAR", separatorSymbol: "✳" },
     ticker5_projectSelector: { enabled: true, speedSeconds: 30, label: "SELECT PROJECT", projectSlugs: ["mamuzo-dark-era-peak-release", "after-hours-vol-02", "north-star-release"] },

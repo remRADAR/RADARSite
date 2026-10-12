@@ -9,7 +9,7 @@ import { SharePreviewTester } from "@/components/admin/SharePreviewTester";
 
 const LOCAL_CONTENT_KEY = "radar-cms-content";
 
-const initial: SiteOverrides = { ...defaultSiteOverrides, logoText: "remRADAR", tickerIcon: "✨", featuredSlugs: caseStudies.map((study) => study.slug), heroHeadline: heroConfig.headline, heroSubheadline: heroConfig.subheadline, tickerItems: ["MOTHERLAND PROJECT", "LIVE ON ARTIZEN", "SEASON 7"] };
+const initial: SiteOverrides = { ...defaultSiteOverrides, logoText: "remRADAR", tickerIcon: "✨", featuredSlugs: caseStudies.map((study) => study.slug), heroHeadline: heroConfig.headline, heroSubheadline: heroConfig.subheadline, tickerItems: ["NEW OFFICIAL SITE", "AKT!V", "ON THE RADAR"] };
 function load(): SiteOverrides { if (typeof window === "undefined") return initial; try { const raw = window.localStorage.getItem(SITE_OVERRIDES_KEY); return raw ? normalizeSiteOverrides({ ...initial, ...JSON.parse(raw) }) : initial; } catch { return initial; } }
 
 const fieldClass = "mt-2 w-full brut-border bg-transparent p-3 font-mono text-sm outline-none focus:ring-2 focus:ring-flare";
