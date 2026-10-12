@@ -11,7 +11,8 @@ import { buildArticleSourceExcerpt } from "@/lib/source-excerpt";
 import { articleSocialCardUrl } from "@/lib/social-card";
 export const revalidate = 3600;
 // Unknown editorial slugs must be real 404s, not successful static shells with noindex metadata.
-export const dynamicParams = false;
+// New approved CMS slugs are resolved on demand after publishing invalidates the path.
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const { articles } = await readPublishedContent();

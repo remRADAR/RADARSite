@@ -100,6 +100,37 @@ export async function readPublishedContent(): Promise<ContentCollections> {
   return { ...content, artists: published(content.artists), releases: published(content.releases), articles: published(content.articles), magazine: published(content.magazine), radarProjects: published(content.radarProjects), events: published(content.events), pages: published(content.pages), categories: published(content.categories), archives: published(content.archives) };
 }
 export async function writeContent(input: unknown) { const content = normalizeContent(input); if (Buffer.byteLength(JSON.stringify(content), "utf8") > MAX_CONTENT_BYTES) throw new Error("CMS content payload is too large"); await ensureContentTable(); await sql()`INSERT INTO studio_content (id, content, updated_at) VALUES (1, ${JSON.stringify(content)}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET content = EXCLUDED.content, updated_at = now()`; return content; }
+export async function readContentWriteSnapshot(): Promise<{ content: ContentCollections; revision: unknown | null }> {
+  if (!hasContentDatabase() || isProductionBuild()) throw new Error("Shared CMS writes are unavailable in this environment");
+  await ensureContentTable();
+  const rows = await sql()`SELECT content FROM studio_content WHERE id = 1 LIMIT 1` as { content: unknown }[];
+  const revision = rows[0]?.content ?? null;
+  const content = normalizeContent(revision ?? mergedSnapshot);
+  return { content: await hydrateMigratedMedia(content), revision };
+}
+export async function readContentSnapshotReadOnly(): Promise<ContentCollections | null> {
+  if (!hasContentDatabase() || isProductionBuild()) return null;
+  try {
+    // Intentionally do not call ensureContentTable here: a dry-run must not
+    // perform even schema-creation writes against a configured environment.
+    const rows = await sql()`SELECT content FROM studio_content WHERE id = 1 LIMIT 1` as { content: unknown }[];
+    return normalizeContent(rows[0]?.content ?? mergedSnapshot);
+  } catch {
+    // Missing/unavailable table means the collision preflight cannot be proven.
+    return null;
+  }
+}
+export async function writeContentIfUnchanged(revision: unknown | null, input: unknown): Promise<boolean> {
+  const content = normalizeContent(input);
+  if (Buffer.byteLength(JSON.stringify(content), "utf8") > MAX_CONTENT_BYTES) throw new Error("CMS content payload is too large");
+  await ensureContentTable();
+  if (revision === null) {
+    const inserted = await sql()`INSERT INTO studio_content (id, content, updated_at) VALUES (1, ${JSON.stringify(content)}::jsonb, now()) ON CONFLICT (id) DO NOTHING RETURNING id` as { id: number }[];
+    return inserted.length === 1;
+  }
+  const updated = await sql()`UPDATE studio_content SET content = ${JSON.stringify(content)}::jsonb, updated_at = now() WHERE id = 1 AND content = ${JSON.stringify(revision)}::jsonb RETURNING id` as { id: number }[];
+  return updated.length === 1;
+}
 export function getContentErrorDetails(error: unknown) { return errorDetails(error); }
 export function getMergedContentSnapshot() { return mergedSnapshot; }
 export function isSnapshotOnlyBuild() { return isProductionBuild(); }
