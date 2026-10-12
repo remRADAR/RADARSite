@@ -1,9 +1,6 @@
 name: Verify production editorial routes
 
 on:
-  push:
-    branches:
-      - main
   deployment_status:
   workflow_dispatch:
 
@@ -17,7 +14,7 @@ concurrency:
 jobs:
   verify:
     name: Verify all live editorial routes
-    if: github.event_name != 'deployment_status' || github.event.deployment.environment == 'Production' || github.event.deployment.environment == 'production'
+    if: github.event_name != 'deployment_status' || ((github.event.deployment.environment == 'Production' || github.event.deployment.environment == 'production') && github.event.deployment_status.state == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -36,7 +33,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          target="$BASE_URL/ontheradar/articles/styling-is-choosing-life-with-aye-lawa-feat-wyza"
+          target="$BASE_URL/"
           for attempt in {1..60}; do
             status=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --max-time 20 "$target" || true)
             echo "Attempt $attempt/60: $status"

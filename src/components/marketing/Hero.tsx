@@ -168,20 +168,26 @@ export function Hero() {
         onError={() => {
           setFailed((current) => ({ ...current, [slide.id]: true }));
         }}
-        className={`absolute inset-0 h-full w-full translate-z-0 object-cover object-center transition-opacity [will-change:opacity,transform] ease-[var(--ease-in-out)] motion-reduce:transition-none ${layer === "incoming" ? "opacity-100" : incoming === null ? "opacity-100" : "opacity-0"}`}
+        className={`absolute inset-0 h-full w-full translate-z-0 object-cover object-[center_62%] transition-opacity [will-change:opacity,transform] ease-[var(--ease-in-out)] motion-reduce:transition-none ${layer === "incoming" ? "opacity-100" : incoming === null ? "opacity-100" : "opacity-0"}`}
         style={{ transitionDuration: `${FADE_DURATION_MS}ms`, transform: "translateZ(0)" }}
       />
     );
   };
 
   return (
-    <section ref={rootRef} onPointerMove={handlePointerMove} className="hero-shell relative flex min-h-[100svh] flex-col justify-end overflow-hidden [contain:paint] bg-ink pt-14 text-paper">
+    <section ref={rootRef} onPointerMove={handlePointerMove} className="hero-shell [--mist-x:0px] [--mist-y:0px] [--mist-scroll-y:0px] relative flex min-h-[100svh] flex-col justify-end overflow-hidden [contain:paint] bg-ink pt-14 text-paper">
       <div className="absolute inset-0 bg-ink" aria-hidden>
         {renderSlide(active, "active")}
         {incoming !== null ? renderSlide(incoming, "incoming") : null}
       </div>
 
-      <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-ink/80 via-ink/10 to-transparent" aria-hidden>
+      <div className="pointer-events-none absolute inset-[-10%] z-[1] h-[120%] w-[120%] opacity-65 mix-blend-screen [transform:translate3d(var(--mist-x),calc(var(--mist-y)+var(--mist-scroll-y)),0)] [will-change:transform]" aria-hidden>
+        <div className="absolute inset-0 bg-mist-cloud-1 animate-mist-slow opacity-60" />
+        <div className="absolute inset-0 bg-mist-cloud-2 animate-mist-medium opacity-50" />
+        <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/10 via-purple-500/5 to-transparent blur-3xl" />
+      </div>
+
+      <div className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-t from-ink/80 via-ink/10 to-transparent" aria-hidden>
       </div>
 
       <div className="pointer-events-none absolute right-4 top-20 z-10 max-w-[calc(100%-2rem)] text-right font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-paper md:right-8 md:text-[11px]" data-hero-meta>{config.homepage.hero.coordinates || overrides.geoSignature}</div>
