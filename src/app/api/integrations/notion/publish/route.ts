@@ -260,11 +260,12 @@ export async function POST(request: NextRequest) {
     let draft: ReturnType<typeof mapNotionPageToDraft>;
     try { draft = mapNotionPageToDraft(page, dataSource, rendered.html); }
     catch (error) { throw apiError(error instanceof Error ? error.message.slice(0, 300) : "Notion editorial fields are invalid.", 422, "editorial_content_invalid"); }
-    // Featured image priority: explicit Featured Image URL, then the Notion page cover.
-    // Notion cover file URLs are short-lived signed links, so the cover URL is always read
-    // fresh from the page payload at publish time and imported into R2 before the CMS write.
+    // Featured image priority: explicit Featured Image URL, then the Featured Image Upload
+    // file, then the Notion page cover. Notion file URLs (upload + cover) are short-lived
+    // signed links, so the chosen URL is always read fresh from the page payload at publish
+    // time and imported into R2 before the CMS write.
     const coverUrl = notionPageCoverUrl(page);
-    const featuredSource = draft.featuredImageUrl || (coverUrl && isSafePublicHttpsUrl(coverUrl) ? coverUrl : "");
+    const featuredSource = draft.featuredImageUrl || draft.featuredImageUploadUrl || (coverUrl && isSafePublicHttpsUrl(coverUrl) ? coverUrl : "");
     let featuredImage = "";
     if (featuredSource) {
       if (isDryRun) validateNotionImageUrl(featuredSource);
@@ -497,3 +498,4 @@ async function writeNotionSyncResult(pageId: string, dataSource: NotionDataSourc
   try { await updateNotionPage(pageId, dataSource, values, token); return true; }
   catch (error) { console.error("[notion-publish] idempotent finalization failed", { name: error instanceof Error ? error.name : "UnknownError" }); return false; }
 }
+

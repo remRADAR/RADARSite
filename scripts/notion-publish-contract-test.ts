@@ -32,6 +32,7 @@ const dataSource: NotionDataSource = {
     [EDITORIAL_PROPERTY_NAMES.author]: { type: "rich_text", rich_text: {} },
     [EDITORIAL_PROPERTY_NAMES.excerpt]: { type: "rich_text", rich_text: {} },
     [EDITORIAL_PROPERTY_NAMES.featuredImage]: { type: "url", url: {} },
+    [EDITORIAL_PROPERTY_NAMES.featuredImageUpload]: { type: "files", files: [] },
     [EDITORIAL_PROPERTY_NAMES.seoTitle]: { type: "rich_text", rich_text: {} },
     [EDITORIAL_PROPERTY_NAMES.seoDescription]: { type: "rich_text", rich_text: {} },
     [EDITORIAL_PROPERTY_NAMES.tags]: { type: "multi_select", multi_select: { options: [] } },
@@ -56,6 +57,7 @@ function page(overrides: Record<string, unknown> = {}): NotionPage {
       [EDITORIAL_PROPERTY_NAMES.author]: { type: "rich_text", rich_text: text("Editorial Desk") },
       [EDITORIAL_PROPERTY_NAMES.excerpt]: { type: "rich_text", rich_text: text("A verified excerpt.") },
       [EDITORIAL_PROPERTY_NAMES.featuredImage]: { type: "url", url: "https://cdn.example/cover.webp" },
+      [EDITORIAL_PROPERTY_NAMES.featuredImageUpload]: { type: "files", files: [] },
       [EDITORIAL_PROPERTY_NAMES.seoTitle]: { type: "rich_text", rich_text: text("A Signal from Lagos") },
       [EDITORIAL_PROPERTY_NAMES.seoDescription]: { type: "rich_text", rich_text: text("A short description.") },
       [EDITORIAL_PROPERTY_NAMES.tags]: { type: "multi_select", multi_select: [{ name: "Afrobeats" }, { name: "Culture" }] },
@@ -81,6 +83,12 @@ assert.ok(validateEditorialSchema(brokenSchema).some((item) => item.includes("Ar
 const missingStatus = structuredClone(dataSource);
 missingStatus.properties[EDITORIAL_PROPERTY_NAMES.status] = { type: "select", select: { options: options(["Approved", "Published"]) } };
 assert.ok(validateEditorialSchema(missingStatus).some((item) => item.includes("Publishing")));
+const wrongUploadType = structuredClone(dataSource);
+wrongUploadType.properties[EDITORIAL_PROPERTY_NAMES.featuredImageUpload] = { type: "url", url: {} };
+assert.ok(validateEditorialSchema(wrongUploadType).some((item) => item.includes("Featured Image Upload")), "Featured Image Upload must be a files property when present");
+const withoutUpload = structuredClone(dataSource);
+delete withoutUpload.properties[EDITORIAL_PROPERTY_NAMES.featuredImageUpload];
+assert.deepEqual(validateEditorialSchema(withoutUpload), [], "Featured Image Upload is optional");
 
 const authorizedPage = page();
 assert.deepEqual(validatePageAuthorization(authorizedPage, dataSource), { ok: true, status: "Approved", publishChecked: true });
@@ -102,12 +110,22 @@ const scheduled = page({ [EDITORIAL_PROPERTY_NAMES.scheduledAt]: { type: "date",
 assert.equal(validatePageAuthorization(scheduled, dataSource).ok, false);
 
 assert.equal(readNotionProperty(authorizedPage, EDITORIAL_PROPERTY_NAMES.title), "A Signal from Lagos");
+const uploadPage = page({ [EDITORIAL_PROPERTY_NAMES.featuredImageUpload]: { type: "files", files: [{ type: "file", name: "cover.webp", file: { url: "https://prod-files-secure.example/cover.webp?X-Amz-Signature=abc" } }, { type: "file", name: "extra.webp", file: { url: "https://prod-files-secure.example/extra.webp" } }] } });
+assert.equal(readNotionProperty(uploadPage, EDITORIAL_PROPERTY_NAMES.featuredImageUpload), "https://prod-files-secure.example/cover.webp?X-Amz-Signature=abc", "files properties resolve to the first uploaded file URL");
+const externalUploadPage = page({ [EDITORIAL_PROPERTY_NAMES.featuredImageUpload]: { type: "files", files: [{ type: "external", name: "cover.webp", external: { url: "https://cdn.example/upload.webp" } }] } });
+assert.equal(readNotionProperty(externalUploadPage, EDITORIAL_PROPERTY_NAMES.featuredImageUpload), "https://cdn.example/upload.webp", "external file entries resolve to their URL");
+assert.equal(readNotionProperty(authorizedPage, EDITORIAL_PROPERTY_NAMES.featuredImageUpload), "", "empty files properties resolve to an empty string");
 const mapped = mapNotionPageToDraft(authorizedPage, dataSource, "<p>Published body content.</p>");
 assert.equal(mapped.editorialType, "Press");
 assert.equal(mapped.projectSection, "Motherland");
 assert.deepEqual(mapped.tags, ["Afrobeats", "Culture"]);
 assert.equal(mapped.featured, true);
 assert.equal(mapped.author, "Editorial Desk");
+assert.equal(mapped.featuredImageUploadUrl, "", "pages without an uploaded file map to an empty upload URL");
+const uploadDraft = mapNotionPageToDraft(uploadPage, dataSource, "<p>Body text</p>");
+assert.equal(uploadDraft.featuredImageUploadUrl, "https://prod-files-secure.example/cover.webp?X-Amz-Signature=abc");
+const unsafeUpload = page({ [EDITORIAL_PROPERTY_NAMES.featuredImageUpload]: { type: "files", files: [{ type: "file", name: "cover.webp", file: { url: "http://prod-files-secure.example/cover.webp" } }] } });
+assert.throws(() => mapNotionPageToDraft(unsafeUpload, dataSource, "<p>Body text</p>"), /Featured Image Upload must resolve/);
 const blankTitle = page({ [EDITORIAL_PROPERTY_NAMES.title]: { type: "title", title: [] } });
 assert.throws(() => mapNotionPageToDraft(blankTitle, dataSource, "<p>Body text</p>"), /Article Title is required/);
 const blankBodyProperty = page({ [EDITORIAL_PROPERTY_NAMES.body]: { type: "rich_text", rich_text: [] } });
@@ -140,6 +158,12 @@ const renderedDraft = mapNotionPageToDraft(authorizedPage, dataSource, rendered.
 const firstContentFingerprint = notionContentFingerprint(renderedDraft, rendered);
 const secondContentFingerprint = notionContentFingerprint(renderedDraft, await renderNotionBlockTree([paragraph, heading, listOne, listTwo, link, unsafeLink, image, nested], async (id) => id === nested.id ? [paragraph] : [], async (_url, blockId) => `https://different-cdn.example/${blockId}.webp`));
 assert.equal(firstContentFingerprint, secondContentFingerprint, "the content fingerprint ignores storage URL changes while retaining block identity");
+const uploadFingerprintDraft = mapNotionPageToDraft(uploadPage, dataSource, rendered.html);
+const uploadFingerprint = notionContentFingerprint(uploadFingerprintDraft, rendered);
+const rotatedSignatureFingerprint = notionContentFingerprint({ ...uploadFingerprintDraft, featuredImageUploadUrl: "https://prod-files-secure.example/cover.webp?X-Amz-Signature=rotated" }, rendered);
+assert.equal(uploadFingerprint, rotatedSignatureFingerprint, "signed upload URL query churn must not change the content fingerprint");
+const replacedUploadFingerprint = notionContentFingerprint({ ...uploadFingerprintDraft, featuredImageUploadUrl: "https://cdn.example/replacement.webp" }, rendered);
+assert.notEqual(uploadFingerprint, replacedUploadFingerprint, "replacing the uploaded file must change the content fingerprint");
 assert.ok(rendered.html.includes("<p>A short story.</p>"));
 assert.ok(rendered.html.includes("<h3>The turning point</h3>"));
 assert.match(rendered.html, /<ul>\s*<li>First point<\/li>\s*<li>Second point<\/li>\s*<\/ul>/);
@@ -375,6 +399,19 @@ try {
     assert.equal(state.casCalls, casCallsBeforeRetry, "an idempotent retry must not rewrite CMS content");
   });
 
+  await withPublisherScenario("success", async ({ post, state }) => {
+    state.page.properties[EDITORIAL_PROPERTY_NAMES.featuredImage] = { type: "url", url: "" };
+    state.page.properties[EDITORIAL_PROPERTY_NAMES.featuredImageUpload] = { type: "files", files: [{ type: "file", name: "uploaded-cover.webp", file: { url: "https://prod-files-secure.example/uploaded-cover.webp?X-Amz-Signature=xyz" } }] };
+    const dryRunResponse = await post(true);
+    assert.equal(dryRunResponse.status, 200);
+    const preview = await dryRunResponse.json() as { payload: { featuredImageWouldBeImported: boolean } };
+    assert.equal(preview.payload.featuredImageWouldBeImported, true, "the uploaded file is the featured image source when the URL field is empty");
+    const response = await post();
+    assert.equal(response.status, 200);
+    assert.equal(state.importCalls, 1, "the uploaded file is imported into R2 as the featured image");
+    assert.equal((state.content.articles[0] as CmsRecord).featuredImage, "https://cdn.example/featured-image.webp", "the CMS featured image is the R2 URL of the uploaded file");
+  });
+
   await withPublisherScenario("cas-conflict", async ({ post, state }) => {
     const response = await post();
     assert.equal(response.status, 200);
@@ -448,7 +485,7 @@ try {
 }
 
 console.log(JSON.stringify({
-  identifiers: "PASS", secretAuthentication: "PASS", schemaAndRequiredOptions: "PASS",
+  identifiers: "PASS", secretAuthentication: "PASS", schemaAndRequiredOptions: "PASS", featuredImageUploadField: "PASS",
   approvalAndScheduleGates: "PASS", nonPublishableEditorialStates: "PASS", requiredContentValidation: "PASS", typeMapping: "PASS", magazineSubtypeGate: "PASS",
   typedNotionWriteback: "PASS", recursiveBlockRendering: "PASS", unsafeMarkupEscaping: "PASS", unsafeLinkRemoval: "PASS",
   CMSManualEditConflict: "PASS", CMSManagedMetadataConflict: "PASS", deterministicIdentity: "PASS", slugCollision: "PASS",
@@ -463,3 +500,4 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+

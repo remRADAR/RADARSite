@@ -12,6 +12,7 @@ export const EDITORIAL_PROPERTY_NAMES = {
   author: "Author",
   excerpt: "Excerpt",
   featuredImage: "Featured Image URL",
+  featuredImageUpload: "Featured Image Upload",
   seoTitle: "SEO Title",
   seoDescription: "SEO Meta Description",
   tags: "Tags",
@@ -31,7 +32,7 @@ export type EditorialDraft = {
   pageId: string; title: string; excerpt: string; bodyHtml: string; body: string; slugHint: string;
   editorialType: "Press" | "Spotlight" | "Magazine"; magazineSubtype: "Special Episode" | "Magazine Episode" | "";
   projectSection: "Motherland" | ""; author: string; tags: string[]; featured: boolean;
-  featuredImageUrl: string; seoTitle: string; seoDescription: string; canonicalUrl: string;
+  featuredImageUrl: string; featuredImageUploadUrl: string; seoTitle: string; seoDescription: string; canonicalUrl: string;
   scheduledAt: string; notionUrl: string; sourceEditedAt: string;
 };
 
@@ -96,6 +97,8 @@ export function validateEditorialSchema(dataSource: NotionDataSource): string[] 
     if (!property) errors.push(`Missing required Notion property: ${name}.`);
     else if (!accepted.includes(propType(property))) errors.push(`Notion property ${name} has unsupported type ${propType(property) || "unknown"}.`);
   }
+  const uploadProperty = dataSource.properties?.[EDITORIAL_PROPERTY_NAMES.featuredImageUpload];
+  if (uploadProperty && !["files", "file"].includes(propType(uploadProperty))) errors.push(`Notion property ${EDITORIAL_PROPERTY_NAMES.featuredImageUpload} has unsupported type ${propType(uploadProperty) || "unknown"}; expected a files property.`);
   const statusOptions = optionNames(dataSource.properties?.[EDITORIAL_PROPERTY_NAMES.status]);
   for (const value of ["Idea", "Draft", "In Review", "Approved", "Publishing", "Published", "Changes Requested", "Archived"]) if (!statusOptions.includes(value)) errors.push(`Status property does not define the required option ${value}.`);
   const contentOptions = optionNames(dataSource.properties?.[EDITORIAL_PROPERTY_NAMES.contentType]);
@@ -146,6 +149,17 @@ export function readNotionProperty(page: NotionPage, name: string, typeHint?: st
     return date && typeof date === "object" && typeof (date as Record<string, unknown>).start === "string" ? (date as Record<string, unknown>).start : "";
   }
   if (type === "people") return Array.isArray(property.people) ? property.people.flatMap((person) => person && typeof person === "object" && typeof (person as Record<string, unknown>).name === "string" ? [(person as Record<string, unknown>).name as string] : []).join(", ") : "";
+  if (type === "files" || type === "file") {
+    const files = property.files ?? property.file;
+    if (!Array.isArray(files)) return "";
+    const first = files.find((item) => item && typeof item === "object") as Record<string, unknown> | undefined;
+    if (!first) return "";
+    const file = first.file && typeof first.file === "object" ? first.file as Record<string, unknown> : undefined;
+    const external = first.external && typeof first.external === "object" ? first.external as Record<string, unknown> : undefined;
+    const fileUrl = file && typeof file.url === "string" ? file.url : "";
+    const externalUrl = external && typeof external.url === "string" ? external.url : "";
+    return fileUrl || externalUrl;
+  }
   return undefined;
 }
 
@@ -297,6 +311,8 @@ export function mapNotionPageToDraft(page: NotionPage, _dataSource: NotionDataSo
   const rawDate = String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.scheduledAt) || "");
   const featuredImageUrl = String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.featuredImage) || "");
   if (featuredImageUrl && !isSafePublicHttpsUrl(featuredImageUrl)) throw new Error("Featured Image URL must be a public HTTPS URL without credentials or a local/private host.");
+  const featuredImageUploadUrl = String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.featuredImageUpload) || "");
+  if (featuredImageUploadUrl && !isSafePublicHttpsUrl(featuredImageUploadUrl)) throw new Error("Featured Image Upload must resolve to a public HTTPS URL without credentials or a local/private host.");
   const canonicalRaw = String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.canonicalUrl) || "");
   if (canonicalRaw && !safeUrl(canonicalRaw)) throw new Error("Canonical Article URL must use the verified RADARCharts HTTPS domain.");
   const tagsValue = readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.tags);
@@ -310,6 +326,7 @@ export function mapNotionPageToDraft(page: NotionPage, _dataSource: NotionDataSo
     tags: [...new Set(tags.map((tag) => tag.trim()).filter(Boolean))].slice(0, 30),
     featured: readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.featured) === true,
     featuredImageUrl,
+    featuredImageUploadUrl,
     seoTitle: String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.seoTitle) || title).slice(0, 300),
     seoDescription: String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.seoDescription) || excerpt).slice(0, 1000),
     canonicalUrl: safeUrl(canonicalRaw), scheduledAt: rawDate,
@@ -409,6 +426,7 @@ export function notionContentFingerprint(
     tags: draft.tags,
     featured: draft.featured,
     featuredImageUrl: draft.featuredImageUrl ? normalizedSourceUrl(draft.featuredImageUrl) : "",
+    featuredImageUploadUrl: draft.featuredImageUploadUrl ? normalizedSourceUrl(draft.featuredImageUploadUrl) : "",
     seoTitle: draft.seoTitle,
     seoDescription: draft.seoDescription,
     canonicalUrl: draft.canonicalUrl,
@@ -451,3 +469,4 @@ export function deterministicCmsId(pageId: string): string {
 
 export function propertyValueType(dataSource: NotionDataSource, name: string): string { return propType(dataSource.properties?.[name]); }
 export function expectedSourceSnapshotFields(): readonly string[] { return SYNC_FIELDS; }
+
