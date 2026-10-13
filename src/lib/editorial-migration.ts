@@ -38,6 +38,10 @@ function safeUrl(value: string, kind: "link" | "image" | "iframe") {
   if (kind === "image" && value.startsWith("/") && !value.startsWith("//")) return value;
   try {
     const url = new URL(value);
+    // Imported CMS markup mixes http/https for the same uploads host. Upgrade
+    // instead of dropping so historical inline media survives sanitization; the
+    // site CSP (upgrade-insecure-requests) applies the same policy site-wide.
+    if (url.protocol === "http:") url.protocol = "https:";
     if (url.protocol !== "https:") return "";
     if (kind === "iframe" && !allowedHosts.has(url.hostname)) return "";
     return url.toString();
@@ -53,6 +57,34 @@ function socialFallbacks(source: string) {
     const url = safeUrl(decodeEntities(raw?.[1] || raw?.[2] || raw?.[3] || ""), "link");
     return url ? `<p class="editorial-embed-fallback">Instagram embed preserved as a safe link: <a href="${escapeAttr(url)}">View the original post on Instagram</a></p>` : `<p class="editorial-embed-fallback">An Instagram embed was preserved as an unavailable external post.</p>`;
   }).replace(/<script\b[^>]*src\s*=\s*["'][^"']*instagram[^"']*["'][^>]*>[\s\S]*?<\/script>/gi, "");
+}
+
+const EMBED_LINK_PROVIDERS: Record<string, string> = {
+  "instagram.com": "Instagram",
+  "www.instagram.com": "Instagram",
+  "tiktok.com": "TikTok",
+  "www.tiktok.com": "TikTok",
+  "twitter.com": "X (Twitter)",
+  "www.twitter.com": "X (Twitter)",
+  "x.com": "X (Twitter)",
+  "facebook.com": "Facebook",
+  "www.facebook.com": "Facebook",
+};
+
+/** Embeds from hosts outside the iframe allowlist degrade to a safe outbound link instead of vanishing. */
+function embedLinkFallback(attrs: string) {
+  const raw = attrs.match(/\bsrc\s*=\s*["']([^"']+)["']/i)?.[1] || "";
+  const url = safeUrl(decodeEntities(raw), "link");
+  if (!url) return "";
+  let host = "";
+  try {
+    host = new URL(url).hostname.toLowerCase();
+  } catch {
+    return "";
+  }
+  const provider = EMBED_LINK_PROVIDERS[host];
+  if (!provider) return "";
+  return `<p class="editorial-embed-fallback">${provider} embed preserved as a safe link: <a href="${escapeAttr(url)}" rel="noopener noreferrer" target="_blank">View the original post on ${provider}</a></p>`;
 }
 
 function spotifyEmbeds(source: string) {
@@ -97,11 +129,18 @@ export function sanitizeEditorialHtml(input: unknown) {
       // render as broken media in browsers. They are common in legacy CMS
       // markup when an editor removed an image but left its placeholder tag.
       if (name === "img" && !kept.some((item) => item.startsWith("src="))) return "";
-      if (name === "iframe" && !kept.some((item) => item.startsWith("src="))) return "";
+      if (name === "iframe" && !kept.some((item) => item.startsWith("src="))) return embedLinkFallback(attrs);
       const generatedClass = name === "img" ? ` class="editorial-media"` : "";
       return `<${name}${generatedClass}${kept.length ? ` ${kept.join(" ")}` : ""}>`;
     })
-    .replace(/<iframe([^>]*)>(?:\s*<\/iframe>)?/gi, (_, attrs: string) => `<div class="editorial-embed"><iframe${attrs} loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`)
+    .replace(/<iframe([^>]*)>(?:\s*<\/iframe>)?/gi, (_, attrs: string) => {
+      // Spotify embeds need their intrinsic player height (152px tracks vs the
+      // 352px large players); the wrapper modifier keeps the absolutely
+      // positioned iframe from being cropped by the default 16/9 box.
+      const spotify = /src=["']https:\/\/open\.spotify\.com\/embed\/(track|album|playlist|episode|show)\//i.exec(attrs);
+      const modifier = spotify ? (spotify[1].toLowerCase() === "track" ? " editorial-embed--spotify-track" : " editorial-embed--spotify-large") : "";
+      return `<div class="editorial-embed${modifier}"><iframe${attrs} loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`;
+    })
     .replace(/<p>\s*<\/p>/gi, "")
     .trim();
 }

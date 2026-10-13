@@ -69,7 +69,6 @@
   --card: var(--paper);
   --card-foreground: var(--ink);
   --popover: var(--paper);
-  --popover-foreground: var(--ink);
   --primary: var(--ink);
   --primary-foreground: var(--paper);
   --secondary: #171717;
@@ -122,7 +121,6 @@ html {
   --card: var(--paper);
   --card-foreground: var(--ink);
   --popover: var(--paper);
-  --popover-foreground: var(--ink);
   --primary: var(--ink);
   --primary-foreground: var(--paper);
   --secondary: #e7e7df;
@@ -172,6 +170,7 @@ html {
     @apply font-sans;
     writing-mode: horizontal-tb;
     text-orientation: mixed;
+    overflow-wrap: break-word;
     overflow-x: hidden;
     /* Cursor is a custom blend-difference block on capable pointers. */
   }
@@ -436,12 +435,18 @@ html {
 .editorial-body figure img { width: 100%; }
 .editorial-body figcaption { margin-top: .5rem; font-family: ui-monospace, monospace; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; opacity: .7; }
 .editorial-body .editorial-embed { position: relative; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; margin: 2rem 0; overflow: hidden; background: color-mix(in srgb, currentColor 8%, transparent); }
-.editorial-body .editorial-embed:has(iframe[src*="open.spotify.com"]) { aspect-ratio: auto; height: 152px; margin: 1.2rem 0; background: transparent; }
+/* Spotify players keep their intrinsic height: 152px compact tracks vs the
+   352px large players (albums/playlists/episodes/shows). The wrapper modifier
+   is emitted by the editorial sanitizer so the absolutely positioned iframe is
+   never cropped by the default 16/9 box. */
+.editorial-body .editorial-embed--spotify-track { aspect-ratio: auto; height: 152px; margin: 1.2rem 0; background: transparent; }
+.editorial-body .editorial-embed--spotify-large { aspect-ratio: auto; height: 352px; margin: 1.2rem 0; background: transparent; }
 .editorial-body .editorial-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .editorial-body .editorial-embed.is-loading::after { content: "Loading media"; position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; font: 700 .65rem/1 ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; opacity: .55; animation: editorial-pulse 1.2s ease-in-out infinite; }
 .editorial-body img[data-src] { min-height: 4rem; }
-.editorial-body img.is-error { min-height: 8rem; opacity: .45; }
-.editorial-body .editorial-embed.is-error::after { content: "Media unavailable — retrying"; position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; font: 700 .65rem/1 ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; opacity: .65; }
+.editorial-body img.is-error { min-height: 8rem; opacity: .45; background: linear-gradient(135deg, color-mix(in srgb, currentColor 14%, transparent), color-mix(in srgb, currentColor 5%, transparent)); }
+.editorial-body .editorial-embed.is-error::after { content: "Media unavailable"; position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; font: 700 .65rem/1 ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; opacity: .65; }
+.editorial-body .editorial-embed-fallback { margin: 1.2rem 0; padding: 1rem 1.25rem; border: 2px solid currentColor; font-family: ui-monospace, monospace; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .editorial-body .editorial-media,
 .editorial-body .editorial-embed { will-change: opacity, transform; }
 .editorial-body hr { margin: 2.5rem 0; border: 0; border-top: 2px solid currentColor; }
@@ -464,7 +469,7 @@ html {
 }
 
 @keyframes editorial-scan {
-  0%, 100% { opacity: 0; transform: translateX(-18%); }
+  0% { opacity: 0; transform: translateX(-18%); }
   45%, 60% { opacity: .65; }
   82% { opacity: 0; transform: translateX(18%); }
 }
