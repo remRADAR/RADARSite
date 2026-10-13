@@ -391,7 +391,21 @@ export function sameNotionPageRevision(expected: NotionPage, current: NotionPage
   if (!expectedId || expectedId !== normalizeNotionPageId(current.id)) return false;
   if (!expected.last_edited_time || expected.last_edited_time !== current.last_edited_time) return false;
   if (stableStringify(expected.parent ?? null) !== stableStringify(current.parent ?? null)) return false;
-  return stableStringify(expected.properties) === stableStringify(current.properties);
+  // Notion regenerates short-lived signed URLs for file properties on every
+  // API response. Those URLs are transport metadata, not editorial changes,
+  // and must not make the source revalidation fail between two reads.
+  const normalizeRevisionProperties = (value: unknown, parentKey = ""): unknown => {
+    if (Array.isArray(value)) return value.map((item) => normalizeRevisionProperties(item, parentKey));
+    if (!value || typeof value !== "object") return value;
+    const record = value as Record<string, unknown>;
+    if (["files", "file", "external"].includes(parentKey)) {
+      return Object.fromEntries(Object.entries(record)
+        .filter(([key]) => !["url", "expiry_time", "expiry_url"].includes(key))
+        .map(([key, item]) => [key, normalizeRevisionProperties(item, key)]));
+    }
+    return Object.fromEntries(Object.entries(record).map(([key, item]) => [key, normalizeRevisionProperties(item, key)]));
+  };
+  return stableStringify(normalizeRevisionProperties(expected.properties)) === stableStringify(normalizeRevisionProperties(current.properties));
 }
 
 function normalizedSourceUrl(value: string): string {
@@ -469,4 +483,3 @@ export function deterministicCmsId(pageId: string): string {
 
 export function propertyValueType(dataSource: NotionDataSource, name: string): string { return propType(dataSource.properties?.[name]); }
 export function expectedSourceSnapshotFields(): readonly string[] { return SYNC_FIELDS; }
-
