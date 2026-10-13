@@ -1,4 +1,4 @@
-# Notion → RADARSite publishing integration
+# Notion â RADARSite publishing integration
 
 ## Current state
 
@@ -32,6 +32,7 @@ The handler fetches the existing data-source schema on each request and refuses 
 | `Author` | rich text, title, or people | Optional value; defaults to the RADARCharts by REM editorial label |
 | `Excerpt` | rich text or title | Used when present; otherwise safely derived from body text |
 | `Featured Image URL` | URL or rich text | Empty means preserve an existing featured image |
+| `Featured Image Upload` | files | Optional; the first uploaded file is imported into R2 as the featured image when `Featured Image URL` is empty |
 | `SEO Title` | rich text or title | Optional; falls back to the article title |
 | `SEO Meta Description` | rich text or title | Optional; falls back to the excerpt |
 | `Tags` | multi-select or rich text | Normalized to the CMS tag list |
@@ -44,7 +45,11 @@ The handler fetches the existing data-source schema on each request and refuses 
 | `Canonical Article URL` | URL or rich text | If set, must be HTTPS on `radarcharts.net` or `www.radarcharts.net`; otherwise generated from the existing route helper |
 | `Last Synced At` | date or rich text | Updated on success |
 
-All listed properties are required schema columns; individual author, excerpt, image, SEO, tags, and featured values may be empty where the fallback behavior above permits. If `Content Type = Magazine`, the page must also expose `Magazine Subtype` with a supported CMS value. Confirm these names and exact types against the real database before enabling the feature.
+All listed properties are required schema columns except `Featured Image Upload`, which is optional; individual author, excerpt, image, SEO, tags, and featured values may be empty where the fallback behavior above permits. If `Content Type = Magazine`, the page must also expose `Magazine Subtype` with a supported CMS value. Confirm these names and exact types against the real database before enabling the feature.
+
+## Featured image resolution
+
+The publish route resolves the featured image in priority order: `Featured Image URL` → `Featured Image Upload` (first file) → the Notion page cover. Notion-hosted file URLs (upload and cover) are short-lived signed links, so the route reads the chosen URL fresh from the page payload at publish time and imports the bytes into R2 before the CMS write; the CMS stores the permanent R2 URL. The content fingerprint normalizes signed-URL query strings, so rotating signatures do not trigger false change conflicts, while replacing the uploaded file does. An uploaded image must be a public HTTPS image (JPEG, PNG, WebP, GIF, or AVIF, at most 8 MiB); unsupported or unreachable files fail the import before the CMS is updated.
 
 ## Configuration owner checklist
 
@@ -70,12 +75,12 @@ Do not set `RADAR_NOTION_PUBLISHING_ENABLED=true` in Production as part of this 
 
 Executed locally on the feature branch:
 
-- `npm run notion:contract-test` — PASS: schema, status/approval gates, content validation, type mapping, typed page-property updates, safe nested block rendering, CMS conflict detection, deterministic IDs, checksum-based media identity, auth and payload limits, a mocked dry-run, and mocked end-to-end publication/recovery. The route contracts cover idempotent retry, CAS retry, approval revocation during image import, block edits despite a stale timestamp, Notion finalization failure, media-association failure, and cache-revalidation failure. All Notion, CMS, R2, and cache interactions use in-memory mocks; the suite contacted no live services and changed no production data.
-- `npx tsc --noEmit` — PASS.
-- `npm run lint` — PASS (exit 0); reports six warnings in pre-existing, untouched UI files. `npx eslint` on every changed code file — PASS with no warnings.
-- Existing suites — PASS: `npm run cms:taxonomy-contract-test`, `npm run cms:workflow-contract-test`, `npm run cms:studio-library-mock-test`, `npm run media-relationships:contract-test`, `npm run media:contract-test`, `npm run media-health:contract-test`, `npm run postgres:adapter-contract-test`, `npm run test:editorial-archives`, and `npm run test:csp`.
-- `npm run build` — PASS; Next.js type checking, static generation (498 pages), and route compilation completed, including `/api/integrations/notion/publish`.
-- Dependency setup caveat: a plain `npm ci` was rejected because this ARM64 sandbox encountered the repository’s pinned x64 Sharp binary. `npm ci --no-audit --no-fund --force` installed the locked tree and native Sharp 0.35.5 loaded successfully on ARM64 for checks/build; no dependency manifest or lockfile was altered for that workaround.
+- `npm run notion:contract-test` â PASS: schema, status/approval gates, featured image upload resolution (optional files column, first-file extraction, signed-URL-stable fingerprint, R2 import when the URL field is empty), content validation, type mapping, typed page-property updates, safe nested block rendering, CMS conflict detection, deterministic IDs, checksum-based media identity, auth and payload limits, a mocked dry-run, and mocked end-to-end publication/recovery. The route contracts cover idempotent retry, CAS retry, approval revocation during image import, block edits despite a stale timestamp, Notion finalization failure, media-association failure, and cache-revalidation failure. All Notion, CMS, R2, and cache interactions use in-memory mocks; the suite contacted no live services and changed no production data.
+- `npx tsc --noEmit` â PASS.
+- `npm run lint` â PASS (exit 0); reports six warnings in pre-existing, untouched UI files. `npx eslint` on every changed code file â PASS with no warnings.
+- Existing suites â PASS: `npm run cms:taxonomy-contract-test`, `npm run cms:workflow-contract-test`, `npm run cms:studio-library-mock-test`, `npm run media-relationships:contract-test`, `npm run media:contract-test`, `npm run media-health:contract-test`, `npm run postgres:adapter-contract-test`, `npm run test:editorial-archives`, and `npm run test:csp`.
+- `npm run build` â PASS; Next.js type checking, static generation (498 pages), and route compilation completed, including `/api/integrations/notion/publish`.
+- Dependency setup caveat: a plain `npm ci` was rejected because this ARM64 sandbox encountered the repositoryâs pinned x64 Sharp binary. `npm ci --no-audit --no-fund --force` installed the locked tree and native Sharp 0.35.5 loaded successfully on ARM64 for checks/build; no dependency manifest or lockfile was altered for that workaround.
 
 These are code/fixture checks, not live integration tests. The referenced Notion editorial database, Notion token, webhook secret, and local Neon/R2 credentials were not accessible; do not infer that the real Notion schema, live dry-run, R2 upload, CMS writeback, media-association lifecycle, or cache invalidation has succeeded. Although a Preview `DATABASE_URL` exists in Vercel, its target was not verified as isolated, so no Notion-triggered CMS write was attempted. A real Preview dry-run/publishing lifecycle remains blocked until an owner grants the Notion connection access, supplies the missing secrets, verifies an isolated test database or explicitly confirms the safe test scope, and validates the actual data-source schema.
 
@@ -83,17 +88,18 @@ Rollback is deliberately simple: keep `RADAR_NOTION_PUBLISHING_ENABLED=false` (t
 
 ## Official Notion API references
 
-- [Retrieve a page](https://developers.notion.com/reference/retrieve-a-page) — page properties, parent data source, and access behavior.
-- [Retrieve block children](https://developers.notion.com/reference/get-block-children) — paginated children endpoint and recursive retrieval requirement.
-- [Working with page content](https://developers.notion.com/guides/data-apis/working-with-page-content) — page block model, rich text, and nested content.
-- [Update a page](https://developers.notion.com/reference/patch-page) — property writes must match the existing data-source schema.
-- [Retrieve a data source](https://developers.notion.com/reference/retrieve-a-data-source) — schema retrieval for the existing source.
-- [Authentication](https://developers.notion.com/reference/authentication) — bearer-token authentication.
+- [Retrieve a page](https://developers.notion.com/reference/retrieve-a-page) â page properties, parent data source, and access behavior.
+- [Retrieve block children](https://developers.notion.com/reference/get-block-children) â paginated children endpoint and recursive retrieval requirement.
+- [Working with page content](https://developers.notion.com/guides/data-apis/working-with-page-content) â page block model, rich text, and nested content.
+- [Update a page](https://developers.notion.com/reference/patch-page) â property writes must match the existing data-source schema.
+- [Retrieve a data source](https://developers.notion.com/reference/retrieve-a-data-source) â schema retrieval for the existing source.
+- [Authentication](https://developers.notion.com/reference/authentication) â bearer-token authentication.
 
 ## Initial baseline evidence
 
 - Git baseline: `5f80c0da1f7336894168b8d404bc03a6b859cc39`; clean working tree; no existing PR for this integration.
-- Main branch protection endpoint returned `404` (“Branch not protected”). Existing project convention is feature branch + review PR; use that rather than pushing to `main`.
+- Main branch protection endpoint returned `404` (âBranch not protectedâ). Existing project convention is feature branch + review PR; use that rather than pushing to `main`.
 - Vercel project Git association: `remRADAR/RADARSite`; production domain `radarcharts.net` verified; current `main` deployment READY.
 - Connected Notion workspace search finds an unrelated `RADARCharts` profile page, but not the supplied editorial source/plan; direct reads of the supplied IDs are inaccessible.
 - No source secrets or editorial content were printed into this document. The implementation remains off unless the feature flag is explicitly set.
+
