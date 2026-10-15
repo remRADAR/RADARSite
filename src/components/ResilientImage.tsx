@@ -23,7 +23,11 @@ type Props = {
   fetchPriority?: "high" | "low" | "auto";
 };
 
-export function ResilientImage({ src, alt, className, loading = "lazy", objectPosition, srcSet, sizes, fetchPriority }: Props) {
+export function ResilientImage(props: Props) {
+  return <ResilientImageInstance key={JSON.stringify([props.src, props.srcSet ?? ""])} {...props} />;
+}
+
+function ResilientImageInstance({ src, alt, className, loading = "lazy", objectPosition, srcSet, sizes, fetchPriority }: Props) {
   const [attempt, setAttempt] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
@@ -32,15 +36,12 @@ export function ResilientImage({ src, alt, className, loading = "lazy", objectPo
 
   const failed = !src || attempt >= MAX_ATTEMPTS;
 
-  // A new source must never inherit the previous image's failure state.
+  // The keyed instance gives each source a fresh failure state.
   useEffect(() => {
-    probedRef.current = false;
-    setAttempt(0);
-    setLoaded(false);
     return () => {
       if (retryRef.current) clearTimeout(retryRef.current);
     };
-  }, [src, srcSet]);
+  }, []);
 
   const handleError = () => {
     setLoaded(false);
