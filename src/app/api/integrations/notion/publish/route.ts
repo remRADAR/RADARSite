@@ -16,12 +16,12 @@ import {
   notionPageCoverUrl, isSafePublicHttpsUrl,
   NOTION_API_VERSION, type NotionBlock, type NotionDataSource, type NotionPage,
 } from "@/lib/notion-editorial-sync";
+import { rateLimit } from "@/lib/request-security";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 const MAX_REQUEST_BYTES = 16 * 1024;
 const MAX_REQUESTS_PER_MINUTE = 30;
-const requestCounts = new Map<string, { count: number; expiresAt: number }>();
 
 type ApiError = Error & { status?: number; code?: string };
 function json(data: unknown, init?: ResponseInit) {
@@ -38,16 +38,7 @@ function apiError(message: string, status: number, code: string): ApiError {
   return error;
 }
 function rateLimited(request: NextRequest): boolean {
-  const now = Date.now();
-  const address = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
-  const existing = requestCounts.get(address);
-  if (!existing || existing.expiresAt <= now) {
-    if (requestCounts.size > 5000) for (const [key, item] of requestCounts) if (item.expiresAt <= now) requestCounts.delete(key);
-    requestCounts.set(address, { count: 1, expiresAt: now + 60_000 });
-    return false;
-  }
-  existing.count += 1;
-  return existing.count > MAX_REQUESTS_PER_MINUTE;
+  return !rateLimit(request, "notion-publish", MAX_REQUESTS_PER_MINUTE).allowed;
 }
 async function readBoundedRequestBody(request: NextRequest): Promise<string> {
   const reader = request.body?.getReader();
@@ -498,4 +489,3 @@ async function writeNotionSyncResult(pageId: string, dataSource: NotionDataSourc
   try { await updateNotionPage(pageId, dataSource, values, token); return true; }
   catch (error) { console.error("[notion-publish] idempotent finalization failed", { name: error instanceof Error ? error.name : "UnknownError" }); return false; }
 }
-
