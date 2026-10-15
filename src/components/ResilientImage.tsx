@@ -15,9 +15,15 @@ type Props = {
   className?: string;
   loading?: "lazy" | "eager";
   objectPosition?: string;
+  /** Responsive srcset for multi-resolution delivery across devices. */
+  srcSet?: string;
+  /** Sizes attribute — tells the browser which image width to pick per viewport. */
+  sizes?: string;
+  /** Fetch priority hint for LCP optimization. */
+  fetchPriority?: "high" | "low" | "auto";
 };
 
-export function ResilientImage({ src, alt, className, loading = "lazy", objectPosition }: Props) {
+export function ResilientImage({ src, alt, className, loading = "lazy", objectPosition, srcSet, sizes, fetchPriority }: Props) {
   const [attempt, setAttempt] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
@@ -34,7 +40,7 @@ export function ResilientImage({ src, alt, className, loading = "lazy", objectPo
     return () => {
       if (retryRef.current) clearTimeout(retryRef.current);
     };
-  }, [src]);
+  }, [src, srcSet]);
 
   const handleError = () => {
     setLoaded(false);
@@ -63,7 +69,7 @@ export function ResilientImage({ src, alt, className, loading = "lazy", objectPo
 
   if (failed) {
     return (
-      <div className={cn("absolute inset-0 flex items-center justify-center", FALLBACK)} role="img" aria-label={`${alt} image unavailable`}>
+      <div className={cn("absolute inset-0 flex items-center justify-center", FALLBACK)} role="img" aria-label={alt + " image unavailable"}>
         <span className="bg-ink/70 px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-widest text-paper">Image unavailable</span>
       </div>
     );
@@ -74,9 +80,12 @@ export function ResilientImage({ src, alt, className, loading = "lazy", objectPo
       key={attempt}
       ref={imageRef}
       src={src}
+      srcSet={srcSet}
+      sizes={sizes}
       alt={alt}
       loading={loading}
       decoding="async"
+      fetchPriority={fetchPriority}
       onLoad={() => setLoaded(true)}
       onError={handleError}
       className={cn("transition-opacity duration-500 ease-[var(--ease-out)]", loaded || loading === "eager" ? "opacity-100" : "opacity-0", className)}
