@@ -51,9 +51,11 @@ jobs:
           npm run test:seo-audit > seo-audit-test.log 2>&1
           code=$?
           set -e
-          grep -E 'FAIL|AssertionError|Expected|Received|expected|actual|missing finding' seo-audit-test.log | head -10 | while IFS= read -r line; do
-            printf '::error title=seo-audit test::%s\n' "$line"
-          done
+          if [ "$code" -ne 0 ]; then
+            sed -n '1,10p' seo-audit-test.log | while IFS= read -r line; do
+              printf '::error title=seo-audit test output::%s\n' "$line"
+            done
+          fi
           exit $code
 
       - name: Build (database skipped)
