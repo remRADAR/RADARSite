@@ -25,6 +25,9 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: SEO audit contract test
+        run: npm run test:seo-audit
+
       - name: Build (database skipped)
         run: npm run build
         env:

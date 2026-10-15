@@ -24,7 +24,8 @@
     "cms:studio-library-mock-test": "tsx scripts/cms-studio-library-mock-test.ts",
     "cms:workflow-contract-test": "tsx scripts/cms-article-workflow-contract-test.ts",
     "notion:contract-test": "tsx scripts/notion-publish-contract-test.ts",
-    "test:csp": "tsx scripts/csp-contract-test.ts"
+    "test:csp": "tsx scripts/csp-contract-test.ts",
+    "test:seo-audit": "tsx scripts/seo-audit-contract-test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1135.0",
