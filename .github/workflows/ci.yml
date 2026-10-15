@@ -20,7 +20,12 @@ jobs:
         run: npm ci
 
       - name: Lint
-        run: npm run lint
+        run: |
+          set +e
+          npm run lint > lint.log 2>&1
+          code=$?
+          printf '### Lint output (tail)\n\n```\n%s\n```\n' "$(tail -n 150 lint.log)" >> "$GITHUB_STEP_SUMMARY"
+          exit $code
 
       - name: Typecheck
         run: npm run typecheck
