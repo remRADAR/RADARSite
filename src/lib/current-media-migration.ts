@@ -1,5 +1,3 @@
-import currentMediaAudit from "../../current-article-media-audit.json";
-import currentMediaBytes from "../../current-article-media-byte-verification.json";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { createMediaRelationshipId } from "@/lib/media-relationships";
 import { readContent, writeContent, upsertMediaRecord, upsertMediaRelationship, hasContentDatabase, contentCacheTag, type CmsRecord } from "@/lib/content-server";
@@ -32,19 +30,41 @@ type AuditArticle = {
 };
 type ByteRecord = { attachmentId: number; url: string; status: number; contentType?: string; bytes: number; sha256: string };
 type StoredAsset = { asset: AuditAsset; keyPrefix: string; primaryKey: string; primaryUrl: string; sourceSha256: string; sourceBytes: number; derivatives: Array<{ key: string; url: string; sha256: string; bytes: number; width: number; height?: number }> };
+type AuditManifest = { summary: { currentArticles: number; uniqueImageAssets: number }; articles: AuditArticle[]; assets: AuditAsset[] };
+type BytesManifest = { records: ByteRecord[] };
+type AuditContext = { audit: AuditManifest; auditAssets: Map<number, AuditAsset>; byteRecords: Map<number, ByteRecord> };
 
-const audit = currentMediaAudit as { summary: { currentArticles: number; uniqueImageAssets: number }; articles: AuditArticle[]; assets: AuditAsset[] };
-const bytesManifest = currentMediaBytes as { records: ByteRecord[] };
-const auditAssets = new Map(audit.assets.map((asset) => [asset.attachmentId, asset]));
-const byteRecords = new Map(bytesManifest.records.map((record) => [record.attachmentId, record]));
+// The one-time current-media migration has completed and its audit manifests
+// were removed from the repository. Load them at runtime when they are present
+// (for example restored for a re-run) and fall back to empty manifests when
+// they are not, so the build and typecheck no longer depend on deleted files.
+const EMPTY_AUDIT: AuditManifest = { summary: { currentArticles: 0, uniqueImageAssets: 0 }, articles: [], assets: [] };
 
-export function currentMediaMigrationInfo() {
-  return { version: MIGRATION_VERSION, sourceProvider: SOURCE_PROVIDER, articles: audit.summary.currentArticles, assets: audit.summary.uniqueImageAssets, maxBatch: MAX_BATCH, databaseConfigured: hasContentDatabase(), storageConfigured: Boolean(process.env.R2_ACCOUNT_ID && process.env.R2_BUCKET && process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY), sourceAuthConfigured: Boolean(process.env.WORDPRESS_MEDIA_AUTHORIZATION) };
+async function loadJsonManifest<T>(specifier: string, fallback: T): Promise<T> {
+  try {
+    const imported = (await import(/* webpackIgnore: true */ (specifier as string))) as { default?: T };
+    return imported.default ?? fallback;
+  } catch {
+    return fallback;
+  }
 }
 
-function requireAuditAsset(id: number) {
-  const asset = auditAssets.get(id);
-  const expected = byteRecords.get(id);
+async function loadAuditContext(): Promise<AuditContext> {
+  const [audit, bytesManifest] = await Promise.all([
+    loadJsonManifest<AuditManifest>("../../current-article-media-audit.json", EMPTY_AUDIT),
+    loadJsonManifest<BytesManifest>("../../current-article-media-byte-verification.json", { records: [] }),
+  ]);
+  return { audit, auditAssets: new Map(audit.assets.map((asset) => [asset.attachmentId, asset])), byteRecords: new Map(bytesManifest.records.map((record) => [record.attachmentId, record])) };
+}
+
+export async function currentMediaMigrationInfo() {
+  const { audit } = await loadAuditContext();
+  return { version: MIGRATION_VERSION, sourceProvider: SOURCE_PROVIDER, manifestAvailable: audit.assets.length > 0, articles: audit.summary.currentArticles, assets: audit.summary.uniqueImageAssets, maxBatch: MAX_BATCH, databaseConfigured: hasContentDatabase(), storageConfigured: Boolean(process.env.R2_ACCOUNT_ID && process.env.R2_BUCKET && process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY), sourceAuthConfigured: Boolean(process.env.WORDPRESS_MEDIA_AUTHORIZATION) };
+}
+
+function requireAuditAsset(context: AuditContext, id: number) {
+  const asset = context.auditAssets.get(id);
+  const expected = context.byteRecords.get(id);
   if (!asset || !expected || !asset.sourceUrl || !asset.verifiedSha256) throw new Error(`AUDIT_ASSET_NOT_VERIFIED:${id}`);
   if (expected.sha256 !== asset.verifiedSha256 || expected.bytes !== asset.verifiedByteSize || expected.status !== 200) throw new Error(`AUDIT_BYTE_MANIFEST_CONFLICT:${id}`);
   return { asset, expected };
@@ -93,8 +113,8 @@ async function fetchSource(asset: AuditAsset, expected: ByteRecord) {
   } finally { clearTimeout(timeout); }
 }
 
-async function prepareAsset(asset: AuditAsset): Promise<StoredAsset> {
-  const { expected } = requireAuditAsset(asset.attachmentId);
+async function prepareAsset(context: AuditContext, asset: AuditAsset): Promise<StoredAsset> {
+  const { expected } = requireAuditAsset(context, asset.attachmentId);
   const source = await fetchSource(asset, expected);
   const conversion = await createWebpDerivatives({ source: source.body, keyPrefix: keyPrefix(asset), quality: 82 });
   const derivatives: StoredAsset["derivatives"] = [];
@@ -115,19 +135,21 @@ export async function migrateCurrentMediaBatch(input: { mode: "dry-run" | "uploa
   if (!input.runId || !/^[a-zA-Z0-9._:-]{8,100}$/.test(input.runId)) throw new Error("VALID_RUN_ID_REQUIRED");
   if (input.mode !== "dry-run" && input.confirmation !== "current-media-r2-apply-v1") throw new Error("EXPLICIT_APPLY_CONFIRMATION_REQUIRED");
   if (input.mode === "rewrite" && !hasContentDatabase()) throw new Error("DATABASE_URL_REQUIRED_FOR_REWRITE");
+  const context = await loadAuditContext();
+  const audit = context.audit;
   const batch = audit.assets.slice(offset, offset + limit);
   const results: Array<Record<string, unknown>> = [];
   const prepared: StoredAsset[] = [];
   for (const asset of batch) {
     try {
       if (input.mode === "dry-run") {
-        const { expected } = requireAuditAsset(asset.attachmentId);
+        const { expected } = requireAuditAsset(context, asset.attachmentId);
         const source = await fetchSource(asset, expected);
         const conversion = await createWebpDerivatives({ source: source.body, keyPrefix: keyPrefix(asset), quality: 82 });
         results.push({ attachmentId: asset.attachmentId, status: "verified", sourceBytes: source.body.length, sourceSha256: checksumSha256(source.body), derivatives: conversion.derivatives.map((item) => ({ width: item.width, height: item.height, bytes: item.body.length, sha256: checksumSha256(item.body) })) });
         continue;
       }
-      const stored = input.mode === "upload" ? await prepareAsset(asset) : await existingStoredAsset(asset);
+      const stored = input.mode === "upload" ? await prepareAsset(context, asset) : await existingStoredAsset(asset);
       prepared.push(stored);
       results.push({ attachmentId: asset.attachmentId, status: "r2-verified", primaryUrl: stored.primaryUrl, derivativeCount: stored.derivatives.length });
     } catch (error) {
@@ -136,10 +158,10 @@ export async function migrateCurrentMediaBatch(input: { mode: "dry-run" | "uploa
     }
   }
   if (input.mode === "upload" || input.mode === "rewrite") {
-    for (const stored of prepared) await persistAsset(stored, input.runId);
+    for (const stored of prepared) await persistAsset(context, stored, input.runId);
   }
   if (input.mode === "rewrite") {
-    const rewritten = await rewriteBatch(prepared, input.runId);
+    const rewritten = await rewriteBatch(context, prepared, input.runId);
     results.push({ rewrite: rewritten });
     revalidateTag(contentCacheTag(), { expire: 0 });
     revalidatePath("/", "layout");
@@ -159,10 +181,10 @@ async function existingStoredAsset(asset: AuditAsset): Promise<StoredAsset> {
   return { asset, keyPrefix: prefix, primaryKey: derivatives[0].key, primaryUrl: derivatives[0].url, sourceSha256: asset.verifiedSha256 || "", sourceBytes: asset.verifiedByteSize || 0, derivatives };
 }
 
-async function persistAsset(stored: StoredAsset, runId: string) {
+async function persistAsset(context: AuditContext, stored: StoredAsset, runId: string) {
   const asset = stored.asset;
   await upsertMediaRecord({ id: mediaId(asset.attachmentId), sourceProvider: SOURCE_PROVIDER, sourceUrl: asset.sourceUrl, sourceId: String(asset.attachmentId), originalFilename: safeFilename(asset), mimeType: "image/webp", fileSize: stored.derivatives[0].bytes, width: asset.width, height: asset.height, storageProvider: "r2", storageBucket: mediaStorageConfig().bucket, storageKey: stored.primaryKey, deliveryUrl: stored.primaryUrl, checksum: stored.derivatives[0].sha256, migrationStatus: "migrated", provenance: { migrationVersion: MIGRATION_VERSION, runId, sourceSha256: stored.sourceSha256, sourceBytes: stored.sourceBytes, derivativeKeys: stored.derivatives.map((item) => item.key) } });
-  for (const article of audit.articles.filter((item) => item.featuredMediaId === asset.attachmentId || (item.inlineImages || []).some((image) => image.attachmentId === asset.attachmentId))) {
+  for (const article of context.audit.articles.filter((item) => item.featuredMediaId === asset.attachmentId || (item.inlineImages || []).some((image) => image.attachmentId === asset.attachmentId))) {
     const articleKey = contentKey(article.articleId);
     if (article.featuredMediaId === asset.attachmentId) await upsertMediaRelationship({ id: createMediaRelationshipId({ mediaId: mediaId(asset.attachmentId), contentKey: articleKey, role: "featured" }), mediaId: mediaId(asset.attachmentId), contentKey: articleKey, contentSourceProvider: SOURCE_PROVIDER, contentSourceId: String(article.articleId), role: "featured", sourceLocator: `attachment:${asset.attachmentId}`, migrationRunId: runId, provenance: { migrationVersion: MIGRATION_VERSION } });
     for (let placement = 0; placement < (article.inlineImages || []).length; placement++) {
@@ -174,14 +196,14 @@ async function persistAsset(stored: StoredAsset, runId: string) {
   }
 }
 
-async function rewriteBatch(prepared: StoredAsset[], runId: string) {
+async function rewriteBatch(context: AuditContext, prepared: StoredAsset[], runId: string) {
   const content = await readContent();
   let updated = 0;
   const ids = new Set(prepared.map((item) => item.asset.attachmentId));
   const byId = new Map(prepared.map((item) => [item.asset.attachmentId, item]));
   const nextArticles = content.articles.map((item) => {
     const record = item as CmsRecord;
-    const article = audit.articles.find((entry) => String(entry.articleId) === String(record.sourceId) && record.sourceProvider === SOURCE_PROVIDER);
+    const article = context.audit.articles.find((entry) => String(entry.articleId) === String(record.sourceId) && record.sourceProvider === SOURCE_PROVIDER);
     if (!article) return item;
     const replacements = (article.featuredMediaId ? [article.featuredMediaId] : []).concat((article.inlineImages || []).map((image) => image.attachmentId || 0)).filter((id) => ids.has(id));
     if (!replacements.length) return item;

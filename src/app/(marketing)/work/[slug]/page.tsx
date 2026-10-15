@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { caseStudies, getCaseStudy, getAdjacentCaseStudy } from "@/lib/case-studies";
-import { getUnsplashPhoto, getUnsplashPhotos } from "@/lib/unsplash";
+import { getUnsplashPhoto } from "@/lib/unsplash";
 import { CaseHero } from "@/components/case-study/CaseHero";
 import { CaseBrief } from "@/components/case-study/CaseBrief";
 import { FullBleedMedia } from "@/components/case-study/FullBleedMedia";

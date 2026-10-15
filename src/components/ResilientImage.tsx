@@ -33,11 +33,22 @@ export function ResilientImage({ src, alt, className, loading = "lazy", objectPo
   const failed = !src || attempt >= MAX_ATTEMPTS;
 
   // A new source must never inherit the previous image's failure state.
-  useEffect(() => {
-    probedRef.current = false;
+  // React's documented "adjust state during render" pattern: reset the
+  // retry/load state synchronously when the source changes, instead of
+  // calling setState inside an effect (which can trigger cascading renders).
+  const [sourceKey, setSourceKey] = useState({ src, srcSet });
+  if (sourceKey.src !== src || sourceKey.srcSet !== srcSet) {
+    setSourceKey({ src, srcSet });
     setAttempt(0);
     setLoaded(false);
+  }
+
+  // When the source changes (or on unmount) clear any pending retry timer and
+  // reset the per-source probe guard. Ref writes are only valid inside
+  // effects, so the guard reset lives here rather than during render.
+  useEffect(() => {
     return () => {
+      probedRef.current = false;
       if (retryRef.current) clearTimeout(retryRef.current);
     };
   }, [src, srcSet]);

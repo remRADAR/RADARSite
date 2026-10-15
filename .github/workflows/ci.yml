@@ -20,10 +20,43 @@ jobs:
         run: npm ci
 
       - name: Lint
-        run: npm run lint
+        run: |
+          set +e
+          npm run lint > lint.log 2>&1
+          code=$?
+          set -e
+          awk '
+            /^[^ ].*\.(ts|tsx|mjs|cjs|js|jsx)$/ { file=$0 }
+            /^ *[0-9]+:[0-9]+ +error/ {
+              line=$0; sub(/^ +/, "", line)
+              split(line, parts, / +/)
+              pos=parts[1]; sub(/:/, ",", pos)
+              msg=line; sub(/^ *[0-9]+:[0-9]+ +error +/, "", msg)
+              print "::error file=" file ",line=" pos ",title=eslint error::" msg
+            }
+          ' lint.log || true
+          if [ "$code" -ne 0 ] && ! grep -qE '^ *[0-9]+:[0-9]+ +error' lint.log; then
+            sed -n '1,10p' lint.log | while IFS= read -r line; do
+              printf '::error title=lint output::%s\n' "$line"
+            done
+          fi
+          exit $code
 
       - name: Typecheck
         run: npm run typecheck
+
+      - name: SEO audit contract test
+        run: |
+          set +e
+          npm run test:seo-audit > seo-audit-test.log 2>&1
+          code=$?
+          set -e
+          if [ "$code" -ne 0 ]; then
+            sed -n '1,10p' seo-audit-test.log | while IFS= read -r line; do
+              printf '::error title=seo-audit test output::%s\n' "$line"
+            done
+          fi
+          exit $code
 
       - name: Build (database skipped)
         run: npm run build
