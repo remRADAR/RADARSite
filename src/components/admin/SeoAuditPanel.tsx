@@ -181,8 +181,8 @@ export function SeoAuditPanel() {
             )}
             <ul className="mt-4 space-y-3">
               {report.findings.length === 0 && <li className="font-mono text-xs text-emerald-400">No findings for the current filters.</li>}
-              {report.findings.map((finding) => (
-                <li key={finding.id + finding.category} className="rounded border border-neutral-800 bg-neutral-950 p-3">
+              {report.findings.map((finding, findingIndex) => (
+                <li key={`${finding.id}-${finding.category}-${findingIndex}`} className="rounded border border-neutral-800 bg-neutral-950 p-3">
                   <p className="font-mono text-xs">
                     <span className={`uppercase font-bold ${SEVERITY_COLOR[finding.severity]}`}>{finding.severity}</span>
                     <span className="text-neutral-500"> · {finding.category} · </span>
@@ -210,8 +210,8 @@ export function SeoAuditPanel() {
                     {run.path} <span className="text-neutral-500">· {run.auditedAt} · score {run.scores?.overall ?? "n/a"}</span>
                   </p>
                   <ul className="mt-2 space-y-2">
-                    {run.findings.map((finding) => (
-                      <li key={finding.id} className="font-mono text-[11px] text-neutral-400">
+                    {run.findings.map((finding, findingIndex) => (
+                      <li key={`${finding.id}-${findingIndex}`} className="font-mono text-[11px] text-neutral-400">
                         <span className={`font-bold uppercase ${SEVERITY_COLOR[finding.severity]}`}>{finding.severity}</span> {finding.title}
                         {finding.status !== "open" && <span className="ml-2 rounded bg-neutral-800 px-2 py-0.5 text-[10px] uppercase text-neutral-300">{finding.status}</span>}
                         <span className="ml-2 flex gap-2">

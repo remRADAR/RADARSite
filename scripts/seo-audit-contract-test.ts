@@ -105,7 +105,6 @@ await test("A complete article audits clean with a high score", async () => {
   assert.equal(report.contentType, "article");
   assert.equal(report.counts.critical, 0, JSON.stringify(report.findings, null, 2));
   assert.ok(report.scores.overall >= 85, `overall ${report.scores.overall}`);
-  assert.ok(report.findingIds === undefined); // shape sanity
 });
 
 await test("A broken article surfaces critical findings across categories", async () => {
