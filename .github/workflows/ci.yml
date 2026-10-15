@@ -24,7 +24,24 @@ jobs:
           set +e
           npm run lint > lint.log 2>&1
           code=$?
-          printf '### Lint output (tail)\n\n```\n%s\n```\n' "$(tail -n 150 lint.log)" >> "$GITHUB_STEP_SUMMARY"
+          set -e
+          # Surface eslint findings as workflow annotations (visible on the checks page).
+          awk '
+            /^[^ ].*\.(ts|tsx|mjs|cjs|js|jsx)$/ { file=$0 }
+            /^ *[0-9]+:[0-9]+ +error/ {
+              line=$0; sub(/^ +/, "", line)
+              split(line, parts, / +/)
+              pos=parts[1]; sub(/:/, ",", pos)
+              msg=line; sub(/^ *[0-9]+:[0-9]+ +error +/, "", msg)
+              print "::error file=" file ",line=" pos ",title=eslint error::" msg
+            }
+          ' lint.log || true
+          # If lint failed without parseable rule errors (crash/config error), dump the head of the log.
+          if [ "$code" -ne 0 ] && ! grep -qE '^ *[0-9]+:[0-9]+ +error' lint.log; then
+            sed -n '1,10p' lint.log | while IFS= read -r line; do
+              printf '::error title=lint output::%s\n' "$line"
+            done
+          fi
           exit $code
 
       - name: Typecheck
