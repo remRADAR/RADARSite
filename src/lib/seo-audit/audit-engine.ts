@@ -28,14 +28,14 @@ export type AuditContext = {
   validPaths: Set<string>;
 };
 
-const COLLECTION_ROUTES: { collection: IndexedAuditRecord["collection"]; contentType: AuditContentType; pattern: RegExp }[] = [
-  { collection: "articles", contentType: "article", pattern: /^\/ontheradar\/articles\/([^/]+)$/ },
-  { collection: "magazine", contentType: "magazine", pattern: /^\/ontheradar\/magazine\/([^/]+)$/ },
-  { collection: "artists", contentType: "artist", pattern: /^\/radarmusic\/artists\/([^/]+)$/ },
-  { collection: "releases", contentType: "release", pattern: /^\/radarmusic\/releases\/([^/]+)$/ },
-  { collection: "radarProjects", contentType: "project", pattern: /^\/ontheradar\/projects\/([^/]+)$/ },
-  { collection: "events", contentType: "event", pattern: /^\/ontheradar\/events\/([^/]+)$/ },
-];
+const COLLECTION_PREFIXES: Record<IndexedAuditRecord["collection"], { prefix: string; contentType: AuditContentType }> = {
+  articles: { prefix: "/ontheradar/articles/", contentType: "article" },
+  magazine: { prefix: "/ontheradar/magazine/", contentType: "magazine" },
+  artists: { prefix: "/radarmusic/artists/", contentType: "artist" },
+  releases: { prefix: "/radarmusic/releases/", contentType: "release" },
+  radarProjects: { prefix: "/ontheradar/projects/", contentType: "project" },
+  events: { prefix: "/ontheradar/events/", contentType: "event" },
+};
 
 // Mirrors src/app/sitemap.ts static routes. Kept in sync deliberately:
 // the engine must not import database-bound modules to stay test-safe.
@@ -79,53 +79,38 @@ export function createAuditContext(content: ContentCollections): AuditContext {
   const inboundLinks = new Map<string, number>();
   const validPaths = new Set<string>(STATIC_ROUTES);
 
-  const register = (record: CmsRecord, collection: IndexedAuditRecord["collection"], contentType: AuditContentType) => {
+  const register = (record: CmsRecord, collection: IndexedAuditRecord["collection"]) => {
     const slug = text(record.slug);
     if (!slug) return;
-    const route = COLLECTION_ROUTES.find((entry) => entry.collection === collection);
-    if (!route) return;
-    const path = route.pattern.exec(`${route.pattern.source.startsWith("^\\/ontheradar\\/articles") ? "" : ""}`) ? "" : ""; // placeholder, replaced below
-    void path;
-    const match = route.pattern.exec(routePrefix(collection) + slug);
-    if (!match) return;
-    const resolved = match[0];
-    index.set(resolved, { record, contentType, collection });
-    validPaths.add(resolved);
+    const { prefix, contentType } = COLLECTION_PREFIXES[collection];
+    const path = `${prefix}${slug}`;
+    index.set(path, { record, contentType, collection });
+    validPaths.add(path);
     const title = lower(record.metaTitle || record.title || record.name);
     if (title) titleCounts.set(title, (titleCounts.get(title) || 0) + 1);
     const description = lower(record.metaDescription || record.description || record.excerpt);
     if (description) descriptionCounts.set(description, (descriptionCounts.get(description) || 0) + 1);
-    const body = normalizeBody(text(record.bodyHtml) || text(record.body));
-    if (body.length >= 100) {
-      const existing = bodyPrefixes.get(body) || [];
-      existing.push(resolved);
-      bodyPrefixes.set(body, existing);
+    const bodyHtml = text(record.bodyHtml) || text(record.body);
+    const bodyKey = normalizeBody(bodyHtml);
+    if (bodyKey.length >= 100) {
+      const existing = bodyPrefixes.get(bodyKey) || [];
+      existing.push(path);
+      bodyPrefixes.set(bodyKey, existing);
     }
-    for (const link of extractLinks(text(record.bodyHtml) || text(record.body) || "")) {
-      const resolvedHref = resolveHref(link.href);
-      if (resolvedHref && resolvedHref !== "external" && resolvedHref !== "invalid") {
-        inboundLinks.set(resolvedHref, (inboundLinks.get(resolvedHref) || 0) + 1);
+    for (const link of extractLinks(bodyHtml)) {
+      const resolved = resolveHref(link.href);
+      if (resolved && resolved !== "external" && resolved !== "invalid") {
+        inboundLinks.set(resolved, (inboundLinks.get(resolved) || 0) + 1);
       }
     }
   };
 
-  const routePrefix = (collection: IndexedAuditRecord["collection"]) => {
-    switch (collection) {
-      case "articles": return "/ontheradar/articles/";
-      case "magazine": return "/ontheradar/magazine/";
-      case "artists": return "/radarmusic/artists/";
-      case "releases": return "/radarmusic/releases/";
-      case "radarProjects": return "/ontheradar/projects/";
-      case "events": return "/ontheradar/events/";
-    }
-  };
-
-  for (const record of content.articles as CmsRecord[]) register(record, "articles", "article");
-  for (const record of content.magazine as CmsRecord[]) register(record, "magazine", "magazine");
-  for (const record of content.artists as CmsRecord[]) register(record, "artists", "artist");
-  for (const record of content.releases as CmsRecord[]) register(record, "releases", "release");
-  for (const record of content.radarProjects as CmsRecord[]) register(record, "radarProjects", "project");
-  for (const record of content.events as CmsRecord[]) register(record, "events", "event");
+  for (const record of content.articles as CmsRecord[]) register(record, "articles");
+  for (const record of content.magazine as CmsRecord[]) register(record, "magazine");
+  for (const record of content.artists as CmsRecord[]) register(record, "artists");
+  for (const record of content.releases as CmsRecord[]) register(record, "releases");
+  for (const record of content.radarProjects as CmsRecord[]) register(record, "radarProjects");
+  for (const record of content.events as CmsRecord[]) register(record, "events");
 
   return { content, index, titleCounts, descriptionCounts, bodyPrefixes, inboundLinks, validPaths };
 }
@@ -155,7 +140,7 @@ function expectedArticleJsonLd(record: CmsRecord, path: string): Record<string, 
   return data;
 }
 
-const KNOWN_JSONLD_TYPES = new Set(["organization", "website", "webpage", "collectionpage", "profilepage", "article", "newsarticle", "person", "musicgroup", "musicalbum", "musicrecording", "musicrelease", "breadcrumblist", "imageobject", "videoobject", "itemlist", "thing"]);
+const KNOWN_JSONLD_TYPES = new Set(["organization", "website", "webpage", "collectionpage", "profilepage", "article", "newsarticle", "person", "musicgroup", "musicalalbum", "musicrecording", "musicrelease", "breadcrumblist", "imageobject", "videoobject", "itemlist", "thing"]);
 
 export function validateJsonLdBlocks(blocks: string[]): { findings: AuditFinding[]; types: string[] } {
   const findings: AuditFinding[] = [];
@@ -344,9 +329,6 @@ export async function auditPath(context: AuditContext, path: string, options: Au
         recommendation: "Remove the noindex directive or mark the record as intentionally unindexed.",
       }));
     }
-    if (live.html && !/^<(!doctype|html)/i.test(live.html.trim())) {
-      notes.push("Live response did not look like a full HTML document; some live checks may be incomplete.");
-    }
   }
 
   if (record) {
@@ -518,7 +500,11 @@ export async function auditPath(context: AuditContext, path: string, options: Au
   }
 
   // ---- Structured data ----
-  const jsonLdBlocks = live ? extractJsonLdBlocks(live.html) : record && (contentType === "article" || contentType === "magazine") ? [JSON.stringify(expectedArticleJsonLd(record, path))] : [];
+  const jsonLdBlocks = live
+    ? extractJsonLdBlocks(live.html)
+    : record && (contentType === "article" || contentType === "magazine")
+      ? [JSON.stringify(expectedArticleJsonLd(record, path))]
+      : [];
   const jsonLdValidation = validateJsonLdBlocks(jsonLdBlocks);
   findings.push(...jsonLdValidation.findings);
   if (!live && record && (contentType === "article" || contentType === "magazine")) {
@@ -598,7 +584,7 @@ export async function auditPath(context: AuditContext, path: string, options: Au
       findings.push(finding({
         id: "content-thin", category: "editorial", severity: "warning",
         title: "Article body is very short",
-        description: "Thin content (${words} words) rarely satisfies search intent.",
+        description: `Thin content (${words} words) rarely satisfies search intent.`,
         evidence: `${words} words of body content`,
         recommendation: "Expand the article to fully cover its topic.",
       }));
@@ -640,7 +626,7 @@ export async function auditPath(context: AuditContext, path: string, options: Au
       findings.push(finding({
         id: "excerpt-missing", category: "editorial", severity: "recommendation",
         title: "No excerpt",
-        description: "Excerps drive archive previews and can feed meta descriptions.",
+        description: "Excerpts drive archive previews and can feed meta descriptions.",
         evidence: "record.excerpt is empty.", recommendation: "Write a one-to-two sentence excerpt.",
       }));
     }
