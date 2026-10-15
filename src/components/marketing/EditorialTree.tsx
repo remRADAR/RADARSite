@@ -9,7 +9,7 @@ import { Marquee } from "@/components/motion/Marquee";
 import { MediaFrame } from "@/components/MediaFrame";
 import { useCursor } from "@/components/motion/CursorProvider";
 import { cn } from "@/lib/utils";
-import type { EditorialTreePost } from "@/lib/editorial-tree";
+import { buildEditorialSrcSet, type EditorialTreePost } from "@/lib/editorial-tree";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -29,6 +29,7 @@ function EditorialTreeEntry({ post, index, reverse, className }: EditorialTreeEn
   const displayNumber = String(index + 1).padStart(2, "0");
   const metaLine = post.year + " / " + post.sectionLabel;
   const authorLine = post.author + " / " + post.sectionLabel;
+  const srcSet = useMemo(() => buildEditorialSrcSet(post.imageUrl), [post.imageUrl]);
 
   return (
     <Link
@@ -50,6 +51,7 @@ function EditorialTreeEntry({ post, index, reverse, className }: EditorialTreeEn
           className="h-full w-full"
           label={post.sectionLabel}
           imageUrl={post.imageUrl || undefined}
+          srcSet={srcSet}
           attribution={false}
           reveal
           sizes="(min-width: 768px) 50vw, 100vw"
