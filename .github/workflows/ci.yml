@@ -25,7 +25,6 @@ jobs:
           npm run lint > lint.log 2>&1
           code=$?
           set -e
-          # Surface eslint findings as workflow annotations (visible on the checks page).
           awk '
             /^[^ ].*\.(ts|tsx|mjs|cjs|js|jsx)$/ { file=$0 }
             /^ *[0-9]+:[0-9]+ +error/ {
@@ -36,7 +35,6 @@ jobs:
               print "::error file=" file ",line=" pos ",title=eslint error::" msg
             }
           ' lint.log || true
-          # If lint failed without parseable rule errors (crash/config error), dump the head of the log.
           if [ "$code" -ne 0 ] && ! grep -qE '^ *[0-9]+:[0-9]+ +error' lint.log; then
             sed -n '1,10p' lint.log | while IFS= read -r line; do
               printf '::error title=lint output::%s\n' "$line"
@@ -48,7 +46,15 @@ jobs:
         run: npm run typecheck
 
       - name: SEO audit contract test
-        run: npm run test:seo-audit
+        run: |
+          set +e
+          npm run test:seo-audit > seo-audit-test.log 2>&1
+          code=$?
+          set -e
+          grep -E 'FAIL|AssertionError|Expected|Received|expected|actual|missing finding' seo-audit-test.log | head -10 | while IFS= read -r line; do
+            printf '::error title=seo-audit test::%s\n' "$line"
+          done
+          exit $code
 
       - name: Build (database skipped)
         run: npm run build
