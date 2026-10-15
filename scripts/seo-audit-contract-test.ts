@@ -55,10 +55,6 @@ async function test(name: string, run: () => Promise<void> | void) {
   }
 }
 
-function findingsOf(report: { findings: AuditFinding[] }, id: string) {
-  return report.findings.filter((finding) => finding.id === id);
-}
-
 await test("URL validation accepts site paths and absolute site URLs", () => {
   assert.deepEqual(normalizeAuditPath("/ontheradar/articles/x"), { ok: true, path: "/ontheradar/articles/x" });
   assert.deepEqual(normalizeAuditPath("https://radarcharts.net/ontheradar/articles/x"), { ok: true, path: "/ontheradar/articles/x" });
