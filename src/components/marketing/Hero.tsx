@@ -207,11 +207,15 @@ export function Hero() {
         <p data-hero-meta className="hero-readable-support mt-6 max-w-[34rem] font-mono text-[11px] font-bold uppercase leading-[1.45] tracking-[0.12em] !text-[#f7f7f2] md:text-xs">{subheadline}</p>
       </div>
 
-      <div className="ticker-surface pointer-events-none relative z-10 border-t border-white/55 bg-black/20 text-paper backdrop-blur-[2px]">
+      {/* Ticker inherits its colors from .ticker-surface in globals.css:
+          white bar with black text (dark theme) / black bar with white text
+          (light theme). Do NOT add text-paper here — .hero-shell .text-paper
+          would force white-on-white and hide the ticker text. */}
+      <div className="ticker-surface pointer-events-none relative z-10 border-t border-white/55 bg-black/20 backdrop-blur-[2px]">
         <Marquee durationSeconds={26} className="py-3">
           {ticker.map((item, index) => (
-            <span data-ticker-text key={`${item}-${index}`} className="mx-3 whitespace-nowrap font-mono text-sm font-bold uppercase tracking-widest text-paper md:mx-6">
-              {item}{overrides.tickerIconImage ? <span className="mx-3 inline-flex items-center text-flare md:mx-6" aria-hidden><Image src={overrides.tickerIconImage} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" /></span> : null}
+            <span data-ticker-text key={`${item}-${index}`} className="mx-3 whitespace-nowrap font-mono text-sm font-bold uppercase tracking-widest md:mx-6">
+              {item}{overrides.tickerIconImage ? <span className="mx-3 inline-flex items-center md:mx-6" aria-hidden><Image src={overrides.tickerIconImage} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" /></span> : null}
             </span>
           ))}
         </Marquee>
