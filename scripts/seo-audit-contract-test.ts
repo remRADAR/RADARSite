@@ -55,6 +55,7 @@ async function test(name: string, run: () => Promise<void> | void) {
   }
 }
 
+async function main() {
 await test("URL validation accepts site paths and absolute site URLs", () => {
   assert.deepEqual(normalizeAuditPath("/ontheradar/articles/x"), { ok: true, path: "/ontheradar/articles/x" });
   assert.deepEqual(normalizeAuditPath("https://radarcharts.net/ontheradar/articles/x"), { ok: true, path: "/ontheradar/articles/x" });
@@ -251,3 +252,6 @@ if (failures > 0) {
   process.exit(1);
 }
 console.log("\nAll SEO audit contract tests passed.");
+}
+
+main();
