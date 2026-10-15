@@ -72,5 +72,8 @@
     "esbuild@0.28.2": true,
     "unrs-resolver@1.12.2": true,
     "sharp@0.35.5": true
+  },
+  "overrides": {
+    "source-map-js": "1.2.2"
   }
 }

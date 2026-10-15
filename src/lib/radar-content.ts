@@ -82,14 +82,16 @@ export const heroConfig: HeroConfig = {
   slides: DRIVE_HERO_IMAGES.map((src, index) => ({
     id: `drive-hero-${index + 1}`,
     type: "image" as const,
-    src,
+    // Google Drive serves the best available rendition up to this requested
+    // ceiling; the browser still downscales cleanly for smaller viewports.
+    src: src.replace(/=w\d+$/, "=w8192"),
     alt: `RADAR hero image ${index + 1}`,
     order: index + 1,
     active: true,
   })),
-  // Keep each frame on screen long enough for the next full-resolution image
-  // to decode before the crossfade begins.
-  durationMs: 50000,
+  // Four-second autoplay with the next full-resolution image decoded before
+  // the crossfade begins.
+  durationMs: 4000,
   transition: "fade",
   reducedMotionFallback: "/hero-new/banner-1.webp",
   eyebrow: "(01 / Signal)\nArtist development & culture",

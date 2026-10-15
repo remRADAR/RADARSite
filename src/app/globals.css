@@ -339,6 +339,20 @@ html {
   .hero-shell .border-paper {
     border-color: #f7f7f2 !important;
   }
+
+  /* The hero owns its media treatment: keep source pixels crisp while the
+     engine, grade, and type layers do the compositing above the photograph. */
+  .hero-image {
+    image-rendering: auto;
+    backface-visibility: hidden;
+    filter: saturate(1.04) contrast(1.02);
+  }
+
+  .hero-engine canvas {
+    display: block;
+    height: 100% !important;
+    width: 100% !important;
+  }
 }
 
 /* Infinite marquee — pure CSS, bulletproof, reduced-motion-safe. */

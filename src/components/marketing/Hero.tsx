@@ -15,6 +15,8 @@ import {
 } from "@/lib/site-overrides";
 import { Marquee } from "@/components/motion/Marquee";
 import { useSiteConfig } from "@/lib/site-config-context";
+import { HeroScene } from "@/components/three/HeroScene";
+import { SceneGate } from "@/components/three/SceneGate";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -140,7 +142,7 @@ export function Hero() {
         onError={() => {
           setFailed((current) => ({ ...current, [slide.id]: true }));
         }}
-        className={`absolute inset-0 h-full w-full translate-z-0 object-cover object-center transition-opacity [will-change:opacity,transform] ease-[var(--ease-in-out)] motion-reduce:transition-none ${layer === "incoming" ? "opacity-100" : incoming === null ? "opacity-100" : "opacity-0"}`}
+        className={`hero-image absolute inset-0 h-full w-full translate-z-0 object-cover object-center transition-opacity [will-change:opacity,transform] ease-[var(--ease-in-out)] motion-reduce:transition-none ${layer === "incoming" ? "opacity-100" : incoming === null ? "opacity-100" : "opacity-0"}`}
         style={{ transitionDuration: `${FADE_DURATION_MS}ms`, transform: "translateZ(0)" }}
       />
     );
@@ -148,12 +150,16 @@ export function Hero() {
 
   return (
     <section ref={rootRef} className="hero-shell relative flex min-h-[100svh] flex-col justify-end overflow-hidden [contain:paint] bg-ink pt-14 text-paper">
-      <div className="absolute inset-0 bg-ink" aria-hidden>
+      <div className="hero-media absolute inset-0 bg-ink" aria-hidden>
         {renderSlide(active, "active")}
         {incoming !== null ? renderSlide(incoming, "incoming") : null}
       </div>
 
-      <div className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-t from-ink/80 via-ink/10 to-transparent" aria-hidden>
+      <div className="pointer-events-none absolute inset-0 z-[2] bg-[radial-gradient(circle_at_72%_28%,transparent_0%,rgb(0_0_0_/_0.04)_42%,rgb(0_0_0_/_0.22)_100%)]" aria-hidden />
+      <div className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-t from-black/75 via-black/10 to-transparent" aria-hidden />
+
+      <div className="hero-engine pointer-events-none absolute right-[-10%] top-[14%] z-[3] h-[46svh] w-[58vw] max-w-[52rem] opacity-25 mix-blend-screen" aria-hidden>
+        <SceneGate><HeroScene /></SceneGate>
       </div>
 
       <div className="pointer-events-none absolute right-4 top-20 z-10 max-w-[calc(100%-2rem)] text-right font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-paper md:right-8 md:text-[11px]" data-hero-meta>{config.homepage.hero.coordinates || overrides.geoSignature}</div>
@@ -165,10 +171,10 @@ export function Hero() {
         <p data-hero-meta className="hero-readable-support mt-6 max-w-[34rem] font-mono text-[11px] font-bold uppercase leading-[1.45] tracking-[0.12em] !text-[#f7f7f2] md:text-xs">{subheadline}</p>
       </div>
 
-      <div className="ticker-surface pointer-events-none relative z-10 brut-border-t border-b-2 border-paper bg-paper text-ink">
+      <div className="ticker-surface pointer-events-none relative z-10 border-t border-white/55 bg-black/20 text-paper backdrop-blur-[2px]">
         <Marquee durationSeconds={26} className="py-3">
           {ticker.map((item, index) => (
-            <span data-ticker-text key={`${item}-${index}`} className="mx-3 whitespace-nowrap font-mono text-sm font-bold uppercase tracking-widest text-ink md:mx-6">
+            <span data-ticker-text key={`${item}-${index}`} className="mx-3 whitespace-nowrap font-mono text-sm font-bold uppercase tracking-widest text-paper md:mx-6">
               {item}{overrides.tickerIconImage ? <span className="mx-3 inline-flex items-center text-flare md:mx-6" aria-hidden><Image src={overrides.tickerIconImage} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" /></span> : null}
             </span>
           ))}
