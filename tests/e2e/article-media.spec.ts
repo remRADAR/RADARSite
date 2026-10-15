@@ -23,7 +23,7 @@ test.describe("article media resilience", () => {
     const states = await page.locator(".editorial-body img").evaluateAll((images) =>
       images.map((image) => ({
         src: image.getAttribute("src") || "",
-        loaded: image.naturalWidth > 0,
+        loaded: (image as HTMLImageElement).naturalWidth > 0,
         marked: image.classList.contains("is-error") || image.classList.contains("is-ready"),
       })),
     );
@@ -41,7 +41,7 @@ test.describe("article media resilience", () => {
     await page.goto(currentArticle, { waitUntil: "domcontentloaded" });
     await waitForArticleImagesToSettle(page);
     const broken = await page.locator("article img").evaluateAll((images) =>
-      images.filter((image) => image.complete && image.naturalWidth === 0 && !image.classList.contains("is-error")).length,
+      images.filter((image) => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth === 0 && !image.classList.contains("is-error")).length,
     );
     // ResilientImage swaps failed hero media for a branded placeholder div, and
     // the enhancer marks failed inline images is-error.
@@ -55,7 +55,7 @@ test.describe("article media resilience", () => {
       null,
       { timeout: 30_000 },
     );
-    const loaded = await page.locator("img").evaluateAll((images) => images.filter((image) => image.naturalWidth > 0).length);
+    const loaded = await page.locator("img").evaluateAll((images) => images.filter((image) => (image as HTMLImageElement).naturalWidth > 0).length);
     expect(loaded).toBeGreaterThan(0);
   });
 
