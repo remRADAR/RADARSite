@@ -39,14 +39,16 @@ export function ResilientImage({ src, alt, className, loading = "lazy", objectPo
   const [sourceKey, setSourceKey] = useState({ src, srcSet });
   if (sourceKey.src !== src || sourceKey.srcSet !== srcSet) {
     setSourceKey({ src, srcSet });
-    probedRef.current = false;
     setAttempt(0);
     setLoaded(false);
   }
 
-  // Always clear a pending retry timer when the source changes or on unmount.
+  // When the source changes (or on unmount) clear any pending retry timer and
+  // reset the per-source probe guard. Ref writes are only valid inside
+  // effects, so the guard reset lives here rather than during render.
   useEffect(() => {
     return () => {
+      probedRef.current = false;
       if (retryRef.current) clearTimeout(retryRef.current);
     };
   }, [src, srcSet]);
