@@ -35,6 +35,8 @@ export function ResilientImage({ src, alt, className, loading = "lazy", objectPo
   // A new source must never inherit the previous image's failure state.
   useEffect(() => {
     probedRef.current = false;
+    // The reset is intentional: these values belong to the previous source.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAttempt(0);
     setLoaded(false);
     return () => {

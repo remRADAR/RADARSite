@@ -1,11 +1,30 @@
+import { isIP } from "node:net";
 import type { NextRequest } from "next/server";
 
 const buckets = new Map<string, { count: number; resetAt: number }>();
 const WINDOW_MS = 60_000;
 const MAX_ENTRIES = 10_000;
+const TRUSTED_PROXY_HOPS = Math.max(0, Number.parseInt(process.env.RADAR_TRUSTED_PROXY_HOPS || "0", 10) || 0);
+
+function validAddress(value: string | null) {
+  const address = value?.trim() || "";
+  return address && isIP(address) ? address : "";
+}
 
 export function getClientAddress(request: NextRequest) {
-  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
+  // Forwarded headers are attacker-controlled unless the deployment explicitly
+  // declares how many reverse proxies it owns. Walk from the proxy edge toward
+  // the client instead of trusting the first X-Forwarded-For value.
+  if (TRUSTED_PROXY_HOPS > 0) {
+    const chain = (request.headers.get("x-forwarded-for") || "")
+      .split(",")
+      .map((value) => validAddress(value))
+      .filter(Boolean);
+    if (chain.length) return chain[Math.max(0, chain.length - TRUSTED_PROXY_HOPS - 1)];
+    const realIp = validAddress(request.headers.get("x-real-ip"));
+    if (realIp) return realIp;
+  }
+  return "unknown";
 }
 
 export function rateLimit(request: NextRequest, scope: string, limit = 100) {
