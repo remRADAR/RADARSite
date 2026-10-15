@@ -61,9 +61,11 @@ export function PlaylistFloater() {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const dragRef = useRef<DragState | null>(null);
   const didDragRef = useRef(false);
-  const [playing, setPlaying] = useState(readPlaying);
-  const [position, setPosition] = useState(readPosition);
-  const [collapsed, setCollapsed] = useState(readCollapsed);
+  // Keep the server render and the first client render identical. Browser
+  // storage and viewport dimensions are hydrated in the effect below.
+  const [playing, setPlaying] = useState(true);
+  const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
+  const [collapsed, setCollapsed] = useState(false);
   const hasStoredPosition = position.x !== 0 || position.y !== 0;
   const visiblePosition = hasStoredPosition ? position : defaultPosition();
 
@@ -211,7 +213,7 @@ export function PlaylistFloater() {
         ref={frameRef}
         title="RADAR playlist audio"
         className="pointer-events-none fixed -left-px -top-px h-px w-px opacity-0"
-        src={`https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(overrides.playlistId)}&autoplay=1&mute=1&enablejsapi=1&controls=0&playsinline=1&origin=${encodeURIComponent(typeof window === "undefined" ? "" : window.location.origin)}`}
+        src={`https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(overrides.playlistId)}&autoplay=1&mute=1&enablejsapi=1&controls=0&playsinline=1`}
         allow="autoplay; encrypted-media"
         onLoad={resumeIfActive}
       />

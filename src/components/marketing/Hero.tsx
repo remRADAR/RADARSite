@@ -22,6 +22,20 @@ gsap.registerPlugin(ScrollTrigger);
 
 const FADE_DURATION_MS = 700;
 const ACTIVE_HERO_SLIDES = getActiveHeroSlides();
+const HERO_SOURCE_WIDTHS = [1080, 2000, 4096, 8192] as const;
+
+function heroSourceSet(source: string) {
+  if (!source.includes("lh3.googleusercontent.com")) return undefined;
+  return HERO_SOURCE_WIDTHS.map((width) => `${source.replace(/=w\d+$/, `=w${width}`)} ${width}w`).join(", ");
+}
+
+function isOptimizableHeroSource(source: string) {
+  return source.startsWith("https://lh3.googleusercontent.com/");
+}
+
+function heroPreloadSource(source: string) {
+  return isOptimizableHeroSource(source) ? `/_next/image?url=${encodeURIComponent(source)}&w=1920&q=100` : source;
+}
 
 export function Hero() {
   const { config } = useSiteConfig();
@@ -46,7 +60,7 @@ export function Hero() {
     const preload = (source: string) => {
       const image = new window.Image();
       image.decoding = "async";
-      image.src = source;
+      image.src = heroPreloadSource(source);
     };
     slides.slice(0, 2).forEach((slide) => preload(overrides.media[`hero:${slide.id}`] || slide.src));
   }, [overrides.media, slides]);
@@ -80,7 +94,7 @@ export function Hero() {
         setFailed((current) => ({ ...current, [nextSlide.id]: true }));
         cancelTransition();
       };
-      preload.src = source;
+      preload.src = heroPreloadSource(source);
     }, heroConfig.durationMs);
     return () => window.clearInterval(timer);
   }, [active, cancelTransition, failed, overrides.media, slides]);
@@ -131,19 +145,41 @@ export function Hero() {
     const source = failed[slide.id]
       ? heroConfig.reducedMotionFallback
       : overrides.media[`hero:${slide.id}`] || slide.src;
+    const sourceSet = heroSourceSet(source);
+    const imageClassName = `hero-image absolute inset-0 h-full w-full translate-z-0 object-cover object-center transition-opacity [will-change:opacity,transform] ease-[var(--ease-in-out)] motion-reduce:transition-none ${layer === "incoming" ? "opacity-100" : incoming === null ? "opacity-100" : "opacity-0"}`;
+    const imageStyle = { transitionDuration: `${FADE_DURATION_MS}ms`, transform: "translateZ(0)" };
+    const handleImageError = () => {
+      setFailed((current) => ({ ...current, [slide.id]: true }));
+    };
+    if (isOptimizableHeroSource(source)) {
+      return (
+        <Image
+          key={`${slide.id}-${layer}-${source}`}
+          src={source}
+          alt=""
+          fill
+          sizes="100vw"
+          quality={100}
+          priority={index === active || index === incoming}
+          onError={handleImageError}
+          className={imageClassName}
+          style={imageStyle}
+        />
+      );
+    }
     return (
       <img
         key={`${slide.id}-${layer}-${source}`}
         src={source}
         alt=""
+        srcSet={sourceSet}
+        sizes="100vw"
         loading={index === active || index === incoming ? "eager" : "lazy"}
         decoding="async"
         fetchPriority={index === active || index === incoming ? "high" : "auto"}
-        onError={() => {
-          setFailed((current) => ({ ...current, [slide.id]: true }));
-        }}
-        className={`hero-image absolute inset-0 h-full w-full translate-z-0 object-cover object-center transition-opacity [will-change:opacity,transform] ease-[var(--ease-in-out)] motion-reduce:transition-none ${layer === "incoming" ? "opacity-100" : incoming === null ? "opacity-100" : "opacity-0"}`}
-        style={{ transitionDuration: `${FADE_DURATION_MS}ms`, transform: "translateZ(0)" }}
+        onError={handleImageError}
+        className={imageClassName}
+        style={imageStyle}
       />
     );
   };
