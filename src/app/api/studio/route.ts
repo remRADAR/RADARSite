@@ -2,11 +2,11 @@ import { randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { defaultSiteOverrides } from "@/lib/site-overrides";
-import { contentCacheTag, hasContentDatabase, logReadContentError, normalizeContent, readContent, writeContent, type CmsRecord } from "@/lib/content-server";
+import { contentCacheTag, hasContentDatabase, logReadContentError, normalizeContent, readContent, readContentWriteSnapshot, writeContent, writeContentIfUnchanged, type CmsRecord } from "@/lib/content-server";
 import { createSessionToken, getSessionCookieName, getSessionMaxAge, hasDatabase, isAdminPasswordValid, isSessionValid, readStudioSettings, writeStudioSettings } from "@/lib/studio-server";
 import { deriveEditorialTaxonomy, EDITORIAL_TYPES, MAGAZINE_SUBTYPES, suggestArticleTags, suggestSeoMetadata, validateEditorialTaxonomy } from "@/lib/cms-taxonomy";
 import { sanitizeEditorialHtml } from "@/lib/editorial-migration";
-import { isSameOriginMutation, rateLimit } from "@/lib/request-security";
+import { getClientAddress, isSameOriginMutation, rateLimit } from "@/lib/request-security";
 
 export const dynamic = "force-dynamic";
 const failedLogins = new Map<string, { count: number; resetAt: number }>();
@@ -19,7 +19,7 @@ type ArticleListItem = { id: string; sourceId?: string; slug: string; title: str
 function json(data: unknown, init?: ResponseInit) { const response = NextResponse.json(data, init); response.headers.set("Cache-Control", "no-store, max-age=0"); response.headers.set("X-Content-Type-Options", "nosniff"); return response; }
 function limited(request: NextRequest, scope: string, limit = 100) { const result = rateLimit(request, scope, limit); return result.allowed ? null : json({ error: "Too many requests. Try again later." }, { status: 429, headers: { "Retry-After": String(result.retryAfter) } }); }
 function mutationGuard(request: NextRequest) { return isSameOriginMutation(request) ? null : json({ error: "Cross-origin mutation rejected" }, { status: 403 }); }
-function clientKey(request: NextRequest) { return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"; }
+function clientKey(request: NextRequest) { return getClientAddress(request); }
 function hasSession(request: NextRequest) { return isSessionValid(request.cookies.get(getSessionCookieName())?.value); }
 function requireSession(request: NextRequest) { return hasSession(request) ? null : json({ error: "Admin authentication required" }, { status: 401 }); }
 async function readJson(request: NextRequest) { if (!(request.headers.get("content-type") || "").toLowerCase().includes("application/json")) return null; return request.json().catch(() => null) as Promise<unknown>; }
@@ -152,9 +152,13 @@ export async function PUT(request: NextRequest) {
   if (!body || (!Object.prototype.hasOwnProperty.call(body, "settings") && !Object.prototype.hasOwnProperty.call(body, "content") && !Object.prototype.hasOwnProperty.call(body, "article"))) return json({ error: "Article, settings, or content payload is required" }, { status: 400 });
   try {
     if (body.article && typeof body.article === "object") {
-      const current = await readContent(); const existing = current.articles.map((item) => item as CmsRecord).find((item) => item.id === text(body.article?.id) || item.slug === text(body.article?.slug));
+      // Compare-and-swap write: refuse to clobber a concurrent editorial change
+      // instead of silently overwriting it (same guard the Notion path uses).
+      const snapshot = await readContentWriteSnapshot(); const current = snapshot.content; const existing = current.articles.map((item) => item as CmsRecord).find((item) => item.id === text(body.article?.id) || item.slug === text(body.article?.slug));
       const article = normalizeArticleInput(body.article, existing); const duplicate = current.articles.some((item) => item.slug === article.slug && item !== existing); if (duplicate) return json({ error: "Another article already uses this slug." }, { status: 409 });
-      const next = normalizeContent({ ...current, articles: existing ? current.articles.map((item) => item === existing ? article : item) : [...current.articles, article] }); await writeContent(next); revalidateTag(contentCacheTag(), { expire: 0 }); return json({ saved: true, article: articleForEditor(article), summary: summary(article) });
+      const next = normalizeContent({ ...current, articles: existing ? current.articles.map((item) => item === existing ? article : item) : [...current.articles, article] }); const written = await writeContentIfUnchanged(snapshot.revision, next);
+      if (!written) return json({ error: "The CMS changed while this article was being saved. Reload the latest version and retry.", code: "concurrent_cms_update" }, { status: 409 });
+      revalidateTag(contentCacheTag(), { expire: 0 }); return json({ saved: true, article: articleForEditor(article), summary: summary(article) });
     }
     if (Object.prototype.hasOwnProperty.call(body, "content")) { const content = await writeContent(body.content); revalidateTag(contentCacheTag(), { expire: 0 }); return json({ saved: true, content }); }
     return json({ saved: true, settings: await writeStudioSettings(body.settings) });

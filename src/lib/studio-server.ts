@@ -32,7 +32,19 @@ export function isAdminPasswordValid(password: string) {
   return timingSafeEqual(Buffer.from(password), Buffer.from(expected));
 }
 
+let warnedAboutSessionSecret = false;
+
 function getSessionSecret() {
+  // Session signing must be independent of the human login credential: the
+  // password is low-entropy and rotating it should never orphan or expose
+  // outstanding sessions. Fall back to the password only so existing
+  // deployments keep working until STUDIO_SESSION_SECRET is configured.
+  const secret = process.env.STUDIO_SESSION_SECRET;
+  if (secret) return secret;
+  if (process.env.STUDIO_ADMIN_PASSWORD && !warnedAboutSessionSecret) {
+    warnedAboutSessionSecret = true;
+    console.warn("[studio-server] STUDIO_SESSION_SECRET is not configured; falling back to STUDIO_ADMIN_PASSWORD for session signing. Set a random 32-byte hex secret (openssl rand -hex 32) to decouple session signing from the admin password.");
+  }
   return process.env.STUDIO_ADMIN_PASSWORD || "";
 }
 
