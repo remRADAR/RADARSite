@@ -30,10 +30,12 @@ type MediaFrameProps = {
   priority?: boolean;
   /** Focal point for editorial photography; percentages keep the subject centered across crops. */
   objectPosition?: string;
-  /** Set false when nested inside another <Link>/<a> to avoid invalid anchors. */
+  /** Set false when nested inside another Link/a to avoid invalid anchors. */
   attribution?: boolean;
   /** Seamless hover reveal for interactive/clickable media. */
   reveal?: boolean;
+  /** Responsive srcset — forwarded to ResilientImage for multi-resolution delivery. */
+  srcSet?: string;
 };
 
 export function MediaFrame({
@@ -49,6 +51,7 @@ export function MediaFrame({
   attribution = true,
   reveal = false,
   objectPosition = "50% 50%",
+  srcSet,
 }: MediaFrameProps) {
   const effectiveImage = getEffectiveImageUrl(imageUrl);
   return (
@@ -71,8 +74,11 @@ export function MediaFrame({
         // many valid hosts, and this keeps the media path resilient without remote config churn.
         <ResilientImage
           src={effectiveImage.effectiveUrl}
+          srcSet={srcSet}
+          sizes={sizes}
           alt={label || "Featured image"}
           loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
           className={cn(
             "absolute inset-0 h-full w-full object-cover",
             reveal && "transform-gpu transition-transform duration-[800ms] ease-[var(--ease-out)] group-hover/card:scale-[1.06]"
@@ -116,7 +122,7 @@ export function MediaFrame({
       )}
       {photo && attribution && (
         <a
-          href={`${photo.credit.link}?utm_source=radarcharts&utm_medium=referral`}
+          href={photo.credit.link + "?utm_source=radarcharts&utm_medium=referral"}
           target="_blank"
           rel="noopener noreferrer"
           className="absolute bottom-3 right-3 z-10 font-mono text-[10px] uppercase tracking-widest text-paper/50 transition-colors hover:text-paper"
