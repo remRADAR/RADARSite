@@ -9,7 +9,8 @@ import { Marquee } from "@/components/motion/Marquee";
 import { MediaFrame } from "@/components/MediaFrame";
 import { useCursor } from "@/components/motion/CursorProvider";
 import { cn } from "@/lib/utils";
-import { buildEditorialSrcSet, type EditorialTreePost } from "@/lib/editorial-tree";
+import { buildEditorialSrcSet } from "@/lib/editorial-image";
+import type { EditorialTreePost } from "@/lib/editorial-tree";
 
 gsap.registerPlugin(ScrollTrigger);
 
