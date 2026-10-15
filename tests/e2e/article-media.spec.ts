@@ -20,7 +20,7 @@ test.describe("article media resilience", () => {
   test("inline images are either loaded or carry the styled error placeholder", async ({ page }) => {
     await page.goto(currentArticle, { waitUntil: "domcontentloaded" });
     await waitForArticleImagesToSettle(page);
-    const states = await page.locator(".editorial-body img").evaluateAll((images) =>
+    const states = await page.locator(".editorial-body img").evaluateAll((images: HTMLImageElement[]) =>
       images.map((image) => ({
         src: image.getAttribute("src") || "",
         loaded: image.naturalWidth > 0,
@@ -40,7 +40,7 @@ test.describe("article media resilience", () => {
   test("failed media never leaves an unstyled broken image element behind", async ({ page }) => {
     await page.goto(currentArticle, { waitUntil: "domcontentloaded" });
     await waitForArticleImagesToSettle(page);
-    const broken = await page.locator("article img").evaluateAll((images) =>
+    const broken = await page.locator("article img").evaluateAll((images: HTMLImageElement[]) =>
       images.filter((image) => image.complete && image.naturalWidth === 0 && !image.classList.contains("is-error")).length,
     );
     // ResilientImage swaps failed hero media for a branded placeholder div, and
@@ -55,7 +55,7 @@ test.describe("article media resilience", () => {
       null,
       { timeout: 30_000 },
     );
-    const loaded = await page.locator("img").evaluateAll((images) => images.filter((image) => image.naturalWidth > 0).length);
+    const loaded = await page.locator("img").evaluateAll((images: HTMLImageElement[]) => images.filter((image) => image.naturalWidth > 0).length);
     expect(loaded).toBeGreaterThan(0);
   });
 
