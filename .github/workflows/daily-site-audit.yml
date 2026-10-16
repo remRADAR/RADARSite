@@ -37,7 +37,7 @@ jobs:
 
       - name: Crawl links from the production sitemap
         run: >-
-          npx --yes linkinator@8.1.0 "$BASE_URL"
+          ./node_modules/.bin/linkinator "$BASE_URL"
           --sitemap --recurse --concurrency 8 --timeout 20000
           --retry --retry-errors --check-css
           --status-code "403:warn" --status-code "429:warn"
