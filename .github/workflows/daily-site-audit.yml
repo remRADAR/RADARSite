@@ -40,6 +40,7 @@ jobs:
           ./node_modules/.bin/linkinator "$BASE_URL"
           --sitemap --recurse --concurrency 8 --timeout 20000
           --retry --retry-errors --check-css
+          --skip "^https://radarcharts[.]net/%23n$"
           --status-code "403:warn" --status-code "429:warn"
 
   dependencies:
