@@ -9,6 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "npm run lint && npm run typecheck",
+    "homepage:config-contract-test": "tsx scripts/homepage-config-contract-test.ts",
     "cms:diagnose": "node scripts/cms-diagnose.mjs",
     "cms:reconcile": "tsx scripts/cms-reconcile.ts",
     "media:contract-test": "tsx scripts/wordpress-media-contract-test.ts",
