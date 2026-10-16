@@ -31,8 +31,7 @@ The handler fetches the existing data-source schema on each request and refuses 
 | `Publish to RADARSite` | checkbox | Must be checked |
 | `Author` | rich text, title, or people | Optional value; defaults to the RADARCharts by REM editorial label |
 | `Excerpt` | rich text or title | Used when present; otherwise safely derived from body text |
-| `Featured Image URL` | URL or rich text | Empty means preserve an existing featured image |
-| `Featured Image Upload` | files | Optional; the first uploaded file is imported into R2 as the featured image when `Featured Image URL` is empty |
+| `Featured Image Upload` | files | Optional; the first uploaded file is imported into R2 as the featured image; if empty, the Notion page cover is used |
 | `SEO Title` | rich text or title | Optional; falls back to the article title |
 | `SEO Meta Description` | rich text or title | Optional; falls back to the excerpt |
 | `Tags` | multi-select or rich text | Normalized to the CMS tag list |
@@ -45,11 +44,11 @@ The handler fetches the existing data-source schema on each request and refuses 
 | `Canonical Article URL` | URL or rich text | If set, must be HTTPS on `radarcharts.net` or `www.radarcharts.net`; otherwise generated from the existing route helper |
 | `Last Synced At` | date or rich text | Updated on success |
 
-All listed properties are required schema columns except `Featured Image Upload`, which is optional; individual author, excerpt, image, SEO, tags, and featured values may be empty where the fallback behavior above permits. If `Content Type = Magazine`, the page must also expose `Magazine Subtype` with a supported CMS value. Confirm these names and exact types against the real database before enabling the feature.
+All listed properties are required schema columns except `Featured Image Upload`, which is optional; individual author, excerpt, image, SEO, tags, and featured values may be empty where the fallback behavior above permits. `Featured Image URL` is intentionally not part of the supported schema. If `Content Type = Magazine`, the page must also expose `Magazine Subtype` with a supported CMS value. Confirm these names and exact types against the real database before enabling the feature.
 
 ## Featured image resolution
 
-The publish route resolves the featured image in priority order: `Featured Image URL` → `Featured Image Upload` (first file) → the Notion page cover. Notion-hosted file URLs (upload and cover) are short-lived signed links, so the route reads the chosen URL fresh from the page payload at publish time and imports the bytes into R2 before the CMS write; the CMS stores the permanent R2 URL. The content fingerprint normalizes signed-URL query strings, so rotating signatures do not trigger false change conflicts, while replacing the uploaded file does. An uploaded image must be a public HTTPS image (JPEG, PNG, WebP, GIF, or AVIF, at most 8 MiB); unsupported or unreachable files fail the import before the CMS is updated.
+The publish route resolves the featured image in priority order: `Featured Image Upload` (first file) → the Notion page cover. Notion-hosted file URLs (upload and cover) are short-lived signed links, so the route reads the chosen URL fresh from the page payload at publish time and imports the bytes into R2 before the CMS write; the CMS stores the permanent R2 URL. The content fingerprint normalizes signed-URL query strings, so rotating signatures do not trigger false change conflicts, while replacing the uploaded file does. An uploaded image must be a public HTTPS image (JPEG, PNG, WebP, GIF, or AVIF, at most 8 MiB); unsupported or unreachable files fail the import before the CMS is updated. A legacy `Featured Image URL` value is rejected with an actionable migration error rather than used as a source.
 
 ## Configuration owner checklist
 
@@ -102,4 +101,3 @@ Rollback is deliberately simple: keep `RADAR_NOTION_PUBLISHING_ENABLED=false` (t
 - Vercel project Git association: `remRADAR/RADARSite`; production domain `radarcharts.net` verified; current `main` deployment READY.
 - Connected Notion workspace search finds an unrelated `RADARCharts` profile page, but not the supplied editorial source/plan; direct reads of the supplied IDs are inaccessible.
 - No source secrets or editorial content were printed into this document. The implementation remains off unless the feature flag is explicitly set.
-

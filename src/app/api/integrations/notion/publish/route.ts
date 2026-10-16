@@ -251,12 +251,15 @@ export async function POST(request: NextRequest) {
     let draft: ReturnType<typeof mapNotionPageToDraft>;
     try { draft = mapNotionPageToDraft(page, dataSource, rendered.html); }
     catch (error) { throw apiError(error instanceof Error ? error.message.slice(0, 300) : "Notion editorial fields are invalid.", 422, "editorial_content_invalid"); }
-    // Featured image priority: explicit Featured Image URL, then the Featured Image Upload
-    // file, then the Notion page cover. Notion file URLs (upload + cover) are short-lived
-    // signed links, so the chosen URL is always read fresh from the page payload at publish
-    // time and imported into R2 before the CMS write.
+    // Featured image priority: Featured Image Upload, then the Notion page cover.
+    // Featured Image URL is a deprecated compatibility field and is never used
+    // as an image source. Notion file URLs are short-lived signed links, so the
+    // chosen URL is read fresh and imported into R2 before the CMS write.
     const coverUrl = notionPageCoverUrl(page);
-    const featuredSource = draft.featuredImageUrl || draft.featuredImageUploadUrl || (coverUrl && isSafePublicHttpsUrl(coverUrl) ? coverUrl : "");
+    if (!draft.featuredImageUploadUrl && !coverUrl && draft.featuredImageUrl) {
+      throw apiError("Featured Image URL is deprecated. Upload the approved featured image to Featured Image Upload.", 422, "featured_image_upload_required");
+    }
+    const featuredSource = draft.featuredImageUploadUrl || (coverUrl && isSafePublicHttpsUrl(coverUrl) ? coverUrl : "");
     let featuredImage = "";
     if (featuredSource) {
       if (isDryRun) validateNotionImageUrl(featuredSource);
@@ -448,7 +451,7 @@ export async function POST(request: NextRequest) {
     try {
       const existingRelationships = await notionPublishRuntime.listMediaRelationshipsByContent(`notion:${pageId}`);
       for (const relation of existingRelationships) {
-        // An empty Featured Image URL means preserve the current featured asset.
+        // If no new upload or cover is provided, preserve the current featured asset.
         if (relation.role === "featured" && !featuredSource) continue;
         if (!desiredRelationships.has(relation.id)) await notionPublishRuntime.deleteMediaRelationship(relation.id);
       }

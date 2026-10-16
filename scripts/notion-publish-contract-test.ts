@@ -31,7 +31,6 @@ const dataSource: NotionDataSource = {
     [EDITORIAL_PROPERTY_NAMES.lastSyncedAt]: { type: "date", date: {} },
     [EDITORIAL_PROPERTY_NAMES.author]: { type: "rich_text", rich_text: {} },
     [EDITORIAL_PROPERTY_NAMES.excerpt]: { type: "rich_text", rich_text: {} },
-    [EDITORIAL_PROPERTY_NAMES.featuredImage]: { type: "url", url: {} },
     [EDITORIAL_PROPERTY_NAMES.featuredImageUpload]: { type: "files", files: [] },
     [EDITORIAL_PROPERTY_NAMES.seoTitle]: { type: "rich_text", rich_text: {} },
     [EDITORIAL_PROPERTY_NAMES.seoDescription]: { type: "rich_text", rich_text: {} },
@@ -56,7 +55,6 @@ function page(overrides: Record<string, unknown> = {}): NotionPage {
       [EDITORIAL_PROPERTY_NAMES.syncStatus]: { type: "select", select: { name: "Pending" } },
       [EDITORIAL_PROPERTY_NAMES.author]: { type: "rich_text", rich_text: text("Editorial Desk") },
       [EDITORIAL_PROPERTY_NAMES.excerpt]: { type: "rich_text", rich_text: text("A verified excerpt.") },
-      [EDITORIAL_PROPERTY_NAMES.featuredImage]: { type: "url", url: "https://cdn.example/cover.webp" },
       [EDITORIAL_PROPERTY_NAMES.featuredImageUpload]: { type: "files", files: [] },
       [EDITORIAL_PROPERTY_NAMES.seoTitle]: { type: "rich_text", rich_text: text("A Signal from Lagos") },
       [EDITORIAL_PROPERTY_NAMES.seoDescription]: { type: "rich_text", rich_text: text("A short description.") },
@@ -382,6 +380,7 @@ try {
   });
 
   await withPublisherScenario("success", async ({ post, state }) => {
+    state.page.cover = { type: "external", external: { url: "https://cdn.example/page-cover.webp" } };
     const response = await post();
     assert.equal(response.status, 200);
     const result = await response.json() as { status: string; cmsId: string; canonicalUrl: string };
@@ -400,7 +399,6 @@ try {
   });
 
   await withPublisherScenario("success", async ({ post, state }) => {
-    state.page.properties[EDITORIAL_PROPERTY_NAMES.featuredImage] = { type: "url", url: "" };
     state.page.properties[EDITORIAL_PROPERTY_NAMES.featuredImageUpload] = { type: "files", files: [{ type: "file", name: "uploaded-cover.webp", file: { url: "https://prod-files-secure.example/uploaded-cover.webp?X-Amz-Signature=xyz" } }] };
     const dryRunResponse = await post(true);
     assert.equal(dryRunResponse.status, 200);
@@ -412,6 +410,19 @@ try {
     assert.equal((state.content.articles[0] as CmsRecord).featuredImage, "https://cdn.example/featured-image.webp", "the CMS featured image is the R2 URL of the uploaded file");
   });
 
+  await withPublisherScenario("success", async ({ post, state }) => {
+    state.page.cover = { type: "external", external: { url: "https://cdn.example/page-cover.webp" } };
+    const dryRunResponse = await post(true);
+    assert.equal(dryRunResponse.status, 200);
+    const preview = await dryRunResponse.json() as { payload: { featuredImageWouldBeImported: boolean } };
+    assert.equal(preview.payload.featuredImageWouldBeImported, true, "the page cover is the fallback featured image source");
+  });
+  await withPublisherScenario("success", async ({ post, state }) => {
+    state.page.properties[EDITORIAL_PROPERTY_NAMES.featuredImage] = { type: "url", url: "https://cdn.example/legacy.webp" };
+    const response = await post(true);
+    assert.equal(response.status, 422);
+    assert.equal((await response.json() as { code: string }).code, "featured_image_upload_required");
+  });
   await withPublisherScenario("cas-conflict", async ({ post, state }) => {
     const response = await post();
     assert.equal(response.status, 200);
@@ -451,6 +462,7 @@ try {
   });
 
   await withPublisherScenario("media-failure", async ({ post, state }) => {
+    state.page.cover = { type: "external", external: { url: "https://cdn.example/page-cover.webp" } };
     const first = await post();
     assert.equal(first.status, 503);
     assert.equal((await first.json() as { code: string }).code, "media_relationship_failed");
@@ -500,4 +512,3 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
-

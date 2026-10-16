@@ -11,6 +11,8 @@ export const EDITORIAL_PROPERTY_NAMES = {
   publish: "Publish to RADARSite",
   author: "Author",
   excerpt: "Excerpt",
+  // Deprecated compatibility field. It is optional and never selected as the
+  // featured-image source; uploads and page covers are the supported sources.
   featuredImage: "Featured Image URL",
   featuredImageUpload: "Featured Image Upload",
   seoTitle: "SEO Title",
@@ -45,7 +47,6 @@ const REQUIRED_SCHEMA: Record<string, string[]> = {
   [EDITORIAL_PROPERTY_NAMES.publish]: ["checkbox"],
   [EDITORIAL_PROPERTY_NAMES.author]: ["rich_text", "title", "people"],
   [EDITORIAL_PROPERTY_NAMES.excerpt]: ["rich_text", "title"],
-  [EDITORIAL_PROPERTY_NAMES.featuredImage]: ["url", "rich_text"],
   [EDITORIAL_PROPERTY_NAMES.seoTitle]: ["rich_text", "title"],
   [EDITORIAL_PROPERTY_NAMES.seoDescription]: ["rich_text", "title"],
   [EDITORIAL_PROPERTY_NAMES.tags]: ["multi_select", "rich_text"],
@@ -309,8 +310,9 @@ export function mapNotionPageToDraft(page: NotionPage, _dataSource: NotionDataSo
   const magazineSubtype = magazineSubtypeRaw === "Special Episode" || magazineSubtypeRaw === "Magazine Episode" ? magazineSubtypeRaw : "";
   if (contentType === "Magazine" && !magazineSubtype) throw new Error("Magazine content needs a supported RADARSite subtype (Special Episode or Magazine Episode); the connected Notion schema must expose it before publishing.");
   const rawDate = String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.scheduledAt) || "");
+  // The legacy URL property may still exist during migration, but it is
+  // intentionally not a source of featured imagery anymore.
   const featuredImageUrl = String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.featuredImage) || "");
-  if (featuredImageUrl && !isSafePublicHttpsUrl(featuredImageUrl)) throw new Error("Featured Image URL must be a public HTTPS URL without credentials or a local/private host.");
   const featuredImageUploadUrl = String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.featuredImageUpload) || "");
   if (featuredImageUploadUrl && !isSafePublicHttpsUrl(featuredImageUploadUrl)) throw new Error("Featured Image Upload must resolve to a public HTTPS URL without credentials or a local/private host.");
   const canonicalRaw = String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.canonicalUrl) || "");
@@ -439,7 +441,8 @@ export function notionContentFingerprint(
     author: draft.author,
     tags: draft.tags,
     featured: draft.featured,
-    featuredImageUrl: draft.featuredImageUrl ? normalizedSourceUrl(draft.featuredImageUrl) : "",
+    // Featured Image URL is deprecated and must not affect source identity.
+    featuredImageUrl: "",
     featuredImageUploadUrl: draft.featuredImageUploadUrl ? normalizedSourceUrl(draft.featuredImageUploadUrl) : "",
     seoTitle: draft.seoTitle,
     seoDescription: draft.seoDescription,
