@@ -14,6 +14,8 @@ import type { ZumzyStat } from "@/data/zumzy-brown";
  *    initial render; the count-up is a client-only enhancement).
  */
 function CountUp({ value }: { value: number }) {
+  // Initial render already shows the final value, so reduced-motion and
+  // no-JS contexts are correct without any synchronous effect state writes.
   const [display, setDisplay] = useState(value);
   const ref = useRef<HTMLSpanElement>(null);
   const playedRef = useRef(false);
@@ -24,8 +26,8 @@ function CountUp({ value }: { value: number }) {
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced || typeof IntersectionObserver === "undefined") {
+      // display already equals value — nothing to animate or reset.
       playedRef.current = true;
-      setDisplay(value);
       return;
     }
 
