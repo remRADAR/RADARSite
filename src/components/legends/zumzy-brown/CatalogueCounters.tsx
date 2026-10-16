@@ -55,10 +55,10 @@ function CountUp({ value }: { value: number }) {
   }, [value]);
 
   return (
-    <span ref={ref} aria-hidden={display !== value}>
-      {display.toLocaleString("en-US")}
+    <>
+      <span ref={ref} aria-hidden="true">{display.toLocaleString("en-US")}</span>
       <span className="sr-only">{value.toLocaleString("en-US")}</span>
-    </span>
+    </>
   );
 }
 
@@ -66,7 +66,7 @@ export function CatalogueCounters({ stats }: { stats: ZumzyStat[] }) {
   return (
     <ul className="grid grid-cols-2 gap-px border-2 border-ink bg-ink md:grid-cols-4">
       {stats.map((stat) => (
-        <li key={stat.key} className="bg-paper p-5 sm:p-6">
+        <li key={stat.key} data-testid={`stat-${stat.key}`} className="bg-paper p-5 sm:p-6">
           <p className="display text-[clamp(2.6rem,6vw,4.6rem)] text-ink">
             <CountUp value={stat.value} />
           </p>

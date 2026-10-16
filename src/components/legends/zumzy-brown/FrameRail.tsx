@@ -59,8 +59,8 @@ export function FrameRail() {
                       : "inline-block h-2.5 w-2.5 border border-ink/50 bg-transparent transition-colors"
                   }
                 />
-                <span className={isActive ? "opacity-100" : "opacity-55"}>{frame.index}</span>
-                <span className={isActive ? "opacity-100" : "hidden md:inline opacity-55"}>{frame.label}</span>
+                <span className={isActive ? "opacity-100" : "opacity-65"}>{frame.index}</span>
+                <span className={isActive ? "opacity-100" : "hidden md:inline opacity-65"}>{frame.label}</span>
               </a>
             </li>
           );

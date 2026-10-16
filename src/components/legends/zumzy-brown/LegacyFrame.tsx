@@ -136,7 +136,7 @@ export function LegacyFrame() {
           <ul className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
             {zumzyTributes.map((tribute) => (
               <li key={tribute.quote} className="brut-border bg-[#0d0d0b] p-6">
-                <blockquote className="text-base font-semibold leading-relaxed">
+                <blockquote className="text-base font-semibold leading-relaxed text-white">
                   &ldquo;{tribute.quote}&rdquo;
                 </blockquote>
                 <p className="mt-4 font-mono text-[10px] font-bold uppercase tracking-widest text-paper/70">{tribute.author}</p>
@@ -158,11 +158,25 @@ export function LegacyFrame() {
         <div className="mt-16 border-t-2 border-paper/15 pt-8">
           <h3 className="font-mono text-[11px] font-bold uppercase tracking-[0.2em]">Identity record</h3>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-paper/75">
-            {zumzyIdentity.name}, born {zumzyIdentity.bornLabel}, died {zumzyIdentity.diedLabel} —
-            legal name {zumzyIdentity.legalName}. Public sources also carry the spelling
-            {zumzyIdentity.nameVariations.map((variation) => " “" + variation.value + "” (" + variation.source + ")").join(", ")}.
-            These variations are documented for review, not silently resolved.
+            {zumzyIdentity.name}, born {zumzyIdentity.bornLabel}, died {zumzyIdentity.diedLabel}.
+            Published sources use differing name forms; this record preserves their wording and
+            does not assign a definitive legal name.
           </p>
+          <ul className="mt-4 max-w-3xl space-y-3 text-sm leading-relaxed text-paper/75">
+            {zumzyIdentity.nameVariations.map((variation) => (
+              <li key={variation.value + variation.context}>
+                <span className="font-semibold text-paper">“{variation.value}”</span> — {variation.context}{" "}
+                {variation.sources.map((source, index) => (
+                  <span key={source.url}>
+                    {index > 0 ? "; " : ""}
+                    <a href={source.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-paper focus-visible:outline-2 focus-visible:outline-flare">
+                      {source.label}
+                    </a>
+                  </span>
+                ))}
+              </li>
+            ))}
+          </ul>
         </div>
 
         {/* Closing remembrance */}

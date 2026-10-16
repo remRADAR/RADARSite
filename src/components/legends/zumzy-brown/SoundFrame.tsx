@@ -17,6 +17,7 @@ const FILTERS: Array<{ key: ZumzyReleaseCategory | "all"; label: string }> = [
   { key: "ep", label: "EPs" },
   { key: "compilation", label: "Compilations" },
   { key: "tribute", label: "Tributes & collaborations" },
+  { key: "appearance", label: "Guest appearances" },
 ];
 
 const CATEGORY_LABEL: Record<ZumzyReleaseCategory, string> = {
@@ -24,6 +25,7 @@ const CATEGORY_LABEL: Record<ZumzyReleaseCategory, string> = {
   ep: "EP",
   compilation: "Compilation",
   tribute: "Tribute / collaboration",
+  appearance: "Guest appearance",
 };
 
 function ReleaseCard({ release }: { release: ZumzyRelease }) {
@@ -180,8 +182,9 @@ export function SoundFrame() {
             The Sound<span className="punctuation-lock">.</span>
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
-            The verified Zumzy Brown catalogue — every figure below is counted from official
-            release listings, and every card links to an official listening destination.
+            Counts below are based on release listings, with compilation tracks deduplicated.
+            Artist-profile links do not confirm that every release is available on every service;
+            release-specific links are shown where verified.
           </p>
         </header>
 
@@ -256,7 +259,10 @@ export function SoundFrame() {
 
         {/* Official platforms */}
         <div className="mt-16">
-          <h3 className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-ink">Official listening destinations</h3>
+          <h3 className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-ink">Artist profiles</h3>
+          <p className="mt-2 max-w-2xl text-xs leading-relaxed text-muted-foreground">
+            Profile links are checked artist pages. Availability varies by release and service.
+          </p>
           <ul className="mt-4 flex flex-wrap gap-2">
             {zumzyPlatforms.map((platform) => (
               <li key={platform.name}>

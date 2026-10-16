@@ -93,6 +93,11 @@ export function LegendHero() {
           Portrait pending authorisation — placeholder shown
         </p>
       )}
+      {heroPortrait.src && heroPortrait.credit && (
+        <p className="absolute bottom-5 right-5 z-10 max-w-[220px] text-right font-mono text-[9px] uppercase leading-relaxed tracking-widest text-paper/70">
+          {heroPortrait.credit}
+        </p>
+      )}
     </section>
   );
 }
