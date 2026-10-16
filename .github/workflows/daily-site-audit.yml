@@ -13,8 +13,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  audit:
-    name: Audit live links and dependencies
+  links:
+    name: Audit live links
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
@@ -41,6 +41,23 @@ jobs:
           --sitemap --recurse --concurrency 8 --timeout 20000
           --retry --retry-errors --check-css
           --status-code "403:warn" --status-code "429:warn"
+
+  dependencies:
+    name: Audit dependency vulnerabilities
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
 
       - name: Summarize all dependency vulnerabilities
         env:
