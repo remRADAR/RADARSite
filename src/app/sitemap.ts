@@ -7,7 +7,7 @@ import { EDITORIAL_ARCHIVE_PAGE_SIZE, recordsForEditorialType } from "@/lib/edit
 export const revalidate = 3600;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { articles, artists, events, magazine, radarProjects, releases } = await readPublicContent();
-  const routes = ["/", "/radarmusic", "/radarmusic/artists", "/radarmusic/releases", "/ontheradar", "/ontheradar/articles", "/ontheradar/magazine", "/ontheradar/projects", "/ontheradar/events", "/work", "/about", "/about/our-story", "/about/ecosystem", "/motherland", "/privacy", "/terms"];
+  const routes = ["/", "/radarmusic", "/radarmusic/artists", "/radarmusic/releases", "/ontheradar", "/ontheradar/articles", "/ontheradar/magazine", "/ontheradar/projects", "/ontheradar/events", "/work", "/about", "/about/our-story", "/about/ecosystem", "/motherland", "/legends/zumzy-brown", "/privacy", "/terms"];
   const date = (item: unknown) => { const record = item && typeof item === "object" ? item as Record<string, unknown> : {}; const raw = record.updatedAt || record.publishedAt || record.date || record.year; return raw && Number.isFinite(Date.parse(String(raw))) ? new Date(String(raw)) : undefined; };
   const entry = (path: string, item?: unknown) => ({ url: absoluteUrl(path), ...(date(item) ? { lastModified: date(item) } : {}) });
   const articleEntries = articles.filter((item) => (item as { noindex?: boolean }).noindex !== true).map((item) => entry(`/ontheradar/articles/${item.slug}`, item));
