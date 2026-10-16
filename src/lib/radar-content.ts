@@ -112,7 +112,7 @@ export const homepageContent: HomepageContent = {
     attribution: "→ Maya Ellis, independent artist",
     partners: ["RADARUnit", "RADARMe", "On The Radar", "RADARArticles", "RADAR Sessions", "RADAR Live"],
   },
-  cta: { headline: ["Make", "some", "noise."], email: "hello@radarcharts.com" },
+  cta: { headline: ["Make", "some", "noise."], email: "hello@radarcharts.net" },
 };
 
 export function getActiveHeroSlides() {

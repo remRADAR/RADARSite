@@ -28,7 +28,7 @@ export const defaultSiteConfig: GlobalSiteConfig = {
       ["03", "2026", "MOTHERLand, Artist Feature", "Rhia Bello", "Rhia Bello Invites Everyone to Celebrate, Connect and ‘Drink Up’", "A vibrant house record becomes an invitation to celebrate life, embrace community, and live fully in the moment.", "/ontheradar/articles/rhia-bello-invites-everyone-to-celebrate-connect-and-drink-up", "https://i0.wp.com/radarcharts.net/wp-content/uploads/2026/09/IMG_2325.jpeg"],
     ].map(([number, yearTag, categoryTag, artistOrProjectName, headline, description, caseStudyUrl, coverImage], i) => ({ id: `work-${i + 1}`, number, yearTag, categoryTag, artistOrProjectName, headline, description, caseStudyUrl, coverImage, visible: true })),
     processSteps: ["Listen", "Frame", "Make", "Move"].map((title, i) => ({ id: `step-${i + 1}`, stepNumber: String(i + 1).padStart(2, "0"), title, description: "A considered step in the process.", visible: true })),
-    ctaSection: { headline: "Make some noise.", contactEmail: "hello@radarcharts.com", buttonText: "Start a conversation" },
+    ctaSection: { headline: "Make some noise.", contactEmail: "hello@radarcharts.net", buttonText: "Start a conversation" },
   },
   navigation: { headerLinks: [{ label: "RADARMe", url: "https://radarme.app", isExternal: true }], socialProfiles: { instagram: { visible: true, url: "https://www.instagram.com/remradar/" }, twitter: { visible: true, url: "https://x.com/RADARCharts" }, facebook: { visible: true, url: "https://www.facebook.com/radarcharts/" }, threads: { visible: true, url: "https://www.threads.com/@remradar" }, linkedin: { visible: true, url: "https://www.linkedin.com/company/radarcharts/" }, youtube: { visible: true, url: "https://www.youtube.com/@remradar" }, tiktok: { visible: true, url: "https://www.tiktok.com/@radarcharts" } } },
 };
@@ -36,7 +36,10 @@ export const defaultSiteConfig: GlobalSiteConfig = {
 export function normalizeSiteConfig(input: unknown): GlobalSiteConfig {
   if (!input || typeof input !== "object") return defaultSiteConfig;
   const value = input as Partial<GlobalSiteConfig>;
-  return { ...defaultSiteConfig, ...value, tickers: { ...defaultSiteConfig.tickers, ...(value.tickers || {}) }, homepage: { ...defaultSiteConfig.homepage, ...(value.homepage || {}) }, navigation: { ...defaultSiteConfig.navigation, ...(value.navigation || {}) } };
+  const homepage = { ...defaultSiteConfig.homepage, ...(value.homepage || {}) };
+  const ctaSection = { ...defaultSiteConfig.homepage.ctaSection, ...(value.homepage?.ctaSection || {}) };
+  if (ctaSection.contactEmail === "hello@radarcharts.com") ctaSection.contactEmail = "hello@radarcharts.net";
+  return { ...defaultSiteConfig, ...value, tickers: { ...defaultSiteConfig.tickers, ...(value.tickers || {}) }, homepage: { ...homepage, ctaSection }, navigation: { ...defaultSiteConfig.navigation, ...(value.navigation || {}) } };
 }
 
 export const SITE_CONFIG_KEY = "radar-global-site-config";

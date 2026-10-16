@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs/config";
 import { publicImageOrigins, publicImageRemotePattern } from "./src/lib/public-media-origin";
+import { buildScriptSrcDirective } from "./src/lib/csp";
 import mergedContentSnapshot from "./src/data/merged-content.json";
 
 const imageOrigins = publicImageOrigins(process.env.R2_PUBLIC_BASE_URL);
@@ -16,7 +17,7 @@ const securityHeaders = [
       "frame-ancestors 'self'",
       "form-action 'self'",
       "object-src 'none'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://www.googletagmanager.com",
+      `script-src ${buildScriptSrcDirective()}`,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       `img-src ${imageSourceTokens} https://radarcharts.net https://drive.google.com https://lh3.googleusercontent.com https://www.google-analytics.com https://www.googletagmanager.com`,

@@ -146,7 +146,7 @@ export function Hero() {
       ? heroConfig.reducedMotionFallback
       : overrides.media[`hero:${slide.id}`] || slide.src;
     const sourceSet = heroSourceSet(source);
-    const imageClassName = `hero-image absolute inset-0 h-full w-full translate-z-0 object-cover object-center transition-opacity [will-change:opacity,transform] ease-[var(--ease-in-out)] motion-reduce:transition-none ${layer === "incoming" ? "opacity-100" : incoming === null ? "opacity-100" : "opacity-0"}`;
+    const imageClassName = `hero-image absolute inset-0 h-full w-full translate-z-0 object-contain object-center transition-opacity [will-change:opacity,transform] ease-[var(--ease-in-out)] motion-reduce:transition-none ${layer === "incoming" ? "opacity-100" : incoming === null ? "opacity-100" : "opacity-0"}`;
     const imageStyle = { transitionDuration: `${FADE_DURATION_MS}ms`, transform: "translateZ(0)" };
     const handleImageError = () => {
       setFailed((current) => ({ ...current, [slide.id]: true }));
@@ -158,7 +158,7 @@ export function Hero() {
           src={source}
           alt=""
           fill
-          sizes="100vw"
+          sizes="(min-width: 768px) 55vw, 100vw"
           quality={100}
           priority={index === active || index === incoming}
           onError={handleImageError}
@@ -173,7 +173,7 @@ export function Hero() {
         src={source}
         alt=""
         srcSet={sourceSet}
-        sizes="100vw"
+        sizes="(min-width: 768px) 55vw, 100vw"
         loading={index === active || index === incoming ? "eager" : "lazy"}
         decoding="async"
         fetchPriority={index === active || index === incoming ? "high" : "auto"}

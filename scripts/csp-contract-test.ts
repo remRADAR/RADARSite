@@ -5,8 +5,15 @@ import {
   publicImageRemotePattern,
   staticPublicImageOrigins,
 } from "@/lib/public-media-origin";
+import { buildScriptSrcDirective } from "@/lib/csp";
 
 const r2Origin = "https://pub-example.r2.dev";
+const productionScripts = buildScriptSrcDirective("production");
+assert.equal(productionScripts.includes("'unsafe-eval'"), false);
+assert.equal(buildScriptSrcDirective("development").includes("'unsafe-eval'"), true);
+assert.equal(productionScripts.includes("https://va.vercel-scripts.com"), true);
+assert.equal(productionScripts.includes("https://www.googletagmanager.com"), true);
+
 const origins = publicImageOrigins(`${r2Origin}/`);
 
 assert.equal(normalizePublicMediaOrigin(`${r2Origin}/`), r2Origin);

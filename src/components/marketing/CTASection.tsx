@@ -13,6 +13,9 @@ export function CTASection() {
         src="/media/homepage-cta.gif"
         alt=""
         aria-hidden="true"
+        loading="lazy"
+        decoding="async"
+        fetchPriority="low"
         className="pointer-events-none absolute inset-0 h-full w-full object-cover"
       />
 
