@@ -25,7 +25,7 @@ type Props = {
 
 export function ResilientImage({ src, alt, className, loading = "lazy", objectPosition, srcSet, sizes, fetchPriority }: Props) {
   const [attempt, setAttempt] = useState(0);
-  const [loaded, setLoaded] = useState(false);
+  const [, setLoaded] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
   const probedRef = useRef(false);
   const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -90,7 +90,10 @@ export function ResilientImage({ src, alt, className, loading = "lazy", objectPo
       fetchPriority={fetchPriority}
       onLoad={() => setLoaded(true)}
       onError={handleError}
-      className={cn("transition-opacity duration-500 ease-[var(--ease-out)]", loaded || loading === "eager" ? "opacity-100" : "opacity-0", className)}
+      // Keep the server-rendered image visible while hydration catches up. A
+      // remote CDN may complete before React attaches onLoad, and hiding the
+      // element until that event can leave an otherwise valid image blank.
+      className={cn("opacity-100 transition-opacity duration-500 ease-[var(--ease-out)]", className)}
       style={{ objectPosition }}
     />
   );
