@@ -1,0 +1,104 @@
+name: Daily site and dependency audit
+
+on:
+  schedule:
+    - cron: "15 7 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: daily-site-audit-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  links:
+    name: Audit live links
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      BASE_URL: https://radarcharts.net
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Verify published article and category routes
+        run: node scripts/verify-live-editorial-routes.mjs
+
+      - name: Crawl links from the production sitemap
+        run: >-
+          ./node_modules/.bin/linkinator "$BASE_URL"
+          --sitemap --recurse --concurrency 8 --timeout 20000
+          --retry --retry-errors --check-css
+          --status-code "403:warn" --status-code "429:warn"
+
+  dependencies:
+    name: Audit dependency vulnerabilities
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Summarize all dependency vulnerabilities
+        env:
+          AUDIT_PATH: ${{ runner.temp }}/npm-audit.json
+        shell: bash
+        run: |
+          set +e
+          npm audit --json > "$AUDIT_PATH"
+          audit_exit=$?
+          set -e
+          export AUDIT_EXIT="$audit_exit"
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+
+          const report = JSON.parse(fs.readFileSync(process.env.AUDIT_PATH, "utf8"));
+          const counts = report.metadata?.vulnerabilities;
+          if (!counts) throw new Error("npm audit did not return vulnerability metadata");
+          const findings = Object.entries(report.vulnerabilities || {});
+          const lines = [
+            "## Full dependency vulnerability audit",
+            "",
+            `Reported advisories: **${counts.total}** (critical ${counts.critical}, high ${counts.high}, moderate ${counts.moderate}, low ${counts.low}).`,
+            "",
+          ];
+          if (findings.length) {
+            lines.push("| Package | Severity | Dependency | Fix available |", "|---|---|---|---|");
+            for (const [name, finding] of findings) {
+              const fix = finding.fixAvailable
+                ? typeof finding.fixAvailable === "object"
+                  ? `${finding.fixAvailable.name || name} ${finding.fixAvailable.version || ""}`.trim()
+                  : "Yes"
+                : "No";
+              lines.push(`| ${name} | ${finding.severity} | ${finding.isDirect ? "Direct" : "Transitive"} | ${fix} |`);
+              console.log(`::warning title=Dependency vulnerability::${name}: ${finding.severity} (${finding.isDirect ? "direct" : "transitive"})`);
+            }
+          } else {
+            lines.push("No dependency advisories were reported.");
+          }
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join("\n")}\n`);
+          console.log(`Full npm audit process exit code: ${process.env.AUDIT_EXIT}`);
+          NODE
+
+      - name: Fail if production dependencies have vulnerabilities
+        run: npm audit --omit=dev
