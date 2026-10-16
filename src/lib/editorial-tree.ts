@@ -39,9 +39,9 @@ const TONE_CYCLE: Array<"warm" | "cool" | "mono" | "flare"> = ["flare", "warm", 
  * Fetch the most recent published editorial posts from the CMS.
  * This is the "tree" — it grows automatically as new articles are published.
  *
- * @param limit Maximum number of posts to return (default 5).
+ * @param limit Maximum number of posts to return (default 4).
  */
-export async function getRecentEditorialPosts(limit = 5): Promise<EditorialTreePost[]> {
+export async function getRecentEditorialPosts(limit = 4): Promise<EditorialTreePost[]> {
   const { articles } = await readPublishedContent();
 
   const normalized = articles

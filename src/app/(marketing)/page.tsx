@@ -14,7 +14,7 @@ export const revalidate = 300;
 export default async function LandingPage() {
   // The Editorial Tree: fetches the most recent published posts from the CMS.
   // Every new article automatically appears here — the tree grows on its own.
-  const recentPosts = await getRecentEditorialPosts(5);
+  const recentPosts = await getRecentEditorialPosts(4);
 
   return (
     <>
