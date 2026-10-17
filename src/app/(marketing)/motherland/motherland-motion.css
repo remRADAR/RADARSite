@@ -27,15 +27,25 @@
 /* 2. Scroll-linked parallax. Browsers without scroll-driven animations
       keep the breathing loop only — graceful fallback, never broken. */
 @keyframes motherland-hero-exit {
-  from { transform: scale(1.05) translate3d(0, 0, 0); opacity: 1; }
-  to { transform: scale(1.16) translate3d(0, 5%, 0); opacity: 0.55; }
+  from { translate: 0 0; opacity: 1; }
+  to { translate: 0 5%; opacity: 0.55; }
 }
 
-@supports (animation-timeline: view()) {
+@supports (animation-timeline: scroll(root block)) {
   .motherland-hero-media {
-    animation: motherland-hero-exit linear both;
-    animation-timeline: view();
-    animation-range: cover 0% cover 100%;
+    animation:
+      motherland-breathe 26s var(--ease-in-out) infinite alternate,
+      motherland-hero-exit 1s linear both;
+    animation-timeline: auto, scroll(root block);
+    /* This page's opening scroll range spans roughly the hero's viewport
+       height, so the fade and upward drift finish as the hero exits. */
+    animation-range: normal, 0% 8%;
+  }
+
+  @media (max-width: 767px) {
+    .motherland-hero-media {
+      animation-range: normal, 0% 5.3%;
+    }
   }
 }
 
@@ -49,11 +59,17 @@
   animation: motherland-rise 900ms var(--ease-out) both;
 }
 
-@supports (animation-timeline: view()) {
+@supports (animation-timeline: scroll(root block)) {
   .motherland-index > div:first-child > * {
     animation: motherland-rise linear both;
-    animation-timeline: view();
-    animation-range: entry 0% cover 24%;
+    animation-timeline: scroll(root block);
+    animation-range: 1.3% 3.3%;
+  }
+
+  @media (max-width: 767px) {
+    .motherland-index > div:first-child > * {
+      animation-range: 0.75% 2.2%;
+    }
   }
 }
 

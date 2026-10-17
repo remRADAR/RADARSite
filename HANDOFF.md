@@ -1,43 +1,48 @@
 # HANDOFF — RADARSite (radarcharts.net)
 
 ## CURRENT STATE
-- Last updated: 2026-10-17 — Vibe agent (radarmusicbyradarcharts session)
-- Phase: verify (PR #23 branch extended with scroll-motion + ticker; awaiting merge/deploy confirmation)
-- Uncommitted changes: none — pushed to branch feat/motherland-hero-gif-2026-10-17
-- Branch: feat/motherland-hero-gif-2026-10-17 (PR #23)
+- Last updated: 2026-10-17 — verification and Motherland motion follow-up.
+- Phase: production verification complete; a page-scoped motion correction is implemented locally and awaits the next authorized commit/deployment step.
+- Branch: `main`, based on `0a746d5ac200d16fe484a5b0cce057f045eb0ee7` (PR #23 squash merge).
+- Local modifications: `src/app/(marketing)/motherland/motherland-motion.css` and this ledger. No commit or production deployment was made for the follow-up correction.
 
-## VERIFIED FACTS
-- PR #23 (Motherland hero GIF, 540x960 master, 24.3 MB) CI + Vercel preview passed; base main @ f8f461f; mergeable_state clean. Reported by Manus, PR state re-read via GitHub API.
-- Repo already ships a CSS motion system: Marquee (src/components/motion/Marquee.tsx), .ticker-surface + .animate-marquee in src/app/globals.css, FadeIn scroll reveal, GSAP+ScrollTrigger in Hero.tsx, tw-animate-css dependency.
-- globals.css already uses the @supports (animation-timeline: view()) pattern for editorial media — Motherland motion follows the same pattern.
+## RECENT REPOSITORY ACTIVITY
+- `git log -8 --date=iso-strict`: latest commit is `0a746d5` (2026-10-17T03:28:24Z), “feat: Motherland hero GIF with scroll motion and MOTHERLAND ticker (#23)”.
+- PR #23 is merged. Latest open PR observed in GitHub activity is #24, “Fix RADAR brand ticker copy and community link”; it is unrelated and was not changed. Other listed open PRs were not modified.
+- Initial clone was clean and matched `origin/main` at the merge SHA. Re-check remote activity before any future commit/deployment.
 
-## IN PROGRESS
-- /motherland page: added scroll-linked animation CSS (motherland-motion.css: hero breathe + scroll parallax + soft content rise, reduced-motion safe) and a MOTHERLAND ticker (Marquee + .ticker-surface, placeholder copy "MOTHERLAND", 26s, repeat=10) pinned to the bottom of the hero like the homepage hero ticker.
-- IaIndex gained an optional indexClassName prop (backwards-compatible) so the Motherland title block gets the soft scroll-rise; other pages unchanged.
+## PRODUCTION — VERIFIED
+- Vercel deployment `dpl_2YcuEqoexT2vgJ8aUoPue1R6rxRj` is `READY`, target `production`, alias `radarcharts.net`, Git ref `main`, exact SHA `0a746d5ac200d16fe484a5b0cce057f045eb0ee7`.
+- `https://radarcharts.net/motherland` returned HTTP 200; its server-rendered HTML includes the `/motherland/featured.gif` hero and repeated `MOTHERLAND` ticker content. `https://radarcharts.net/motherland/featured.gif` returned HTTP 200 and `image/gif`.
+- Production browser view confirmed the GIF hero precedes the heading and article highlights, with the flowing MOTHERLAND ticker pinned at the hero’s bottom. The page remains a page, not an archive rewrite; page copy and ticker placeholder are unchanged.
+- The Sandbox browser’s current viewport was 1280px wide, not 1440px; exact 1440px and 390px checks were subsequently run in Playwright against the production route with the current local Motherland CSS injected and the repository GIF served locally for complete-frame capture. Those checks validate the local correction but do not mean it is deployed.
 
-## NOT VERIFIED / UNTESTED
-- No local build/lint/typecheck was run in this session (no local clone). CI on the new commit is the verification gate.
-- Visual quality of parallax/breathe on real devices not browser-verified by this agent.
+## MOTION FINDINGS AND LOCAL CORRECTION
+- Production CSS inspection showed that, in browsers supporting scroll timelines, the existing `animation` shorthand replaced `motherland-breathe` with `motherland-hero-exit`; production therefore did not run the breathe loop and scroll effect together.
+- Browser sampling also showed the old `view()` timelines on the overflow-clipped hero image and title elements remained at fixed progress when the page scrolled. This made the parallax and title rise ineffective in the tested browser.
+- Local correction in `motherland-motion.css` keeps the 26s breathe animation and layers a root-scroll parallax/fade animation using independent `translate` and `opacity` properties. It uses an 8% root-scroll range on desktop and 5.3% at widths up to 767px. Title/intro rise uses a root-scroll range of 1.3%–3.3% on desktop and 0.75%–2.2% on mobile. Browsers without supported scroll timelines retain the documented fallback; reduced motion removes all CSS animation.
+- Playwright validation of the production route with this local CSS at 1440×900 and 390×844 observed: both hero animations active; the breathe transform changes over time; hero opacity/translation changes across scroll; index title opacity moves from 0 to partial to 1; ticker `marquee-x` runs; and document width equals viewport width (no horizontal overflow). At 1440px hero opacity sampled as 1, 0.782, 0.565 at scrollY 0, 450, 900. At 390px it sampled as 1, 0.776, 0.551 at scrollY 0, 422, 844. Title opacity samples were 0/0.425/1 (desktop) and 0/0.130/0.562/1 (mobile at scroll 0/150/250/400). No browser page errors were observed.
+- With emulated `prefers-reduced-motion: reduce` at 390px, computed animation names were `none` for hero, title/intro, and ticker; the GIF URL remained present and its 540×960 image dimensions remained available. The GIF is content and continues as the browser’s animated image resource.
 
-## KNOWN DEFECTS & PROPOSED FIXES
-- Motherland GIF master is 540x960; it is upscaled on desktop — true HD needs a higher-res master. (Recorded from Manus report.)
-- Wider article-image scan inconclusive (361/371 routes 403 to crawler). 13 unique 404 and 15 unique 403 image URLs, incl. the GANDE "Insta Babe" featured image. Needs valid originals; no artwork guessed.
+## VISUAL NOTES / KNOWN LIMITS
+- The master `public/motherland/featured.gif` is 540×960 (24,305,448 bytes). At 1440px it is visibly soft from enlargement; this is expected from the supplied master and is not “fixed” by replacing or re-encoding it.
+- The site-wide floating audio player control overlaps the hero/ticker’s bottom-right corner in desktop and mobile screenshots. It is outside the Motherland-scoped request and was not restyled.
+- The local corrected CSS has not yet been committed or deployed; production still serves merged commit `0a746d5` until a later deployment.
 
-## DECISIONS & CONVENTIONS
-- Motherland motion is pure CSS scroll-driven animations (no JS on the page); reduced-motion fully disables motion except the GIF content itself.
-- Ticker content is a placeholder constant (MOTHERLAND_TICKER_ITEMS) — user will supply real ticker content later; bar reuses the homepage .ticker-surface system.
-- Motherland is a page (not an archive): posts underneath highlight the female segment; more content will be added later.
+## COMMANDS AND CHECK RESULTS
+- `gh repo clone remRADAR/RADARSite`; `git status --short --branch`; `git log -8 --date=iso-strict --pretty=format:'%h %ad %s'`; `gh pr view 23 --json state,mergedAt,mergeCommit,title,url`; `gh pr list --state all --limit 8 --json number,title,state,updatedAt,url` — confirmed main/merge state and recent activity.
+- `curl -sSI https://radarcharts.net/motherland` — HTTP 200. `curl -sSL https://radarcharts.net/motherland | grep -Eo 'MOTHERLAND|featured\.gif|motherland-motion\.css' | sort | uniq -c` — hero asset and ticker content present. `curl -sSI https://radarcharts.net/motherland/featured.gif` — HTTP 200, `image/gif`.
+- First `npm ci` failed with `EBADPLATFORM`: ARM64 Sandbox encountered the lockfile’s `@img/sharp-libvips-linux-x64@1.3.4` optional binary. `npm ci --force` succeeded (1034 packages installed); npm reported 9 high-severity audit findings. No dependency or lockfile edits were made.
+- Final `npm run test && npm run build` passed after root-scroll threshold tuning: ESLint completed with 0 errors and 6 existing warnings in unrelated files, `tsc --noEmit` passed, and Next.js compiled and generated 498 static pages. The build output includes `/motherland` as a statically prerendered route. No new warning was emitted for the scoped motion stylesheet.
+- Browser verification used local Playwright Chromium 149 on ARM64, visiting the live production route at 1440×900 and 390×844. The CSS was injected from the local stylesheet and the existing repository GIF was served from disk to avoid waiting for its full 24.3MB production download. Reduced-motion was emulated through Playwright. This is a controlled visual/runtime check, not a production deployment check of the local patch.
 
-## DO NOT TOUCH
-- public/motherland/featured.gif (losslessly optimized master).
-- Homepage Hero.tsx ticker config (config.tickers.ticker2_heroMarquee).
+## DECISIONS AND DO-NOT-TOUCH BOUNDARIES
+- Preserve `MOTHERLAND_TICKER_ITEMS = ["MOTHERLAND"]` until the user supplies the real ticker copy.
+- Do not rewrite Motherland copy or turn the page into an archive; its posts are highlights of the female segment and more content is expected.
+- Do not touch `public/motherland/featured.gif`, homepage `Hero.tsx` ticker config, other pages, or the Gande “Insta Babe” images without valid originals.
+- No production config, content, data, deployment, or aliases were changed during this verification.
 
-## USER AWAITING / PENDING APPROVALS
-- Ticker content for Motherland (user will provide "what the ticker will project").
-- Higher-resolution Motherland master GIF/video for true desktop HD.
-- Gande "Insta Babe" replacement artwork (404 originals).
-
-## NEXT STEPS (ordered)
-1. Confirm CI green on the new commit of feat/motherland-hero-gif-2026-10-17, then merge PR #23 into main (squash or merge).
-2. Confirm production deploy fires from the merge (Vercel) and verify https://radarcharts.net/motherland hero, ticker, and scroll motion on desktop + mobile.
-3. Await user's ticker copy and page text; wire MOTHERLAND_TICKER_ITEMS to real content.
+## OPEN ITEMS / NEXT GATE
+1. The final `npm run test && npm run build` result is green. The local CSS fix is uncommitted and not live; commit and deploy only with the appropriate authorization, then repeat production browser verification against the deployed commit.
+2. Await replacement artwork for the Gande 404 images and a higher-resolution Motherland master if desktop sharpness is desired.
+3. Await user ticker content and future page text; no placeholder copy was changed.
