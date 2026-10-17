@@ -23,10 +23,9 @@ gsap.registerPlugin(ScrollTrigger);
 const FADE_DURATION_MS = 700;
 const ACTIVE_HERO_SLIDES = getActiveHeroSlides();
 const HERO_SOURCE_WIDTHS = [1080, 2000, 4096, 8192] as const;
-// Landscape hero breakpoint: below it only the centre portrait renders,
-// full-bleed and screen-filling. At or above it the three-panel grid merge
-// replaces the black bars that flanked the single contained portrait.
-const TRIPTYCH_QUERY = "(min-width: 768px)";
+// How far each flank slides underneath the centre portrait on landscape.
+// The overlap + edge mask is what turns three tiles into one merged image.
+const SEAM_OVERLAP = "6%";
 
 function heroSourceSet(source: string) {
   if (!source.includes("lh3.googleusercontent.com")) return undefined;
@@ -42,6 +41,7 @@ function heroPreloadSource(source: string) {
 }
 
 type HeroPanel = { id: string; src: string; alt: string };
+type PanelPosition = "left" | "centre" | "right";
 
 export function Hero() {
   const { config } = useSiteConfig();
@@ -152,8 +152,20 @@ export function Hero() {
       gsap.set([...Array.from(lines), ...Array.from(meta)], { clearProps: "all" });
       return;
     }
-    const tl = gsap.timeline({ delay: 0.55 });
-    tl.set(lines, { clipPath: "inset(0 0 100% 0)", yPercent: 12 })
+    // Panel reveal: the triptych slams up panel by panel before the type
+    // arrives, so the photography lands first and the headline follows.
+    const panels = root.querySelectorAll<HTMLElement>("[data-hero-panel]");
+    const tl = gsap.timeline({ delay: 0.2 });
+    if (panels.length > 0) {
+      tl.from(panels, {
+        clipPath: "inset(0 0 100% 0)",
+        yPercent: 4,
+        duration: 0.85,
+        ease: EASE.slam,
+        stagger: 0.09,
+      });
+    }
+    tl.set(lines, { clipPath: "inset(0 0 100% 0)", yPercent: 12 }, "=-0.15")
       .to(lines, { clipPath: "inset(0 0 0% 0)", yPercent: 0, duration: 0.9, ease: EASE.slam, stagger: 0.1 })
       .from(meta, { opacity: 0, y: 10, duration: 0.5, stagger: 0.06, ease: EASE.out }, "-=0.5");
     const mm = gsap.matchMedia();
@@ -170,7 +182,7 @@ export function Hero() {
     };
   }, []);
 
-  const renderPanel = (index: number, sizes: string) => {
+  const renderPanel = (index: number, sizes: string, position: PanelPosition) => {
     const slide = slides[index];
     if (!slide) return null;
     const source = failed[slide.id]
@@ -179,7 +191,10 @@ export function Hero() {
     const sourceSet = heroSourceSet(source);
     // object-cover (not object-contain): every portrait fills its panel
     // edge-to-edge so no black field can open up beside the centre frame.
-    const className = "hero-image absolute inset-0 h-full w-full translate-z-0 object-cover object-center [will-change:opacity,transform]";
+    // Alternate drift direction per panel (keyframes in globals.css) so the
+    // merged triptych never reads as a static collage.
+    const drift = position === "centre" ? "hero-panel-drift-in" : "hero-panel-drift-out";
+    const className = `hero-image ${drift} absolute inset-0 h-full w-full translate-z-0 object-cover object-center [will-change:opacity,transform]`;
     const handleImageError = () => {
       setFailed((current) => ({ ...current, [slide.id]: true }));
     };
@@ -228,20 +243,38 @@ export function Hero() {
         className={`absolute inset-0 flex transition-opacity [will-change:opacity] ease-[var(--ease-in-out)] motion-reduce:transition-none ${opacity}`}
         style={{ transitionDuration: `${FADE_DURATION_MS}ms` }}
       >
-        {/* Landscape flanks: previous / next portraits of the rotation,
-            hidden on mobile where the centre portrait fills the screen. */}
+        {/* Left flank: slides under the centre portrait with its inner edge
+            masked off, so the two photographs dissolve into each other
+            instead of meeting at a hard tile seam. */}
         {leftIndex !== null ? (
-          <div className="relative hidden h-full min-w-0 flex-1 md:block">
-            {renderPanel(leftIndex, "(min-width: 768px) 34vw")}
+          <div
+            data-hero-panel
+            className="relative hidden h-full min-w-0 flex-1 md:block"
+            style={{
+              marginRight: `-${SEAM_OVERLAP}`,
+              maskImage: "linear-gradient(to right, black 72%, transparent 100%)",
+              WebkitMaskImage: "linear-gradient(to right, black 72%, transparent 100%)",
+            }}
+          >
+            {renderPanel(leftIndex, "(min-width: 768px) 36vw", "left")}
           </div>
         ) : null}
-        {/* Centre portrait: full-bleed on every device. */}
-        <div className="relative h-full min-w-0 flex-1">
-          {renderPanel(index, "(min-width: 768px) 34vw, 100vw")}
+        {/* Centre portrait: full-bleed on every device; on landscape it
+            paints above both flanks to complete the seam merge. */}
+        <div data-hero-panel className="relative h-full min-w-0 flex-1 md:z-[1]">
+          {renderPanel(index, "(min-width: 768px) 36vw, 100vw", "centre")}
         </div>
         {rightIndex !== null ? (
-          <div className="relative hidden h-full min-w-0 flex-1 md:block">
-            {renderPanel(rightIndex, "(min-width: 768px) 34vw")}
+          <div
+            data-hero-panel
+            className="relative hidden h-full min-w-0 flex-1 md:block"
+            style={{
+              marginLeft: `-${SEAM_OVERLAP}`,
+              maskImage: "linear-gradient(to left, black 72%, transparent 100%)",
+              WebkitMaskImage: "linear-gradient(to left, black 72%, transparent 100%)",
+            }}
+          >
+            {renderPanel(rightIndex, "(min-width: 768px) 36vw", "right")}
           </div>
         ) : null}
       </div>
