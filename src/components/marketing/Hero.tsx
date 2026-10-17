@@ -23,6 +23,10 @@ gsap.registerPlugin(ScrollTrigger);
 const FADE_DURATION_MS = 700;
 const ACTIVE_HERO_SLIDES = getActiveHeroSlides();
 const HERO_SOURCE_WIDTHS = [1080, 2000, 4096, 8192] as const;
+// Landscape hero breakpoint: below it only the centre portrait renders,
+// full-bleed and screen-filling. At or above it the three-panel grid merge
+// replaces the black bars that flanked the single contained portrait.
+const TRIPTYCH_QUERY = "(min-width: 768px)";
 
 function heroSourceSet(source: string) {
   if (!source.includes("lh3.googleusercontent.com")) return undefined;
@@ -36,6 +40,8 @@ function isOptimizableHeroSource(source: string) {
 function heroPreloadSource(source: string) {
   return isOptimizableHeroSource(source) ? `/_next/image?url=${encodeURIComponent(source)}&w=1920&q=100` : source;
 }
+
+type HeroPanel = { id: string; src: string; alt: string };
 
 export function Hero() {
   const { config } = useSiteConfig();
@@ -56,14 +62,36 @@ export function Hero() {
   const [incoming, setIncoming] = useState<number | null>(null);
   const [failed, setFailed] = useState<Record<string, boolean>>({});
 
+  const panelSources = (index: number): HeroPanel[] => {
+    const n = slides.length;
+    if (!slides[index]) return [];
+    // Centre is the active slide; the flanks pull the neighbouring slides so
+    // every rotation moves all three panels in lockstep. With fewer than three
+    // slides the hero degrades to the single centre portrait everywhere.
+    const indices = n >= 3
+      ? [(index - 1 + n) % n, index, (index + 1) % n]
+      : [index];
+    return Array.from(new Set(indices)).map((i) => {
+      const slide = slides[i];
+      return {
+        id: slide.id,
+        src: failed[slide.id] ? heroConfig.reducedMotionFallback : overrides.media[`hero:${slide.id}`] || slide.src,
+        alt: slide.alt,
+      };
+    });
+  };
+
   useEffect(() => {
     const preload = (source: string) => {
       const image = new window.Image();
       image.decoding = "async";
       image.src = heroPreloadSource(source);
     };
-    slides.slice(0, 2).forEach((slide) => preload(overrides.media[`hero:${slide.id}`] || slide.src));
-  }, [overrides.media, slides]);
+    slides.slice(0, 2).forEach((_slide, index) => {
+      panelSources(index).forEach((panel) => preload(panel.src));
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- panelSources reads failed/overrides.media/slides.
+  }, [failed, overrides.media, slides]);
 
   const cancelTransition = useCallback(() => {
     transitionTokenRef.current += 1;
@@ -79,24 +107,27 @@ export function Hero() {
       if (transitionRef.current || !slides[nextIndex]) return;
       transitionRef.current = true;
       const token = ++transitionTokenRef.current;
-      const nextSlide = slides[nextIndex];
-      const source = failed[nextSlide.id]
-        ? heroConfig.reducedMotionFallback
-        : overrides.media[`hero:${nextSlide.id}`] || nextSlide.src;
-      // Decode before mounting the incoming layer so a slow network never
-      // exposes a blank frame during the fade.
-      const preload = new window.Image();
-      preload.onload = () => {
-        if (token === transitionTokenRef.current) setIncoming(nextIndex);
+      const nextPanels = panelSources(nextIndex);
+      // Decode every panel of the incoming triptych before mounting the layer
+      // so a slow network never exposes a blank frame during the fade.
+      let remaining = nextPanels.length;
+      const settle = () => {
+        remaining -= 1;
+        if (remaining === 0 && token === transitionTokenRef.current) setIncoming(nextIndex);
       };
-      preload.onerror = () => {
-        if (token !== transitionTokenRef.current) return;
-        setFailed((current) => ({ ...current, [nextSlide.id]: true }));
-        cancelTransition();
-      };
-      preload.src = heroPreloadSource(source);
+      nextPanels.forEach((panel) => {
+        const preload = new window.Image();
+        preload.onload = settle;
+        preload.onerror = () => {
+          if (token !== transitionTokenRef.current) return;
+          setFailed((current) => ({ ...current, [panel.id]: true }));
+          settle();
+        };
+        preload.src = heroPreloadSource(panel.src);
+      });
     }, heroConfig.durationMs);
     return () => window.clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- panelSources reads failed/overrides.media/slides.
   }, [active, cancelTransition, failed, overrides.media, slides]);
 
   useEffect(() => {
@@ -139,48 +170,81 @@ export function Hero() {
     };
   }, []);
 
-  const renderSlide = (index: number, layer: "active" | "incoming") => {
+  const renderPanel = (index: number, sizes: string) => {
     const slide = slides[index];
     if (!slide) return null;
     const source = failed[slide.id]
       ? heroConfig.reducedMotionFallback
       : overrides.media[`hero:${slide.id}`] || slide.src;
     const sourceSet = heroSourceSet(source);
-    const imageClassName = `hero-image absolute inset-0 h-full w-full translate-z-0 object-contain object-center transition-opacity [will-change:opacity,transform] ease-[var(--ease-in-out)] motion-reduce:transition-none ${layer === "incoming" ? "opacity-100" : incoming === null ? "opacity-100" : "opacity-0"}`;
-    const imageStyle = { transitionDuration: `${FADE_DURATION_MS}ms`, transform: "translateZ(0)" };
+    // object-cover (not object-contain): every portrait fills its panel
+    // edge-to-edge so no black field can open up beside the centre frame.
+    const className = "hero-image absolute inset-0 h-full w-full translate-z-0 object-cover object-center [will-change:opacity,transform]";
     const handleImageError = () => {
       setFailed((current) => ({ ...current, [slide.id]: true }));
     };
     if (isOptimizableHeroSource(source)) {
       return (
         <Image
-          key={`${slide.id}-${layer}-${source}`}
+          key={`${slide.id}-${source}`}
           src={source}
-          alt=""
+          alt={slide.alt}
           fill
-          sizes="(min-width: 768px) 55vw, 100vw"
+          sizes={sizes}
           quality={100}
-          priority={index === active || index === incoming}
+          priority
           onError={handleImageError}
-          className={imageClassName}
-          style={imageStyle}
+          className={className}
+          style={{ transform: "translateZ(0)" }}
         />
       );
     }
     return (
       <img
-        key={`${slide.id}-${layer}-${source}`}
+        key={`${slide.id}-${source}`}
         src={source}
-        alt=""
+        alt={slide.alt}
         srcSet={sourceSet}
-        sizes="(min-width: 768px) 55vw, 100vw"
-        loading={index === active || index === incoming ? "eager" : "lazy"}
+        sizes={sizes}
+        loading="eager"
         decoding="async"
-        fetchPriority={index === active || index === incoming ? "high" : "auto"}
+        fetchPriority="high"
         onError={handleImageError}
-        className={imageClassName}
-        style={imageStyle}
+        className={className}
+        style={{ transform: "translateZ(0)" }}
       />
+    );
+  };
+
+  const renderSlide = (index: number, layer: "active" | "incoming") => {
+    const n = slides.length;
+    const leftIndex = n >= 3 ? (index - 1 + n) % n : null;
+    const rightIndex = n >= 3 ? (index + 1) % n : null;
+    const opacity = layer === "incoming" ? "opacity-100" : incoming === null ? "opacity-100" : "opacity-0";
+    return (
+      <div
+        key={`hero-layer-${layer}`}
+        aria-hidden
+        className={`absolute inset-0 flex transition-opacity [will-change:opacity] ease-[var(--ease-in-out)] motion-reduce:transition-none ${opacity}`}
+        style={{ transitionDuration: `${FADE_DURATION_MS}ms` }}
+      >
+        {/* Landscape flanks: previous / next portraits of the rotation,
+            hidden on mobile where the centre portrait fills the screen. */}
+        {leftIndex !== null ? (
+          <div className="relative hidden h-full min-w-0 flex-1 md:block">
+            {renderPanel(leftIndex, "(min-width: 768px) 34vw")}
+          </div>
+        ) : null}
+        {/* Centre portrait: full-bleed on every device. */}
+        <div className="relative h-full min-w-0 flex-1">
+          {renderPanel(index, "(min-width: 768px) 34vw, 100vw")}
+        </div>
+        {rightIndex !== null ? (
+          <div className="relative hidden h-full min-w-0 flex-1 md:block">
+            {renderPanel(rightIndex, "(min-width: 768px) 34vw")}
+          </div>
+        ) : null}
+      </div>
     );
   };
 
