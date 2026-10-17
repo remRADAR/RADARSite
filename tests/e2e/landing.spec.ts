@@ -17,6 +17,14 @@ test.describe("Landing page", () => {
     expect(errors).toEqual([]);
   });
 
+  test("brand ticker links to the Instagram community channel", async ({ page }) => {
+    await page.goto("/");
+    const tickerLink = page.getByRole("link", { name: "Join the RADAR community on Instagram" });
+    await expect(tickerLink).toBeVisible();
+    await expect(tickerLink).toHaveAttribute("href", "https://www.instagram.com/channel/Abb6oZ2Ug1FKhWyh/");
+    await expect(tickerLink).toContainText("MUSiC iS LiFE iTSELF. PROTECT THE MUSiC, FANS & BRAND ALWAYS #ONTHERADAR🗽");
+  });
+
   test("selected work section links through to a case study", async ({ page }) => {
     // Use a mobile viewport: the Selected Work section renders a plain stacked
     // list there (the desktop variant is a pinned scrub-crossfade whose entries
