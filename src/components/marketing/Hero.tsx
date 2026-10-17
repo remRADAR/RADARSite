@@ -48,6 +48,7 @@ export function Hero() {
   const rootRef = useRef<HTMLElement>(null);
   const transitionRef = useRef(false);
   const transitionTokenRef = useRef(0);
+  const preloadRefs = useRef(new Set<HTMLImageElement>());
   const slides = ACTIVE_HERO_SLIDES;
   const overrideSnapshot = useSyncExternalStore(
     subscribeToSiteOverrides,
@@ -117,13 +118,25 @@ export function Hero() {
       };
       nextPanels.forEach((panel) => {
         const preload = new window.Image();
-        preload.onload = settle;
+        preloadRefs.current.add(preload);
+        let settled = false;
+        const settleOnce = () => {
+          if (settled) return;
+          settled = true;
+          preloadRefs.current.delete(preload);
+          settle();
+        };
+        preload.decoding = "async";
+        preload.onload = settleOnce;
         preload.onerror = () => {
           if (token !== transitionTokenRef.current) return;
           setFailed((current) => ({ ...current, [panel.id]: true }));
-          settle();
+          settleOnce();
         };
         preload.src = heroPreloadSource(panel.src);
+        if (preload.complete) {
+          void preload.decode().then(settleOnce).catch(settleOnce);
+        }
       });
     }, heroConfig.durationMs);
     return () => window.clearInterval(timer);
