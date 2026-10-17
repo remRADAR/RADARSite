@@ -15,6 +15,7 @@ import {
 } from "@/lib/site-overrides";
 import { Marquee } from "@/components/motion/Marquee";
 import { useSiteConfig } from "@/lib/site-config-context";
+import { COMMUNITY_CHANNEL_URL } from "@/types/site-config";
 import { HeroScene } from "@/components/three/HeroScene";
 import { SceneGate } from "@/components/three/SceneGate";
 
@@ -51,7 +52,18 @@ export function Hero() {
   const overrides = parseSiteOverrides(overrideSnapshot);
   const headline = [config.homepage.hero.line1, config.homepage.hero.line2, config.homepage.hero.line3];
   const subheadline = config.homepage.hero.subtitle || overrides.heroSubheadline || heroConfig.subheadline;
-  const ticker = config.tickers.ticker2_heroMarquee.items.map((item) => item.text);
+  const tickerItems = config.tickers.ticker2_heroMarquee.items;
+  const ticker = tickerItems.map((item) => item.text);
+  const configuredTickerLink = tickerItems.find((item) => item.linkUrl?.trim())?.linkUrl?.trim();
+  const tickerHref = (() => {
+    if (!configuredTickerLink) return COMMUNITY_CHANNEL_URL;
+    try {
+      const url = new URL(configuredTickerLink);
+      return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : COMMUNITY_CHANNEL_URL;
+    } catch {
+      return COMMUNITY_CHANNEL_URL;
+    }
+  })();
   const [active, setActive] = useState(0);
   const [incoming, setIncoming] = useState<number | null>(null);
   const [failed, setFailed] = useState<Record<string, boolean>>({});
@@ -211,14 +223,16 @@ export function Hero() {
           white bar with black text (dark theme) / black bar with white text
           (light theme). Do NOT add text-paper here — .hero-shell .text-paper
           would force white-on-white and hide the ticker text. */}
-      <div className="ticker-surface pointer-events-none relative z-10 border-t border-white/55 bg-black/20 backdrop-blur-[2px]">
-        <Marquee durationSeconds={26} className="py-3">
-          {ticker.map((item, index) => (
-            <span data-ticker-text key={`${item}-${index}`} className="mx-3 whitespace-nowrap font-mono text-sm font-bold uppercase tracking-widest md:mx-6">
-              {item}{overrides.tickerIconImage ? <span className="mx-3 inline-flex items-center md:mx-6" aria-hidden><Image src={overrides.tickerIconImage} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" /></span> : null}
-            </span>
-          ))}
-        </Marquee>
+      <div className="ticker-surface relative z-10 border-t border-white/55 bg-black/20 backdrop-blur-[2px]">
+        <a href={tickerHref} target="_blank" rel="noopener noreferrer" aria-label="Join the RADAR community on Instagram" data-community-ticker-link className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-current">
+          <Marquee durationSeconds={26} className="py-3">
+            {ticker.map((item, index) => (
+              <span data-ticker-text key={`${item}-${index}`} className="mx-3 whitespace-nowrap font-sans text-sm font-black tracking-tight md:mx-6">
+                {item}{overrides.tickerIconImage ? <span className="mx-3 inline-flex items-center md:mx-6" aria-hidden><Image src={overrides.tickerIconImage} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" /></span> : null}
+              </span>
+            ))}
+          </Marquee>
+        </a>
       </div>
     </section>
   );

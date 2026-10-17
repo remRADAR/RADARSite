@@ -1,12 +1,39 @@
 import assert from "node:assert/strict";
-import { defaultSiteConfig, normalizeSiteConfig } from "@/types/site-config";
+import { COMMUNITY_CHANNEL_URL, defaultSiteConfig, normalizeSiteConfig } from "@/types/site-config";
 import { defaultSiteOverrides, normalizeSiteOverrides } from "@/lib/site-overrides";
 
 const oldAddress = "hello@radarcharts.com";
 const newAddress = "hello@radarcharts.net";
 const customAddress = "editor@example.org";
+const brandTickerCopy = "MUSiC iS LiFE iTSELF. PROTECT THE MUSiC, FANS & BRAND ALWAYS #ONTHERADAR🗽";
 
 assert.equal(defaultSiteConfig.homepage.ctaSection.contactEmail, newAddress);
+assert.equal(defaultSiteConfig.tickers.ticker2_heroMarquee.items[0].text, brandTickerCopy);
+assert.equal(defaultSiteConfig.tickers.ticker2_heroMarquee.items[0].linkUrl, COMMUNITY_CHANNEL_URL);
+const legacyTicker = normalizeSiteConfig({
+  tickers: {
+    ticker2_heroMarquee: {
+      enabled: true,
+      speedSeconds: 26,
+      items: ["NEW OFFICIAL SITE", "AKT!V", "ON THE RADAR"].map((text, index) => ({ id: `hero-ticker-${index + 1}`, text, linkUrl: "" })),
+    },
+  },
+});
+assert.equal(legacyTicker.tickers.ticker2_heroMarquee.items[0].text, brandTickerCopy);
+assert.equal(legacyTicker.tickers.ticker2_heroMarquee.items[0].linkUrl, COMMUNITY_CHANNEL_URL);
+const customTickerCopy = "CUSTOM CAMPAIGN COPY";
+assert.equal(
+  normalizeSiteConfig({
+    tickers: {
+      ticker2_heroMarquee: {
+        enabled: true,
+        speedSeconds: 20,
+        items: [{ id: "custom", text: customTickerCopy, linkUrl: "https://example.org" }],
+      },
+    },
+  }).tickers.ticker2_heroMarquee.items[0].text,
+  customTickerCopy,
+);
 assert.equal(
   normalizeSiteConfig({
     homepage: {

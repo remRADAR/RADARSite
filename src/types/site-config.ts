@@ -3,6 +3,9 @@ export interface AktivBoxItem { id: string; badgeNumber: string; title: string; 
 export interface SelectedWorkItem { id: string; number: string; yearTag: string; categoryTag: string; artistOrProjectName: string; headline: string; description: string; caseStudyUrl: string; coverImage: string; visible: boolean }
 export interface ProcessStepItem { id: string; stepNumber: string; title: string; description?: string; visible: boolean }
 export interface SocialProfile { visible: boolean; url: string }
+export const COMMUNITY_CHANNEL_URL = "https://www.instagram.com/channel/Abb6oZ2Ug1FKhWyh/";
+const BRAND_TICKER_COPY = "MUSiC iS LiFE iTSELF. PROTECT THE MUSiC, FANS & BRAND ALWAYS #ONTHERADAR🗽";
+const LEGACY_TICKER_COPY = ["NEW OFFICIAL SITE", "AKT!V", "ON THE RADAR"];
 export interface GlobalSiteConfig {
   tickers: { ticker1_audioPlayer: { enabled: boolean; trackTitle: string; playlistStatusText: string; audioStreamUrl: string; autoPlay: boolean }; ticker2_heroMarquee: { enabled: boolean; speedSeconds: number; items: TickerItem[] }; ticker3_partnerMarquee: { enabled: boolean; speedSeconds: number; items: string[] }; ticker4_footerMarquee: { enabled: boolean; speedSeconds: number; text: string; separatorSymbol: string }; ticker5_projectSelector: { enabled: boolean; speedSeconds: number; label: string; projectSlugs: string[] } };
   homepage: { hero: { coordinates: string; line1: string; line2: string; line3: string; subtitle: string; backgroundImages: string[] }; aktivGrid: AktivBoxItem[]; selectedWork: SelectedWorkItem[]; processSteps: ProcessStepItem[]; ctaSection: { headline: string; contactEmail: string; buttonText: string } };
@@ -12,7 +15,7 @@ export interface GlobalSiteConfig {
 export const defaultSiteConfig: GlobalSiteConfig = {
   tickers: {
     ticker1_audioPlayer: { enabled: true, trackTitle: "Top10: *Track", playlistStatusText: "PLAYLIST LIVE", audioStreamUrl: "", autoPlay: false },
-    ticker2_heroMarquee: { enabled: true, speedSeconds: 26, items: ["NEW OFFICIAL SITE", "AKT!V", "ON THE RADAR"].map((text, i) => ({ id: `hero-ticker-${i + 1}`, text, icon: "•", linkUrl: "" })) },
+    ticker2_heroMarquee: { enabled: true, speedSeconds: 26, items: [{ id: "hero-ticker-1", text: BRAND_TICKER_COPY, icon: "", linkUrl: COMMUNITY_CHANNEL_URL }] },
     ticker3_partnerMarquee: { enabled: true, speedSeconds: 30, items: ["RADARUnit", "RADARMe", "On The Radar", "RADARArticles", "RADAR Sessions", "RADAR Live"] },
     ticker4_footerMarquee: { enabled: true, speedSeconds: 32, text: "remRADAR", separatorSymbol: "✳" },
     ticker5_projectSelector: { enabled: true, speedSeconds: 30, label: "SELECT PROJECT", projectSlugs: ["mamuzo-dark-era-peak-release", "after-hours-vol-02", "north-star-release"] },
@@ -38,8 +41,20 @@ export function normalizeSiteConfig(input: unknown): GlobalSiteConfig {
   const value = input as Partial<GlobalSiteConfig>;
   const homepage = { ...defaultSiteConfig.homepage, ...(value.homepage || {}) };
   const ctaSection = { ...defaultSiteConfig.homepage.ctaSection, ...(value.homepage?.ctaSection || {}) };
+  const configuredHeroTicker = value.tickers?.ticker2_heroMarquee;
+  const configuredTickerItems = configuredHeroTicker?.items;
+  const hasLegacyDefaultTicker = Array.isArray(configuredTickerItems)
+    && configuredTickerItems.length === LEGACY_TICKER_COPY.length
+    && configuredTickerItems.every((item, index) => item?.text === LEGACY_TICKER_COPY[index]);
+  const ticker2HeroMarquee = {
+    ...defaultSiteConfig.tickers.ticker2_heroMarquee,
+    ...(configuredHeroTicker || {}),
+    items: hasLegacyDefaultTicker || !Array.isArray(configuredTickerItems)
+      ? defaultSiteConfig.tickers.ticker2_heroMarquee.items
+      : configuredTickerItems,
+  };
   if (ctaSection.contactEmail === "hello@radarcharts.com") ctaSection.contactEmail = "hello@radarcharts.net";
-  return { ...defaultSiteConfig, ...value, tickers: { ...defaultSiteConfig.tickers, ...(value.tickers || {}) }, homepage: { ...homepage, ctaSection }, navigation: { ...defaultSiteConfig.navigation, ...(value.navigation || {}) } };
+  return { ...defaultSiteConfig, ...value, tickers: { ...defaultSiteConfig.tickers, ...(value.tickers || {}), ticker2_heroMarquee: ticker2HeroMarquee }, homepage: { ...homepage, ctaSection }, navigation: { ...defaultSiteConfig.navigation, ...(value.navigation || {}) } };
 }
 
 export const SITE_CONFIG_KEY = "radar-global-site-config";
