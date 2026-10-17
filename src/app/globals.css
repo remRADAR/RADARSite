@@ -348,6 +348,29 @@ html {
     filter: saturate(1.04) contrast(1.02);
   }
 
+  /* Cinematic triptych: each panel drifts at a slightly different scale so the
+     merged hero never feels like a static collage. Reduced motion disables it. */
+  @keyframes hero-drift-in {
+    from { transform: scale(1) translateZ(0); }
+    to { transform: scale(1.06) translateZ(0); }
+  }
+  @keyframes hero-drift-out {
+    from { transform: scale(1.06) translateZ(0); }
+    to { transform: scale(1) translateZ(0); }
+  }
+  .hero-panel-drift-in {
+    animation: hero-drift-in 6.5s var(--ease-in-out) forwards;
+  }
+  .hero-panel-drift-out {
+    animation: hero-drift-out 6.5s var(--ease-in-out) forwards;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-panel-drift-in,
+    .hero-panel-drift-out {
+      animation: none;
+    }
+  }
+
   .hero-engine canvas {
     display: block;
     height: 100% !important;
