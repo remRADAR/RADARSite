@@ -29,3 +29,27 @@ Commands for deployment/recent activity included `git fetch origin`, `git log -3
 The 540×960 GIF master is 24,305,448 bytes and visibly soft when enlarged at 1440px. The floating site-wide audio player control overlaps the hero/ticker’s bottom-right corner. Both are documented observations only; neither was changed.
 
 Do not modify `public/motherland/featured.gif`, the homepage `Hero.tsx` ticker configuration, other pages, or the Gande “Insta Babe” 404 imagery without valid originals. No production configuration, aliases, content, or data were changed. The remaining content dependencies are real ticker copy, future page text, valid Gande originals, and an optional higher-resolution Motherland master.
+
+## 2026-10-19 - Editorial Publishing Network: intake, media manifest, publication receipt, workflow action contracts
+Agent: Mistral Vibe (Vibe Work session via GitHub connector). Feature branch only; main untouched.
+
+### What was added
+- src/lib/editorial-intake.ts - branched intake validation (Press / Spotlight / Magazine requiring Special Episode or Magazine Episode / MOTHERLand), quote-attribution rules, Spotify/YouTube embed URL validation, music entity metadata surface. Pure validation; missing information is flagged, never fabricated.
+- src/lib/media-manifest.ts - structured media manifest contract: exactly one designated featured image, inline images with explicit placement (after-introduction / between-sections with named section / before-conclusion), MIME allowlist validated by content type not extension, 8 MiB limit, signed/temporary URL rejection, media-origin host check, alt text required on uploaded assets, duplicate storage key rejection.
+- src/lib/publication-receipt.ts - publication receipt builder with states draft_saved / awaiting_approval / publishing / published_verified / failed. published_verified is emitted only with live-website evidence and a live URL; otherwise the state is downgraded and a blocker is recorded. CMS ID appears only when the integration returned one.
+- src/lib/editorial-workflow-actions.ts - Teamily-ready workflow action registry (10 actions) with prerequisite graph, side-effect flags, a hard editorial-approval gate before publication, and resume-from-last-confirmed-step semantics for failed jobs.
+- scripts/editorial-intake-contract-test.ts, scripts/media-manifest-contract-test.ts, scripts/publication-receipt-contract-test.ts - contract tests in the existing repo style (node:assert/strict, tsx, no live services contacted).
+- package.json - added intake:contract-test, media:manifest-contract-test, receipt:contract-test scripts. No dependency changes.
+
+### Not verified
+- The three new contract tests have NOT been executed in this session (no Node runtime available to the agent). Before merging, run: npm run intake:contract-test && npm run media:manifest-contract-test && npm run receipt:contract-test && npm run lint && npm run typecheck.
+- No live integration changed: RADAR_NOTION_PUBLISHING_ENABLED remains false everywhere; no production, DNS, secrets, database, R2 or CMS changes.
+
+### Verified context from the Phase 1 audit (2026-10-19)
+- The Notion Editorial Pipeline data source is now accessible to the writing connection (collection://5bc76a9c-bdaa-4e3e-88ae-cd916e23bed3); its schema matches docs/notion-publishing-integration.md.
+- Teamily is not available as a connector in this environment; the action registry is deliberately orchestrator-neutral.
+
+### Next steps
+1. Run the three new contract tests plus lint/typecheck; fix any failures before merging.
+2. Complete the owner checklist in docs/notion-publishing-integration.md (Preview secrets, data-source ID confirmation, sync secret, Preview R2 credentials, Preview DATABASE_URL isolation) before any live dry-run.
+3. Vertical slice: one Press article end to end in Preview using these modules plus the existing publish endpoint.
