@@ -218,6 +218,18 @@ function renderRichText(value: unknown): string {
 type ChildReader = (blockId: string) => Promise<NotionBlock[]>;
 type ImageImporter = (url: string, blockId: string, alt: string, placementIndex: number) => Promise<string>;
 
+function notionInstagramEmbed(url: string) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:" || !["instagram.com", "www.instagram.com"].includes(parsed.hostname)) return "";
+    const match = parsed.pathname.match(/^\/(p|reel|tv)\/([A-Za-z0-9_-]+)\/?$/i);
+    if (!match) return "";
+    return `<iframe title="Instagram post" width="100%" height="700" loading="lazy" allowtransparency="true" src="https://www.instagram.com/${match[1].toLowerCase()}/${match[2]}/embed"></iframe>`;
+  } catch {
+    return "";
+  }
+}
+
 export async function renderNotionBlockTree(blocks: NotionBlock[], readChildren: ChildReader, importImage: ImageImporter, options: { maxBlocks?: number; maxDepth?: number } = {}): Promise<{ html: string; images: Array<{ sourceUrl: string; storedUrl: string; blockId: string; placementIndex: number }> }> {
   const maxBlocks = options.maxBlocks ?? 1500;
   const maxDepth = options.maxDepth ?? 8;
@@ -257,7 +269,10 @@ export async function renderNotionBlockTree(blocks: NotionBlock[], readChildren:
         const storedUrl = await importImage(source, block.id, alt, imageIndex++);
         images.push({ sourceUrl: source, storedUrl, blockId: block.id, placementIndex: imageIndex - 1 });
         html = `<figure><img src="${escapeHtml(storedUrl)}" alt="${escapeHtml(alt)}" loading="lazy"></figure>`;
-      } else if (type === "bookmark" || type === "embed" || type === "link_preview") {
+      } else if (type === "embed") {
+        const url = typeof value.url === "string" ? value.url : "";
+        html = notionInstagramEmbed(url) || (() => { try { const parsed = new URL(url); return parsed.protocol === "https:" ? `<p><a href="${escapeHtml(parsed.toString())}">${text || escapeHtml(parsed.hostname)}</a>${children}</p>` : ""; } catch { return ""; } })();
+      } else if (type === "bookmark" || type === "link_preview") {
         const url = typeof value.url === "string" ? value.url : "";
         try { const parsed = new URL(url); if (parsed.protocol === "https:") html = `<p><a href="${escapeHtml(parsed.toString())}">${text || escapeHtml(parsed.hostname)}</a>${children}</p>`; }
         catch { /* invalid external URL omitted */ }
