@@ -5,6 +5,7 @@ import { readStudioSettings } from "@/lib/studio-server";
 
 const FALLBACK_PUBLIC_SITE_URL = "https://radarcharts.net";
 const PREVIEW_HOSTS = ["localhost", "127.0.0.1", "vercel.app", "radarsite-two", "remradar.wordpress.com", "wordpress.com"];
+export const PUBLIC_SITE_OVERRIDES_CACHE_TAG = "radarsite-public-site-overrides";
 
 export function publicSiteUrl() {
   const candidate = process.env.NEXT_PUBLIC_SITE_URL || FALLBACK_PUBLIC_SITE_URL;
@@ -34,7 +35,7 @@ export async function readPublicSiteOverrides(): Promise<SiteOverrides> {
 const readCachedPublicSiteOverrides = unstable_cache(
   async () => normalizeSiteOverrides(await readStudioSettings()),
   ["radarsite-public-site-overrides"],
-  { revalidate: 3600, tags: ["radarsite-public-site-overrides"] },
+  { revalidate: 3600, tags: [PUBLIC_SITE_OVERRIDES_CACHE_TAG] },
 );
 
 export function safeSocialImageUrl(value: string | undefined, fallback = "/social/radar-global-card.png") {

@@ -2,6 +2,7 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { contentCacheTag } from "@/lib/content-server";
+import { PUBLIC_SITE_OVERRIDES_CACHE_TAG } from "@/lib/public-site";
 
 export const dynamic = "force-dynamic";
 
@@ -25,8 +26,9 @@ export async function POST(request: NextRequest) {
   if (!tokenMatches(request)) return json({ error: "Maintenance authorization required" }, { status: 401 });
   const now = new Date().toISOString();
   revalidateTag(contentCacheTag(), { expire: 0 });
+  revalidateTag(PUBLIC_SITE_OVERRIDES_CACHE_TAG, { expire: 0 });
   revalidatePath("/", "layout");
-  return json({ ok: true, maintainedAt: now, invalidated: { tag: contentCacheTag(), layout: true }, destructiveCleanup: false });
+  return json({ ok: true, maintainedAt: now, invalidated: { tags: [contentCacheTag(), PUBLIC_SITE_OVERRIDES_CACHE_TAG], layout: true }, destructiveCleanup: false });
 }
 
 export async function GET() {

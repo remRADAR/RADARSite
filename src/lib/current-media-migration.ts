@@ -116,7 +116,7 @@ async function fetchSource(asset: AuditAsset, expected: ByteRecord) {
 async function prepareAsset(context: AuditContext, asset: AuditAsset): Promise<StoredAsset> {
   const { expected } = requireAuditAsset(context, asset.attachmentId);
   const source = await fetchSource(asset, expected);
-  const conversion = await createWebpDerivatives({ source: source.body, keyPrefix: keyPrefix(asset), quality: 82 });
+  const conversion = await createWebpDerivatives({ source: source.body, keyPrefix: keyPrefix(asset), quality: 80 });
   const derivatives: StoredAsset["derivatives"] = [];
   for (const derivative of conversion.derivatives) {
     const checksum = checksumSha256(derivative.body);
@@ -145,13 +145,15 @@ export async function migrateCurrentMediaBatch(input: { mode: "dry-run" | "uploa
       if (input.mode === "dry-run") {
         const { expected } = requireAuditAsset(context, asset.attachmentId);
         const source = await fetchSource(asset, expected);
-        const conversion = await createWebpDerivatives({ source: source.body, keyPrefix: keyPrefix(asset), quality: 82 });
-        results.push({ attachmentId: asset.attachmentId, status: "verified", sourceBytes: source.body.length, sourceSha256: checksumSha256(source.body), derivatives: conversion.derivatives.map((item) => ({ width: item.width, height: item.height, bytes: item.body.length, sha256: checksumSha256(item.body) })) });
+        const conversion = await createWebpDerivatives({ source: source.body, keyPrefix: keyPrefix(asset), quality: 80 });
+        results.push({ attachmentId: asset.attachmentId, status: "verified", sourceBytes: conversion.sourceBytes, derivativeBytes: conversion.derivativeBytes, bytesSaved: conversion.bytesSaved, savingsRatio: conversion.savingsRatio, sourceSha256: checksumSha256(source.body), derivatives: conversion.derivatives.map((item) => ({ width: item.width, height: item.height, bytes: item.body.length, sha256: checksumSha256(item.body) })) });
         continue;
       }
       const stored = input.mode === "upload" ? await prepareAsset(context, asset) : await existingStoredAsset(asset);
       prepared.push(stored);
-      results.push({ attachmentId: asset.attachmentId, status: "r2-verified", primaryUrl: stored.primaryUrl, derivativeCount: stored.derivatives.length });
+      const derivativeBytes = stored.derivatives.reduce((total, item) => total + item.bytes, 0);
+      const bytesSaved = stored.sourceBytes - derivativeBytes;
+      results.push({ attachmentId: asset.attachmentId, status: "r2-verified", primaryUrl: stored.primaryUrl, derivativeCount: stored.derivatives.length, sourceBytes: stored.sourceBytes, derivativeBytes, bytesSaved, savingsRatio: stored.sourceBytes ? bytesSaved / stored.sourceBytes : 0 });
     } catch (error) {
       results.push({ attachmentId: asset.attachmentId, status: "failed", error: error instanceof Error ? error.message : String(error) });
       if (input.mode !== "dry-run") throw error;

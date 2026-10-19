@@ -13,6 +13,8 @@
     "cms:diagnose": "node scripts/cms-diagnose.mjs",
     "cms:reconcile": "tsx scripts/cms-reconcile.ts",
     "media:contract-test": "tsx scripts/wordpress-media-contract-test.ts",
+    "media:webp-contract-test": "tsx scripts/media-webp-contract-test.ts",
+    "security:cookie-contract-test": "tsx scripts/studio-cookie-contract-test.ts",
     "media-health:contract-test": "tsx scripts/media-health-contract-test.ts",
     "media-relationships:contract-test": "tsx scripts/media-relationships-contract-test.ts",
     "postgres:adapter-contract-test": "tsx scripts/postgres-adapter-contract-test.ts",

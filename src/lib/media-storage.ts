@@ -69,13 +69,21 @@ export async function createWebpDerivatives(input: { source: Buffer; keyPrefix: 
   const { default: sharp } = await import("sharp");
   const image = sharp(input.source, { failOn: "warning" });
   const metadata = await image.metadata();
-  const quality = input.quality || 82;
-  const sizes = [...new Set([input.width || 2400, 1600, 960, 480].filter((size) => size > 0 && (!metadata.width || size <= metadata.width || size === input.width)))].sort((a, b) => b - a);
+  const quality = input.quality ?? 80;
+  if (!Number.isInteger(quality) || quality < 1 || quality > 100) throw new Error("WEBP_QUALITY_INVALID");
+  if (input.width !== undefined && (!Number.isInteger(input.width) || input.width <= 0)) throw new Error("WEBP_WIDTH_INVALID");
+  const sizes = [...new Set([input.width ?? 2400, 1600, 960, 480]
+    .filter((size) => size > 0)
+    .map((size) => metadata.width ? Math.min(size, metadata.width) : size))]
+    .sort((a, b) => b - a);
   const derivatives: Array<{ key: string; body: Buffer; contentType: string; width: number; height?: number }> = [];
   for (const width of sizes) {
-    const body = await sharp(input.source).resize({ width, withoutEnlargement: true }).webp({ quality }).toBuffer();
-    const dimensions = await sharp(body).metadata();
+    const body = await sharp(input.source, { failOn: "warning" }).resize({ width, withoutEnlargement: true }).webp({ quality, effort: 6, smartSubsample: true }).toBuffer();
+    const dimensions = await sharp(body, { failOn: "warning" }).metadata();
+    if (dimensions.format !== "webp") throw new Error("WEBP_OUTPUT_FORMAT_INVALID");
     derivatives.push({ key: `${input.keyPrefix}/w-${width}.webp`, body, contentType: "image/webp", width: dimensions.width || width, height: dimensions.height });
   }
-  return { sourceWidth: metadata.width, sourceHeight: metadata.height, sourceMimeType: metadata.format ? `image/${metadata.format}` : undefined, derivatives };
+  const sourceBytes = input.source.byteLength;
+  const derivativeBytes = derivatives.reduce((total, item) => total + item.body.byteLength, 0);
+  return { sourceWidth: metadata.width, sourceHeight: metadata.height, sourceMimeType: metadata.format ? `image/${metadata.format}` : undefined, sourceBytes, derivativeBytes, bytesSaved: sourceBytes - derivativeBytes, savingsRatio: sourceBytes ? (sourceBytes - derivativeBytes) / sourceBytes : 0, derivatives };
 }

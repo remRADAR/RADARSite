@@ -14,6 +14,19 @@ export function getSessionMaxAge() {
   return SESSION_TTL_SECONDS;
 }
 
+export function getSessionCookieOptions(hostname: string, maxAge = SESSION_TTL_SECONDS) {
+  const host = hostname.toLowerCase().replace(/^\[|\]$/g, "").replace(/\.$/, "");
+  const localHttpHost = host === "localhost" || host === "127.0.0.1" || host === "::1";
+  const manusPreview = host === "manus.computer" || host.endsWith(".manus.computer");
+  return {
+    httpOnly: true,
+    sameSite: manusPreview ? "none" as const : "lax" as const,
+    secure: !localHttpHost,
+    path: "/",
+    maxAge,
+  };
+}
+
 export function hasDatabase() {
   return Boolean(process.env.DATABASE_URL);
 }
