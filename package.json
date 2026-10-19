@@ -27,6 +27,9 @@
     "cms:studio-library-mock-test": "tsx scripts/cms-studio-library-mock-test.ts",
     "cms:workflow-contract-test": "tsx scripts/cms-article-workflow-contract-test.ts",
     "notion:contract-test": "tsx scripts/notion-publish-contract-test.ts",
+    "intake:contract-test": "tsx scripts/editorial-intake-contract-test.ts",
+    "media:manifest-contract-test": "tsx scripts/media-manifest-contract-test.ts",
+    "receipt:contract-test": "tsx scripts/publication-receipt-contract-test.ts",
     "test:csp": "tsx scripts/csp-contract-test.ts"
   },
   "dependencies": {
