@@ -28,6 +28,7 @@
     "cms:studio-library-mock-test": "tsx scripts/cms-studio-library-mock-test.ts",
     "cms:workflow-contract-test": "tsx scripts/cms-article-workflow-contract-test.ts",
     "notion:contract-test": "tsx scripts/notion-publish-contract-test.ts",
+    "cloudflare-content:contract-test": "tsx scripts/cloudflare-content-store-contract-test.ts",
     "test:csp": "tsx scripts/csp-contract-test.ts"
   },
   "dependencies": {
