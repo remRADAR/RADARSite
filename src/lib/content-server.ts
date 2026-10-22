@@ -66,23 +66,38 @@ async function readDirectNotionContent(): Promise<ContentCollections | null> {
   const dataSourceId = sync.normalizeNotionPageId(process.env.RADAR_NOTION_DATA_SOURCE_ID);
   if (!dataSourceId) throw new Error("RADAR_NOTION_DATA_SOURCE_ID is invalid.");
   const dataSource = await notionDirectJson<import("@/lib/notion-editorial-sync").NotionDataSource>(`https://api.notion.com/v1/data_sources/${encodeURIComponent(dataSourceId)}`);
-  const query = await notionDirectJson<{ results?: NotionPageResponse[]; has_more?: boolean; next_cursor?: string | null }>(`https://api.notion.com/v1/data_sources/${encodeURIComponent(dataSourceId)}/query`, { method: "POST", body: JSON.stringify({ page_size: 100 }) });
-  const pages = (query.results || []).filter((page) => sync.readNotionProperty(page, sync.EDITORIAL_PROPERTY_NAMES.publish) === true && ["Approved", "Publishing", "Published"].includes(String(sync.readNotionProperty(page, sync.EDITORIAL_PROPERTY_NAMES.status) || "")));
+  const schemaErrors = sync.validateEditorialSchema(dataSource);
+  if (schemaErrors.length) throw new Error(`Notion editorial data-source schema is invalid: ${schemaErrors.join("; ")}`);
+  const notionMedia = await import("@/lib/notion-media");
+  const stableMediaReady = notionMedia.notionR2ConfigurationReady();
+  const pages = (await sync.collectNotionPages((cursor) => notionDirectJson<{ results?: NotionPageResponse[]; has_more?: boolean; next_cursor?: string | null }>(
+    `https://api.notion.com/v1/data_sources/${encodeURIComponent(dataSourceId)}/query`,
+    { method: "POST", body: JSON.stringify({ page_size: 100, ...(cursor ? { start_cursor: cursor } : {}) }) },
+  ))).filter((page) => sync.validatePageAuthorization(page, dataSource).ok);
   const records: CmsRecord[] = [];
   for (const page of pages) {
     const pageId = sync.normalizeNotionPageId(page.id);
     if (!pageId) continue;
+    const currentPage = await notionDirectJson<NotionPageResponse>(`https://api.notion.com/v1/pages/${encodeURIComponent(pageId)}`);
+    if (!sync.validatePageAuthorization(currentPage, dataSource).ok) continue;
     const blocks = await notionDirectChildren(pageId);
-    const rendered = await sync.renderNotionBlockTree(blocks, notionDirectChildren, async (url) => url);
-    const draft = sync.mapNotionPageToDraft(page, dataSource, rendered.html);
+    const articleTitle = String(sync.readNotionProperty(currentPage, sync.EDITORIAL_PROPERTY_NAMES.title) || "Article");
+    const resolveImage = async (url: string, blockId: string, alt: string) => {
+      if (!stableMediaReady) throw new Error("R2 is not ready for permanent Notion media; refusing to publish an expiring image URL.");
+      return (await notionMedia.importNotionImage({ url, pageId, blockId, alt, persistRecord: false })).url;
+    };
+    const rendered = await sync.renderNotionBlockTree(blocks, notionDirectChildren, resolveImage, { defaultImageAlt: articleTitle });
+    const draft = sync.mapNotionPageToDraft(currentPage, dataSource, rendered.html);
     const slug = directSlug(draft.title);
-    const featuredImage = draft.featuredImageUploadUrl || sync.notionPageCoverUrl(page);
+    const featuredSource = draft.featuredImageUploadUrl || sync.notionPageCoverUrl(currentPage);
+    const featuredImage = featuredSource ? await resolveImage(featuredSource, "featured-image", `${draft.title} — featured image`) : "";
     const canonicalUrl = draft.canonicalUrl || `https://radarcharts.net/ontheradar/articles/${slug}`;
+    const publishedAt = draft.scheduledAt || currentPage.created_time || currentPage.last_edited_time || new Date().toISOString();
     records.push(cleanRecord({
       id: sync.deterministicCmsId(pageId), sourceProvider: "notion", sourceId: pageId, sourceUrl: draft.notionUrl, notionPageId: pageId,
       slug, path: `/ontheradar/articles/${slug}`, title: draft.title, excerpt: draft.excerpt, body: draft.body, bodyHtml: draft.bodyHtml,
       metaTitle: draft.seoTitle, metaDescription: draft.seoDescription, canonicalUrl, socialImage: featuredImage,
-      imageUrl: featuredImage, featuredImage, featuredImageAlt: draft.title, publishedAt: draft.scheduledAt || page.last_edited_time || new Date().toISOString(), date: draft.scheduledAt || page.last_edited_time || new Date().toISOString(),
+      imageUrl: featuredImage, featuredImage, featuredImageAlt: draft.title, publishedAt, date: publishedAt, sourceModifiedAt: draft.sourceEditedAt,
       author: draft.author, tags: draft.tags, categories: [draft.projectSection || "RADARArticles"], featured: draft.featured, status: "published", editorialType: draft.editorialType, magazineSubtype: draft.magazineSubtype, projectSection: draft.projectSection,
     }));
   }

@@ -28,8 +28,24 @@ export const EDITORIAL_PROPERTY_NAMES = {
 } as const;
 
 export type NotionDataSource = { id: string; properties: Record<string, Record<string, unknown>> };
-export type NotionPage = { id: string; url?: string; parent?: Record<string, unknown>; cover?: Record<string, unknown>; properties: Record<string, Record<string, unknown>>; last_edited_time?: string };
+export type NotionPage = { id: string; url?: string; parent?: Record<string, unknown>; cover?: Record<string, unknown>; properties: Record<string, Record<string, unknown>>; created_time?: string; last_edited_time?: string };
 export type NotionBlock = { id: string; type: string; has_children?: boolean; [key: string]: unknown };
+export async function collectNotionPages(fetchPage: (cursor?: string) => Promise<{ results?: NotionPage[]; has_more?: boolean; next_cursor?: string | null }>, maxItems = 10_000): Promise<NotionPage[]> {
+  const pages: NotionPage[] = [];
+  const seen = new Set<string>();
+  let cursor = "";
+  do {
+    const response = await fetchPage(cursor || undefined);
+    if (!Array.isArray(response.results)) throw new Error("Notion returned an invalid data-source page list.");
+    pages.push(...response.results);
+    if (pages.length > maxItems) throw new Error(`Notion editorial source exceeds the supported ${maxItems}-page limit.`);
+    const next = response.next_cursor || "";
+    if (response.has_more && (!next || seen.has(next))) throw new Error("Notion returned an invalid pagination cursor.");
+    if (next) seen.add(next);
+    cursor = response.has_more ? next : "";
+  } while (cursor);
+  return pages;
+}
 export type EditorialDraft = {
   pageId: string; title: string; excerpt: string; bodyHtml: string; body: string; slugHint: string;
   editorialType: "Press" | "Spotlight" | "Magazine"; magazineSubtype: "Special Episode" | "Magazine Episode" | "";
@@ -218,6 +234,20 @@ function renderRichText(value: unknown): string {
 type ChildReader = (blockId: string) => Promise<NotionBlock[]>;
 type ImageImporter = (url: string, blockId: string, alt: string, placementIndex: number) => Promise<string>;
 
+function notionSpotifyEmbed(url: string) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:" || parsed.hostname !== "open.spotify.com") return "";
+    const match = parsed.pathname.match(/^\/(?:intl-[a-z]{2}(?:-[A-Z]{2})?\/)?(?:embed\/)?(track|album|playlist|episode|show)\/([A-Za-z0-9]+)\/?$/i);
+    if (!match) return "";
+    const type = match[1].toLowerCase();
+    const height = type === "track" ? 152 : 352;
+    return `<iframe title="Spotify ${type} player" width="100%" height="${height}" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" src="https://open.spotify.com/embed/${type}/${match[2]}"></iframe>`;
+  } catch {
+    return "";
+  }
+}
+
 function notionInstagramEmbed(url: string) {
   try {
     const parsed = new URL(url);
@@ -230,7 +260,7 @@ function notionInstagramEmbed(url: string) {
   }
 }
 
-export async function renderNotionBlockTree(blocks: NotionBlock[], readChildren: ChildReader, importImage: ImageImporter, options: { maxBlocks?: number; maxDepth?: number } = {}): Promise<{ html: string; images: Array<{ sourceUrl: string; storedUrl: string; blockId: string; placementIndex: number }> }> {
+export async function renderNotionBlockTree(blocks: NotionBlock[], readChildren: ChildReader, importImage: ImageImporter, options: { maxBlocks?: number; maxDepth?: number; defaultImageAlt?: string } = {}): Promise<{ html: string; images: Array<{ sourceUrl: string; storedUrl: string; blockId: string; placementIndex: number }> }> {
   const maxBlocks = options.maxBlocks ?? 1500;
   const maxDepth = options.maxDepth ?? 8;
   let count = 0;
@@ -265,13 +295,14 @@ export async function renderNotionBlockTree(blocks: NotionBlock[], readChildren:
       else if (type === "image") {
         const source = value.external && typeof value.external === "object" ? (value.external as Record<string, unknown>).url : value.file && typeof value.file === "object" ? (value.file as Record<string, unknown>).url : "";
         if (typeof source !== "string" || !source) throw new Error("A Notion image block has no usable image URL.");
-        const alt = richTextText(value.caption) || "";
-        const storedUrl = await importImage(source, block.id, alt, imageIndex++);
-        images.push({ sourceUrl: source, storedUrl, blockId: block.id, placementIndex: imageIndex - 1 });
+        const placementIndex = imageIndex++;
+        const alt = richTextText(value.caption) || (options.defaultImageAlt ? `${options.defaultImageAlt} — image ${placementIndex + 1}` : `Article image ${placementIndex + 1}`);
+        const storedUrl = await importImage(source, block.id, alt, placementIndex);
+        images.push({ sourceUrl: source, storedUrl, blockId: block.id, placementIndex });
         html = `<figure><img src="${escapeHtml(storedUrl)}" alt="${escapeHtml(alt)}" loading="lazy"></figure>`;
       } else if (type === "embed") {
         const url = typeof value.url === "string" ? value.url : "";
-        html = notionInstagramEmbed(url) || (() => { try { const parsed = new URL(url); return parsed.protocol === "https:" ? `<p><a href="${escapeHtml(parsed.toString())}">${text || escapeHtml(parsed.hostname)}</a>${children}</p>` : ""; } catch { return ""; } })();
+        html = notionSpotifyEmbed(url) || notionInstagramEmbed(url) || (() => { try { const parsed = new URL(url); return parsed.protocol === "https:" ? `<p><a href="${escapeHtml(parsed.toString())}">${text || escapeHtml(parsed.hostname)}</a>${children}</p>` : ""; } catch { return ""; } })();
       } else if (type === "bookmark" || type === "link_preview") {
         const url = typeof value.url === "string" ? value.url : "";
         try { const parsed = new URL(url); if (parsed.protocol === "https:") html = `<p><a href="${escapeHtml(parsed.toString())}">${text || escapeHtml(parsed.hostname)}</a>${children}</p>`; }

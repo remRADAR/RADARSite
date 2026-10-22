@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import {
-  EDITORIAL_PROPERTY_NAMES, buildNotionPageUpdates, cmsContentCollisions,
+  EDITORIAL_PROPERTY_NAMES, buildNotionPageUpdates, collectNotionPages, cmsContentCollisions,
   cmsSyncSnapshot, detectNotionCmsConflicts, deterministicCmsId, mapNotionPageToDraft,
   notionContentFingerprint, normalizeNotionPageId, readNotionProperty, renderNotionBlockTree, sameNotionPageRevision, secretMatches,
   validateEditorialSchema, validatePageAuthorization, type NotionBlock, type NotionDataSource, type NotionPage,
@@ -142,6 +142,9 @@ assert.deepEqual((updates[EDITORIAL_PROPERTY_NAMES.status] as { status: { name: 
 assert.deepEqual((updates[EDITORIAL_PROPERTY_NAMES.syncStatus] as { select: { name: string } }).select, { name: "Synced" });
 assert.equal((updates[EDITORIAL_PROPERTY_NAMES.canonicalUrl] as { url: string }).url, "https://radarcharts.net/ontheradar/articles/a-signal-from-lagos");
 assert.equal((updates[EDITORIAL_PROPERTY_NAMES.notionPageId] as { rich_text: Array<{ text: { content: string } }> }).rich_text[0].text.content, PAGE_ID);
+const collectedPages = await collectNotionPages(async (cursor) => cursor ? { results: [authorizedPage] } : { results: [authorizedPage], has_more: true, next_cursor: "next-page" });
+assert.equal(collectedPages.length, 2, "direct reads exhaust all source pages across cursors");
+await assert.rejects(() => collectNotionPages(async () => ({ results: [authorizedPage], has_more: true, next_cursor: "stuck-cursor" })), /invalid pagination cursor/);
 
 const paragraph: NotionBlock = { id: "block-paragraph", type: "paragraph", paragraph: { rich_text: text("A short story.") } };
 const heading: NotionBlock = { id: "block-heading", type: "heading_2", heading_2: { rich_text: text("The turning point") } };
@@ -150,6 +153,8 @@ const listTwo: NotionBlock = { id: "block-list-2", type: "bulleted_list_item", b
 const link: NotionBlock = { id: "block-link", type: "paragraph", paragraph: { rich_text: [{ type: "text", text: { content: "Source", link: { url: "https://example.org/source" } }, plain_text: "Source", href: "https://example.org/source" }] } };
 const unsafeLink: NotionBlock = { id: "block-unsafe", type: "paragraph", paragraph: { rich_text: [{ type: "text", text: { content: "unsafe", link: { url: "javascript:alert(1)" } }, plain_text: "unsafe", href: "javascript:alert(1)" }] } };
 const image: NotionBlock = { id: "block-image", type: "image", image: { external: { url: "https://files.example/image.png" }, caption: text("Cover image") } };
+const uncaptainedImage: NotionBlock = { id: "block-uncaptained-image", type: "image", image: { external: { url: "https://files.example/inline.png" }, caption: [] } };
+const spotifyEmbed: NotionBlock = { id: "block-spotify", type: "embed", embed: { url: "https://open.spotify.com/track/5kPyY6sIHR10CiIpIRjxM1?si=example" } };
 const nested: NotionBlock = { id: "block-toggle", type: "toggle", has_children: true, toggle: { rich_text: text("Additional context") } };
 const rendered = await renderNotionBlockTree([paragraph, heading, listOne, listTwo, link, unsafeLink, image, nested], async (id) => id === nested.id ? [paragraph] : [], async (_url, blockId) => `https://cdn.example/${blockId}.webp`);
 const renderedDraft = mapNotionPageToDraft(authorizedPage, dataSource, rendered.html);
@@ -168,8 +173,13 @@ assert.match(rendered.html, /<ul>\s*<li>First point<\/li>\s*<li>Second point<\/l
 assert.ok(rendered.html.includes('href="https://example.org/source"'));
 assert.ok(!rendered.html.includes("javascript:"));
 assert.ok(rendered.html.includes('src="https://cdn.example/block-image.webp"'));
+assert.ok(rendered.html.includes('alt="Cover image"'), "Notion image captions become descriptive alt text");
 assert.equal(rendered.images.length, 1);
 assert.ok(rendered.html.includes("Additional context"));
+const renderedMedia = await renderNotionBlockTree([paragraph, uncaptainedImage, spotifyEmbed], async () => [], async (_url, blockId) => `https://cdn.example/${blockId}.webp`, { defaultImageAlt: "Aye Lawa feature" });
+assert.ok(renderedMedia.html.includes('alt="Aye Lawa feature — image 1"'), "uncaptained images receive a title-scoped alt fallback");
+assert.ok(renderedMedia.html.includes('src="https://open.spotify.com/embed/track/5kPyY6sIHR10CiIpIRjxM1"'), "Spotify embed blocks become stable native player URLs");
+assert.ok(renderedMedia.html.includes("editorial-embed--spotify-track"), "Spotify track players receive the correct intrinsic-height wrapper");
 await assert.rejects(() => renderNotionBlockTree([{ id: "unsupported-only", type: "unsupported" }], async () => [], async () => ""), /no supported content blocks/);
 const rawMarkup: NotionBlock = { id: "block-raw-markup", type: "paragraph", paragraph: { rich_text: text("<script>alert(1)</script>") } };
 const escapedMarkup = await renderNotionBlockTree([rawMarkup], async () => [], async () => "");

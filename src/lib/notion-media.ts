@@ -123,7 +123,7 @@ function isMissingR2Object(error: unknown): boolean {
 
 export type ImportedNotionMedia = { id: string; url: string; key: string; checksum: string; contentType: string; size: number; width?: number; height?: number; blockId: string; sourceUrl: string };
 
-export async function importNotionImage(input: { url: string; pageId: string; blockId: string; alt?: string }): Promise<ImportedNotionMedia> {
+export async function importNotionImage(input: { url: string; pageId: string; blockId: string; alt?: string; persistRecord?: boolean }): Promise<ImportedNotionMedia> {
   const url = validateNotionImageUrl(input.url);
   const addresses = isIP(url.hostname) ? [{ address: url.hostname, family: isIP(url.hostname) }] : await lookup(url.hostname, { all: true, verbatim: true });
   if (!addresses.length || addresses.some((entry) => !isPublicAddress(entry.address))) throw new Error("Image source resolves to a non-public network address and was rejected.");
@@ -159,6 +159,6 @@ export async function importNotionImage(input: { url: string; pageId: string; bl
     storageKey: stored.key, deliveryUrl: stored.url, checksum, migrationStatus: "migrated",
     provenance: { pageId: input.pageId, blockId: input.blockId, alt: input.alt || "", sourceChecksum: conversion.sourceChecksum, sourceContentType: conversion.sourceMimeType, sourceBytes: conversion.sourceBytes, conversion: NOTION_WEBP_CONVERSION },
   };
-  await upsertMediaRecord(record);
+  if (input.persistRecord !== false) await upsertMediaRecord(record);
   return { id, url: stored.url, key: stored.key, checksum, contentType: "image/webp", size: conversion.body.byteLength, width: conversion.width, height: conversion.height, blockId: input.blockId, sourceUrl: safeSourceUrl };
 }
