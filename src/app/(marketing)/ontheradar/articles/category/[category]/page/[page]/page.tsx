@@ -7,8 +7,9 @@ import { readPublishedContent } from "@/lib/content-server";
 import { articleCategories, ARTICLES_PER_PAGE, categoryLabelFromSlug, categorySlug, pageCount, sortArticlesCurrentFirst } from "@/lib/article-taxonomy";
 import { publicSiteUrl, readPublicSiteOverrides, safeSocialImageUrl } from "@/lib/public-site";
 
-export const revalidate = 3600;
-export const dynamicParams = false;
+// Categories originate in live editorial records; do not freeze them at build.
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
 
 type Params = { category: string; page: string };
 

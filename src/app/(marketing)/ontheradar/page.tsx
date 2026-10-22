@@ -8,7 +8,8 @@ import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredD
 import { readPublishedContent } from "@/lib/content-server";
 import { normalizeEditorialRecord } from "@/lib/editorial-normalization";
 
-export const revalidate = 3600;
+// The editorial source is runtime Notion, with caching at the content layer.
+export const dynamic = "force-dynamic";
 
 export default async function OnTheRadarPage() {
   const { articles, magazine, radarProjects, events } = await readPublishedContent();

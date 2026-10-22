@@ -8,7 +8,8 @@ import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredD
 import { readPublishedContent } from "@/lib/content-server";
 import { recordsForEditorialType } from "@/lib/editorial-archives";
 
-export const revalidate = 3600;
+// The editorial catalogue must read the cached live Notion-backed source.
+export const dynamic = "force-dynamic";
 
 export default async function ArticlesPage() {
   const { articles } = await readPublishedContent();

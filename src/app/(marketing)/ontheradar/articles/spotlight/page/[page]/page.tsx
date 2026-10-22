@@ -6,8 +6,9 @@ import { readPublishedContent } from "@/lib/content-server";
 import { EDITORIAL_ARCHIVE_PAGE_SIZE, paginateRecords, parseArchivePage, recordsForEditorialType } from "@/lib/editorial-archives";
 import { buildPageMetadata } from "@/lib/seo";
 
-export const revalidate = 3600;
-export const dynamicParams = false;
+// Notion-backed content is cached at the data layer; render the archive live.
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: { params: Promise<{ page: string }> }) {
   const page = parseArchivePage((await params).page);
