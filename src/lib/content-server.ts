@@ -27,20 +27,36 @@ function notionDirectReadEnabled() {
 
 async function notionDirectJson<T>(url: string, init: RequestInit = {}): Promise<T> {
   const token = process.env.NOTION_API_KEY || "";
-  const response = await fetch(url, {
-    ...init,
-    cache: "no-store",
-    redirect: "error",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Notion-Version": "2026-03-11",
-      accept: "application/json",
-      ...(init.body ? { "content-type": "application/json" } : {}),
-      ...init.headers,
-    },
-  });
-  if (!response.ok) throw new Error(`Notion direct read failed with HTTP ${response.status}.`);
-  return await response.json() as T;
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const response = await fetch(url, {
+        ...init,
+        cache: "no-store",
+        redirect: "follow",
+        signal: init.signal || AbortSignal.timeout(15_000),
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Notion-Version": "2026-03-11",
+          accept: "application/json",
+          ...(init.body ? { "content-type": "application/json" } : {}),
+          ...init.headers,
+        },
+      });
+      if (!response.ok) {
+        if ((response.status === 429 || response.status >= 500) && attempt < 2) {
+          await new Promise((resolve) => setTimeout(resolve, 250 * 2 ** attempt));
+          continue;
+        }
+        throw new Error(`Notion direct read failed with HTTP ${response.status}.`);
+      }
+      return await response.json() as T;
+    } catch (error) {
+      lastError = error;
+      if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 250 * 2 ** attempt));
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error(String(lastError));
 }
 
 async function notionDirectChildren(blockId: string): Promise<NotionBlockResponse[]> {
@@ -67,10 +83,20 @@ async function readDirectNotionContent(): Promise<ContentCollections | null> {
   const dataSourceId = sync.normalizeNotionPageId(process.env.RADAR_NOTION_DATA_SOURCE_ID);
   if (!dataSourceId) throw new Error("RADAR_NOTION_DATA_SOURCE_ID is invalid.");
   const dataSource = await notionDirectJson<import("@/lib/notion-editorial-sync").NotionDataSource>(`https://api.notion.com/v1/data_sources/${encodeURIComponent(dataSourceId)}`);
-  const query = await notionDirectJson<{ results?: NotionPageResponse[]; has_more?: boolean; next_cursor?: string | null }>(`https://api.notion.com/v1/data_sources/${encodeURIComponent(dataSourceId)}/query`, { method: "POST", body: JSON.stringify({ page_size: 100 }) });
-  const pages = (query.results || []).filter((page) => sync.readNotionProperty(page, sync.EDITORIAL_PROPERTY_NAMES.publish) === true && ["Approved", "Publishing", "Published"].includes(String(sync.readNotionProperty(page, sync.EDITORIAL_PROPERTY_NAMES.status) || "")));
+  const pages: NotionPageResponse[] = [];
+  let cursor = "";
+  do {
+    const query = await notionDirectJson<{ results?: NotionPageResponse[]; has_more?: boolean; next_cursor?: string | null }>(`https://api.notion.com/v1/data_sources/${encodeURIComponent(dataSourceId)}/query`, {
+      method: "POST",
+      body: JSON.stringify({ page_size: 100, ...(cursor ? { start_cursor: cursor } : {}), sorts: [{ timestamp: "last_edited_time", direction: "descending" }] }),
+    });
+    pages.push(...(query.results || []));
+    cursor = query.has_more ? (query.next_cursor || "") : "";
+    if (pages.length > 10_000) throw new Error("Notion editorial data source exceeds the supported 10,000-page limit.");
+  } while (cursor);
+  const publishablePages = pages.filter((page) => sync.readNotionProperty(page, sync.EDITORIAL_PROPERTY_NAMES.publish) === true && ["Approved", "Publishing", "Published"].includes(String(sync.readNotionProperty(page, sync.EDITORIAL_PROPERTY_NAMES.status) || "")));
   const records: CmsRecord[] = [];
-  for (const page of pages) {
+  for (const page of publishablePages) {
     const pageId = sync.normalizeNotionPageId(page.id);
     if (!pageId) continue;
     const blocks = await notionDirectChildren(pageId);
