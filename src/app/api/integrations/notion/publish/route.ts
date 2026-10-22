@@ -235,7 +235,7 @@ export async function POST(request: NextRequest) {
     const imported = new Map<string, ImportedNotionMedia>();
     let rendered: Awaited<ReturnType<typeof renderNotionBlockTree>>;
     try { rendered = await renderNotionBlockTree(topLevelBlocks, (blockId) => notionChildren(blockId, notionToken), async (url, blockId, alt) => {
-      if (isDryRun || directMode) return validateNotionImageUrl(url).toString();
+      if (isDryRun) return validateNotionImageUrl(url).toString();
       let image: ImportedNotionMedia;
       try { image = await notionPublishRuntime.importNotionImage({ url, pageId, blockId, alt }); }
       catch {
@@ -264,7 +264,6 @@ export async function POST(request: NextRequest) {
     let featuredImage = "";
     if (featuredSource) {
       if (isDryRun) validateNotionImageUrl(featuredSource);
-      else if (directMode) featuredImage = featuredSource;
       else {
         try {
           const image = await notionPublishRuntime.importNotionImage({ url: featuredSource, pageId, blockId: "featured-image", alt: draft.title });
@@ -323,12 +322,57 @@ export async function POST(request: NextRequest) {
 
     if (directMode) {
       const directCmsId = deterministicCmsId(pageId);
-      await assertNotionSourceCurrent(page, permission.status, draft, rendered, dataSource, notionToken);
+      let directExpectedPage = await assertNotionSourceCurrent(page, permission.status, draft, rendered, dataSource, notionToken);
+      directExpectedPage = await updateNotionPage(pageId, dataSource, { status: "Publishing", syncStatus: "Syncing" }, notionToken);
+      const snapshot = await notionPublishRuntime.readContentWriteSnapshot();
+      const existing = findNotionCmsRecord(recordsIn(snapshot.content), pageId);
+      const incoming = toPublishedRecord(page, dataSource, rendered.html, existing, featuredImage);
+      incoming.id = directCmsId;
+      incoming.lastSyncedAt = new Date().toISOString();
+      const content = replaceCollection(snapshot.content, incoming, existing);
+      const written = await notionPublishRuntime.writeContentIfUnchanged(snapshot.revision, content);
+      if (!written) return json({ error: "Cloudflare content changed concurrently; retry after review.", code: "concurrent_cloudflare_content_update" }, { status: 409 });
+      const syncRun = `notion-publish:${pageId}`;
+      const desiredRelationships = new Map<string, Parameters<typeof notionPublishRuntime.upsertMediaRelationship>[0]>();
+      for (const [blockId, image] of imported) {
+        const featuredRole = blockId === "featured-image";
+        const placementIndex = featuredRole ? undefined : rendered.images.find((item) => item.blockId === blockId)?.placementIndex;
+        const relationship = {
+          mediaId: image.id, contentKey: `notion:${pageId}`, contentSourceProvider: "notion", contentSourceId: pageId,
+          role: featuredRole ? "featured" as const : "inline" as const,
+          ...(featuredRole ? {} : { placementIndex: placementIndex ?? 0 }),
+          sourceLocator: `notion:block:${blockId}`, migrationRunId: syncRun,
+          provenance: { mediaKey: image.key, checksum: image.checksum, sourceUrl: image.sourceUrl },
+        };
+        const id = createMediaRelationshipId(relationship);
+        desiredRelationships.set(id, { ...relationship, id });
+      }
+      try {
+        const existingRelationships = await notionPublishRuntime.listMediaRelationshipsByContent(`notion:${pageId}`);
+        for (const relation of existingRelationships) {
+          if (relation.role === "featured" && !featuredImage) continue;
+          if (!desiredRelationships.has(relation.id)) await notionPublishRuntime.deleteMediaRelationship(relation.id);
+        }
+        for (const relation of desiredRelationships.values()) await notionPublishRuntime.upsertMediaRelationship(relation);
+      } catch {
+        try { await updateNotionPage(pageId, dataSource, { syncStatus: "Failed" }, notionToken); } catch { /* preserve the successful content write for retry */ }
+        throw apiError("Cloudflare content was saved, but media association failed. Retry after checking R2.", 503, "media_relationship_failed");
+      }
+      try {
+        notionPublishRuntime.revalidateTag(notionPublishRuntime.contentCacheTag(), { expire: 0 });
+        notionPublishRuntime.revalidatePath(articlePath(incoming));
+        notionPublishRuntime.revalidatePath("/ontheradar/articles");
+        notionPublishRuntime.revalidatePath("/ontheradar");
+      } catch {
+        try { await updateNotionPage(pageId, dataSource, { syncStatus: "Failed" }, notionToken); } catch { /* preserve the successful content write for retry */ }
+        throw apiError("Cloudflare content was saved, but cache revalidation failed. Retry after checking deployment logs.", 503, "cache_revalidation_failed");
+      }
+      await assertNotionSourceCurrent(directExpectedPage, "Publishing", draft, rendered, dataSource, notionToken);
       const notionUpdated = await updateNotionPage(pageId, dataSource, {
         status: "Published", syncStatus: "Synced", cmsId: directCmsId, notionPageId: pageId,
-        canonicalUrl: draft.canonicalUrl || undefined, syncedAt: new Date().toISOString(),
+        canonicalUrl: incoming.canonicalUrl || draft.canonicalUrl || undefined, syncedAt: String(incoming.lastSyncedAt || new Date().toISOString()),
       }, notionToken);
-      return json({ ok: true, direct: true, pageId, cmsId: directCmsId, canonicalUrl: draft.canonicalUrl || "", notionUpdated: Boolean(notionUpdated) });
+      return json({ ok: true, direct: true, pageId, cmsId: directCmsId, canonicalUrl: incoming.canonicalUrl || draft.canonicalUrl || "", notionUpdated: Boolean(notionUpdated), importedImages: imported.size, cloudflareContentStored: true });
     }
 
     const cmsId = String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.cmsId) || "");

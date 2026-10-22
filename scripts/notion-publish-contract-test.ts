@@ -221,7 +221,7 @@ type ScenarioState = {
 let scenarioCounter = 0;
 
 async function withPublisherScenario(mode: PublishScenario, run: (context: { post: (dryRun?: boolean) => Promise<Response>; state: ScenarioState }) => Promise<void>) {
-  const oldEnvironment = Object.fromEntries(["RADAR_NOTION_PUBLISHING_ENABLED", "RADAR_NOTION_SYNC_SECRET", "NOTION_API_KEY", "RADAR_NOTION_DATA_SOURCE_ID"].map((key) => [key, process.env[key]]));
+  const oldEnvironment = Object.fromEntries(["RADAR_NOTION_PUBLISHING_ENABLED", "RADAR_NOTION_SYNC_SECRET", "NOTION_API_KEY", "RADAR_NOTION_DATA_SOURCE_ID", "RADAR_NOTION_DIRECT_READ_ENABLED"].map((key) => [key, process.env[key]]));
   const originalFetch = globalThis.fetch;
   const originalRuntime = { ...notionPublishRuntime };
   const state: ScenarioState = {
@@ -408,6 +408,17 @@ try {
     assert.equal(response.status, 200);
     assert.equal(state.importCalls, 1, "the uploaded file is imported into R2 as the featured image");
     assert.equal((state.content.articles[0] as CmsRecord).featuredImage, "https://cdn.example/featured-image.webp", "the CMS featured image is the R2 URL of the uploaded file");
+  });
+
+  await withPublisherScenario("success", async ({ post, state }) => {
+    process.env.RADAR_NOTION_DIRECT_READ_ENABLED = "true";
+    const response = await post();
+    assert.equal(response.status, 200);
+    const result = await response.json() as { direct: boolean; cloudflareContentStored: boolean };
+    assert.equal(result.direct, true);
+    assert.equal(result.cloudflareContentStored, true);
+    assert.equal(state.content.articles.length, 1, "direct mode writes the article to the Cloudflare content seam");
+    assert.equal((state.page.properties[EDITORIAL_PROPERTY_NAMES.status] as { status: { name: string } }).status.name, "Published");
   });
 
   await withPublisherScenario("success", async ({ post, state }) => {

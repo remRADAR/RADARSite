@@ -65,6 +65,32 @@ export async function getMediaObject(key: string) { const config = mediaStorageC
 export async function readMediaObjectBytes(key: string) { const object = await getMediaObject(key); return bodyToBuffer(object.Body as { transformToByteArray?: () => Promise<Uint8Array> } | undefined); }
 export async function deleteMediaObject(key: string) { const config = mediaStorageConfig(); await client(config).send(new DeleteObjectCommand({ Bucket: config.bucket, Key: key })); }
 
+export async function putStorageObject(input: { key: string; body: Uint8Array | Buffer; contentType: string; cacheControl?: string; ifMatch?: string; ifNoneMatch?: string; metadata?: Record<string, string> }) {
+  const config = mediaStorageConfig();
+  const response = await client(config).send(new PutObjectCommand({
+    Bucket: config.bucket,
+    Key: input.key,
+    Body: input.body,
+    ContentType: input.contentType,
+    CacheControl: input.cacheControl || "no-cache, no-store, max-age=0",
+    IfMatch: input.ifMatch,
+    IfNoneMatch: input.ifNoneMatch,
+    Metadata: input.metadata,
+  }));
+  return { key: input.key, etag: etag(response.ETag) || "" };
+}
+
+export async function readStorageObject(key: string) {
+  const object = await getMediaObject(key);
+  return { body: await bodyToBuffer(object.Body as { transformToByteArray?: () => Promise<Uint8Array> } | undefined), etag: etag(object.ETag) || "" };
+}
+
+export async function headStorageObject(key: string) {
+  const config = mediaStorageConfig();
+  const response = await client(config).send(new HeadObjectCommand({ Bucket: config.bucket, Key: key }));
+  return { key, etag: etag(response.ETag) || "", size: response.ContentLength || 0 };
+}
+
 export async function createWebpDerivatives(input: { source: Buffer; keyPrefix: string; width?: number; height?: number; quality?: number }) {
   const { default: sharp } = await import("sharp");
   const image = sharp(input.source, { failOn: "warning" });
