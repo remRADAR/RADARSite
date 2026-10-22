@@ -230,11 +230,12 @@ export async function POST(request: NextRequest) {
     if (!permission.ok) return json({ error: permission.error, code: "not_approved" }, { status: 409 });
 
     const isDryRun = input.dryRun === true;
+    const directMode = process.env.RADAR_NOTION_DIRECT_READ_ENABLED === "true";
     const topLevelBlocks = await notionChildren(pageId, notionToken);
     const imported = new Map<string, ImportedNotionMedia>();
     let rendered: Awaited<ReturnType<typeof renderNotionBlockTree>>;
     try { rendered = await renderNotionBlockTree(topLevelBlocks, (blockId) => notionChildren(blockId, notionToken), async (url, blockId, alt) => {
-      if (isDryRun) return validateNotionImageUrl(url).toString();
+      if (isDryRun || directMode) return validateNotionImageUrl(url).toString();
       let image: ImportedNotionMedia;
       try { image = await notionPublishRuntime.importNotionImage({ url, pageId, blockId, alt }); }
       catch {
@@ -263,6 +264,7 @@ export async function POST(request: NextRequest) {
     let featuredImage = "";
     if (featuredSource) {
       if (isDryRun) validateNotionImageUrl(featuredSource);
+      else if (directMode) featuredImage = featuredSource;
       else {
         try {
           const image = await notionPublishRuntime.importNotionImage({ url: featuredSource, pageId, blockId: "featured-image", alt: draft.title });
@@ -317,6 +319,16 @@ export async function POST(request: NextRequest) {
         },
         blockers, previewOnly: true,
       });
+    }
+
+    if (directMode) {
+      const directCmsId = deterministicCmsId(pageId);
+      await assertNotionSourceCurrent(page, permission.status, draft, rendered, dataSource, notionToken);
+      const notionUpdated = await updateNotionPage(pageId, dataSource, {
+        status: "Published", syncStatus: "Synced", cmsId: directCmsId, notionPageId: pageId,
+        canonicalUrl: draft.canonicalUrl || undefined, syncedAt: new Date().toISOString(),
+      }, notionToken);
+      return json({ ok: true, direct: true, pageId, cmsId: directCmsId, canonicalUrl: draft.canonicalUrl || "", notionUpdated: Boolean(notionUpdated) });
     }
 
     const cmsId = String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.cmsId) || "");

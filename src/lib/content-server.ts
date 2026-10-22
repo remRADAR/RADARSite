@@ -6,7 +6,7 @@ import { validateMediaRelationship, type ContentMediaRelationship } from "@/lib/
 import { databaseSql } from "@/lib/database";
 
 export const PUBLIC_CONTENT_CACHE_TAG = "radarsite-public-content";
-export const PUBLIC_CONTENT_REVALIDATE_SECONDS = 60 * 60;
+export const PUBLIC_CONTENT_REVALIDATE_SECONDS = process.env.RADAR_NOTION_DIRECT_READ_ENABLED === "true" ? 240 : 60 * 60;
 export const REMOVED_DEMO_ARTICLE_SLUGS = new Set(["luna-vale-after-midnight", "rooms-that-remember"]);
 
 export type CmsRecord = { id?: string; sourceId?: string; sourceUrl?: string; slug: string; path?: string; title?: string; name?: string; subtitle?: string; excerpt?: string; description?: string; body?: string; bodyHtml?: string; metaTitle?: string; metaDescription?: string; canonicalUrl?: string; socialImage?: string; noindex?: boolean; focusTopic?: string; status?: "draft" | "published" | "archived"; imageUrl?: string; featuredImage?: string; featuredImageAlt?: string; featuredImageCaption?: string; publishedAt?: string; date?: string; author?: string; editorialType?: "Press" | "Spotlight" | "Magazine" | "article" | "interview" | "spotlight" | "magazine"; magazineSubtype?: "Special Episode" | "Magazine Episode" | ""; projectSection?: string; section?: string; categories?: string[]; tags?: string[]; tagsSuggested?: string[]; tagsApproved?: string[]; migrationWarnings?: string[]; sourceExcerpt?: string; sourceExcerptSurface?: string; sourceArtistId?: string; sourceArtistName?: string; sourceSongId?: string; sourceSongName?: string; sourceReleaseId?: string; sourceReleaseName?: string; [key: string]: unknown };
@@ -16,6 +16,80 @@ export type ContentCollections = { artists: Artist[]; releases: Release[]; artic
 type ReadContentOptions = { fallbackToSnapshot?: boolean };
 const MAX_CONTENT_BYTES = 20 * 1024 * 1024;
 const mergedSnapshot = normalizeContent(mergedContentSnapshot);
+
+type NotionPageResponse = import("@/lib/notion-editorial-sync").NotionPage;
+type NotionBlockResponse = import("@/lib/notion-editorial-sync").NotionBlock;
+
+function notionDirectReadEnabled() {
+  return process.env.RADAR_NOTION_DIRECT_READ_ENABLED === "true" && Boolean(process.env.NOTION_API_KEY) && Boolean(process.env.RADAR_NOTION_DATA_SOURCE_ID);
+}
+
+async function notionDirectJson<T>(url: string, init: RequestInit = {}): Promise<T> {
+  const token = process.env.NOTION_API_KEY || "";
+  const response = await fetch(url, {
+    ...init,
+    cache: "no-store",
+    redirect: "error",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Notion-Version": "2026-03-11",
+      accept: "application/json",
+      ...(init.body ? { "content-type": "application/json" } : {}),
+      ...init.headers,
+    },
+  });
+  if (!response.ok) throw new Error(`Notion direct read failed with HTTP ${response.status}.`);
+  return await response.json() as T;
+}
+
+async function notionDirectChildren(blockId: string): Promise<NotionBlockResponse[]> {
+  const blocks: NotionBlockResponse[] = [];
+  let cursor = "";
+  do {
+    const query = new URLSearchParams({ page_size: "100" });
+    if (cursor) query.set("start_cursor", cursor);
+    const page = await notionDirectJson<{ results?: NotionBlockResponse[]; has_more?: boolean; next_cursor?: string | null }>(`https://api.notion.com/v1/blocks/${encodeURIComponent(blockId)}/children?${query}`);
+    blocks.push(...(page.results || []));
+    cursor = page.has_more ? (page.next_cursor || "") : "";
+    if (blocks.length > 1500) throw new Error("Notion article exceeds the supported 1,500-block limit.");
+  } while (cursor);
+  return blocks;
+}
+
+function directSlug(title: string) {
+  return title.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 180) || "notion-article";
+}
+
+async function readDirectNotionContent(): Promise<ContentCollections | null> {
+  if (!notionDirectReadEnabled()) return null;
+  const sync = await import("@/lib/notion-editorial-sync");
+  const dataSourceId = sync.normalizeNotionPageId(process.env.RADAR_NOTION_DATA_SOURCE_ID);
+  if (!dataSourceId) throw new Error("RADAR_NOTION_DATA_SOURCE_ID is invalid.");
+  const dataSource = await notionDirectJson<import("@/lib/notion-editorial-sync").NotionDataSource>(`https://api.notion.com/v1/data_sources/${encodeURIComponent(dataSourceId)}`);
+  const query = await notionDirectJson<{ results?: NotionPageResponse[]; has_more?: boolean; next_cursor?: string | null }>(`https://api.notion.com/v1/data_sources/${encodeURIComponent(dataSourceId)}/query`, { method: "POST", body: JSON.stringify({ page_size: 100 }) });
+  const pages = (query.results || []).filter((page) => sync.readNotionProperty(page, sync.EDITORIAL_PROPERTY_NAMES.publish) === true && ["Approved", "Publishing", "Published"].includes(String(sync.readNotionProperty(page, sync.EDITORIAL_PROPERTY_NAMES.status) || "")));
+  const records: CmsRecord[] = [];
+  for (const page of pages) {
+    const pageId = sync.normalizeNotionPageId(page.id);
+    if (!pageId) continue;
+    const blocks = await notionDirectChildren(pageId);
+    const rendered = await sync.renderNotionBlockTree(blocks, notionDirectChildren, async (url) => url);
+    const draft = sync.mapNotionPageToDraft(page, dataSource, rendered.html);
+    const slug = directSlug(draft.title);
+    const featuredImage = draft.featuredImageUploadUrl || sync.notionPageCoverUrl(page);
+    const canonicalUrl = draft.canonicalUrl || `https://radarcharts.net/ontheradar/articles/${slug}`;
+    records.push(cleanRecord({
+      id: sync.deterministicCmsId(pageId), sourceProvider: "notion", sourceId: pageId, sourceUrl: draft.notionUrl, notionPageId: pageId,
+      slug, path: `/ontheradar/articles/${slug}`, title: draft.title, excerpt: draft.excerpt, body: draft.body, bodyHtml: draft.bodyHtml,
+      metaTitle: draft.seoTitle, metaDescription: draft.seoDescription, canonicalUrl, socialImage: featuredImage,
+      imageUrl: featuredImage, featuredImage, featuredImageAlt: draft.title, publishedAt: draft.scheduledAt || page.last_edited_time || new Date().toISOString(), date: draft.scheduledAt || page.last_edited_time || new Date().toISOString(),
+      author: draft.author, tags: draft.tags, categories: [draft.projectSection || "RADARArticles"], featured: draft.featured, status: "published", editorialType: draft.editorialType, magazineSubtype: draft.magazineSubtype, projectSection: draft.projectSection,
+    }));
+  }
+  const notionIds = new Set(records.map((record) => record.sourceId));
+  const keepLegacy = (items: CmsRecord[]) => items.filter((item) => !(item.sourceProvider === "notion" || notionIds.has(item.sourceId || "")));
+  return { ...mergedSnapshot, articles: [...keepLegacy(mergedSnapshot.articles as CmsRecord[]), ...records] as Article[], magazine: keepLegacy(mergedSnapshot.magazine as CmsRecord[]) as MagazineStory[] };
+}
 
 export function hasContentDatabase() { return Boolean(process.env.DATABASE_URL); }
 function sql() { return databaseSql(); }
@@ -67,7 +141,16 @@ export async function countMediaRecords() { if (!hasContentDatabase()) return 0;
 function shouldUseMergedSnapshot(content: ContentCollections) { const demoSlugs = new Set(["north-star-release-note", "radar-sessions-season-two"]); return content.articles.length < mergedSnapshot.articles.length || content.articles.some((article) => demoSlugs.has(article.slug)); }
 
 async function readContentUncached({ fallbackToSnapshot = false }: ReadContentOptions = {}): Promise<ContentCollections> {
-  if (isProductionBuild() || !hasContentDatabase()) return mergedSnapshot;
+  if (isProductionBuild()) return mergedSnapshot;
+  if (notionDirectReadEnabled()) {
+    try {
+      const direct = await readDirectNotionContent();
+      if (direct) return normalizeContent(direct);
+    } catch (error) {
+      logContentReadError(error, "Direct Notion public read failed; trying the existing CMS source");
+    }
+  }
+  if (!hasContentDatabase()) return mergedSnapshot;
   try {
     await ensureContentTable();
     const rows = await sql()`SELECT content FROM studio_content WHERE id = 1 LIMIT 1` as { content: unknown }[];
