@@ -194,8 +194,8 @@ async function stageAsset(asset: ImageAsset, directory: string, apply: boolean):
   return { ...asset, sourceBytes: converted.sourceBytes, sourceContentType: converted.sourceMimeType, sourceSha256: converted.sourceChecksum, checksum: converted.checksum, key, deliveryUrl, outputBytes: converted.body.byteLength, status };
 }
 
-async function main() {
-  const { apply, keepTemp, manifestPath, pages } = parseArgs();
+export async function stageNotionMediaPages(input: { apply: boolean; keepTemp?: boolean; manifestPath?: string; pages: string[] }) {
+  const { apply, keepTemp = false, manifestPath = "notion-media-staging-manifest.json", pages } = input;
   if (apply) {
     required(process.env.R2_ACCOUNT_ID || "", "R2_ACCOUNT_ID");
     required(process.env.R2_BUCKET || "", "R2_BUCKET");
@@ -229,13 +229,15 @@ async function main() {
         cacheControl: "no-cache, no-store, max-age=0",
       });
     }
-    console.log(JSON.stringify({ ok: true, apply, pages, assetCount: assets.length, manifestPath, tempDirectory: keepTemp ? temp : undefined, assets: assets.map(({ pageId, blockId, role, placementIndex, sourceBytes, sourceContentType, sourceSha256, checksum, key, deliveryUrl, outputBytes, status }) => ({ pageId, blockId, role, placementIndex, sourceBytes, sourceContentType, sourceSha256, checksum, key, deliveryUrl, outputBytes, status })) }, null, 2));
+    return { ok: true, apply, pages, assetCount: assets.length, manifestPath, tempDirectory: keepTemp ? temp : undefined, assets: assets.map(({ pageId, blockId, role, placementIndex, sourceBytes, sourceContentType, sourceSha256, checksum, key, deliveryUrl, outputBytes, status }) => ({ pageId, blockId, role, placementIndex, sourceBytes, sourceContentType, sourceSha256, checksum, key, deliveryUrl, outputBytes, status })) };
   } finally {
     if (!keepTemp) await rm(temp, { recursive: true, force: true });
   }
 }
 
-main().catch((error) => {
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exitCode = 1;
-});
+if (process.argv[1]?.endsWith("stage-notion-media.ts")) {
+  stageNotionMediaPages({ ...parseArgs() }).then((result) => console.log(JSON.stringify(result, null, 2))).catch((error) => {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  });
+}
