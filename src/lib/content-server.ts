@@ -167,7 +167,8 @@ async function readContentUncached({ fallbackToSnapshot = false }: ReadContentOp
   }
   if (!hasContentDatabase()) return mergedSnapshot;
   try {
-    await ensureContentTable();
+    // Public reads must not create or alter the legacy CMS schema. A missing
+    // table follows the existing snapshot or error fallback below.
     const rows = await sql()`SELECT content FROM studio_content WHERE id = 1 LIMIT 1` as { content: unknown }[];
     if (!rows[0]?.content) return mergedSnapshot;
     const content = await hydrateMigratedMedia(normalizeContent(rows[0].content));
