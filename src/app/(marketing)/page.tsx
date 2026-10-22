@@ -6,10 +6,9 @@ import { ClientProof } from "@/components/marketing/ClientProof";
 import { CTASection } from "@/components/marketing/CTASection";
 import { getRecentEditorialPosts } from "@/lib/editorial-tree";
 
-// 5-minute ISR keeps the Editorial Tree fresh: a newly published article
-// appears on the homepage within minutes (Studio publishes also invalidate
-// the shared content cache tag immediately).
-export const revalidate = 300;
+// The homepage is sourced from the live Editorial Pipeline. Do not bake the
+// committed snapshot into the production landing page during a build.
+export const dynamic = "force-dynamic";
 
 export default async function LandingPage() {
   // The Editorial Tree: fetches the most recent published posts from the CMS.
