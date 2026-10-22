@@ -5,7 +5,7 @@ import mergedContentSnapshot from "@/data/merged-content.json";
 import { validateMediaRelationship, type ContentMediaRelationship } from "@/lib/media-relationships";
 import { databaseSql } from "@/lib/database";
 
-export const PUBLIC_CONTENT_CACHE_TAG = "radarsite-public-content";
+export const PUBLIC_CONTENT_CACHE_TAG = "radarsite-public-content-v2";
 export const PUBLIC_CONTENT_REVALIDATE_SECONDS = process.env.RADAR_NOTION_DIRECT_READ_ENABLED === "true" ? 240 : 60 * 60;
 export const REMOVED_DEMO_ARTICLE_SLUGS = new Set(["luna-vale-after-midnight", "rooms-that-remember"]);
 
@@ -168,7 +168,7 @@ export async function readContent(options?: ReadContentOptions) { return readCon
 const readCachedPublicContent = unstable_cache(async () => {
   const content = await readContentUncached({ fallbackToSnapshot: true });
   return gzipSync(JSON.stringify(content)).toString("base64");
-}, ["radarsite-public-content"], { revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS, tags: [PUBLIC_CONTENT_CACHE_TAG] });
+}, ["radarsite-public-content-v2"], { revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS, tags: [PUBLIC_CONTENT_CACHE_TAG] });
 export async function readPublicContent() {
   // Static builds always use the committed snapshot. Avoid invoking the runtime
   // cache, gzip, and JSON round-trip once per prerendered page and metadata pass.
