@@ -18,6 +18,7 @@
     "media-health:contract-test": "tsx scripts/media-health-contract-test.ts",
     "media-relationships:contract-test": "tsx scripts/media-relationships-contract-test.ts",
     "notion:media-webp-contract-test": "tsx scripts/notion-media-webp-contract-test.ts",
+    "notion:media-stage": "tsx scripts/stage-notion-media.ts",
     "postgres:adapter-contract-test": "tsx scripts/postgres-adapter-contract-test.ts",
     "test:e2e": "playwright test",
     "test:editorial-archives": "tsx scripts/editorial-archives-contract-test.ts",

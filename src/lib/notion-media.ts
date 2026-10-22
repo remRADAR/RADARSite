@@ -2,10 +2,11 @@ import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
 import { request as httpsRequest } from "node:https";
 import { createHash } from "node:crypto";
-import { checksumSha256, headMediaObject, mediaStorageConfig, mediaStorageDiagnostics, putMediaObject, validateMediaDeliveryUrl } from "@/lib/media-storage";
+import { checksumSha256, headMediaObject, mediaStorageConfig, mediaStorageDiagnostics, putMediaObject, readStorageObject, validateMediaDeliveryUrl } from "@/lib/media-storage";
 import { upsertMediaRecord, type ContentMediaRecord } from "@/lib/content-server";
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+export const NOTION_MEDIA_STAGING_MANIFEST_KEY = "content/notion-media-staging-v1.json";
 const ALLOWED_FORMATS: Record<string, { mime: string; extension: string }> = {
   jpeg: { mime: "image/jpeg", extension: "jpg" },
   png: { mime: "image/png", extension: "png" },
@@ -123,8 +124,76 @@ function isMissingR2Object(error: unknown): boolean {
 
 export type ImportedNotionMedia = { id: string; url: string; key: string; checksum: string; contentType: string; size: number; width?: number; height?: number; blockId: string; sourceUrl: string };
 
+type StagedManifestAsset = {
+  pageId: string;
+  blockId: string;
+  sourceUrlWithoutQuery: string;
+  sourceBytes: number;
+  sourceContentType: string;
+  sourceSha256: string;
+  checksum: string;
+  key: string;
+  deliveryUrl: string;
+  outputBytes: number;
+};
+type StagedManifest = { version: 1; assets: StagedManifestAsset[] };
+let stagedManifestPromise: Promise<StagedManifest | null> | undefined;
+
+function isMissingStorageObject(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const value = error as { name?: string; Code?: string; code?: string; $metadata?: { httpStatusCode?: number } };
+  return value.$metadata?.httpStatusCode === 404 || ["NotFound", "NoSuchKey", "NotFoundException"].includes(value.name || value.Code || value.code || "");
+}
+
+async function readStagedManifest(): Promise<StagedManifest | null> {
+  if (!stagedManifestPromise) {
+    stagedManifestPromise = readStorageObject(NOTION_MEDIA_STAGING_MANIFEST_KEY).then(({ body }) => {
+      const parsed = JSON.parse(body.toString("utf8")) as StagedManifest;
+      if (parsed.version !== 1 || !Array.isArray(parsed.assets)) throw new Error("Invalid Notion media staging manifest.");
+      return parsed;
+    }).catch((error) => {
+      if (isMissingStorageObject(error)) return null;
+      throw error;
+    });
+  }
+  return stagedManifestPromise;
+}
+
+function sourcePath(value: string): string {
+  const parsed = new URL(value);
+  return `${parsed.origin}${parsed.pathname}`;
+}
+
+async function stagedMedia(input: { url: URL; pageId: string; blockId: string; alt?: string }): Promise<ImportedNotionMedia | null> {
+  if (!notionR2ConfigurationReady()) return null;
+  const manifest = await readStagedManifest();
+  const sourceUrlWithoutQuery = sourcePath(input.url.toString());
+  const asset = manifest?.assets.find((candidate) => candidate.pageId === input.pageId && candidate.blockId === input.blockId && candidate.sourceUrlWithoutQuery === sourceUrlWithoutQuery);
+  if (!asset) return null;
+  if (!/^[a-f0-9]{64}$/.test(asset.checksum) || !/^notion\/assets\/[a-f0-9]{2}\/[a-f0-9]{64}\.webp$/.test(asset.key) || asset.key !== notionAssetKey(asset.checksum, "webp")) throw new Error("Invalid staged Notion media identity.");
+  const config = mediaStorageConfig();
+  const diagnostics = mediaStorageDiagnostics();
+  if (!diagnostics.accountIdFormatValid || !diagnostics.bucketMatchesTarget || !diagnostics.credentialsPresent || !diagnostics.endpointFormatValid || !config.publicBaseUrl) throw new Error("R2 is not configured for the RADARSite public media bucket.");
+  const stored = await headMediaObject(asset.key);
+  if (stored.contentType !== "image/webp" || stored.size !== asset.outputBytes || stored.metadata.checksum !== asset.checksum) throw new Error("Staged Notion media failed R2 integrity verification.");
+  const delivery = validateMediaDeliveryUrl({ key: asset.key, url: stored.url, config });
+  if (!delivery.ok || delivery.semantics !== "public-base" || stored.url !== asset.deliveryUrl) throw new Error("Staged Notion media has an invalid delivery URL.");
+  const id = `notion-media:${createHash("sha256").update(asset.key).digest("hex")}`;
+  const record: ContentMediaRecord = {
+    id, sourceProvider: "notion", sourceUrl: sourceUrlWithoutQuery, sourceId: asset.sourceSha256,
+    originalFilename: `${asset.checksum.slice(0, 16)}.webp`, mimeType: "image/webp", fileSize: asset.outputBytes,
+    storageProvider: stored.provider, storageBucket: stored.bucket, storageKey: stored.key, deliveryUrl: stored.url,
+    checksum: asset.checksum, migrationStatus: "migrated",
+    provenance: { pageId: input.pageId, blockId: input.blockId, alt: input.alt || "", sourceChecksum: asset.sourceSha256, sourceContentType: asset.sourceContentType, sourceBytes: asset.sourceBytes, conversion: NOTION_WEBP_CONVERSION, staged: true },
+  };
+  await upsertMediaRecord(record);
+  return { id, url: stored.url, key: stored.key, checksum: asset.checksum, contentType: "image/webp", size: asset.outputBytes, blockId: input.blockId, sourceUrl: sourceUrlWithoutQuery };
+}
+
 export async function importNotionImage(input: { url: string; pageId: string; blockId: string; alt?: string }): Promise<ImportedNotionMedia> {
   const url = validateNotionImageUrl(input.url);
+  const staged = await stagedMedia({ url, pageId: input.pageId, blockId: input.blockId, alt: input.alt });
+  if (staged) return staged;
   const addresses = isIP(url.hostname) ? [{ address: url.hostname, family: isIP(url.hostname) }] : await lookup(url.hostname, { all: true, verbatim: true });
   if (!addresses.length || addresses.some((entry) => !isPublicAddress(entry.address))) throw new Error("Image source resolves to a non-public network address and was rejected.");
   const { bytes: sourceBytes, contentType } = await responseBytes(url, addresses[0]);
