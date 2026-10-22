@@ -178,6 +178,17 @@ function shouldUseMergedSnapshot(content: ContentCollections) { const demoSlugs 
 
 async function readContentUncached({ fallbackToSnapshot = false }: ReadContentOptions = {}): Promise<ContentCollections> {
   if (isProductionBuild()) return mergedSnapshot;
+  if (usesCloudflareContentStore()) {
+    try {
+      const state = await readCloudflareContentState();
+      if (state) return normalizeContent(state.state.content);
+    }
+    catch (error) { logContentReadError(error, fallbackToSnapshot ? "Cloudflare content read failed; using committed snapshot" : "Cloudflare content read failed"); if (fallbackToSnapshot) return mergedSnapshot; throw error; }
+  }
+  // Notion file URLs are signed and expire. Once the Cloudflare content store
+  // is enabled, its published snapshot is authoritative because publishing
+  // has already replaced those URLs with permanent imported media URLs. Use a
+  // direct Notion read only as the fallback before the first shared snapshot.
   if (notionDirectReadEnabled()) {
     try {
       const direct = await readDirectNotionContent();
@@ -185,10 +196,6 @@ async function readContentUncached({ fallbackToSnapshot = false }: ReadContentOp
     } catch (error) {
       logContentReadError(error, "Direct Notion public read failed; trying the existing CMS source");
     }
-  }
-  if (usesCloudflareContentStore()) {
-    try { const state = await readCloudflareContentState(); return state ? normalizeContent(state.state.content) : mergedSnapshot; }
-    catch (error) { logContentReadError(error, fallbackToSnapshot ? "Cloudflare content read failed; using committed snapshot" : "Cloudflare content read failed"); if (fallbackToSnapshot) return mergedSnapshot; throw error; }
   }
   if (!hasContentDatabase()) return mergedSnapshot;
   try {
