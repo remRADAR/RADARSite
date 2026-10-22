@@ -5,6 +5,7 @@ import mergedContentSnapshot from "@/data/merged-content.json";
 import { validateMediaRelationship, type ContentMediaRelationship } from "@/lib/media-relationships";
 import { databaseSql } from "@/lib/database";
 import { cloudflareContentStoreConfigured, cloudflareContentStoreEnabled, createCloudflareContentState, isCloudflareConditionalWriteConflict, readCloudflareContentState, writeCloudflareContentState } from "@/lib/cloudflare-content-store";
+import { mediaStorageConfig } from "@/lib/media-storage";
 
 export const PUBLIC_CONTENT_CACHE_TAG = "radarsite-public-content-v2";
 export const PUBLIC_CONTENT_REVALIDATE_SECONDS = process.env.RADAR_NOTION_DIRECT_READ_ENABLED === "true" ? 240 : 60 * 60;
@@ -82,6 +83,25 @@ async function readDirectNotionContent(): Promise<ContentCollections | null> {
   const sync = await import("@/lib/notion-editorial-sync");
   const dataSourceId = sync.normalizeNotionPageId(process.env.RADAR_NOTION_DATA_SOURCE_ID);
   if (!dataSourceId) throw new Error("RADAR_NOTION_DATA_SOURCE_ID is invalid.");
+  const importedMedia = new Map<string, string>();
+  if (cloudflareContentStoreConfigured()) {
+    try {
+      const state = await readCloudflareContentState();
+      const publicBaseUrl = mediaStorageConfig().publicBaseUrl;
+      if (state && publicBaseUrl) {
+        for (const relationship of state.state.relationships) {
+          if (!relationship || typeof relationship !== "object") continue;
+          const item = relationship as { contentKey?: unknown; sourceLocator?: unknown; provenance?: unknown };
+          const provenance = item.provenance && typeof item.provenance === "object" ? item.provenance as { mediaKey?: unknown } : {};
+          if (typeof item.contentKey !== "string" || typeof item.sourceLocator !== "string" || typeof provenance.mediaKey !== "string") continue;
+          const key = provenance.mediaKey.replace(/^\/+/, "");
+          importedMedia.set(`${item.contentKey}:${item.sourceLocator}`, `${publicBaseUrl}/${key.split("/").map(encodeURIComponent).join("/")}`);
+        }
+      }
+    } catch (error) {
+      logContentReadError(error, "Cloudflare media lookup failed; preserving live Notion image URLs");
+    }
+  }
   const dataSource = await notionDirectJson<import("@/lib/notion-editorial-sync").NotionDataSource>(`https://api.notion.com/v1/data_sources/${encodeURIComponent(dataSourceId)}`);
   const pages: NotionPageResponse[] = [];
   let cursor = "";
@@ -100,10 +120,10 @@ async function readDirectNotionContent(): Promise<ContentCollections | null> {
     const pageId = sync.normalizeNotionPageId(page.id);
     if (!pageId) continue;
     const blocks = await notionDirectChildren(pageId);
-    const rendered = await sync.renderNotionBlockTree(blocks, notionDirectChildren, async (url) => url);
+    const rendered = await sync.renderNotionBlockTree(blocks, notionDirectChildren, async (url, blockId) => importedMedia.get(`notion:${pageId}:notion:block:${blockId}`) || url);
     const draft = sync.mapNotionPageToDraft(page, dataSource, rendered.html);
     const slug = directSlug(draft.title);
-    const featuredImage = draft.featuredImageUploadUrl || sync.notionPageCoverUrl(page);
+    const featuredImage = importedMedia.get(`notion:${pageId}:notion:block:featured-image`) || draft.featuredImageUploadUrl || sync.notionPageCoverUrl(page);
     const canonicalUrl = draft.canonicalUrl || `https://radarcharts.net/ontheradar/articles/${slug}`;
     records.push(cleanRecord({
       id: sync.deterministicCmsId(pageId), sourceProvider: "notion", sourceId: pageId, sourceUrl: draft.notionUrl, notionPageId: pageId,
@@ -177,18 +197,7 @@ export async function countMediaRecords() { if (!hasContentDatabase()) return 0;
 function shouldUseMergedSnapshot(content: ContentCollections) { const demoSlugs = new Set(["north-star-release-note", "radar-sessions-season-two"]); return content.articles.length < mergedSnapshot.articles.length || content.articles.some((article) => demoSlugs.has(article.slug)); }
 
 async function readContentUncached({ fallbackToSnapshot = false }: ReadContentOptions = {}): Promise<ContentCollections> {
-  if (isProductionBuild()) return mergedSnapshot;
-  if (usesCloudflareContentStore()) {
-    try {
-      const state = await readCloudflareContentState();
-      if (state) return normalizeContent(state.state.content);
-    }
-    catch (error) { logContentReadError(error, fallbackToSnapshot ? "Cloudflare content read failed; using committed snapshot" : "Cloudflare content read failed"); if (fallbackToSnapshot) return mergedSnapshot; throw error; }
-  }
-  // Notion file URLs are signed and expire. Once the Cloudflare content store
-  // is enabled, its published snapshot is authoritative because publishing
-  // has already replaced those URLs with permanent imported media URLs. Use a
-  // direct Notion read only as the fallback before the first shared snapshot.
+  if (isProductionBuild() && !notionDirectReadEnabled()) return mergedSnapshot;
   if (notionDirectReadEnabled()) {
     try {
       const direct = await readDirectNotionContent();
@@ -219,7 +228,7 @@ const readCachedPublicContent = unstable_cache(async () => {
 export async function readPublicContent() {
   // Static builds always use the committed snapshot. Avoid invoking the runtime
   // cache, gzip, and JSON round-trip once per prerendered page and metadata pass.
-  if (isProductionBuild()) return mergedSnapshot;
+  if (isProductionBuild() && !notionDirectReadEnabled()) return mergedSnapshot;
   const encoded = await readCachedPublicContent();
   return normalizeContent(JSON.parse(gunzipSync(Buffer.from(encoded, "base64")).toString("utf8")));
 }
