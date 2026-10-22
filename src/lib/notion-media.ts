@@ -168,7 +168,7 @@ async function stagedMedia(input: { url: URL; pageId: string; blockId: string; a
   if (!notionR2ConfigurationReady()) return null;
   const manifest = await readStagedManifest();
   const sourceUrlWithoutQuery = sourcePath(input.url.toString());
-  const asset = manifest?.assets.find((candidate) => candidate.pageId === input.pageId && candidate.blockId === input.blockId && candidate.sourceUrlWithoutQuery === sourceUrlWithoutQuery);
+  const asset = manifest?.assets.find((candidate) => candidate.pageId === input.pageId && candidate.blockId === input.blockId);
   if (!asset) return null;
   if (!/^[a-f0-9]{64}$/.test(asset.checksum) || !/^notion\/assets\/[a-f0-9]{2}\/[a-f0-9]{64}\.webp$/.test(asset.key) || asset.key !== notionAssetKey(asset.checksum, "webp")) throw new Error("Invalid staged Notion media identity.");
   const config = mediaStorageConfig();
