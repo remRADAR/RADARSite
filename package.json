@@ -19,6 +19,7 @@
     "media-relationships:contract-test": "tsx scripts/media-relationships-contract-test.ts",
     "notion:media-webp-contract-test": "tsx scripts/notion-media-webp-contract-test.ts",
     "notion:media-scope-contract-test": "tsx scripts/notion-media-staging-scope-contract-test.ts",
+    "notion:image-upload-contract-test": "node scripts/notion-image-upload-contract-test.mjs",
     "notion:media-stage": "tsx scripts/stage-notion-media.ts",
     "postgres:adapter-contract-test": "tsx scripts/postgres-adapter-contract-test.ts",
     "test:e2e": "playwright test",
