@@ -41,7 +41,7 @@ const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const MAX_BLOCKS = 1500;
 const NOTION_TOKEN = process.env.NOTION_API_KEY || "";
 const DATA_SOURCE_ID = process.env.RADAR_NOTION_DATA_SOURCE_ID || "";
-const DEFAULT_PAGES = NOTION_MEDIA_STAGING_PAGES;
+const DEFAULT_PAGES: string[] = [...NOTION_MEDIA_STAGING_PAGES];
 
 function usage(): never {
   console.error(`Usage: npm run notion:media-stage -- [--apply] [--keep-temp] [--manifest <path>] <page-id> [...page-id]
