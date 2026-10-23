@@ -3,8 +3,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 import { convertNotionImageToWebp, notionAssetKey, validateNotionImageUrl } from "../src/lib/notion-media";
-import { putMediaObject, putStorageObject } from "../src/lib/media-storage";
+import { putMediaObject, putStorageObject, readStorageObject } from "../src/lib/media-storage";
 import { NOTION_MEDIA_STAGING_MANIFEST_KEY } from "../src/lib/notion-media";
+import { NOTION_MEDIA_STAGING_PAGES } from "../src/lib/notion-media-scope";
 import { EDITORIAL_PROPERTY_NAMES, NOTION_API_VERSION, notionPageCoverUrl, readNotionProperty, type NotionBlock, type NotionPage } from "../src/lib/notion-editorial-sync";
 
 type ImageAsset = {
@@ -40,15 +41,12 @@ const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const MAX_BLOCKS = 1500;
 const NOTION_TOKEN = process.env.NOTION_API_KEY || "";
 const DATA_SOURCE_ID = process.env.RADAR_NOTION_DATA_SOURCE_ID || "";
-const DEFAULT_PAGES = [
-  "3ff58434-c727-81c6-acc7-e3a3e98cf593", // 7UAD
-  "3fb58434-c727-8193-ab8e-dfa1d75a6ab2", // Halver and Duncan Mighty
-];
+const DEFAULT_PAGES = NOTION_MEDIA_STAGING_PAGES;
 
 function usage(): never {
   console.error(`Usage: npm run notion:media-stage -- [--apply] [--keep-temp] [--manifest <path>] <page-id> [...page-id]
 
-Defaults to the two currently affected article pages when no page IDs are supplied.
+Defaults to the six current RADARCharts Editorial Pipeline article pages when no page IDs are supplied.
 Without --apply, downloads and validates images but does not write to R2.
 Required environment: NOTION_API_KEY, RADAR_NOTION_DATA_SOURCE_ID, R2_ACCOUNT_ID, R2_BUCKET,
 R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, and R2_PUBLIC_BASE_URL for --apply.`);
@@ -76,6 +74,35 @@ function parseArgs() {
 function required(value: string, name: string): string {
   if (!value) throw new Error(`${name}_REQUIRED`);
   return value;
+}
+
+function isMissingManifest(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const value = error as { name?: string; Code?: string; code?: string; $metadata?: { httpStatusCode?: number } };
+  return value.$metadata?.httpStatusCode === 404 || ["NoSuchKey", "NotFound", "NotFoundException"].includes(value.name || value.Code || value.code || "");
+}
+
+async function readExistingManifest(): Promise<Manifest | null> {
+  try {
+    const { body } = await readStorageObject(NOTION_MEDIA_STAGING_MANIFEST_KEY);
+    const parsed = JSON.parse(body.toString("utf8")) as Manifest;
+    if (parsed.version !== 1 || !Array.isArray(parsed.pages) || !Array.isArray(parsed.assets)) throw new Error("NOTION_MEDIA_MANIFEST_INVALID");
+    return parsed;
+  } catch (error) {
+    if (isMissingManifest(error)) return null;
+    throw error;
+  }
+}
+
+function mergeManifest(existing: Manifest | null, incoming: Manifest): Manifest {
+  if (!existing) return incoming;
+  const replacements = new Set(incoming.assets.map((asset) => `${asset.pageId}:${asset.blockId}`));
+  const preserved = existing.assets.filter((asset) => !replacements.has(`${asset.pageId}:${asset.blockId}`));
+  return {
+    ...incoming,
+    pages: [...new Set([...existing.pages, ...incoming.pages])],
+    assets: [...preserved, ...incoming.assets],
+  };
 }
 
 async function notionJson<T>(url: string): Promise<T> {
@@ -219,9 +246,11 @@ export async function stageNotionMediaPages(input: { apply: boolean; keepTemp?: 
       }
     }
     const manifestAssets = assets.map((asset) => Object.fromEntries(Object.entries(asset).filter(([key]) => key !== "sourceUrl")) as Omit<StagedAsset, "sourceUrl">);
-    const manifest: Manifest = { version: 1, generatedAt: new Date().toISOString(), apply, pages, assets: manifestAssets };
+    let manifest: Manifest = { version: 1, generatedAt: new Date().toISOString(), apply, pages, assets: manifestAssets };
     await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, { mode: 0o600 });
     if (apply) {
+      manifest = mergeManifest(await readExistingManifest(), manifest);
+      await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, { mode: 0o600 });
       await putStorageObject({
         key: NOTION_MEDIA_STAGING_MANIFEST_KEY,
         body: Buffer.from(JSON.stringify(manifest)),

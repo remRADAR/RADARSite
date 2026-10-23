@@ -1,6 +1,7 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { rateLimit } from "@/lib/request-security";
+import { NOTION_MEDIA_STAGING_PAGES } from "@/lib/notion-media-scope";
 import { stageNotionMediaPages } from "../../../../../../scripts/stage-notion-media";
 
 export const dynamic = "force-dynamic";
@@ -8,10 +9,6 @@ export const runtime = "nodejs";
 
 const MAX_REQUEST_BYTES = 2 * 1024;
 const MAX_REQUESTS_PER_MINUTE = 2;
-const AFFECTED_PAGE_IDS = [
-  "3ff58434-c727-81c6-acc7-e3a3e98cf593",
-  "3fb58434-c727-8193-ab8e-dfa1d75a6ab2",
-] as const;
 
 function json(data: unknown, init?: ResponseInit) {
   const response = NextResponse.json(data, init);
@@ -45,8 +42,8 @@ export async function POST(request: NextRequest) {
   if (!bearerMatches(request)) return json({ error: "Integration authorization required.", code: "unauthorized" }, { status: 401 });
   try {
     const payload = await readBody(request);
-    if (Object.keys(payload).length > 0) return json({ error: "This endpoint stages only the two approved affected article pages.", code: "fixed_scope" }, { status: 400 });
-    const result = await stageNotionMediaPages({ apply: true, keepTemp: false, manifestPath: "/tmp/notion-media-staging-manifest.json", pages: [...AFFECTED_PAGE_IDS] });
+    if (Object.keys(payload).length > 0) return json({ error: "This endpoint stages only the six configured editorial article pages.", code: "fixed_scope" }, { status: 400 });
+    const result = await stageNotionMediaPages({ apply: true, keepTemp: false, manifestPath: "/tmp/notion-media-staging-manifest.json", pages: [...NOTION_MEDIA_STAGING_PAGES] });
     return json({ ok: true, pages: result.pages, assetCount: result.assetCount, manifestKey: "content/notion-media-staging-v1.json", assets: result.assets });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
