@@ -21,7 +21,7 @@ async function main() {
     readFile("scripts/stage-notion-media.ts", "utf8"),
   ]);
   assert.match(route, /pages:\s*\[\.\.\.NOTION_MEDIA_STAGING_PAGES\]/, "the protected endpoint must use the shared fixed scope");
-  assert.match(script, /const DEFAULT_PAGES = NOTION_MEDIA_STAGING_PAGES;/, "the CLI must use the same fixed scope by default");
+  assert.match(script, /const DEFAULT_PAGES: string\[\] = \[\.\.\.NOTION_MEDIA_STAGING_PAGES\];/, "the CLI must use the same fixed scope by default");
   assert.match(script, /function mergeManifest\(/, "applied staging must preserve existing manifest mappings");
 
   console.log(JSON.stringify({ pageCount: NOTION_MEDIA_STAGING_PAGES.length, sharedScope: true, manifestMerge: true }, null, 2));
