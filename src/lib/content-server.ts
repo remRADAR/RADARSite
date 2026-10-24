@@ -2,10 +2,11 @@ import { unstable_cache } from "next/cache";
 import { gunzipSync, gzipSync } from "node:zlib";
 import type { Artist, Article, Event, MagazineStory, RadarProject, Release } from "@/lib/ia-content";
 import mergedContentSnapshot from "@/data/merged-content.json";
-import { validateMediaRelationship, type ContentMediaRelationship } from "@/lib/media-relationships";
+import { createMediaRelationshipId, validateMediaRelationship, type ContentMediaRelationship } from "@/lib/media-relationships";
 import { databaseSql } from "@/lib/database";
 import { cloudflareContentStoreConfigured, cloudflareContentStoreEnabled, createCloudflareContentState, isCloudflareConditionalWriteConflict, readCloudflareContentState, writeCloudflareContentState } from "@/lib/cloudflare-content-store";
 import { mediaStorageConfig } from "@/lib/media-storage";
+import type { ImportedNotionMedia } from "@/lib/notion-media";
 
 export const PUBLIC_CONTENT_CACHE_TAG = "radarsite-public-content-v2";
 export const PUBLIC_CONTENT_REVALIDATE_SECONDS = process.env.RADAR_NOTION_DIRECT_READ_ENABLED === "true" ? 240 : 60 * 60;
@@ -83,7 +84,7 @@ async function readDirectNotionContent(): Promise<ContentCollections | null> {
   const sync = await import("@/lib/notion-editorial-sync");
   const dataSourceId = sync.normalizeNotionPageId(process.env.RADAR_NOTION_DATA_SOURCE_ID);
   if (!dataSourceId) throw new Error("RADAR_NOTION_DATA_SOURCE_ID is invalid.");
-  const importedMedia = new Map<string, string>();
+  const importedMedia = new Map<string, ImportedNotionMedia>();
   if (cloudflareContentStoreConfigured()) {
     try {
       const state = await readCloudflareContentState();
@@ -91,17 +92,38 @@ async function readDirectNotionContent(): Promise<ContentCollections | null> {
       if (state && publicBaseUrl) {
         for (const relationship of state.state.relationships) {
           if (!relationship || typeof relationship !== "object") continue;
-          const item = relationship as { contentKey?: unknown; sourceLocator?: unknown; provenance?: unknown };
-          const provenance = item.provenance && typeof item.provenance === "object" ? item.provenance as { mediaKey?: unknown } : {};
+          const item = relationship as { contentKey?: unknown; sourceLocator?: unknown; mediaId?: unknown; provenance?: unknown };
+          const provenance = item.provenance && typeof item.provenance === "object" ? item.provenance as { mediaKey?: unknown; checksum?: unknown; sourceUrl?: unknown } : {};
           if (typeof item.contentKey !== "string" || typeof item.sourceLocator !== "string" || typeof provenance.mediaKey !== "string") continue;
           const key = provenance.mediaKey.replace(/^\/+/, "");
-          importedMedia.set(`${item.contentKey}:${item.sourceLocator}`, `${publicBaseUrl}/${key.split("/").map(encodeURIComponent).join("/")}`);
+          const locator = `${item.contentKey}:${item.sourceLocator}`;
+          importedMedia.set(locator, {
+            id: String(item.mediaId || ""),
+            url: `${publicBaseUrl}/${key.split("/").map(encodeURIComponent).join("/")}`,
+            key,
+            checksum: String(provenance.checksum || ""),
+            contentType: "image/webp",
+            size: 0,
+            blockId: String(item.sourceLocator).replace(/^notion:block:/, ""),
+            sourceUrl: String(provenance.sourceUrl || ""),
+          });
         }
       }
     } catch (error) {
-      logContentReadError(error, "Cloudflare media lookup failed; preserving live Notion image URLs");
+      throw new Error(`Cloudflare media lookup failed; refusing to serve untracked Notion image URLs: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
+  const newlyImported = new Map<string, ImportedNotionMedia>();
+  const newlyImportedPlacement = new Map<string, number>();
+  const notionMedia = await import("@/lib/notion-media");
+  const resolveImage = async (pageId: string, url: string, blockId: string, alt: string) => {
+    const locator = `notion:${pageId}:notion:block:${blockId}`;
+    const existing = importedMedia.get(locator) || newlyImported.get(locator);
+    if (existing) return existing;
+    const imported = await notionMedia.importNotionImage({ url, pageId, blockId, alt });
+    newlyImported.set(locator, imported);
+    return imported;
+  };
   const dataSource = await notionDirectJson<import("@/lib/notion-editorial-sync").NotionDataSource>(`https://api.notion.com/v1/data_sources/${encodeURIComponent(dataSourceId)}`);
   const pages: NotionPageResponse[] = [];
   let cursor = "";
@@ -120,10 +142,14 @@ async function readDirectNotionContent(): Promise<ContentCollections | null> {
     const pageId = sync.normalizeNotionPageId(page.id);
     if (!pageId) continue;
     const blocks = await notionDirectChildren(pageId);
-    const rendered = await sync.renderNotionBlockTree(blocks, notionDirectChildren, async (url, blockId) => importedMedia.get(`notion:${pageId}:notion:block:${blockId}`) || url);
+    const rendered = await sync.renderNotionBlockTree(blocks, notionDirectChildren, async (url, blockId, alt) => (await resolveImage(pageId, url, blockId, alt || "RADARCharts article image")).url);
+    for (const image of rendered.images) newlyImportedPlacement.set(`notion:${pageId}:notion:block:${image.blockId}`, image.placementIndex);
     const draft = sync.mapNotionPageToDraft(page, dataSource, rendered.html);
     const slug = directSlug(draft.title);
-    const featuredImage = importedMedia.get(`notion:${pageId}:notion:block:featured-image`) || draft.featuredImageUploadUrl || sync.notionPageCoverUrl(page);
+    const coverUrl = sync.notionPageCoverUrl(page);
+    const featuredSource = draft.featuredImageUploadUrl || coverUrl;
+    const featured = featuredSource ? await resolveImage(pageId, featuredSource, "featured-image", draft.title) : undefined;
+    const featuredImage = featured?.url || "";
     const canonicalUrl = draft.canonicalUrl || `https://radarcharts.net/ontheradar/articles/${slug}`;
     records.push(cleanRecord({
       id: sync.deterministicCmsId(pageId), sourceProvider: "notion", sourceId: pageId, sourceUrl: draft.notionUrl, notionPageId: pageId,
@@ -132,6 +158,26 @@ async function readDirectNotionContent(): Promise<ContentCollections | null> {
       imageUrl: featuredImage, featuredImage, featuredImageAlt: draft.title, publishedAt: draft.scheduledAt || page.last_edited_time || new Date().toISOString(), date: draft.scheduledAt || page.last_edited_time || new Date().toISOString(),
       author: draft.author, tags: draft.tags, categories: [draft.projectSection || "RADARArticles"], featured: draft.featured, status: "published", editorialType: draft.editorialType, magazineSubtype: draft.magazineSubtype, projectSection: draft.projectSection,
     }));
+  }
+  for (const [locator, image] of newlyImported) {
+    const match = locator.match(/^notion:([^:]+):notion:block:(.+)$/);
+    if (!match) continue;
+    const [, pageId, blockId] = match;
+    const isFeatured = blockId === "featured-image";
+    const relationship = {
+      id: "",
+      mediaId: image.id,
+      contentKey: `notion:${pageId}`,
+      contentSourceProvider: "notion",
+      contentSourceId: pageId,
+      role: isFeatured ? "featured" as const : "inline" as const,
+      ...(isFeatured ? {} : { placementIndex: newlyImportedPlacement.get(locator) ?? 0 }),
+      sourceLocator: `notion:block:${blockId}`,
+      migrationRunId: `notion-direct-read:${pageId}`,
+      provenance: { mediaKey: image.key, checksum: image.checksum, sourceUrl: image.sourceUrl },
+    };
+    relationship.id = createMediaRelationshipId(relationship);
+    await upsertMediaRelationship(relationship);
   }
   const notionIds = new Set(records.map((record) => record.sourceId));
   const keepLegacy = (items: CmsRecord[]) => items.filter((item) => !(item.sourceProvider === "notion" || notionIds.has(item.sourceId || "")));
@@ -156,7 +202,15 @@ export function normalizeContent(input: unknown): ContentCollections { const val
 export async function ensureContentTable() { await sql()`CREATE TABLE IF NOT EXISTS studio_content (id integer PRIMARY KEY, content jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`; }
 export async function ensureMediaTable() { await sql()`CREATE TABLE IF NOT EXISTS content_media (id text PRIMARY KEY, content_id text, source_provider text, source_url text, source_id text, original_filename text, mime_type text, file_size bigint, width integer, height integer, storage_provider text NOT NULL, storage_bucket text NOT NULL, storage_key text NOT NULL UNIQUE, delivery_url text, checksum text, migration_status text NOT NULL, provenance jsonb NOT NULL DEFAULT '{}'::jsonb, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now())`; }
 export async function ensureMediaRelationshipsTable() { await ensureMediaTable(); await sql()`CREATE TABLE IF NOT EXISTS content_media_relationships (id text PRIMARY KEY, media_id text NOT NULL REFERENCES content_media(id) ON DELETE CASCADE, content_key text NOT NULL, content_source_provider text, content_source_id text, role text NOT NULL CHECK (role IN ('featured', 'inline')), placement_index integer, source_locator text, migration_run_id text NOT NULL, provenance jsonb NOT NULL DEFAULT '{}'::jsonb, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now(), CHECK ((role = 'featured' AND placement_index IS NULL) OR (role = 'inline' AND placement_index IS NOT NULL AND placement_index >= 0)) )`; await sql()`CREATE UNIQUE INDEX IF NOT EXISTS content_media_relationships_identity_idx ON content_media_relationships (media_id, content_key, role, COALESCE(placement_index, -1))`; await sql()`CREATE UNIQUE INDEX IF NOT EXISTS content_media_relationships_featured_idx ON content_media_relationships (content_key) WHERE role = 'featured'`; }
-export async function upsertMediaRecord(record: ContentMediaRecord) { await ensureMediaTable(); await sql()`INSERT INTO content_media (id, content_id, source_provider, source_url, source_id, original_filename, mime_type, file_size, width, height, storage_provider, storage_bucket, storage_key, delivery_url, checksum, migration_status, provenance, updated_at) VALUES (${record.id}, ${record.contentId || null}, ${record.sourceProvider || null}, ${record.sourceUrl || null}, ${record.sourceId || null}, ${record.originalFilename || null}, ${record.mimeType || null}, ${record.fileSize || null}, ${record.width || null}, ${record.height || null}, ${record.storageProvider}, ${record.storageBucket}, ${record.storageKey}, ${record.deliveryUrl || null}, ${record.checksum || null}, ${record.migrationStatus}, ${JSON.stringify(record.provenance || {})}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET content_id = EXCLUDED.content_id, source_provider = EXCLUDED.source_provider, source_url = EXCLUDED.source_url, source_id = EXCLUDED.source_id, original_filename = EXCLUDED.original_filename, mime_type = EXCLUDED.mime_type, file_size = EXCLUDED.file_size, width = EXCLUDED.width, height = EXCLUDED.height, storage_provider = EXCLUDED.storage_provider, storage_bucket = EXCLUDED.storage_bucket, storage_key = EXCLUDED.storage_key, delivery_url = EXCLUDED.delivery_url, checksum = EXCLUDED.checksum, migration_status = EXCLUDED.migration_status, provenance = EXCLUDED.provenance, updated_at = now()`; }
+export async function upsertMediaRecord(record: ContentMediaRecord) {
+  // In the Cloudflare/R2 content-store mode, the object metadata plus the
+  // content_media_relationships entry are the durable media registry. Do not
+  // require the retired Neon media table for a Notion image import.
+  if (usesCloudflareContentStore()) return record;
+  await ensureMediaTable();
+  await sql()`INSERT INTO content_media (id, content_id, source_provider, source_url, source_id, original_filename, mime_type, file_size, width, height, storage_provider, storage_bucket, storage_key, delivery_url, checksum, migration_status, provenance, updated_at) VALUES (${record.id}, ${record.contentId || null}, ${record.sourceProvider || null}, ${record.sourceUrl || null}, ${record.sourceId || null}, ${record.originalFilename || null}, ${record.mimeType || null}, ${record.fileSize || null}, ${record.width || null}, ${record.height || null}, ${record.storageProvider}, ${record.storageBucket}, ${record.storageKey}, ${record.deliveryUrl || null}, ${record.checksum || null}, ${record.migrationStatus}, ${JSON.stringify(record.provenance || {})}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET content_id = EXCLUDED.content_id, source_provider = EXCLUDED.source_provider, source_url = EXCLUDED.source_url, source_id = EXCLUDED.source_id, original_filename = EXCLUDED.original_filename, mime_type = EXCLUDED.mime_type, file_size = EXCLUDED.file_size, width = EXCLUDED.width, height = EXCLUDED.height, storage_provider = EXCLUDED.storage_provider, storage_bucket = EXCLUDED.storage_bucket, storage_key = EXCLUDED.storage_key, delivery_url = EXCLUDED.delivery_url, checksum = EXCLUDED.checksum, migration_status = EXCLUDED.migration_status, provenance = EXCLUDED.provenance, updated_at = now()`;
+  return record;
+}
 async function updateCloudflareState(mutator: (state: ReturnType<typeof createCloudflareContentState>) => ReturnType<typeof createCloudflareContentState>) {
   for (let attempt = 0; attempt < 3; attempt++) {
     const current = await readCloudflareContentState();
