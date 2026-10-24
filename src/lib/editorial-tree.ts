@@ -6,10 +6,10 @@ import { pickEditorialImage } from "@/lib/editorial-image";
  * Editorial Tree — the homepage's living editorial feed (server-only).
  *
  * The "tree" metaphor: every new published article is a new branch. The tree
- * always shows the freshest growth (most recent posts first) and sheds the
- * oldest when the canopy is full. Nothing is hardcoded — the CMS is the
- * single source of truth, so publishing a new post instantly updates the
- * homepage on the next revalidation.
+ * puts explicitly Featured stories first, then shows the freshest growth
+ * (most recent posts first) and sheds the oldest when the canopy is full.
+ * Nothing is hardcoded — the CMS is the single source of truth, so publishing
+ * a new post instantly updates the homepage on the next revalidation.
  *
  * Pure image utilities (resolveEditorialImageUrl, buildEditorialSrcSet) live
  * in @/lib/editorial-image so client components can import them safely.
@@ -35,6 +35,11 @@ export type EditorialTreePost = {
 
 const TONE_CYCLE: Array<"warm" | "cool" | "mono" | "flare"> = ["flare", "warm", "cool", "mono"];
 
+function isFeaturedRecord(record: CmsRecord): boolean {
+  const value = record.featured;
+  return value === true || value === 1 || (typeof value === "string" && /^(?:__yes__|true|yes|1)$/i.test(value.trim()));
+}
+
 /**
  * Fetch the most recent published editorial posts from the CMS.
  * This is the "tree" — it grows automatically as new articles are published.
@@ -47,7 +52,10 @@ export async function getRecentEditorialPosts(limit = 4): Promise<EditorialTreeP
   const normalized = articles
     .map((article) => normalizeEditorialRecord(article as CmsRecord))
     .sort((a, b) => {
-      // Newest first — the tree grows upward.
+      const featuredOrder = Number(isFeaturedRecord(b)) - Number(isFeaturedRecord(a));
+      if (featuredOrder) return featuredOrder;
+
+      // Within each group, newest first — the tree grows upward.
       const dateA = String(a.publishedAt || a.date || "");
       const dateB = String(b.publishedAt || b.date || "");
       return dateB.localeCompare(dateA);
