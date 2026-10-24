@@ -27,7 +27,10 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
   verification: {
     ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } : {}),
-    other: { "msvalidate.01": "54BB84D704A1BDFF8EFF649929A55631" },
+    other: {
+      "msvalidate.01": "54BB84D704A1BDFF8EFF649929A55631",
+      "facebook-domain-verification": "jjstvw3kqp2ozxgeq3p3o151ys9cyy",
+    },
   },
   openGraph: { type: "website", locale: "en_NG", siteName: SITE_NAME, title: SITE_NAME, description: SITE_DESCRIPTION, url: SITE_URL, images: [{ url: `${SITE_URL}${DEFAULT_SOCIAL_IMAGE}`, width: 1200, height: 630, type: "image/png", alt: "RADARCharts global music and culture card" }] },
   twitter: { card: "summary_large_image", site: "@radarcharts", creator: "@radarcharts", images: [`${SITE_URL}${DEFAULT_SOCIAL_IMAGE}`] },
