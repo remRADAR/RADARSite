@@ -17,7 +17,14 @@ export const SITEMAP_EXCLUDED_ARTICLE_SLUGS = new Set([
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { articles, artists, events, magazine, radarProjects, releases } = await readPublicContent();
   const routes = ["/", "/radarmusic", "/radarmusic/artists", "/radarmusic/releases", "/ontheradar", "/ontheradar/articles", "/ontheradar/magazine", "/ontheradar/projects", "/ontheradar/events", "/work", "/about", "/about/our-story", "/about/ecosystem", "/motherland", "/privacy", "/terms"];
-  const date = (item: unknown) => { const record = item && typeof item === "object" ? item as Record<string, unknown> : {}; const raw = record.updatedAt || record.publishedAt || record.date || record.year; return raw && Number.isFinite(Date.parse(String(raw))) ? new Date(String(raw)) : undefined; };
+  const date = (item: unknown) => {
+    const record = item && typeof item === "object" ? item as Record<string, unknown> : {};
+    const raw = record.updatedAt || record.sourceModifiedAt || record.modifiedAt || record.publishedAt;
+    if (!raw) return undefined;
+    const timestamp = Date.parse(String(raw));
+    if (!Number.isFinite(timestamp) || timestamp > Date.now()) return undefined;
+    return new Date(timestamp);
+  };
   const entry = (path: string, item?: unknown) => ({ url: absoluteUrl(path), ...(date(item) ? { lastModified: date(item) } : {}) });
   const articleEntries = articles
     .filter((item) => (item as { noindex?: boolean }).noindex !== true)

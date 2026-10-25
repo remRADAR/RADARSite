@@ -5,7 +5,7 @@ import { readPublishedContent } from "@/lib/content-server";
 import { findBySlug } from "@/lib/ia-content";
 import { articlePath, normalizeEditorialRecord } from "@/lib/editorial-normalization";
 import { buildArticleJsonLd, serializeJsonLd } from "@/lib/article-schema";
-import { buildPageMetadata, canonicalPath } from "@/lib/seo";
+import { buildPageMetadata } from "@/lib/seo";
 import { ArticleSourceExcerpt } from "@/components/marketing/ArticleSourceExcerpt";
 import { buildArticleSourceExcerpt } from "@/lib/source-excerpt";
 import { articleSocialCardUrl } from "@/lib/social-card";
@@ -26,7 +26,9 @@ export async function generateMetadata({ params }: { params: Promise<{ article: 
   if (!item) return { title: "Article" };
 
   const record = normalizeEditorialRecord(item);
-  const canonical = canonicalPath(record.canonicalUrl, articlePath(record));
+  // The current Radarcharts article route is canonical. Legacy dated and
+  // imported source URLs redirect here and must not remain in canonical tags.
+  const canonical = articlePath(record);
   const image = articleSocialCardUrl(record.slug || article);
   return buildPageMetadata({ title: record.metaTitle || record.title || "Article", description: record.metaDescription || record.excerpt, path: canonical, image, type: "article", indexable: record.noindex !== true, publishedTime: record.publishedAt || record.date, modifiedTime: typeof record.sourceModifiedAt === "string" ? record.sourceModifiedAt : typeof record.updatedAt === "string" ? record.updatedAt : undefined, authors: record.author ? [record.author] : undefined });
 }
