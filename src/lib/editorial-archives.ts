@@ -40,6 +40,18 @@ export function recordsForEditorialType<T extends PublishedRecord>(records: T[],
   return canonicalEditorialRecords(records, type);
 }
 
+/**
+ * New-original provenance: articles authored in the RADARSite ecosystem —
+ * Notion editorial pipeline imports and Studio-panel publications — as opposed
+ * to the legacy WordPress/CMS imports carried by the merged content snapshot.
+ * The /ontheradar/articles archive is the home for these records, and the
+ * homepage featured pipeline features ONLY these.
+ */
+export function isOriginalEditorialRecord(record: CmsRecord) {
+  const provider = typeof record.sourceProvider === "string" ? record.sourceProvider.trim().toLowerCase() : "";
+  return provider === "notion" || provider === "radarsite" || provider === "studio";
+}
+
 export function recordsForProject<T extends PublishedRecord>(records: T[], project = "Motherland") {
   return sortEditorialRecords(records.filter((record) => {
     if (record.status === "draft" || record.status === "archived") return false;

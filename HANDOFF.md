@@ -1,5 +1,28 @@
 # HANDOFF — RADARSite (radarcharts.net)
 
+## Homepage featured pipeline: new originals only (2026-10-26 — Vibe agent)
+
+Branch `homepage-featured-pipeline` (from main @ a5995409) — NOT merged, NOT deployed.
+
+Problem: the homepage Editorial Tree (`getRecentEditorialPosts` in `src/lib/editorial-tree.ts`) selected from ALL published articles regardless of provenance, so legacy WordPress/CMS imports from the merged content snapshot (and any stale Neon/Cloudflare seed of it) kept appearing in the homepage featured pipeline — exactly the "steady issues" seen around the Neon upgrade.
+
+Fix (source-provenance discrimination):
+- `src/lib/editorial-archives.ts` — added `isOriginalEditorialRecord()`: true for `sourceProvider` "notion" (Notion editorial pipeline, set by content-server direct read), "radarsite" (Studio panel publications, set by CmsStudioPanel), or "studio" (defensive). Legacy imports carry "legacy"/no provider and are excluded.
+- `src/lib/editorial-tree.ts` — added `selectFeaturedPipelineRecords()` (pure, exported): filters to new originals then applies the existing selection (featured-first, newest-first, draft/archived excluded, limit). `getRecentEditorialPosts()` — the homepage's only article feed — now uses it. Destination URLs remain `articlePath()` = /ontheradar/articles/&lt;slug&gt;, the archive home for Notion + Studio originals.
+- `scripts/homepage-featured-pipeline-contract-test.ts` (+ `npm run homepage:featured-pipeline-contract-test`): asserts Notion/Studio originals pass the filter, legacy/unmarked records never do, generic editorial selection (archive behaviour) is unchanged, featured-first ordering, limit-after-filter, and that a legacy-only catalogue yields an empty homepage tree (EditorialTree renders null when empty — graceful).
+
+Scope boundaries: archive pages (/ontheradar/articles, press/spotlight listings, article detail routes) were NOT changed — legacy articles remain reachable there. Removing legacy imports from the archives/site entirely is a separate decision awaiting explicit authorization.
+
+NOT VERIFIED (no Node.js runtime available): npm run test, npm run build, and the new contract test were NOT executed. Run `npm run homepage:featured-pipeline-contract-test && npm run test && npm run build` before merging.
+
+NEXT STEPS:
+1. Run the contract test + lint/typecheck/build on the branch.
+2. Verify the live CMS source (Cloudflare store / Notion direct read) actually carries sourceProvider on Studio articles; if the Studio write path ever drops the field, the homepage will treat them as legacy — the contract test guards the selector, but verify one real published Studio article on a preview deployment.
+3. Merge + deploy only with explicit user authorization.
+
+---
+
+
 ## Fixed cinematic hero rework (2026-10-26 — Vibe agent)
 
 Branch `hero/fixed-cinematic-2026-10-26` (created from main @ c7624323, head 7c04a21) — NOT merged, NOT deployed. User brief: the homepage hero engine felt "loose"; rebuild it as a fixed-style hero engine with well-integrated images, optimized loading, and smooth motion. User decisions via interview: (1) full-bleed fixed cinematic hero — smooth crossfade + subtle Ken Burns, no 3D rotation; (2) one dominant full-bleed image on mobile, unified multi-panel composited scene on wide screens; (3) land on a new branch, merge only after user review.
