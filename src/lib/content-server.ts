@@ -252,6 +252,18 @@ function shouldUseMergedSnapshot(content: ContentCollections) { const demoSlugs 
 
 async function readContentUncached({ fallbackToSnapshot = false }: ReadContentOptions = {}): Promise<ContentCollections> {
   if (isProductionBuild() && !notionDirectReadEnabled()) return mergedSnapshot;
+  // The Cloudflare content object is the published CMS source of truth. Read it
+  // before attempting a direct Notion traversal: direct mode has to enumerate
+  // every approved page, render every block tree, and resolve media, which can
+  // exceed a serverless request budget and incorrectly force a snapshot fallback.
+  if (usesCloudflareContentStore()) {
+    try {
+      const state = await readCloudflareContentState();
+      if (state) return normalizeContent(state.state.content);
+    } catch (error) {
+      logContentReadError(error, "Cloudflare public content read failed; trying direct Notion or the existing CMS source");
+    }
+  }
   if (notionDirectReadEnabled()) {
     try {
       const direct = await readDirectNotionContent();
