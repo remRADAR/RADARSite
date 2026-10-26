@@ -8,7 +8,6 @@ import type { HeroSlide } from "@/lib/radar-content";
 import { heroConfig } from "@/lib/radar-content";
 import { focalPointToObjectPosition } from "@/lib/hero-image-library";
 import {
-  heroPreloadSource,
   heroSourceSet,
   isOptimizableHeroSource,
   preloadHeroImage,

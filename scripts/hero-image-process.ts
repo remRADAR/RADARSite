@@ -27,7 +27,8 @@ import path from "node:path";
 import sharp from "sharp";
 
 type FocalPoint = { x: number; y: number };
-
+type HeroManifestEntry = { id: string; [key: string]: unknown };
+type HeroManifest = { images: HeroManifestEntry[] };
 const EIGHT_K_CLASS = {
   portrait: { width: 4320, height: 7680 },
   landscape: { width: 7680, height: 4320 },
@@ -135,8 +136,8 @@ async function processHeroImage() {
   }
 
   // 5. Manifest with the ACTUAL output dimensions.
-  const manifest = existsSync(MANIFEST_PATH)
-    ? JSON.parse(readFileSync(MANIFEST_PATH, "utf8"))
+  const manifest: HeroManifest = existsSync(MANIFEST_PATH)
+    ? (JSON.parse(readFileSync(MANIFEST_PATH, "utf8")) as HeroManifest)
     : { images: [] };
   const entry = {
     id,
