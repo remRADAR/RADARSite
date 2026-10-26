@@ -17,8 +17,8 @@ export type HeroSlide = {
 export type HeroConfig = {
   slides: HeroSlide[];
   durationMs: number;
-  /** Cube rotation duration per transition (brief: 800-1000ms). */
-  cubeTransitionMs: number;
+  /** Crossfade duration per hero transition (brief: 900-1300ms). */
+  fadeTransitionMs: number;
   transition: "fade" | "kenburns";
   reducedMotionFallback: string;
   eyebrow: string;
@@ -105,10 +105,10 @@ export const heroConfig: HeroConfig = {
         active: true,
         fit: "cover" as const,
       })),
-  // Five-second image shuffle with incoming triptych assets decoded before the cube rotates.
+  // Five-second dwell per scene with the incoming panel set decoded before the fade starts.
   durationMs: 5000,
-  // Outward-rotating cube transition duration (brief: 800-1000ms).
-  cubeTransitionMs: 900,
+  // Fixed cinematic crossfade duration (brief: 900-1300ms).
+  fadeTransitionMs: 1100,
   transition: "fade",
   reducedMotionFallback: "/hero-new/banner-1.webp",
   eyebrow: "(01 / Signal)\nArtist development & culture",

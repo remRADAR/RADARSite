@@ -371,31 +371,48 @@ html {
     }
   }
 
-  /* Outward-rotating hero cube (src/components/marketing/HeroCube.tsx):
-     genuine 3D geometry — four faces on a preserve-3d cube, perspective on the
-     scene, faces culled by backface-visibility while the cube rotates. */
-  .hero-cube-scene {
-    perspective: 1400px;
-    perspective-origin: 50% 42%;
-  }
-  .hero-cube {
-    transform-style: preserve-3d;
-    will-change: transform;
-  }
-  .hero-cube-face {
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    overflow: hidden;
+  /* Fixed cinematic hero (src/components/marketing/HeroCinematic.tsx):
+     two stacked full-bleed film layers crossfade on opacity while every panel
+     drifts on a subtle Ken Burns move — flat compositor-only motion, no 3D
+     geometry, no layout work during a turn. */
+  .hero-film {
     contain: paint;
   }
+  .hero-film-layer {
+    contain: paint;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    will-change: opacity;
+  }
+  /* Alternating drift directions: neighbouring panels never move in lockstep,
+     so the merged scene reads as one integrated composition. */
+  @keyframes hero-kenburns-a {
+    from { transform: scale(1.03) translate3d(0.6%, 0.4%, 0); }
+    to { transform: scale(1.1) translate3d(-0.6%, -0.4%, 0); }
+  }
+  @keyframes hero-kenburns-b {
+    from { transform: scale(1.1) translate3d(-0.5%, -0.3%, 0); }
+    to { transform: scale(1.03) translate3d(0.5%, 0.3%, 0); }
+  }
+  .hero-kenburns {
+    animation: hero-kenburns-a var(--hero-drift-duration, 6s) var(--ease-in-out) both;
+    will-change: transform;
+  }
+  .hero-kenburns-alt {
+    animation-name: hero-kenburns-b;
+  }
   /* Portrait-first presentation: the blurred, focal-positioned cover copy fills
-     the face while the contained foreground keeps the full 9:16 artwork. */
-  .hero-cube-face .hero-cube-backdrop {
+     the panel while the contained foreground keeps the full artwork. */
+  .hero-film-layer .hero-film-backdrop {
     filter: blur(28px) saturate(1.02) brightness(0.6);
     transform: scale(1.3);
   }
   @media (prefers-reduced-motion: reduce) {
-    .hero-cube {
+    .hero-kenburns,
+    .hero-kenburns-alt {
+      animation: none;
+    }
+    .hero-film-layer {
       transition: none !important;
     }
   }
