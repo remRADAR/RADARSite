@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import {
-  EDITORIAL_PROPERTY_NAMES, buildNotionPageUpdates, cmsContentCollisions,
+  EDITORIAL_PROPERTY_NAMES, buildNotionPageUpdates, cmsContentCollisions, notionEditorialPlacement, notionFeaturedImageSource,
   cmsSyncSnapshot, detectNotionCmsConflicts, deterministicCmsId, mapNotionPageToDraft,
   notionContentFingerprint, normalizeNotionPageId, readNotionProperty, renderNotionBlockTree, sameNotionPageRevision, secretMatches,
   validateEditorialSchema, validatePageAuthorization, type NotionBlock, type NotionDataSource, type NotionPage,
@@ -120,8 +120,16 @@ assert.deepEqual(mapped.tags, ["Afrobeats", "Culture"]);
 assert.equal(mapped.featured, true);
 assert.equal(mapped.author, "Editorial Desk");
 assert.equal(mapped.featuredImageUploadUrl, "", "pages without an uploaded file map to an empty upload URL");
-const uploadDraft = mapNotionPageToDraft(uploadPage, dataSource, "<p>Body text</p>");
-assert.equal(uploadDraft.featuredImageUploadUrl, "https://prod-files-secure.example/cover.webp?X-Amz-Signature=abc");
+  const uploadDraft = mapNotionPageToDraft(uploadPage, dataSource, "<p>Body text</p>");
+  assert.equal(uploadDraft.featuredImageUploadUrl, "https://prod-files-secure.example/cover.webp?X-Amz-Signature=abc");
+  uploadPage.cover = { type: "external", external: { url: "https://cdn.example/page-cover.webp" } };
+  assert.equal(notionFeaturedImageSource(uploadPage), "https://prod-files-secure.example/cover.webp?X-Amz-Signature=abc", "Featured Image Upload takes precedence over a page cover");
+  const pageCoverOnly = page();
+  pageCoverOnly.cover = { type: "external", external: { url: "https://cdn.example/page-cover.webp" } };
+  assert.equal(notionFeaturedImageSource(pageCoverOnly), "https://cdn.example/page-cover.webp", "the page cover is used when no upload exists");
+  assert.deepEqual(notionEditorialPlacement({ editorialType: "Press", projectSection: "" }), { section: "radar-articles", category: "RADARArticles" });
+  assert.deepEqual(notionEditorialPlacement({ editorialType: "Spotlight", projectSection: "" }), { section: "discovery-spot", category: "Discovery Spot" });
+  assert.deepEqual(notionEditorialPlacement({ editorialType: "Magazine", projectSection: "" }), { section: "talk-to-us", category: "TALK TO US" });
 const unsafeUpload = page({ [EDITORIAL_PROPERTY_NAMES.featuredImageUpload]: { type: "files", files: [{ type: "file", name: "cover.webp", file: { url: "http://prod-files-secure.example/cover.webp" } }] } });
 assert.throws(() => mapNotionPageToDraft(unsafeUpload, dataSource, "<p>Body text</p>"), /Featured Image Upload must resolve/);
 const blankTitle = page({ [EDITORIAL_PROPERTY_NAMES.title]: { type: "title", title: [] } });
@@ -210,8 +218,10 @@ type ScenarioState = {
   patchLog: Array<{ status?: string; syncStatus?: string }>;
   rootBlockReads: number;
   importCalls: number;
+  importedImageUrls: string[];
   relationCalls: number;
   revalidationCalls: number;
+  revalidatedPaths: string[];
   relationships: ContentMediaRelationship[];
   finalizationFailed: boolean;
   mediaFailed: boolean;
@@ -227,7 +237,7 @@ async function withPublisherScenario(mode: PublishScenario, run: (context: { pos
   const state: ScenarioState = {
     page: page(), blockText: "Mocked approved article body.", content: EMPTY_CONTENT(), revision: 0,
     casCalls: 0, patchLog: [] as Array<{ status?: string; syncStatus?: string }>, rootBlockReads: 0,
-    importCalls: 0, relationCalls: 0, revalidationCalls: 0, relationships: [],
+    importCalls: 0, importedImageUrls: [], relationCalls: 0, revalidationCalls: 0, revalidatedPaths: [], relationships: [],
     finalizationFailed: false, mediaFailed: false, cacheFailed: false,
     revisionCounter: 0,
   };
@@ -301,6 +311,7 @@ async function withPublisherScenario(mode: PublishScenario, run: (context: { pos
     },
     importNotionImage: async (input: { url: string; pageId: string; blockId: string }) => {
       state.importCalls += 1;
+      state.importedImageUrls.push(input.url);
       if (mode === "source-revoked") {
         state.page.properties[EDITORIAL_PROPERTY_NAMES.status] = { type: "status", status: { name: "Draft" } };
         updatedTime();
@@ -313,7 +324,7 @@ async function withPublisherScenario(mode: PublishScenario, run: (context: { pos
       state.revalidationCalls += 1;
       if (mode === "cache-failure" && !state.cacheFailed) { state.cacheFailed = true; throw new Error("mock cache revalidation failure"); }
     },
-    revalidatePath: () => { state.revalidationCalls += 1; },
+    revalidatePath: (path: string) => { state.revalidationCalls += 1; state.revalidatedPaths.push(path); },
   } satisfies Partial<typeof notionPublishRuntime>);
 
   const post = async (dryRun = false) => {
@@ -391,6 +402,9 @@ try {
     assert.equal(state.patchLog.some((item: { status?: string }) => item.status === "Publishing"), true);
     assert.equal(state.patchLog.some((item: { status?: string }) => item.status === "Published"), true);
     assert.equal(state.relationships.length, 1);
+    assert.ok(state.revalidatedPaths.includes("/"), "publishing revalidates the homepage editorial feed");
+    assert.ok(state.revalidatedPaths.includes("/ontheradar/articles/press/page/1"), "publishing revalidates the Press archive");
+    assert.ok(state.revalidatedPaths.includes("/ontheradar/articles/spotlight/page/1"), "publishing revalidates the Spotlight archive");
     const casCallsBeforeRetry = state.casCalls;
     const repeated = await post();
     assert.equal(repeated.status, 200);
@@ -400,6 +414,8 @@ try {
 
   await withPublisherScenario("success", async ({ post, state }) => {
     state.page.properties[EDITORIAL_PROPERTY_NAMES.featuredImageUpload] = { type: "files", files: [{ type: "file", name: "uploaded-cover.webp", file: { url: "https://prod-files-secure.example/uploaded-cover.webp?X-Amz-Signature=xyz" } }] };
+    state.page.cover = { type: "external", external: { url: "https://cdn.example/page-cover.webp" } };
+    state.page.properties[EDITORIAL_PROPERTY_NAMES.contentType] = { type: "select", select: { name: "Spotlight" } };
     const dryRunResponse = await post(true);
     assert.equal(dryRunResponse.status, 200);
     const preview = await dryRunResponse.json() as { payload: { featuredImageWouldBeImported: boolean } };
@@ -407,17 +423,25 @@ try {
     const response = await post();
     assert.equal(response.status, 200);
     assert.equal(state.importCalls, 1, "the uploaded file is imported into R2 as the featured image");
+    assert.equal(state.importedImageUrls[0], "https://prod-files-secure.example/uploaded-cover.webp?X-Amz-Signature=xyz", "the uploaded image wins over the page cover");
     assert.equal((state.content.articles[0] as CmsRecord).featuredImage, "https://cdn.example/featured-image.webp", "the CMS featured image is the R2 URL of the uploaded file");
+    assert.equal((state.content.articles[0] as CmsRecord).editorialType, "Spotlight");
+    assert.equal((state.content.articles[0] as CmsRecord).section, "discovery-spot");
+    assert.deepEqual((state.content.articles[0] as CmsRecord).categories, ["Discovery Spot"]);
   });
 
   await withPublisherScenario("success", async ({ post, state }) => {
     process.env.RADAR_NOTION_DIRECT_READ_ENABLED = "true";
+    state.page.properties[EDITORIAL_PROPERTY_NAMES.contentType] = { type: "select", select: { name: "Spotlight" } };
     const response = await post();
     assert.equal(response.status, 200);
     const result = await response.json() as { direct: boolean; cloudflareContentStored: boolean };
     assert.equal(result.direct, true);
     assert.equal(result.cloudflareContentStored, true);
     assert.equal(state.content.articles.length, 1, "direct mode writes the article to the Cloudflare content seam");
+    assert.equal((state.content.articles[0] as CmsRecord).section, "discovery-spot");
+    assert.ok(state.revalidatedPaths.includes("/"));
+    assert.ok(state.revalidatedPaths.includes("/ontheradar/articles/spotlight/page/1"));
     assert.equal((state.page.properties[EDITORIAL_PROPERTY_NAMES.status] as { status: { name: string } }).status.name, "Published");
   });
 

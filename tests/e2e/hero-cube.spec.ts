@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const currentSlideAnnouncement = (page: import("@playwright/test").Page) =>
-  page.locator('[aria-live="polite"]');
+  page.locator('[aria-live="polite"]').first();
 
 const cube = (page: import("@playwright/test").Page) => page.locator(".hero-cube").first();
 
@@ -46,46 +46,61 @@ test.describe("Hero cube engine", () => {
 
   test("advances and reverses with the intended outward turn", async ({ page }) => {
     await page.goto("/");
+    await page.getByRole("button", { name: "Pause hero slideshow" }).click();
+    await expectRestingCube(page);
     const status = currentSlideAnnouncement(page);
-    await expect(status).toHaveText("RADAR hero image 1");
+    const initialIndex = Number((await status.textContent())?.match(/\d+/)?.[0] || 1);
+    const nextIndex = initialIndex === 58 ? 1 : initialIndex + 1;
 
     await page.getByRole("button", { name: "Next hero image" }).click();
     await expect(cube(page)).toHaveAttribute("data-rotation", "-90");
     await expect(cube(page)).toHaveAttribute("data-animating", "true");
-    await expect(status).toHaveText("RADAR hero image 2");
+    await expect(status).toHaveText("RADAR hero image " + nextIndex);
     await expectRestingCube(page);
 
     await page.getByRole("button", { name: "Previous hero image" }).click();
     await expect(cube(page)).toHaveAttribute("data-rotation", "90");
     await expect(cube(page)).toHaveAttribute("data-animating", "true");
-    await expect(status).toHaveText("RADAR hero image 1");
+    await expect(status).toHaveText("RADAR hero image " + initialIndex);
     await expectRestingCube(page);
   });
 
   test("ignores rapid extra input and protects a new turn from the prior safety timer", async ({ page }) => {
     await page.goto("/");
+    await page.getByRole("button", { name: "Pause hero slideshow" }).click();
+    await expectRestingCube(page);
     const next = page.getByRole("button", { name: "Next hero image" });
     const status = currentSlideAnnouncement(page);
+    const initialIndex = Number((await status.textContent())?.match(/\d+/)?.[0] || 1);
+    const nextIndex = initialIndex === 58 ? 1 : initialIndex + 1;
+    const followingIndex = nextIndex === 58 ? 1 : nextIndex + 1;
 
-    await next.click();
-    await next.click();
-    await expect(status).toHaveText("RADAR hero image 2");
+    await next.evaluate((button) => {
+      (button as HTMLButtonElement).click();
+      (button as HTMLButtonElement).click();
+    });
+    await expect(status).toHaveText("RADAR hero image " + nextIndex);
     await expectRestingCube(page);
 
     // Start a second turn during the 250ms window that previously left the
     // first turn's safety timeout live. It must not complete the second turn early.
     await next.click();
     await page.waitForTimeout(300);
-    await expect(status).toHaveText("RADAR hero image 2");
+    await expect(status).toHaveText("RADAR hero image " + nextIndex);
     await expect(cube(page)).toHaveAttribute("data-animating", "true");
-    await expect(status).toHaveText("RADAR hero image 3");
+    await expect(status).toHaveText("RADAR hero image " + followingIndex);
     await expectRestingCube(page);
   });
 
   test("wraps backward from the first image to the final image", async ({ page }) => {
     await page.goto("/");
+    await page.getByRole("button", { name: "Pause hero slideshow" }).click();
+    await expectRestingCube(page);
+    const status = currentSlideAnnouncement(page);
+    const initialIndex = Number((await status.textContent())?.match(/\d+/)?.[0] || 1);
+    const previousIndex = initialIndex === 1 ? 58 : initialIndex - 1;
     await page.getByRole("button", { name: "Previous hero image" }).click();
-    await expect(currentSlideAnnouncement(page)).toHaveText("RADAR hero image 58");
+    await expect(status).toHaveText("RADAR hero image " + previousIndex);
     await expectRestingCube(page);
   });
 
@@ -110,11 +125,13 @@ test.describe("Hero cube engine", () => {
 
   test("autoplay can be paused and resumes only after control focus leaves", async ({ page }) => {
     await page.clock.install({ time: new Date("2026-10-26T16:00:00.000Z") });
+    await page.clock.pauseAt(new Date("2026-10-26T16:00:00.000Z"));
     await page.goto("/");
     const status = currentSlideAnnouncement(page);
     await expect(status).toHaveText("RADAR hero image 1");
 
     await page.getByRole("button", { name: "Pause hero slideshow" }).click();
+    await expect(page.getByRole("button", { name: "Resume hero slideshow" })).toBeVisible();
     await page.clock.fastForward(9000);
     await expect(status).toHaveText("RADAR hero image 1");
 
@@ -154,6 +171,7 @@ test.describe("Hero cube engine", () => {
     await fallbackImage.evaluate((image) => image.dispatchEvent(new Event("error", { bubbles: true })));
     await expect(page.locator('[data-hero-image-fallback="terminal"]').first()).toBeAttached();
     await page.getByRole("button", { name: "Pause hero slideshow" }).click();
+    await expectRestingCube(page);
     const status = currentSlideAnnouncement(page);
     const current = Number((await status.textContent())?.match(/\d+/)?.[0] || 1);
     const next = current === 58 ? 1 : current + 1;
@@ -176,5 +194,24 @@ test.describe("Hero cube engine", () => {
     await expect(page.locator("h1")).toContainText("RADAR");
     await expect(page.locator('p[data-hero-meta]')).toHaveText("Custom hero subheadline");
     await expect(page.locator('[data-hero-meta]').first()).toHaveText("05.6037°N / 00.1870°W");
+  });
+
+  test("shows the approved hero ticker copy and links the event ticker to Events", async ({ page }) => {
+    await page.goto("/");
+    const heroTicker = page.locator("[data-ticker-text]");
+    await expect(heroTicker.nth(0)).toContainText("Music is life itself…");
+    await expect(heroTicker.nth(1)).toContainText("#stayAKT!V");
+    await expect(heroTicker.nth(2)).toContainText("Protect The Music, Fans & Brands, Always.");
+
+    const eventTicker = page.getByRole("link", { name: /The Last Thursdays.*View events/i });
+    await expect(eventTicker).toHaveAttribute("href", "/ontheradar/events");
+    await page.addStyleTag({ content: ".animate-marquee, .animate-marquee-reverse { animation-play-state: paused !important; }" });
+    const eventLogo = eventTicker.locator("img").first();
+    await eventLogo.scrollIntoViewIfNeeded();
+    await expect(eventLogo).toHaveAttribute("src", /the-last-thursdays\.png/);
+    await expect.poll(() => eventLogo.evaluate((image) => (image as HTMLImageElement).naturalWidth > 0)).toBeTruthy();
+    await eventTicker.click();
+    await expect(page).toHaveURL(/\/ontheradar\/events$/);
+    await expect(page.locator("h1")).toContainText("Events");
   });
 });

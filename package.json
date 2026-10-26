@@ -22,6 +22,7 @@
     "postgres:adapter-contract-test": "tsx scripts/postgres-adapter-contract-test.ts",
     "test:e2e": "playwright test",
     "test:editorial-archives": "tsx scripts/editorial-archives-contract-test.ts",
+    "test:editorial-feed": "tsx scripts/editorial-tree-contract-test.ts",
     "test:e2e:ui": "playwright test --ui",
     "verify:live-routes": "node scripts/verify-live-editorial-routes.mjs",
     "site:healthcheck": "node scripts/check-production-health.mjs",

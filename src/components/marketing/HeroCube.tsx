@@ -70,6 +70,8 @@ export function HeroCube({ slides, fallbackSrc, resolveSrc }: HeroCubeProps) {
   const [imageFailures, setImageFailures] = useState<Record<string, ImageFailureStage>>({});
   const [autoplayPaused, setAutoplayPaused] = useState(false);
   const [controlsFocused, setControlsFocused] = useState(false);
+  const autoplayPausedRef = useRef(false);
+  const controlsFocusedRef = useRef(false);
   const rotationLockRef = useRef(false);
   const pendingTargetRef = useRef<number | null>(null);
   const shuffleBagRef = useRef<number[]>([]);
@@ -237,7 +239,7 @@ export function HeroCube({ slides, fallbackSrc, resolveSrc }: HeroCubeProps) {
   useEffect(() => {
     if (reducedMotion || autoplayPaused || controlsFocused || slides.length < 2) return;
     const timer = window.setInterval(() => {
-      if (document.visibilityState === "hidden" || rotationLockRef.current) return;
+      if (autoplayPausedRef.current || controlsFocusedRef.current || document.visibilityState === "hidden" || rotationLockRef.current) return;
       if (Date.now() - interactedAtRef.current < AUTOPLAY_RESUME_DELAY_MS) return;
       goRef.current(1, true);
     }, heroConfig.durationMs);
@@ -394,10 +396,16 @@ export function HeroCube({ slides, fallbackSrc, resolveSrc }: HeroCubeProps) {
         role="group"
         aria-label="Hero image controls"
         data-hero-controls
-        onFocusCapture={() => setControlsFocused(true)}
+        onFocusCapture={() => {
+          controlsFocusedRef.current = true;
+          setControlsFocused(true);
+        }}
         onBlurCapture={(event) => {
           const next = event.relatedTarget as Node | null;
-          if (!next || !event.currentTarget.contains(next)) setControlsFocused(false);
+          if (!next || !event.currentTarget.contains(next)) {
+            controlsFocusedRef.current = false;
+            setControlsFocused(false);
+          }
         }}
       >
         <button
@@ -418,8 +426,12 @@ export function HeroCube({ slides, fallbackSrc, resolveSrc }: HeroCubeProps) {
         </button>
         {slides.length > 1 && !reducedMotion ? (
           <button
-            type="button"
-            onClick={() => setAutoplayPaused((paused) => !paused)}
+          type="button"
+          onClick={() => {
+            const next = !autoplayPausedRef.current;
+            autoplayPausedRef.current = next;
+            setAutoplayPaused(next);
+          }}
             aria-label={autoplayPaused ? "Resume hero slideshow" : "Pause hero slideshow"}
             aria-pressed={autoplayPaused}
             className="flex h-10 w-10 items-center justify-center border border-white/25 bg-black/30 text-paper/80 backdrop-blur-[2px] transition-colors hover:border-white/60 hover:text-paper"

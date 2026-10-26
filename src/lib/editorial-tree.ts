@@ -40,6 +40,21 @@ function isFeaturedRecord(record: CmsRecord): boolean {
   return value === true || value === 1 || (typeof value === "string" && /^(?:__yes__|true|yes|1)$/i.test(value.trim()));
 }
 
+export function selectEditorialTreeRecords(articles: CmsRecord[], limit = 4) {
+  const safeLimit = Number.isFinite(limit) ? Math.max(0, Math.floor(limit)) : 4;
+  return articles
+    .filter((article) => article.status !== "draft" && article.status !== "archived")
+    .map((article) => normalizeEditorialRecord(article))
+    .sort((a, b) => {
+      const featuredOrder = Number(isFeaturedRecord(b)) - Number(isFeaturedRecord(a));
+      if (featuredOrder) return featuredOrder;
+      const dateA = String(a.publishedAt || a.date || "");
+      const dateB = String(b.publishedAt || b.date || "");
+      return dateB.localeCompare(dateA);
+    })
+    .slice(0, safeLimit);
+}
+
 /**
  * Fetch the most recent published editorial posts from the CMS.
  * This is the "tree" — it grows automatically as new articles are published.
@@ -48,19 +63,7 @@ function isFeaturedRecord(record: CmsRecord): boolean {
  */
 export async function getRecentEditorialPosts(limit = 4): Promise<EditorialTreePost[]> {
   const { articles } = await readPublishedContent();
-
-  const normalized = articles
-    .map((article) => normalizeEditorialRecord(article as CmsRecord))
-    .sort((a, b) => {
-      const featuredOrder = Number(isFeaturedRecord(b)) - Number(isFeaturedRecord(a));
-      if (featuredOrder) return featuredOrder;
-
-      // Within each group, newest first — the tree grows upward.
-      const dateA = String(a.publishedAt || a.date || "");
-      const dateB = String(b.publishedAt || b.date || "");
-      return dateB.localeCompare(dateA);
-    })
-    .slice(0, limit);
+  const normalized = selectEditorialTreeRecords(articles as CmsRecord[], limit);
 
   return normalized.map((record, index) => {
     const imageUrl = pickEditorialImage(record);

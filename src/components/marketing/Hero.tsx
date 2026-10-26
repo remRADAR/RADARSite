@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useSyncExternalStore } from "react";
-import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { EASE } from "@/lib/motion";
@@ -115,7 +114,7 @@ export function Hero() {
         <Marquee durationSeconds={26} className="py-3">
           {ticker.map((item, index) => (
             <span data-ticker-text key={item + "-" + index} className="mx-3 whitespace-nowrap font-mono text-sm font-bold uppercase tracking-widest md:mx-6">
-              {item}{overrides.tickerIconImage ? <span className="mx-3 inline-flex items-center md:mx-6" aria-hidden><Image src={overrides.tickerIconImage} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" /></span> : null}
+              {item}<span className="mx-3 text-flare md:mx-6" aria-hidden>|</span>
             </span>
           ))}
         </Marquee>

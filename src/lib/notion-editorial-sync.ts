@@ -132,6 +132,12 @@ export function notionPageCoverUrl(page: NotionPage): string {
   return typeof url === "string" ? url : "";
 }
 
+/** The explicitly uploaded editorial image is authoritative; the page cover is fallback only. */
+export function notionFeaturedImageSource(page: NotionPage): string {
+  const uploaded = String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.featuredImageUpload) || "").trim();
+  return uploaded || notionPageCoverUrl(page);
+}
+
 export function readNotionProperty(page: NotionPage, name: string, typeHint?: string): unknown {
   const property = page.properties?.[name];
   if (!property) return undefined;
@@ -162,6 +168,13 @@ export function readNotionProperty(page: NotionPage, name: string, typeHint?: st
     return fileUrl || externalUrl;
   }
   return undefined;
+}
+
+export function notionEditorialPlacement(draft: Pick<EditorialDraft, "editorialType" | "projectSection">) {
+  if (draft.projectSection) return { section: "motherland-radar", category: "Motherland" };
+  if (draft.editorialType === "Spotlight") return { section: "discovery-spot", category: "Discovery Spot" };
+  if (draft.editorialType === "Magazine") return { section: "talk-to-us", category: "TALK TO US" };
+  return { section: "radar-articles", category: "RADARArticles" };
 }
 
 export function validatePageAuthorization(page: NotionPage, dataSource: NotionDataSource): { ok: true; status: string; publishChecked: boolean } | { ok: false; error: string } {
