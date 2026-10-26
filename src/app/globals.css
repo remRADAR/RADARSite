@@ -371,6 +371,35 @@ html {
     }
   }
 
+  /* Outward-rotating hero cube (src/components/marketing/HeroCube.tsx):
+     genuine 3D geometry — four faces on a preserve-3d cube, perspective on the
+     scene, faces culled by backface-visibility while the cube rotates. */
+  .hero-cube-scene {
+    perspective: 1400px;
+    perspective-origin: 50% 42%;
+  }
+  .hero-cube {
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+  .hero-cube-face {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    overflow: hidden;
+    contain: paint;
+  }
+  /* Portrait-first presentation: the blurred, focal-positioned cover copy fills
+     the face while the contained foreground keeps the full 9:16 artwork. */
+  .hero-cube-face .hero-cube-backdrop {
+    filter: blur(28px) saturate(1.02) brightness(0.6);
+    transform: scale(1.3);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-cube {
+      transition: none !important;
+    }
+  }
+
   .hero-engine canvas {
     display: block;
     height: 100% !important;

@@ -1,5 +1,32 @@
 # HANDOFF — RADARSite (radarcharts.net)
 
+## Hero image library, 3D cube engine & 8K pipeline (2026-10-26 — Vibe agent)
+
+Branch `hero-image-library` (created from main @ f4b481a, first commit 74df970) — NOT merged to main, NOT deployed. No production surface was touched.
+
+What was implemented (all on the branch):
+- `public/images/hero/` + `README.md` — dedicated GitHub-managed hero library folder with format (WebP), 9:16 ratio, naming (`hero-artist-001.webp`), focal-point, replacement, and validation documentation. No artwork was invented or committed; the folder is preserved by the README, so no `.gitkeep` is needed.
+- `src/lib/hero-image-library.ts` — centralized `heroImages` configuration (id/src/alt/focalPoint/fit/order/active). Empty by design; `getLibraryHeroSlides()` maps entries to hero slides.
+- `src/lib/radar-content.ts` — `HeroSlide` gained `focalPoint` and `fit`; `HeroConfig` gained `cubeTransitionMs: 900`; `heroConfig.slides` now uses library entries when configured and falls back to the legacy `DRIVE_HERO_IMAGES` otherwise. Drive URLs remain the live fallback until the library is populated and verified.
+- `src/lib/hero-media.ts` — extracted Drive source helpers (`heroSourceSet`, `isOptimizableHeroSource`, `heroPreloadSource`) and added `preloadHeroImage()` (load + decode + timeout, never rejects).
+- `src/components/marketing/HeroCube.tsx` — genuine CSS 3D cube: 4 faces, `perspective: 1400px`, `transform-style: preserve-3d`, `backface-visibility: hidden`, faces at `translateZ(width/2)` via ResizeObserver. Forward = -90deg outward rotation, backward = +90deg, easing `var(--ease-in-out)`, 900ms. Incoming image is preloaded and decoded before rotating; a safety timer normalizes state if `transitionend` is missed. Portrait-first: `fit: "contain"` renders the full 9:16 artwork over a blurred focal-positioned cover backdrop; `fit: "cover"` crops around the focal point. Autoplay (4s dwell, 8s pause after interaction), touch swipe, accessible prev/next buttons, aria-live slide status, failed-image fallback to `reducedMotionFallback`, and reduced-motion users get a static image with no rotation or autoplay.
+- `src/components/marketing/Hero.tsx` — media engine delegated to `HeroCube`; headline, subheadline, ticker, site overrides, GSAP reveal, and Three.js engine preserved. The fade-triptych transition machinery was removed (replaced by the cube).
+- `src/app/globals.css` — added `.hero-cube-scene/.hero-cube/.hero-cube-face/.hero-cube-backdrop` styles plus a reduced-motion transition kill-switch. Nothing else in the file changed.
+- `scripts/hero-image-process.ts` (+ `npm run hero:process`) — sharp pipeline: validates WebP type/integrity/dimensions, preserves the original in `originals/`, optional 8K-class master (4320x7680 portrait / 7680x4320 landscape, Lanczos3 — interpolation, NOT AI upscaling; no AI service exists in this environment and none was invented), delivery derivatives at 720/1080/1600/2160 (never upscaled), manifest `hero-images.manifest.json` with actual output dimensions, printed config snippet.
+- `scripts/hero-image-contract-test.ts` (+ `npm run hero:contract-test`) — validates library entries (paths under /images/hero/, kebab-case filenames matching ids, files exist, focal points 0-100, fit values, alt text, unique ids) and the Drive fallback invariant.
+- `tests/e2e/hero-cube.spec.ts` — Playwright checks: 3D geometry (perspective/preserve-3d/4 backface-culled faces), outward rotation on Next click, reduced-motion static cube.
+
+NOT VERIFIED in this session (no Node.js runtime available to the agent): `npm run lint`, `npm run typecheck`, `npm run build`, `npm run hero:contract-test`, and Playwright e2e were NOT executed. They must pass before merging. The 390x844 / 768x1024 / 1366x768 / 1920x1080 / 375x812 viewport matrix from the brief was not run.
+
+NEXT STEPS (ordered):
+1. Run `npm install`, then `npm run test && npm run build` and `npm run hero:contract-test` on the branch; fix any lint/type issues.
+2. Upload real approved WebP artwork via `npm run hero:process -- <file> --id hero-artist-001 --focal 50,35`, add entries to `heroImages`, and run the e2e suite across the viewport matrix.
+3. After production verification, remove `DRIVE_HERO_IMAGES` from `radar-content.ts` to complete the Drive decommission.
+4. Merge and deploy only with explicit user authorization.
+
+---
+
+
 ## Current state
 The Motherland motion correction was committed on `main` as `3036e779b62cc20d9e8c2cb5e44fd3f61eb106b3` (`fix: preserve Motherland scroll motion behavior`) and deployed to production. Vercel deployment `dpl_AMcfsuQ6YiSkwLw6u5cVpGTLihy4` reached `READY`, target `production`, with `radarcharts.net` assigned. Live behavior was verified after the deployment. The correction is limited to `src/app/(marketing)/motherland/motherland-motion.css`; this handoff has been updated with deployment evidence.
 
