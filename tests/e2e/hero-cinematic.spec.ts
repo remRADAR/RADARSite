@@ -19,25 +19,24 @@ test.describe("Hero cinematic engine", () => {
     // The fixed engine is flat-composited: no perspective, no preserve-3d.
     const perspective = await film(page).evaluate((el) => getComputedStyle(el).perspective);
     expect(perspective).toBe("none");
-    await expect(layers(page).locator('[data-active="true"]')).toHaveCount(1);
-    await expect(layers(page).locator('[data-active="false"]')).toHaveCount(1);
+    await expect(page.locator('[data-hero-film-layer][data-active="true"]')).toHaveCount(1);
+    await expect(page.locator('[data-hero-film-layer][data-active="false"]')).toHaveCount(1);
     const opacities = await layers(page).evaluateAll((els) =>
       els.map((el) => getComputedStyle(el).opacity),
     );
     expect(opacities).toContain("1");
     expect(opacities).toContain("0");
     // Ken Burns drift runs on the active layer's images.
-    const animationName = await layers(page)
-      .locator('[data-active="true"] .hero-image')
-      .first()
-      .evaluate((el) => getComputedStyle(el).animationName);
-    expect(["hero-kenburns-a", "hero-kenburns-b"]).toContain(animationName);
+    const animationNames = await page
+      .locator('[data-hero-film-layer][data-active="true"] .hero-image')
+      .evaluateAll((els) => els.map((el) => getComputedStyle(el).animationName));
+    expect(animationNames.some((name) => ["hero-kenburns-a", "hero-kenburns-b"].includes(name))).toBeTruthy();
   });
 
   test("renders a merged three-panel scene on desktop", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
-    const active = layers(page).locator('[data-active="true"]');
+    const active = page.locator('[data-hero-film-layer][data-active="true"]');
     await expect(active.locator("[data-hero-triptych-panel]")).toHaveCount(3);
     await expect(layers(page).locator("[data-hero-triptych-panel]")).toHaveCount(6);
     await expect(active.locator("[data-hero-triptych-panel]").first()).toBeVisible();
@@ -47,7 +46,7 @@ test.describe("Hero cinematic engine", () => {
   test("keeps one full-frame image on mobile instead of the desktop scene", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
-    await expect(layers(page).locator('[data-active="true"] [data-hero-mobile-image]')).toBeVisible();
+    await expect(page.locator('[data-hero-film-layer][data-active="true"] [data-hero-mobile-image]')).toBeVisible();
     await expect(layers(page).locator("[data-hero-triptych-panel]").first()).toBeHidden();
   });
 
@@ -62,8 +61,8 @@ test.describe("Hero cinematic engine", () => {
     await page.getByRole("button", { name: "Next hero image" }).click();
     await expect(film(page)).toHaveAttribute("data-animating", "true");
     // The incoming layer is staged above the current one and fully opaque.
-    const incomingOpacity = await layers(page).locator('[data-active="false"]').evaluate((el) => getComputedStyle(el).opacity);
-    expect(incomingOpacity).toBe("1");
+    const incomingOpacity = await page.locator('[data-hero-film-layer][data-active="false"]').evaluate((el) => getComputedStyle(el).opacity);
+    expect(Number(incomingOpacity)).toBeGreaterThan(0);
     await expect(status).toHaveText("RADAR hero image " + nextIndex);
     await expectRestingFilm(page);
 

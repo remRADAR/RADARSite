@@ -68,8 +68,8 @@ check(
   "configured hero image fallback is missing: " + heroConfig.reducedMotionFallback,
 );
 check(
-  heroConfig.durationMs >= (heroConfig.cubeTransitionMs || 900) + 1000,
-  "autoplay dwell (durationMs) must comfortably exceed the cube transition duration",
+  heroConfig.durationMs >= (heroConfig.fadeTransitionMs || 900) + 1000,
+  "autoplay dwell (durationMs) must comfortably exceed the fade transition duration",
 );
 
 if (failures.length > 0) {
