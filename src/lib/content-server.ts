@@ -145,9 +145,9 @@ async function readDirectNotionContent(): Promise<ContentCollections | null> {
     const rendered = await sync.renderNotionBlockTree(blocks, notionDirectChildren, async (url, blockId, alt) => (await resolveImage(pageId, url, blockId, alt || "RADARCharts article image")).url);
     for (const image of rendered.images) newlyImportedPlacement.set(`notion:${pageId}:notion:block:${image.blockId}`, image.placementIndex);
     const draft = sync.mapNotionPageToDraft(page, dataSource, rendered.html);
+    const placement = sync.notionEditorialPlacement(draft);
     const slug = directSlug(draft.title);
-    const coverUrl = sync.notionPageCoverUrl(page);
-    const featuredSource = draft.featuredImageUploadUrl || coverUrl;
+    const featuredSource = sync.notionFeaturedImageSource(page);
     const featured = featuredSource ? await resolveImage(pageId, featuredSource, "featured-image", draft.title) : undefined;
     const featuredImage = featured?.url || "";
     const canonicalUrl = draft.canonicalUrl || `https://radarcharts.net/ontheradar/articles/${slug}`;
@@ -156,7 +156,7 @@ async function readDirectNotionContent(): Promise<ContentCollections | null> {
       slug, path: `/ontheradar/articles/${slug}`, title: draft.title, excerpt: draft.excerpt, body: draft.body, bodyHtml: draft.bodyHtml,
       metaTitle: draft.seoTitle, metaDescription: draft.seoDescription, canonicalUrl, socialImage: featuredImage,
       imageUrl: featuredImage, featuredImage, featuredImageAlt: draft.title, publishedAt: draft.scheduledAt || page.last_edited_time || new Date().toISOString(), date: draft.scheduledAt || page.last_edited_time || new Date().toISOString(),
-      author: draft.author, tags: draft.tags, categories: [draft.projectSection || "RADARArticles"], featured: draft.featured, status: "published", editorialType: draft.editorialType, magazineSubtype: draft.magazineSubtype, projectSection: draft.projectSection,
+      author: draft.author, tags: draft.tags, categories: [placement.category], section: placement.section, featured: draft.featured, status: "published", editorialType: draft.editorialType, magazineSubtype: draft.magazineSubtype, projectSection: draft.projectSection,
     }));
   }
   for (const [locator, image] of newlyImported) {

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { convertNotionImageToWebp, notionAssetKey } from "../src/lib/notion-media";
+import { convertNotionImageToWebp, findStagedManifestAsset, notionAssetKey } from "../src/lib/notion-media";
 
 async function main() {
   const { default: sharp } = await import("sharp");
@@ -29,6 +29,14 @@ async function main() {
   await assert.rejects(convertNotionImageToWebp({ bytes: sources[0]!.bytes, contentType: "image/png" }), /does not match its media type/);
   await assert.rejects(convertNotionImageToWebp({ bytes: Buffer.from("not an image"), contentType: "image/jpeg" }), /invalid or unsupported/);
 
+  const staged = [
+    { pageId: "page-1", blockId: "featured-image", sourceUrlWithoutQuery: "https://cdn.example/old-cover.webp" },
+    { pageId: "page-1", blockId: "featured-image", sourceUrlWithoutQuery: "https://cdn.example/current-cover.webp" },
+  ];
+  assert.equal(findStagedManifestAsset(staged, { pageId: "page-1", blockId: "featured-image", url: "https://cdn.example/current-cover.webp?signature=rotated" })?.sourceUrlWithoutQuery, "https://cdn.example/current-cover.webp", "rotated signed URLs match the current staged source path");
+  assert.equal(findStagedManifestAsset(staged, { pageId: "page-1", blockId: "featured-image", url: "https://cdn.example/replaced-cover.webp?signature=current" }), undefined, "a replaced file cannot reuse an older staged object by page/block ID alone");
+  assert.equal(findStagedManifestAsset(staged, { pageId: "another-page", blockId: "featured-image", url: "https://cdn.example/current-cover.webp" }), undefined, "staged images remain page-scoped");
+
   console.log(JSON.stringify({
     jpegConvertedToWebp: true,
     pngConvertedToWebp: true,
@@ -36,6 +44,8 @@ async function main() {
     objectKeysUseWebpExtension: true,
     sourceMimeMismatchRejected: true,
     corruptImageRejected: true,
+    stagedManifestMatchesCurrentSource: true,
+    stagedManifestRejectsReplacedSource: true,
   }, null, 2));
 }
 

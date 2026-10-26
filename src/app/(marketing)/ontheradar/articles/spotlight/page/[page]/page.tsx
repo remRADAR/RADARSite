@@ -7,7 +7,10 @@ import { EDITORIAL_ARCHIVE_PAGE_SIZE, paginateRecords, parseArchivePage, records
 import { buildPageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
-export const dynamicParams = false;
+// Notion/CMS publishing can add archive pages after deployment; accept them
+// dynamically and rely on the shared tagged content cache for freshness.
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: { params: Promise<{ page: string }> }) {
   const page = parseArchivePage((await params).page);

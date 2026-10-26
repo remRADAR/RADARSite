@@ -2,6 +2,7 @@
 
 import { useLayoutEffect, useMemo, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { FadeIn } from "@/components/motion/FadeIn";
@@ -164,22 +165,22 @@ export function EditorialTree({ posts }: EditorialTreeProps) {
 
   if (visiblePosts.length === 0) return null;
 
-  // Build ticker items from post section labels.
-  const tickerItems = visiblePosts.map((p) => p.sectionLabel);
-
   return (
     <section className="bg-paper">
       {/* Section header with ticker */}
       <div className="brut-border-b bg-paper text-ink">
-        <Marquee durationSeconds={30} reverse className="py-3">
-          <span className="ml-0 mr-6 display whitespace-nowrap text-2xl">RADARArticles</span>
-          {tickerItems.map((label, i) => (
-            <span key={label + "-" + i} className="mx-6 display whitespace-nowrap text-2xl text-flare">
-              {label}
+        <Link href="/ontheradar/events" aria-label="The Last Thursdays — Thurs 29 Oct, Cage Abuja, 8PM. View events." className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flare">
+          <Marquee durationSeconds={30} reverse className="py-3">
+            <span className="mx-5 inline-flex shrink-0 items-center gap-4 whitespace-nowrap md:mx-8 md:gap-6">
+              <span className="inline-flex shrink-0 items-center bg-black px-2 py-1">
+                <Image src="/events/the-last-thursdays.png" alt="" width={1088} height={608} className="h-8 w-auto object-contain md:h-11" />
+              </span>
+              <span className="font-mono text-sm font-bold uppercase tracking-[0.14em] md:text-base md:tracking-[0.2em]">
+                THURS 29 OCT <span className="mx-2 text-flare md:mx-4" aria-hidden>|</span> CAGE ABUJA <span className="mx-2 text-flare md:mx-4" aria-hidden>|</span> 8PM
+              </span>
             </span>
-          ))}
-          <span className="mx-6 text-flare">✳</span>
-        </Marquee>
+          </Marquee>
+        </Link>
       </div>
 
       {/* Mobile / reduced-motion: stacked list */}

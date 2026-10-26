@@ -1,0 +1,66 @@
+name: Production availability check
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  deployment_status:
+  status:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-healthcheck-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  vercel-status-failure:
+    name: Report failed Vercel production status
+    if: github.event_name == 'status' && github.event.context == 'Vercel – radarsite' && (github.event.state == 'failure' || github.event.state == 'error')
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Surface the Vercel production status failure
+        env:
+          VERCEL_CONTEXT: ${{ github.event.context }}
+          VERCEL_STATE: ${{ github.event.state }}
+          VERCEL_DESCRIPTION: ${{ github.event.description }}
+          VERCEL_TARGET_URL: ${{ github.event.target_url }}
+        run: |
+          echo "::error title=Vercel production deployment failed::${VERCEL_CONTEXT} reported ${VERCEL_STATE}: ${VERCEL_DESCRIPTION}. Details: ${VERCEL_TARGET_URL}"
+          exit 1
+
+  deployment-status-failure:
+    name: Report failed Vercel deployment event
+    if: github.event_name == 'deployment_status' && github.event.deployment.environment == 'Production – radarsite' && (github.event.deployment_status.state == 'failure' || github.event.deployment_status.state == 'error')
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Surface the failed production deployment event
+        env:
+          VERCEL_STATE: ${{ github.event.deployment_status.state }}
+          VERCEL_DESCRIPTION: ${{ github.event.deployment_status.description }}
+          VERCEL_TARGET_URL: ${{ github.event.deployment_status.target_url }}
+        run: |
+          echo "::error title=Vercel production deployment failed::Vercel reported ${VERCEL_STATE}: ${VERCEL_DESCRIPTION}. Details: ${VERCEL_TARGET_URL}"
+          exit 1
+
+  healthcheck:
+    name: Probe radarcharts.net
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'deployment_status' && github.event.deployment.environment == 'Production – radarsite' && github.event.deployment_status.state == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      BASE_URL: https://radarcharts.net
+    steps:
+      - name: Check out the monitoring script
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Probe production and diagnose Vercel edge failures
+        run: npm run site:healthcheck

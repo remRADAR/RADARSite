@@ -1,3 +1,5 @@
+import { getLibraryHeroSlides, isHeroLibraryConfigured } from "./hero-image-library";
+
 export type HeroSlide = {
   id: string;
   type: "image" | "video";
@@ -6,11 +8,17 @@ export type HeroSlide = {
   alt: string;
   order: number;
   active: boolean;
+  /** 0-100 percentage point kept in frame whenever the layout crops. */
+  focalPoint?: { x: number; y: number };
+  /** "contain" keeps the full portrait visible; "cover" fills the frame. */
+  fit?: "contain" | "cover";
 };
 
 export type HeroConfig = {
   slides: HeroSlide[];
   durationMs: number;
+  /** Cube rotation duration per transition (brief: 800-1000ms). */
+  cubeTransitionMs: number;
   transition: "fade" | "kenburns";
   reducedMotionFallback: string;
   eyebrow: string;
@@ -28,6 +36,8 @@ export type HomepageContent = {
 export const DRIVE_HERO_FOLDER_URL = "https://drive.google.com/drive/folders/1ZTex8rkKw_DHVOtMcYF0Pn6hnOQBodHC";
 
 // Stable file-ID URLs keep the public hero independent from Drive thumbnails and folder ordering.
+// LEGACY FALLBACK: these remain available when the GitHub-managed hero
+// library (src/lib/hero-image-library.ts) has no active entries.
 export const DRIVE_HERO_IMAGES = [
   "https://lh3.googleusercontent.com/d/1ps_mfXSUn1ZSYlVxJHJT1X4Nhv8-Wz7U=w2000", // Untitled design - 1.webp
   "https://lh3.googleusercontent.com/d/1w3Z6NFDbeaLVSTtzuCRqfb-UTFnBkOn8=w2000", // Untitled design - 2.webp
@@ -78,20 +88,27 @@ export const DRIVE_HERO_IMAGES = [
   "https://lh3.googleusercontent.com/d/1fKz_O4UxGPs4kDFwuZRMx94-8FpBa_XQ=w2000", // Untitled design - 48.webp
 ];
 
+// The GitHub hero library takes precedence while it has active entries.
+const HERO_LIBRARY_SLIDES = getLibraryHeroSlides();
+
 export const heroConfig: HeroConfig = {
-  slides: DRIVE_HERO_IMAGES.map((src, index) => ({
-    id: `drive-hero-${index + 1}`,
-    type: "image" as const,
-    // Google Drive serves the best available rendition up to this requested
-    // ceiling; the browser still downscales cleanly for smaller viewports.
-    src: src.replace(/=w\d+$/, "=w8192"),
-    alt: `RADAR hero image ${index + 1}`,
-    order: index + 1,
-    active: true,
-  })),
-  // Four-second autoplay with the next full-resolution image decoded before
-  // the crossfade begins.
-  durationMs: 4000,
+  slides: isHeroLibraryConfigured()
+    ? HERO_LIBRARY_SLIDES
+    : DRIVE_HERO_IMAGES.map((src, index) => ({
+        id: "drive-hero-" + (index + 1),
+        type: "image" as const,
+        // Google Drive serves the best available rendition up to this requested
+        // ceiling; the browser still downscales cleanly for smaller viewports.
+        src: src.replace(/=w\d+$/, "=w8192"),
+        alt: "RADAR hero image " + (index + 1),
+        order: index + 1,
+        active: true,
+        fit: "cover" as const,
+      })),
+  // Five-second image shuffle with incoming triptych assets decoded before the cube rotates.
+  durationMs: 5000,
+  // Outward-rotating cube transition duration (brief: 800-1000ms).
+  cubeTransitionMs: 900,
   transition: "fade",
   reducedMotionFallback: "/hero-new/banner-1.webp",
   eyebrow: "(01 / Signal)\nArtist development & culture",

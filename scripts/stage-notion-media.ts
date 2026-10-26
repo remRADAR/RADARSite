@@ -5,7 +5,7 @@ import { createHash } from "node:crypto";
 import { convertNotionImageToWebp, notionAssetKey, validateNotionImageUrl } from "../src/lib/notion-media";
 import { putMediaObject, putStorageObject } from "../src/lib/media-storage";
 import { NOTION_MEDIA_STAGING_MANIFEST_KEY } from "../src/lib/notion-media";
-import { EDITORIAL_PROPERTY_NAMES, NOTION_API_VERSION, notionPageCoverUrl, readNotionProperty, type NotionBlock, type NotionPage } from "../src/lib/notion-editorial-sync";
+import { EDITORIAL_PROPERTY_NAMES, NOTION_API_VERSION, notionFeaturedImageSource, readNotionProperty, type NotionBlock, type NotionPage } from "../src/lib/notion-editorial-sync";
 
 type ImageAsset = {
   pageId: string;
@@ -140,10 +140,8 @@ async function collectPageAssets(pageId: string): Promise<ImageAsset[]> {
     if (parentId && parentId !== DATA_SOURCE_ID.replaceAll("-", "").toLowerCase()) throw new Error(`PAGE_NOT_IN_CONFIGURED_DATA_SOURCE:${pageId}`);
   }
   const assets: ImageAsset[] = [];
-  const cover = notionPageCoverUrl(page);
-  if (cover) assets.push({ pageId, blockId: "featured-image", role: "featured", sourceUrl: cover, sourceUrlWithoutQuery: urlWithoutQuery(cover), alt: String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.title) || "") });
-  const upload = String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.featuredImageUpload) || "");
-  if (!cover && upload) assets.push({ pageId, blockId: "featured-image", role: "featured", sourceUrl: upload, sourceUrlWithoutQuery: urlWithoutQuery(upload), alt: String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.title) || "") });
+  const featuredSource = notionFeaturedImageSource(page);
+  if (featuredSource) assets.push({ pageId, blockId: "featured-image", role: "featured", sourceUrl: featuredSource, sourceUrlWithoutQuery: urlWithoutQuery(featuredSource), alt: String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.title) || "") });
 
   const visit = async (items: NotionBlock[]): Promise<void> => {
     for (const block of items) {

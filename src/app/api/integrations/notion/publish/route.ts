@@ -13,7 +13,7 @@ import {
   deterministicCmsId, findNotionCmsRecord, mapNotionPageToDraft, normalizeNotionPageId,
   notionContentFingerprint, readNotionProperty, sameNotionPageRevision, sourceFingerprint, validateEditorialSchema,
   validatePageAuthorization, renderNotionBlockTree, EDITORIAL_PROPERTY_NAMES,
-  notionPageCoverUrl, isSafePublicHttpsUrl,
+  notionPageCoverUrl, notionFeaturedImageSource, notionEditorialPlacement, isSafePublicHttpsUrl,
   NOTION_API_VERSION, type NotionBlock, type NotionDataSource, type NotionPage,
 } from "@/lib/notion-editorial-sync";
 import { rateLimit } from "@/lib/request-security";
@@ -107,6 +107,7 @@ function recordsIn(content: ContentCollections): CmsRecord[] {
 }
 function toPublishedRecord(page: NotionPage, dataSource: NotionDataSource, html: string, existing?: CmsRecord, featuredImage = ""): CmsRecord {
   const draft = mapNotionPageToDraft(page, dataSource, html);
+  const placement = notionEditorialPlacement(draft);
   const article = normalizeArticleInput({
     id: existing?.id || deterministicCmsId(draft.pageId),
     sourceProvider: "notion",
@@ -120,9 +121,10 @@ function toPublishedRecord(page: NotionPage, dataSource: NotionDataSource, html:
     editorialType: draft.editorialType,
     magazineSubtype: draft.magazineSubtype,
     projectSection: draft.projectSection,
+    section: placement.section,
     tags: draft.tags,
     tagsApproved: draft.tags,
-    categories: draft.projectSection ? [draft.projectSection] : ["RADARArticles"],
+    categories: [placement.category],
     featured: draft.featured,
     featuredImage: featuredImage || existing?.featuredImage || "",
     featuredImageAlt: draft.title,
@@ -144,6 +146,8 @@ function toPublishedRecord(page: NotionPage, dataSource: NotionDataSource, html:
   article.sourceUrl = draft.notionUrl;
   article.notionPageId = draft.pageId;
   article.notionLastEditedAt = draft.sourceEditedAt;
+  article.section = placement.section;
+  article.categories = [placement.category];
   article.featured = draft.featured;
   article.sourceSnapshot = cmsSyncSnapshot(article);
   article.sourceSnapshotHash = sourceFingerprint(article);
@@ -260,7 +264,8 @@ export async function POST(request: NextRequest) {
     if (!draft.featuredImageUploadUrl && !coverUrl && draft.featuredImageUrl) {
       throw apiError("Featured Image URL is deprecated. Upload the approved featured image to Featured Image Upload.", 422, "featured_image_upload_required");
     }
-    const featuredSource = draft.featuredImageUploadUrl || (coverUrl && isSafePublicHttpsUrl(coverUrl) ? coverUrl : "");
+    const featuredCandidate = notionFeaturedImageSource(page);
+    const featuredSource = featuredCandidate && isSafePublicHttpsUrl(featuredCandidate) ? featuredCandidate : "";
     let featuredImage = "";
     if (featuredSource) {
       if (isDryRun) validateNotionImageUrl(featuredSource);
@@ -361,8 +366,13 @@ export async function POST(request: NextRequest) {
       try {
         notionPublishRuntime.revalidateTag(notionPublishRuntime.contentCacheTag(), { expire: 0 });
         notionPublishRuntime.revalidatePath(articlePath(incoming));
+        notionPublishRuntime.revalidatePath("/");
         notionPublishRuntime.revalidatePath("/ontheradar/articles");
+        notionPublishRuntime.revalidatePath("/ontheradar/articles/press/page/1");
+        notionPublishRuntime.revalidatePath("/ontheradar/articles/spotlight/page/1");
         notionPublishRuntime.revalidatePath("/ontheradar");
+        if (incoming.editorialType === "Magazine") notionPublishRuntime.revalidatePath("/ontheradar/magazine");
+        if (incoming.projectSection === "Motherland") notionPublishRuntime.revalidatePath("/motherland");
       } catch {
         try { await updateNotionPage(pageId, dataSource, { syncStatus: "Failed" }, notionToken); } catch { /* preserve the successful content write for retry */ }
         throw apiError("Cloudflare content was saved, but cache revalidation failed. Retry after checking deployment logs.", 503, "cache_revalidation_failed");
@@ -520,7 +530,10 @@ export async function POST(request: NextRequest) {
     try {
       notionPublishRuntime.revalidateTag(notionPublishRuntime.contentCacheTag(), { expire: 0 });
       notionPublishRuntime.revalidatePath(articlePath(finalArticle));
+      notionPublishRuntime.revalidatePath("/");
       notionPublishRuntime.revalidatePath("/ontheradar/articles");
+      notionPublishRuntime.revalidatePath("/ontheradar/articles/press/page/1");
+      notionPublishRuntime.revalidatePath("/ontheradar/articles/spotlight/page/1");
       notionPublishRuntime.revalidatePath("/ontheradar");
       if (finalArticle.editorialType === "Magazine") notionPublishRuntime.revalidatePath("/ontheradar/magazine");
       if (finalArticle.projectSection === "Motherland") notionPublishRuntime.revalidatePath("/motherland");

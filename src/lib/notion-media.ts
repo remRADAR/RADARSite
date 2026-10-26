@@ -124,7 +124,7 @@ function isMissingR2Object(error: unknown): boolean {
 
 export type ImportedNotionMedia = { id: string; url: string; key: string; checksum: string; contentType: string; size: number; width?: number; height?: number; blockId: string; sourceUrl: string };
 
-type StagedManifestAsset = {
+export type StagedManifestAsset = {
   pageId: string;
   blockId: string;
   sourceUrlWithoutQuery: string;
@@ -164,11 +164,16 @@ function sourcePath(value: string): string {
   return `${parsed.origin}${parsed.pathname}`;
 }
 
+export function findStagedManifestAsset<T extends Pick<StagedManifestAsset, "pageId" | "blockId" | "sourceUrlWithoutQuery">>(assets: readonly T[] | undefined, input: { pageId: string; blockId: string; url: string }): T | undefined {
+  const sourceUrlWithoutQuery = sourcePath(input.url);
+  return assets?.find((candidate) => candidate.pageId === input.pageId && candidate.blockId === input.blockId && candidate.sourceUrlWithoutQuery === sourceUrlWithoutQuery);
+}
+
 async function stagedMedia(input: { url: URL; pageId: string; blockId: string; alt?: string }): Promise<ImportedNotionMedia | null> {
   if (!notionR2ConfigurationReady()) return null;
   const manifest = await readStagedManifest();
   const sourceUrlWithoutQuery = sourcePath(input.url.toString());
-  const asset = manifest?.assets.find((candidate) => candidate.pageId === input.pageId && candidate.blockId === input.blockId);
+  const asset = findStagedManifestAsset(manifest?.assets, { pageId: input.pageId, blockId: input.blockId, url: input.url.toString() });
   if (!asset) return null;
   if (!/^[a-f0-9]{64}$/.test(asset.checksum) || !/^notion\/assets\/[a-f0-9]{2}\/[a-f0-9]{64}\.webp$/.test(asset.key) || asset.key !== notionAssetKey(asset.checksum, "webp")) throw new Error("Invalid staged Notion media identity.");
   const config = mediaStorageConfig();

@@ -22,15 +22,19 @@
     "postgres:adapter-contract-test": "tsx scripts/postgres-adapter-contract-test.ts",
     "test:e2e": "playwright test",
     "test:editorial-archives": "tsx scripts/editorial-archives-contract-test.ts",
+    "test:editorial-feed": "tsx scripts/editorial-tree-contract-test.ts",
     "test:e2e:ui": "playwright test --ui",
     "verify:live-routes": "node scripts/verify-live-editorial-routes.mjs",
+    "site:healthcheck": "node scripts/check-production-health.mjs",
     "test:a11y": "node scripts/check-accessibility.mjs",
     "cms:taxonomy-contract-test": "tsx scripts/cms-taxonomy-contract-test.ts",
     "cms:studio-library-mock-test": "tsx scripts/cms-studio-library-mock-test.ts",
     "cms:workflow-contract-test": "tsx scripts/cms-article-workflow-contract-test.ts",
     "notion:contract-test": "tsx scripts/notion-publish-contract-test.ts",
     "cloudflare-content:contract-test": "tsx scripts/cloudflare-content-store-contract-test.ts",
-    "test:csp": "tsx scripts/csp-contract-test.ts"
+    "test:csp": "tsx scripts/csp-contract-test.ts",
+    "hero:process": "tsx scripts/hero-image-process.ts",
+    "hero:contract-test": "tsx scripts/hero-image-contract-test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1135.0",
