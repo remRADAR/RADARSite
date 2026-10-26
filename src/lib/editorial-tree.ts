@@ -1,6 +1,7 @@
 import { readPublishedContent, type CmsRecord } from "@/lib/content-server";
 import { normalizeEditorialRecord, articlePath } from "@/lib/editorial-normalization";
 import { pickEditorialImage } from "@/lib/editorial-image";
+import { isOriginalEditorialRecord } from "@/lib/editorial-archives";
 
 /**
  * Editorial Tree — the homepage's living editorial feed (server-only).
@@ -56,14 +57,25 @@ export function selectEditorialTreeRecords(articles: CmsRecord[], limit = 4) {
 }
 
 /**
- * Fetch the most recent published editorial posts from the CMS.
- * This is the "tree" — it grows automatically as new articles are published.
+ * Homepage featured pipeline: only NEW ORIGINAL articles — Notion pipeline
+ * imports and Studio-panel publications stored in the /ontheradar/articles
+ * archive. Legacy WordPress/CMS imports are excluded from the homepage: they
+ * remain reachable in the archives, but they never feature here.
+ */
+export function selectFeaturedPipelineRecords(articles: CmsRecord[], limit = 4) {
+  return selectEditorialTreeRecords(articles.filter(isOriginalEditorialRecord), limit);
+}
+
+/**
+ * Fetch the most recent published editorial posts for the homepage.
+ * This is the "tree" — it grows automatically as new articles are published
+ * through Notion or the Studio panel.
  *
  * @param limit Maximum number of posts to return (default 4).
  */
 export async function getRecentEditorialPosts(limit = 4): Promise<EditorialTreePost[]> {
   const { articles } = await readPublishedContent();
-  const normalized = selectEditorialTreeRecords(articles as CmsRecord[], limit);
+  const normalized = selectFeaturedPipelineRecords(articles as CmsRecord[], limit);
 
   return normalized.map((record, index) => {
     const imageUrl = pickEditorialImage(record);
