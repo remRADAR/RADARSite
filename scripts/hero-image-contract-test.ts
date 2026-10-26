@@ -46,7 +46,7 @@ for (const entry of heroImages) {
     );
   }
   if (entry.fit) {
-    check(entry.fit === "contain" || entry.fit === "cover", label + ": fit must be "contain" or "cover" — got " + entry.fit);
+    check(entry.fit === "contain" || entry.fit === "cover", label + ': fit must be "contain" or "cover" — got ' + entry.fit);
   }
   check(typeof entry.alt === "string" && entry.alt.trim().length > 0, label + ": descriptive alt text is required");
 }
