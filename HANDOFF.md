@@ -23,6 +23,23 @@ NEXT STEPS:
 ---
 
 
+## HOTFIX: homepage pipeline accepted WordPress imports via the "radarcharts" marker (2026-10-26 — Vibe agent)
+
+Production evidence (user screenshot IMG_5407.PNG + live HTML of radarcharts.net): the homepage Editorial Tree featured legacy WordPress articles — Gande "INSTA BABE", Kingx Vibe Beat "ONE VOICE", Rhia Bello "DRINK UP", Biyo Cin Cera "BOILING POINT" — two rendering "Image unavailable".
+
+Root cause: `scripts/cms-reconcile.ts` imports the WordPress archive from radarcharts.net (wp-json) with `sourceProvider: "radarcharts"` (see `importWordPressArchive`/`toRecord` in `src/lib/editorial-migration.ts` — the provider comes from the migration source, and the default reconcile source is "radarcharts"). The earlier provenance commit accepted "radarcharts" as a "live Studio store marker" — a misdiagnosis: "radarcharts" is exclusively the WordPress IMPORT marker, so every imported WordPress post passed `isOriginalEditorialRecord()` and featured on the homepage. Genuine Studio publications are stamped "radarsite" by the studio API route (`defaultArticle()`); Notion articles are stamped "notion" by the content-server direct read.
+
+Fix (branch `fix/homepage-pipeline-provenance`):
+- `src/lib/editorial-archives.ts` — `isOriginalEditorialRecord()` now accepts only "notion", "radarsite", "studio". "radarcharts", "legacy", and unmarked records are excluded. Doc comment records the marker taxonomy and the incident.
+- `scripts/homepage-featured-pipeline-contract-test.ts` — the "radarcharts" case now asserts EXCLUSION; the pipeline input includes the WordPress import and asserts it never features; archives still keep it via the generic selection.
+- `scripts/editorial-tree-contract-test.ts` — any radarcharts-as-original assertion removed (none present when this hotfix was authored).
+
+Expected production consequence: with only WordPress imports in the live store, the homepage tree renders nothing until Notion/Studio originals are published (by design — EditorialTree returns null on an empty feed). Archives remain unchanged and still list everything.
+
+NOT VERIFIED (no Node runtime in this session): `npm run homepage:featured-pipeline-contract-test`, `npm run test:editorial-feed`, `npm run test`, `npm run build` were NOT executed. Run them before merging.
+
+---
+
 ## Fixed cinematic hero rework (2026-10-26 — Vibe agent)
 
 Branch `hero/fixed-cinematic-2026-10-26` (created from main @ c7624323, head 7c04a21) — NOT merged, NOT deployed. User brief: the homepage hero engine felt "loose"; rebuild it as a fixed-style hero engine with well-integrated images, optimized loading, and smooth motion. User decisions via interview: (1) full-bleed fixed cinematic hero — smooth crossfade + subtle Ken Burns, no 3D rotation; (2) one dominant full-bleed image on mobile, unified multi-panel composited scene on wide screens; (3) land on a new branch, merge only after user review.

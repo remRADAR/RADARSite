@@ -44,14 +44,23 @@ export function recordsForEditorialType<T extends PublishedRecord>(records: T[],
  * New-original provenance: articles authored in the RADARSite ecosystem —
  * Notion editorial pipeline imports and Studio-panel publications — as opposed
  * to the legacy WordPress/CMS imports carried by the merged content snapshot.
- * The historical/current Studio store uses "radarcharts" for its provider
- * marker, so it is accepted alongside the canonical "radarsite" marker.
+ * Provider markers accepted: "notion" (Notion editorial pipeline),
+ * "radarsite" (Studio panel publications), "studio" (defensive alias).
+ *
+ * "radarcharts" is deliberately NOT accepted: it is the marker stamped by the
+ * WordPress reconcile import (scripts/cms-reconcile.ts, source
+ * radarcharts.net/wp-json -> importWordPressArchive in editorial-migration.ts).
+ * Accepting it (2026-10-26) misclassified every imported WordPress post as a
+ * new original and put the old CMS articles (Gande "Insta Babe" etc.) straight
+ * into the homepage featured pipeline in production. "legacy" (the
+ * remradar.wordpress.com import) and unmarked snapshot records are excluded
+ * as well.
  * The /ontheradar/articles archive is the home for these records, and the
  * homepage featured pipeline features ONLY these.
  */
 export function isOriginalEditorialRecord(record: CmsRecord) {
   const provider = typeof record.sourceProvider === "string" ? record.sourceProvider.trim().toLowerCase() : "";
-  return provider === "notion" || provider === "radarsite" || provider === "radarcharts" || provider === "studio";
+  return provider === "notion" || provider === "radarsite" || provider === "studio";
 }
 
 export function recordsForProject<T extends PublishedRecord>(records: T[], project = "Motherland") {
