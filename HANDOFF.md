@@ -1,5 +1,29 @@
 # HANDOFF — RADARSite (radarcharts.net)
 
+## Fixed cinematic hero rework (2026-10-26 — Vibe agent)
+
+Branch `hero/fixed-cinematic-2026-10-26` (created from main @ c7624323, head 7c04a21) — NOT merged, NOT deployed. User brief: the homepage hero engine felt "loose"; rebuild it as a fixed-style hero engine with well-integrated images, optimized loading, and smooth motion. User decisions via interview: (1) full-bleed fixed cinematic hero — smooth crossfade + subtle Ken Burns, no 3D rotation; (2) one dominant full-bleed image on mobile, unified multi-panel composited scene on wide screens; (3) land on a new branch, merge only after user review.
+
+What was implemented (all on the branch):
+- `src/components/marketing/HeroCinematic.tsx` — NEW engine replacing HeroCube: two stacked full-bleed film layers crossfade on opacity (fadeTransitionMs 1100, var(--ease-in-out)); each panel drifts on a Ken Burns move for durationMs + fade; the incoming scene is preloaded and decoded BEFORE the fade starts; token-guarded safety timer commits the fade if transitionend is missed; transition lock ignores rapid input; autoplay (5s dwell, 8s post-interaction pause, visibility- and focus-aware, shuffle bag); touch swipe; prev/next + pause buttons; two-stage image failure fallback (fallback -> terminal); reduced motion = direct swap, no autoplay, no drift.
+- Layout integration: mobile renders one dominant full-bleed image; md+ renders a seamless grid-cols-3 composite of three consecutive library images per scene (same front, front+1, front+2 window semantics as the cube, so shuffle/next/prev and announcement text are unchanged for users).
+- `src/components/marketing/Hero.tsx` — media engine swapped to HeroCinematic with the same props contract (slides / fallbackSrc / resolveSrc); headline, subheadline, ticker, site overrides, GSAP reveal (clipPath on [data-hero-panel]), and the Three.js engine layer are untouched.
+- `src/app/globals.css` — cube scene styles replaced with .hero-film / .hero-film-layer / .hero-film-backdrop, @keyframes hero-kenburns-a / hero-kenburns-b (alternating per-panel drift direction), and a reduced-motion kill-switch for drift + layer transitions. Ken Burns duration is driven by --hero-drift-duration (set inline = durationMs + fadeTransitionMs) so dwell and drift stay in sync from config. Nothing else in the file changed.
+- `src/lib/radar-content.ts` — HeroConfig.cubeTransitionMs replaced with fadeTransitionMs (1100); durationMs stays 5000; slide data and the 58-entry hero library (/images/hero/radar-hero-001..058.webp) untouched.
+- `tests/e2e/hero-cinematic.spec.ts` — NEW Playwright suite mirroring the old cube coverage: stacked flat layers (no perspective), Ken Burns running on the active layer, desktop three-panel scene vs mobile single image, advance/reverse crossfade, rapid-input lock, wrap-around, reduced-motion static behavior, autoplay pause/resume clock test, failure fallback chain, hero text/coordinate overrides, ticker copy.
+- Deleted: `src/components/marketing/HeroCube.tsx` and `tests/e2e/hero-cube.spec.ts`.
+
+Optimization notes: image sizes tuned to (max-width: 767px) 100vw, 34vw (mobile single full-bleed, desktop panels ~1/3 viewport); layers use contain: paint + will-change so a turn is compositor-only (opacity/transform, zero layout); only the two layers exist in the DOM (no 4-face cube of duplicated panels).
+
+NOT VERIFIED in this session (no Node.js runtime available to the agent): npm run lint, npm run typecheck, npm run build, npm run hero:contract-test, and the Playwright suite were NOT executed. They must pass before merging. The 390x844 / 768x1024 / 1366x768 / 1920x1080 / 375x812 viewport matrix was not run.
+
+NEXT STEPS (ordered):
+1. npm install, then npm run test && npm run build && npm run hero:contract-test on the branch; fix any lint/type issues.
+2. Run tests/e2e/hero-cinematic.spec.ts across the viewport matrix.
+3. User review of the branch (Preview deployment recommended), then merge to main and deploy ONLY with explicit user authorization.
+
+---
+
 ## Hero image library, 3D cube engine & 8K pipeline (2026-10-26 — Vibe agent)
 
 Branch `hero-image-library` (created from main @ f4b481a, first commit 74df970) — NOT merged to main, NOT deployed. No production surface was touched.
