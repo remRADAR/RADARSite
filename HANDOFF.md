@@ -2,7 +2,7 @@
 
 ## Homepage featured pipeline: new originals only (2026-10-26 — Vibe agent)
 
-Branch `homepage-featured-pipeline` (from main @ a5995409) — NOT merged, NOT deployed.
+MERGED: PR #34 (branch `homepage-featured-pipeline`) merged to main as `4e3a298` on 2026-10-26 with explicit user authorization ("Merge now — deploy to production"), after full branch validation. Production deploy via Vercel followed automatically.
 
 Problem: the homepage Editorial Tree (`getRecentEditorialPosts` in `src/lib/editorial-tree.ts`) selected from ALL published articles regardless of provenance, so legacy WordPress/CMS imports from the merged content snapshot (and any stale Neon/Cloudflare seed of it) kept appearing in the homepage featured pipeline — exactly the "steady issues" seen around the Neon upgrade.
 
@@ -13,7 +13,7 @@ Fix (source-provenance discrimination):
 
 Scope boundaries: archive pages (/ontheradar/articles, press/spotlight listings, article detail routes) were NOT changed — legacy articles remain reachable there. Removing legacy imports from the archives/site entirely is a separate decision awaiting explicit authorization.
 
-NOT VERIFIED (no Node.js runtime available): npm run test, npm run build, and the new contract test were NOT executed. Run `npm run homepage:featured-pipeline-contract-test && npm run test && npm run build` before merging.
+VERIFIED before merge (user-run validation on the branch, working tree clean): npm install OK (1,034 packages); `npm run homepage:featured-pipeline-contract-test` PASSED (legacy excluded, Notion + Studio originals featured, featured-first ordering); `npm run test:editorial-feed` PASSED (incl. legacy homepage exclusion); `npm run test` PASSED (ESLint 0 errors / 6 warnings, typecheck clean); `npm run build` PASSED (475 static pages). Pre-existing npm audit findings (1 moderate, 5 high) were not addressed here.
 
 NEXT STEPS:
 1. Run the contract test + lint/typecheck/build on the branch.
