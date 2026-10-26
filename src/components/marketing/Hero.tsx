@@ -15,7 +15,7 @@ import { Marquee } from "@/components/motion/Marquee";
 import { useSiteConfig } from "@/lib/site-config-context";
 import { HeroScene } from "@/components/three/HeroScene";
 import { SceneGate } from "@/components/three/SceneGate";
-import { HeroCube } from "@/components/marketing/HeroCube";
+import { HeroCinematic } from "@/components/marketing/HeroCinematic";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -48,7 +48,7 @@ export function Hero() {
       gsap.set([...Array.from(lines), ...Array.from(meta)], { clearProps: "all" });
       return;
     }
-    // Media reveal: the hero cube slams up before the type arrives, so the
+    // Media reveal: the hero film fades up before the type arrives, so the
     // photography lands first and the headline follows.
     const panels = root.querySelectorAll<HTMLElement>("[data-hero-panel]");
     const tl = gsap.timeline({ delay: 0.2 });
@@ -82,7 +82,7 @@ export function Hero() {
     <section ref={rootRef} className="hero-shell relative flex min-h-[100svh] flex-col justify-end overflow-hidden [contain:paint] bg-ink pt-14 text-paper">
       <div className="hero-media absolute inset-0 bg-ink">
         {slides.length > 0 ? (
-          <HeroCube
+          <HeroCinematic
             slides={slides}
             fallbackSrc={heroConfig.reducedMotionFallback}
             resolveSrc={(slide) => overrides.media["hero:" + slide.id] || slide.src}
