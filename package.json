@@ -24,6 +24,7 @@
     "test:editorial-archives": "tsx scripts/editorial-archives-contract-test.ts",
     "test:e2e:ui": "playwright test --ui",
     "verify:live-routes": "node scripts/verify-live-editorial-routes.mjs",
+    "site:healthcheck": "node scripts/check-production-health.mjs",
     "test:a11y": "node scripts/check-accessibility.mjs",
     "cms:taxonomy-contract-test": "tsx scripts/cms-taxonomy-contract-test.ts",
     "cms:studio-library-mock-test": "tsx scripts/cms-studio-library-mock-test.ts",

@@ -1,0 +1,34 @@
+name: Production availability check
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  deployment_status:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-healthcheck-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  healthcheck:
+    name: Probe radarcharts.net
+    if: github.event_name != 'deployment_status' || (github.event.deployment.environment == 'Production – radarsite' && github.event.deployment_status.state == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      BASE_URL: https://radarcharts.net
+    steps:
+      - name: Check out the monitoring script
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Probe production and diagnose Vercel edge failures
+        run: npm run site:healthcheck

@@ -36,9 +36,8 @@ export type HomepageContent = {
 export const DRIVE_HERO_FOLDER_URL = "https://drive.google.com/drive/folders/1ZTex8rkKw_DHVOtMcYF0Pn6hnOQBodHC";
 
 // Stable file-ID URLs keep the public hero independent from Drive thumbnails and folder ordering.
-// LEGACY FALLBACK: these are only served while the GitHub-managed hero
-// library (src/lib/hero-image-library.ts) is empty. Remove once the library
-// is populated and verified in production.
+// LEGACY FALLBACK: these remain available when the GitHub-managed hero
+// library (src/lib/hero-image-library.ts) has no active entries.
 export const DRIVE_HERO_IMAGES = [
   "https://lh3.googleusercontent.com/d/1ps_mfXSUn1ZSYlVxJHJT1X4Nhv8-Wz7U=w2000", // Untitled design - 1.webp
   "https://lh3.googleusercontent.com/d/1w3Z6NFDbeaLVSTtzuCRqfb-UTFnBkOn8=w2000", // Untitled design - 2.webp
@@ -89,7 +88,7 @@ export const DRIVE_HERO_IMAGES = [
   "https://lh3.googleusercontent.com/d/1fKz_O4UxGPs4kDFwuZRMx94-8FpBa_XQ=w2000", // Untitled design - 48.webp
 ];
 
-// The GitHub hero library takes precedence as soon as it has entries.
+// The GitHub hero library takes precedence while it has active entries.
 const HERO_LIBRARY_SLIDES = getLibraryHeroSlides();
 
 export const heroConfig: HeroConfig = {
@@ -106,8 +105,8 @@ export const heroConfig: HeroConfig = {
         active: true,
         fit: "cover" as const,
       })),
-  // Four-second autoplay with the next image decoded before the cube rotates.
-  durationMs: 4000,
+  // Five-second image shuffle with incoming triptych assets decoded before the cube rotates.
+  durationMs: 5000,
   // Outward-rotating cube transition duration (brief: 800-1000ms).
   cubeTransitionMs: 900,
   transition: "fade",

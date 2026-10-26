@@ -7,7 +7,7 @@
  * conventions, and that the hero always has active slides (library entries
  * or the legacy Drive fallback).
  */
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import {
   heroImages,
@@ -58,6 +58,14 @@ check(slides.length > 0, "hero has no active slides — neither the library nor 
 check(
   isHeroLibraryConfigured() || slides.every((slide) => slide.src.includes("lh3.googleusercontent.com")),
   "library not configured, so every active slide must come from the Drive fallback",
+);
+check(
+  !isHeroLibraryConfigured(heroImages.map((entry) => ({ ...entry, active: false }))),
+  "all-inactive library entries must not suppress the legacy Drive fallback",
+);
+check(
+  existsSync(path.join(process.cwd(), "public", heroConfig.reducedMotionFallback.replace(/^\//, ""))),
+  "configured hero image fallback is missing: " + heroConfig.reducedMotionFallback,
 );
 check(
   heroConfig.durationMs >= (heroConfig.cubeTransitionMs || 900) + 1000,

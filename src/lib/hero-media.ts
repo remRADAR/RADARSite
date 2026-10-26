@@ -1,8 +1,7 @@
 // Shared hero media helpers.
 // The GitHub-hosted hero library (public/images/hero/, configured in
-// src/lib/hero-image-library.ts) is the intended long-term source. The Google
-// Drive helpers below remain supported until the library is populated and the
-// new image flow is verified in production, per the hero image library brief.
+// src/lib/hero-image-library.ts) is the primary source. Google Drive helpers
+// remain supported for the legacy fallback until that source is retired.
 
 const HERO_SOURCE_WIDTHS = [1080, 2000, 4096, 8192] as const;
 
@@ -12,7 +11,8 @@ export function heroSourceSet(source: string) {
 }
 
 export function isOptimizableHeroSource(source: string) {
-  return source.startsWith("https://lh3.googleusercontent.com/");
+  const isSameOriginPath = source.startsWith("/") && !source.startsWith("//");
+  return isSameOriginPath || source.startsWith("https://lh3.googleusercontent.com/");
 }
 
 export function heroPreloadSource(source: string) {

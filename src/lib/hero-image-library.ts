@@ -6,8 +6,8 @@ import type { HeroSlide } from "./radar-content";
  * Source files live in `public/images/hero/` (see that folder's README.md for
  * format, naming, and processing guidelines). Add an entry here after
  * uploading a WebP file; the hero cube engine picks the library up
- * automatically. While this array is empty, the hero falls back to the
- * legacy Google Drive slides in `radar-content.ts`.
+ * automatically. While there are no active entries, the hero falls back to
+ * the legacy Google Drive slides in `radar-content.ts`.
  */
 export type HeroImageFocalPoint = { x: number; y: number };
 
@@ -93,8 +93,8 @@ export const heroImages: HeroImageEntry[] = [
   {"id": "radar-hero-058", "src": "/images/hero/radar-hero-058.webp", "alt": "RADAR hero image 58", "order": 58, "active": true},
 ];
 
-export function isHeroLibraryConfigured() {
-  return heroImages.length > 0;
+export function isHeroLibraryConfigured(entries: readonly HeroImageEntry[] = heroImages) {
+  return entries.some((entry) => entry.active !== false);
 }
 
 /** Library entries mapped to hero slides, ordered and active-only. */

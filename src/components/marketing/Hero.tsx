@@ -32,8 +32,11 @@ export function Hero() {
     getSiteOverridesServerSnapshot,
   );
   const overrides = parseSiteOverrides(overrideSnapshot);
-  const headline = [config.homepage.hero.line1, config.homepage.hero.line2, config.homepage.hero.line3];
-  const subheadline = config.homepage.hero.subtitle || overrides.heroSubheadline || heroConfig.subheadline;
+  const headline = overrides.heroHeadline.length
+    ? overrides.heroHeadline
+    : [config.homepage.hero.line1, config.homepage.hero.line2, config.homepage.hero.line3];
+  const subheadline = overrides.heroSubheadline || config.homepage.hero.subtitle || heroConfig.subheadline;
+  const coordinates = overrides.geoSignature || config.homepage.hero.coordinates;
   const ticker = config.tickers.ticker2_heroMarquee.items.map((item) => item.text);
 
   useEffect(() => {
@@ -95,7 +98,7 @@ export function Hero() {
         <SceneGate><HeroScene /></SceneGate>
       </div>
 
-      <div className="pointer-events-none absolute right-4 top-20 z-10 max-w-[calc(100%-2rem)] text-right font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-paper md:right-8 md:text-[11px]" data-hero-meta>{config.homepage.hero.coordinates || overrides.geoSignature}</div>
+      <div className="pointer-events-none absolute right-4 top-20 z-10 max-w-[calc(100%-2rem)] text-right font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-paper md:right-8 md:text-[11px]" data-hero-meta>{coordinates}</div>
 
       <div data-hero-type className="pointer-events-none relative z-10 w-full px-4 pb-8 md:px-8">
         <h1 className="display max-w-[11ch] text-[clamp(2.25rem,11vw,11rem)] leading-[0.9] text-[#050505]">
