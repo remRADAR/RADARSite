@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import type { CmsRecord } from "@/lib/content-server";
-import { selectEditorialTreeRecords } from "@/lib/editorial-tree";
+import { selectEditorialTreeRecords, selectFeaturedPipelineRecords } from "@/lib/editorial-tree";
 
 const records: CmsRecord[] = [
   {
@@ -57,9 +57,16 @@ const records: CmsRecord[] = [
   },
 ];
 
+// Generic editorial selection (archive behaviour): legacy imports remain.
 const selected = selectEditorialTreeRecords(records, 4);
 assert.deepEqual(selected.map((record) => record.slug), ["notion-spotlight-featured", "notion-press-latest", "legacy-press"]);
 assert.equal(selected[0]?.sectionLabel, "Discovery Spot", "Notion Spotlight keeps its editorial placement on the homepage");
 assert.equal(selectEditorialTreeRecords(records, 1)[0]?.slug, "notion-spotlight-featured", "explicitly featured Notion content is promoted first");
 
-console.log(JSON.stringify({ notionFeaturedFirst: true, recentNotionPublishedIncluded: true, editorialSectionRetained: true, draftsAndArchivedExcluded: true }, null, 2));
+// Homepage featured pipeline: ONLY new-original records (Notion + Studio).
+// The legacy import must never feature on the homepage.
+const pipeline = selectFeaturedPipelineRecords(records, 4);
+assert.deepEqual(pipeline.map((record) => record.slug), ["notion-spotlight-featured", "notion-press-latest"], "homepage featured pipeline excludes legacy imports");
+assert.equal(selectFeaturedPipelineRecords(records, 1)[0]?.slug, "notion-spotlight-featured", "explicitly featured new originals are promoted first on the homepage");
+
+console.log(JSON.stringify({ notionFeaturedFirst: true, recentNotionPublishedIncluded: true, editorialSectionRetained: true, draftsAndArchivedExcluded: true, legacyExcludedFromHomepage: true }, null, 2));
