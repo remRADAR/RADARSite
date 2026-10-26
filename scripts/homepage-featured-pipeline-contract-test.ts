@@ -19,9 +19,11 @@ const unmarkedImport = record({ slug: "unmarked-snapshot-import", publishedAt: "
 const notionArticle = record({ slug: "notion-new-original", sourceProvider: "notion", publishedAt: "2026-10-01T00:00:00.000Z" });
 const notionFeatured = record({ slug: "notion-featured-original", sourceProvider: "notion", publishedAt: "2026-09-01T00:00:00.000Z", featured: true });
 const studioArticle = record({ slug: "studio-published-original", sourceProvider: "radarsite", publishedAt: "2026-10-05T00:00:00.000Z" });
+const radarchartsArticle = record({ slug: "radarcharts-published-original", sourceProvider: "radarcharts", publishedAt: "2026-10-06T00:00:00.000Z" });
 
 assert.equal(isOriginalEditorialRecord(notionArticle), true, "Notion records are new originals");
 assert.equal(isOriginalEditorialRecord(studioArticle), true, "Studio (radarsite) records are new originals");
+assert.equal(isOriginalEditorialRecord(radarchartsArticle), true, "Live RADARCharts Studio records are new originals");
 assert.equal(isOriginalEditorialRecord(legacyImport), false, "legacy-provider records are not new originals");
 assert.equal(isOriginalEditorialRecord(unmarkedImport), false, "records without a provider are not new originals");
 
@@ -30,10 +32,11 @@ const genericSelection = selectEditorialTreeRecords([legacyImport, unmarkedImpor
 assert.ok(genericSelection.some((item) => item.slug === "legacy-wordpress-import"), "generic editorial selection keeps legacy records");
 
 // Homepage featured pipeline excludes every legacy record.
-const pipeline = selectFeaturedPipelineRecords([legacyImport, unmarkedImport, notionArticle, notionFeatured, studioArticle], 10);
-assert.equal(pipeline.length, 3, "pipeline returns only the new-original records");
+const pipeline = selectFeaturedPipelineRecords([legacyImport, unmarkedImport, notionArticle, notionFeatured, studioArticle, radarchartsArticle], 10);
+assert.equal(pipeline.length, 4, "pipeline returns only the new-original records");
 assert.ok(pipeline.every((item) => isOriginalEditorialRecord(item)), "pipeline never returns a legacy record");
 assert.equal(pipeline[0].slug, "notion-featured-original", "featured originals pin first");
+assert.equal(pipeline[1].slug, "radarcharts-published-original", "live RADARCharts originals participate in newest-first ordering");
 assert.ok(pipeline.slice(1).every((item, index, rest) => {
   void rest;
   return index === 0 || String(pipeline[index].publishedAt) >= String(item.publishedAt);
