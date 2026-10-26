@@ -265,7 +265,8 @@ export async function stageNotionMediaPages(input: { apply: boolean; keepTemp?: 
 }
 
 if (process.argv[1]?.endsWith("stage-notion-media.ts")) {
-  stageNotionMediaPages({ ...parseArgs() }).then((result) => console.log(JSON.stringify(result, null, 2))).catch((error) => {
+  const options = parseArgs();
+  stageNotionMediaPages({ ...options, pages: [...options.pages] }).then((result) => console.log(JSON.stringify(result, null, 2))).catch((error) => {
     console.error(error instanceof Error ? error.message : String(error));
     process.exitCode = 1;
   });
