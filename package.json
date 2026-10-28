@@ -7,7 +7,7 @@
     "build": "RADAR_SKIP_DATABASE=1 next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "npm run lint && npm run typecheck",
     "homepage:config-contract-test": "tsx scripts/homepage-config-contract-test.ts",
     "homepage:featured-pipeline-contract-test": "tsx scripts/homepage-featured-pipeline-contract-test.ts",
