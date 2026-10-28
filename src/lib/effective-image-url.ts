@@ -1,4 +1,6 @@
-export type EffectiveImageReason = "not-eligible" | "source-passthrough" | "photon-stripped" | "http-upgraded";
+import { resolveCurrentMediaUrl, type CurrentMediaMap } from "@/lib/current-media-map";
+
+export type EffectiveImageReason = "not-eligible" | "source-passthrough" | "photon-stripped" | "http-upgraded" | "current-map-resolved";
 
 export type EffectiveImageUrl = {
   originalUrl: string;
@@ -14,17 +16,11 @@ const UPLOADS_PREFIX = "/wp-content/uploads/";
  * Derive the delivery URL for an imported CMS image without changing the stored
  * source value.
  *
- * Handles three transformations:
- * 1. Jetpack/Photon rewrites (i0.wp.com/radarcharts.net/...) are stripped to
- *    the origin URL — the self-hosted WordPress origin behind radarcharts.net
- *    is retired, so Photon can no longer fetch these uploads and every
- *    rewritten URL failed. Stripping the proxy prefix lets the browser fetch
- *    directly from radarcharts.net (which is still served by the CDN/host).
- * 2. HTTP radarcharts.net URLs are upgraded to HTTPS.
- * 3. All other URLs pass through unchanged; ResilientImage degrades to a
- *    branded placeholder when the origin cannot deliver.
+ * Recovered current-CMS assets resolve through the reversible R2 map first.
+ * If an asset is still unmapped, legacy Photon and HTTP normalization remains
+ * available as a source fallback while the original files are recovered.
  */
-export function getEffectiveImageUrl(source: string | URL | null | undefined): EffectiveImageUrl {
+export function getEffectiveImageUrl(source: string | URL | null | undefined, mapping?: CurrentMediaMap): EffectiveImageUrl {
   const originalUrl = typeof source === "string" ? source : source?.toString() || "";
   if (!originalUrl) return { originalUrl, effectiveUrl: originalUrl, fallbackApplied: false, reason: "not-eligible" };
 
@@ -32,6 +28,9 @@ export function getEffectiveImageUrl(source: string | URL | null | undefined): E
   if (originalUrl.startsWith("/")) {
     return { originalUrl, effectiveUrl: originalUrl, fallbackApplied: false, reason: "source-passthrough" };
   }
+
+  const recoveredUrl = resolveCurrentMediaUrl(originalUrl, mapping);
+  if (recoveredUrl) return { originalUrl, effectiveUrl: recoveredUrl, fallbackApplied: true, reason: "current-map-resolved" };
 
   try {
     const parsed = source instanceof URL ? new URL(source.toString()) : new URL(originalUrl);
