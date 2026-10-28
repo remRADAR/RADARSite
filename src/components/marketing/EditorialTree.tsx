@@ -172,7 +172,7 @@ export function EditorialTree({ posts }: EditorialTreeProps) {
         <Link href="/ontheradar/events" aria-label="The Last Thursdays — Thurs 29 Oct, Cage Abuja, 8PM. View events." className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flare">
           <Marquee durationSeconds={30} reverse className="py-3">
             <span className="mx-5 inline-flex shrink-0 items-center gap-4 whitespace-nowrap md:mx-8 md:gap-6">
-              <span className="inline-flex shrink-0 items-center bg-black px-2 py-1">
+              <span className="inline-flex shrink-0 items-center px-2 py-1">
                 <Image src="/events/the-last-thursdays.png" alt="" width={1088} height={608} className="h-8 w-auto object-contain md:h-11" />
               </span>
               <span className="font-mono text-sm font-bold uppercase tracking-[0.14em] md:text-base md:tracking-[0.2em]">

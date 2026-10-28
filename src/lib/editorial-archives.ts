@@ -41,15 +41,14 @@ export function recordsForEditorialType<T extends PublishedRecord>(records: T[],
 }
 
 /**
- * Homepage-eligible editorial sources. The current RADARCharts CMS snapshot
- * uses "radarcharts" for posts reconciled from radarcharts.net; these are the
- * current publications and belong on the homepage. "legacy" is the older
- * remradar.wordpress.com archive, while unmarked records are not verified as
- * current editorial content. Notion and Studio publications are also current.
+ * Homepage-eligible editorial sources are original Notion publications and
+ * recent Studio/site publications. Reconciled RADARCharts CMS records and the
+ * older WordPress archive remain available in editorial archives, but are not
+ * the current homepage pipeline. Unmarked records are not verified originals.
  */
 export function isOriginalEditorialRecord(record: CmsRecord) {
   const provider = typeof record.sourceProvider === "string" ? record.sourceProvider.trim().toLowerCase() : "";
-  return provider === "notion" || provider === "radarsite" || provider === "studio" || provider === "radarcharts";
+  return provider === "notion" || provider === "radarsite" || provider === "studio";
 }
 
 export function recordsForProject<T extends PublishedRecord>(records: T[], project = "Motherland") {
