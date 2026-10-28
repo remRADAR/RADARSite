@@ -40,6 +40,22 @@
       },
       "mcp": {
         "servers": {
+          "notion": {
+            "type": "http",
+            "url": "https://mcp.notion.com/mcp"
+          },
+          "vercel": {
+            "type": "http",
+            "url": "https://mcp.vercel.com"
+          },
+          "cloudflare-bindings": {
+            "type": "http",
+            "url": "https://bindings.mcp.cloudflare.com/mcp"
+          },
+          "cloudflare-observability": {
+            "type": "http",
+            "url": "https://observability.mcp.cloudflare.com/mcp"
+          },
           "github": {
             "type": "stdio",
             "command": "bash",
@@ -49,11 +65,6 @@
             "type": "stdio",
             "command": "npx",
             "args": ["-y", "@playwright/mcp@latest"]
-          },
-          "neon": {
-            "type": "stdio",
-            "command": "npx",
-            "args": ["-y", "@neondatabase/mcp-server-neon"]
           },
           "context7": {
             "type": "stdio",
