@@ -6,7 +6,7 @@ import { normalizeEditorialRecord } from "@/lib/editorial-normalization";
 import { getEffectiveImageUrl } from "@/lib/effective-image-url";
 import { publicSiteUrl } from "@/lib/public-site";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const revalidate = 3600;
 
 function safeImageUrl(source: string | undefined) {
