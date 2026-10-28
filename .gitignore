@@ -37,9 +37,6 @@ yarn-error.log*
 # stray logs
 .npm-install.log
 
-# vercel
-.vercel
-
 # typescript
 *.tsbuildinfo
 next-env.d.ts

@@ -1,4 +1,4 @@
-// Detection-only production probe. It deliberately never mutates Vercel state.
+// Detection-only production probe. It never mutates hosting or application state.
 const baseUrl = (process.env.BASE_URL || "https://radarcharts.net").trim();
 const target = new URL("/", baseUrl).toString();
 const timeoutMs = Math.max(1000, Number(process.env.HEALTHCHECK_TIMEOUT_MS || 15000));
@@ -28,8 +28,6 @@ async function probe() {
       status: response.status,
       responseMs: Math.round(performance.now() - startedAt),
       server: response.headers.get("server"),
-      vercelError: response.headers.get("x-vercel-error"),
-      vercelRequestId: response.headers.get("x-vercel-id"),
       contentType: response.headers.get("content-type"),
       location: response.headers.get("location"),
       body,
@@ -61,38 +59,17 @@ for (let attempt = 1; attempt <= attempts; attempt += 1) {
     console.log(`Production health check passed: ${target}`);
     process.exit(0);
   }
-  const checkpoint = lastResult.status === 403 && /Vercel Security Checkpoint/i.test(lastResult.body || "");
-  if (checkpoint) {
-    console.warn(
-      "::warning title=Production probe inconclusive::Vercel returned its Security Checkpoint to this automated request. This is not evidence of an application or database crash; verify from a normal browser or an allowed monitor source.",
-    );
-    console.warn(`Security checkpoint request id: ${lastResult.vercelRequestId || "not supplied"}`);
-    process.exit(0);
-  }
   const transient = lastResult.status === "ERROR" || Number(lastResult.status) >= 500 || lastResult.status === 429;
-  const disabled = lastResult.status === 402 || /DEPLOYMENT_DISABLED|DEPLOYMENT_PAUSED/i.test(`${lastResult.vercelError || ""} ${lastResult.body || ""}`);
-  if (attempt < attempts && transient && !disabled) await sleep(retryDelayMs);
+  if (attempt < attempts && transient) await sleep(retryDelayMs);
   else break;
 }
 
-const vercelError = lastResult?.vercelError || "";
 const details = lastResult?.body || lastResult?.error || "No response body";
-if (
-  lastResult?.status === 402 ||
-  /DEPLOYMENT_DISABLED|DEPLOYMENT_PAUSED/i.test(`${vercelError} ${details}`)
-) {
-  console.error(
-    "Vercel blocked the request with a disabled/paused deployment response. This happens before the app or database runs. Check the Vercel project pause/disabled state, team billing or usage, active production deployment, and domain assignment.",
-  );
-} else if (lastResult?.status === "ERROR") {
-  console.error(
-    "The production endpoint could not be reached. Check DNS, TLS, and Vercel edge/deployment availability before investigating application dependencies.",
-  );
+if (lastResult?.status === "ERROR") {
+  console.error("The production endpoint could not be reached. Check DNS, TLS, and hosting availability before investigating application dependencies.");
 } else {
-  console.error(
-    `Production returned HTTP ${lastResult?.status}. Inspect the Vercel deployment/runtime logs and recent application changes; this probe does not assume Neon or another database is the cause.`,
-  );
+  console.error(`Production returned HTTP ${lastResult?.status}. Inspect hosting/runtime logs and recent application changes; this probe does not assume the database is the cause.`);
 }
 if (details) console.error(`Response evidence: ${details}`);
-console.error("This monitor reports outages; it does not auto-unpause, bypass billing/usage limits, or override an intentional project pause.");
+console.error("This monitor reports outages only; it does not change hosting configuration or application state.");
 process.exitCode = 1;
