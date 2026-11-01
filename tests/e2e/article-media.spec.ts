@@ -1,7 +1,8 @@
 import { test, expect } from "@playwright/test";
 
 const currentArticle = "/ontheradar/articles/gande-is-breaking-boundaries-with-insta-babe";
-const localAssetArticle = "/ontheradar/articles/styling-is-choosing-life-with-aye-lawa-feat-wyza";
+const rhiaArticle = "/ontheradar/articles/rhia-bello-invites-everyone-to-celebrate-connect-and-drink-up";
+const rhiaFeaturedImage = "/editorial/rhia-bello-drink-up/featured.png";
 
 /** Waits until every article image has settled: loaded, or marked with the
  *  styled is-error placeholder, with no image still mid-retry. */
@@ -51,15 +52,17 @@ test.describe("article media resilience", () => {
     expect(broken).toBe(0);
   });
 
-  test("articles with local media overrides render real images", async ({ page }) => {
-    await page.goto(localAssetArticle, { waitUntil: "domcontentloaded" });
+  test("Rhia Bello featured-image override renders its local image", async ({ page }) => {
+    await page.goto(rhiaArticle, { waitUntil: "domcontentloaded" });
     await page.waitForFunction(
-      () => [...document.querySelectorAll<HTMLImageElement>("img")].every((image) => image.complete),
-      null,
+      (src) => {
+        const image = document.querySelector<HTMLImageElement>(`img[src="${src}"]`);
+        return Boolean(image?.complete && image.naturalWidth > 0);
+      },
+      rhiaFeaturedImage,
       { timeout: 30_000 },
     );
-    const loaded = await page.locator("img").evaluateAll((images) => images.filter((image) => (image as HTMLImageElement).naturalWidth > 0).length);
-    expect(loaded).toBeGreaterThan(0);
+    await expect(page.locator(`img[src="${rhiaFeaturedImage}"]`)).toBeVisible();
   });
 
   test("embeds settle into ready or error state and spotify wrappers keep player height", async ({ page }) => {
