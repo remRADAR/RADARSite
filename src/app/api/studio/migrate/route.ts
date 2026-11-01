@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { importWordPressArchive, type SourceProvider } from "@/lib/editorial-migration";
+import { contentCacheTag } from "@/lib/content-server";
 import { getSessionCookieName, isSessionValid } from "@/lib/studio-server";
 
 export const dynamic = "force-dynamic";
@@ -7,6 +9,13 @@ function json(data: unknown, init?: ResponseInit) { const response = NextRespons
 export async function POST(request: NextRequest) {
   if (!isSessionValid(request.cookies.get(getSessionCookieName())?.value)) return json({ error: "Admin authentication required" }, { status: 401 });
   const body = await request.json().catch(() => ({})) as { dryRun?: boolean; updateExisting?: boolean; sourceProvider?: SourceProvider };
-  try { return json(await importWordPressArchive({ dryRun: body.dryRun !== false, updateExisting: body.updateExisting !== false, sourceProvider: body.sourceProvider })); }
+  try {
+    const result = await importWordPressArchive({ dryRun: body.dryRun !== false, updateExisting: body.updateExisting !== false, sourceProvider: body.sourceProvider });
+    if (!result.dryRun && result.imported + result.updated > 0) {
+      revalidateTag(contentCacheTag(), { expire: 0 });
+      revalidatePath("/", "layout");
+    }
+    return json(result);
+  }
   catch (error) { return json({ error: error instanceof Error ? error.message : "Migration failed" }, { status: 502 }); }
 }

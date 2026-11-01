@@ -52,21 +52,21 @@ The publish route resolves the featured image in priority order: `Featured Image
 
 ## Configuration owner checklist
 
-A workspace/project owner must supply these values through Vercel's environment-variable settings or a local secret store. Do not commit the values or place them in `NEXT_PUBLIC_*` variables.
+A workspace/project owner must supply these values through the Cloudflare Worker runtime settings or a local secret store. Do not commit the values or place them in `NEXT_PUBLIC_*` variables.
 
 1. `NOTION_API_KEY`: internal Notion connection secret, granted read-content and update-content capabilities and shared with the **existing** editorial data source only.
 2. `RADAR_NOTION_DATA_SOURCE_ID`: the verified ID copied from the existing data source settings. The current supplied ID is not accessible to the connected Notion account and must be checked by its owner.
 3. `RADAR_NOTION_SYNC_SECRET`: a new, high-entropy bearer secret configured identically in the Notion automation/webhook caller and RADARSite.
 4. `RADAR_NOTION_PUBLISHING_ENABLED`: keep `false` by default. Enable in **Preview only** after the first three values and the actual schema have been verified. Production should remain disabled until preview approval and operational validation.
-5. Preview media setup: image imports use the existing R2 upload helpers. The Vercel project currently has R2 access credentials in Production, but the audit did not find those credentials in Preview. If preview test pages contain images, the owner must provide the existing R2 settings to Preview through Vercel's protected environment-variable controls. No secret was copied or revealed during this task.
+5. Staging media setup: image imports use the existing R2 upload helpers. The original Vercel audit found R2 access credentials in Production but not Preview. Configure the required R2 settings in the Cloudflare staging Worker runtime before testing image uploads. No secret was copied or revealed during this task.
 
 Do not set `RADAR_NOTION_PUBLISHING_ENABLED=true` in Production as part of this implementation. The current task had no working Notion token, verified database access, or sync secret, so live publishing and end-to-end Notion validation remain blocked pending the owner inputs above.
 
 ## Test and rollout order
 
 1. Confirm the exact data-source ID, property names/types, status options, and the Magazine subtype field with the database owner. Share that existing source with the new Notion connection; do not duplicate it.
-2. Configure the token, data-source ID, webhook secret, and any required Preview R2 settings in Vercel Preview. Keep the feature switch disabled until the secrets are stored.
-3. Enable the switch in Preview and use a dedicated approved test article. First call the endpoint with `dryRun: true`; then test image-free publishing, R2-backed images, same-page retry, Notion edits requiring reapproval, CMS-edit conflicts, slug collisions, and scheduled-date rejection.
+2. Configure the token, data-source ID, webhook secret, and any required R2 settings in the Cloudflare staging Worker environment. Keep the feature switch disabled until the secrets are stored.
+3. Enable the switch in staging and use a dedicated approved test article. First call the endpoint with `dryRun: true`; then test image-free publishing, R2-backed images, same-page retry, Notion edits requiring reapproval, CMS-edit conflicts, slug collisions, and scheduled-date rejection.
 4. Verify generated article/metadata, canonical URL, cache revalidation, CMS ID writeback, sync status, and old-route/new-slug behavior. Confirm an unknown slug still returns a real 404.
 5. Production activation and any broader Notion automation should be a separate owner decision after preview results are reviewed. This code change does not activate either.
 
@@ -81,9 +81,9 @@ Executed locally on the feature branch:
 - `npm run build` â PASS; Next.js type checking, static generation (498 pages), and route compilation completed, including `/api/integrations/notion/publish`.
 - Dependency setup caveat: a plain `npm ci` was rejected because this ARM64 sandbox encountered the repositoryâs pinned x64 Sharp binary. `npm ci --no-audit --no-fund --force` installed the locked tree and native Sharp 0.35.5 loaded successfully on ARM64 for checks/build; no dependency manifest or lockfile was altered for that workaround.
 
-These are code/fixture checks, not live integration tests. The referenced Notion editorial database, Notion token, webhook secret, and local Neon/R2 credentials were not accessible; do not infer that the real Notion schema, live dry-run, R2 upload, CMS writeback, media-association lifecycle, or cache invalidation has succeeded. Although a Preview `DATABASE_URL` exists in Vercel, its target was not verified as isolated, so no Notion-triggered CMS write was attempted. A real Preview dry-run/publishing lifecycle remains blocked until an owner grants the Notion connection access, supplies the missing secrets, verifies an isolated test database or explicitly confirms the safe test scope, and validates the actual data-source schema.
+These are code/fixture checks, not live integration tests. The referenced Notion editorial database, Notion token, webhook secret, and local Neon/R2 credentials were not accessible; do not infer that the real Notion schema, live dry-run, R2 upload, CMS writeback, media-association lifecycle, or cache invalidation has succeeded. At the time of the original audit, a Vercel Preview `DATABASE_URL` existed, but its target was not verified as isolated, so no Notion-triggered CMS write was attempted. A real staging dry-run/publishing lifecycle remains blocked until an owner grants the Notion connection access, supplies the missing secrets, verifies an isolated test database or explicitly confirms the safe test scope, and validates the actual data-source schema.
 
-Rollback is deliberately simple: keep `RADAR_NOTION_PUBLISHING_ENABLED=false` (the code default) to make the endpoint non-publishing. If this feature is already merged, set the switch to `false` in the existing project, then revert the integration commit through a review PR; leave existing CMS content and R2 objects untouched. No database migration is required by this implementation. Do not remove project-wide R2 credentials or edit any unrelated variables as rollback actions.
+Rollback is deliberately simple: keep `RADAR_NOTION_PUBLISHING_ENABLED=false` (the code default) to make the endpoint non-publishing. If this feature is already merged, set the switch to `false` in the Cloudflare staging Worker environment, then revert the integration commit through a review PR; leave existing CMS content and R2 objects untouched. No database migration is required by this implementation. Do not remove project-wide R2 credentials or edit any unrelated variables as rollback actions.
 
 ## Official Notion API references
 
@@ -98,6 +98,6 @@ Rollback is deliberately simple: keep `RADAR_NOTION_PUBLISHING_ENABLED=false` (t
 
 - Git baseline: `5f80c0da1f7336894168b8d404bc03a6b859cc39`; clean working tree; no existing PR for this integration.
 - Main branch protection endpoint returned `404` (âBranch not protectedâ). Existing project convention is feature branch + review PR; use that rather than pushing to `main`.
-- Vercel project Git association: `remRADAR/RADARSite`; production domain `radarcharts.net` verified; current `main` deployment READY.
+- Historical baseline: the repository was then associated with the Vercel project `remRADAR/RADARSite`; production domain `radarcharts.net` was verified and the `main` deployment was READY.
 - Connected Notion workspace search finds an unrelated `RADARCharts` profile page, but not the supplied editorial source/plan; direct reads of the supplied IDs are inaccessible.
 - No source secrets or editorial content were printed into this document. The implementation remains off unless the feature flag is explicitly set.

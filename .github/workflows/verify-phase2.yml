@@ -1,0 +1,43 @@
+name: Phase 2 verification
+
+# Scoped verification workflow for PR #37 (reconcile/cloudflare-content-store).
+# Runs the checks CI does not run: the Cloudflare content-store contract, the
+# editorial feed contract, and the actual Cloudflare/Vinext Workers build.
+# Fold into ci.yml or remove after the PR merges.
+on:
+  push:
+    branches: [reconcile/cloudflare-content-store]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase2-verification-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Contract tests + Vinext Workers build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cloudflare content-store contract test
+        run: npm run cloudflare-content:contract-test
+
+      - name: Editorial feed contract test
+        run: npm run test:editorial-feed
+
+      - name: Cloudflare (Vinext) Workers build
+        run: npm run build:vinext

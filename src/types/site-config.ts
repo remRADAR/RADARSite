@@ -12,7 +12,7 @@ export interface GlobalSiteConfig {
 export const defaultSiteConfig: GlobalSiteConfig = {
   tickers: {
     ticker1_audioPlayer: { enabled: true, trackTitle: "Top10: *Track", playlistStatusText: "PLAYLIST LIVE", audioStreamUrl: "", autoPlay: false },
-    ticker2_heroMarquee: { enabled: true, speedSeconds: 26, items: ["NEW OFFICIAL SITE", "AKT!V", "ON THE RADAR"].map((text, i) => ({ id: `hero-ticker-${i + 1}`, text, icon: "•", linkUrl: "" })) },
+    ticker2_heroMarquee: { enabled: true, speedSeconds: 26, items: ["Music is life itself…", "#stayAKT!V", "Protect The Music, Fans & Brands, Always."].map((text, i) => ({ id: `hero-ticker-${i + 1}`, text, icon: "|", linkUrl: "" })) },
     ticker3_partnerMarquee: { enabled: true, speedSeconds: 30, items: ["RADARUnit", "RADARMe", "On The Radar", "RADARArticles", "RADAR Sessions", "RADAR Live"] },
     ticker4_footerMarquee: { enabled: true, speedSeconds: 32, text: "remRADAR", separatorSymbol: "✳" },
     ticker5_projectSelector: { enabled: true, speedSeconds: 30, label: "SELECT PROJECT", projectSlugs: ["mamuzo-dark-era-peak-release", "after-hours-vol-02", "north-star-release"] },
@@ -28,15 +28,26 @@ export const defaultSiteConfig: GlobalSiteConfig = {
       ["03", "2026", "MOTHERLand, Artist Feature", "Rhia Bello", "Rhia Bello Invites Everyone to Celebrate, Connect and ‘Drink Up’", "A vibrant house record becomes an invitation to celebrate life, embrace community, and live fully in the moment.", "/ontheradar/articles/rhia-bello-invites-everyone-to-celebrate-connect-and-drink-up", "https://i0.wp.com/radarcharts.net/wp-content/uploads/2026/09/IMG_2325.jpeg"],
     ].map(([number, yearTag, categoryTag, artistOrProjectName, headline, description, caseStudyUrl, coverImage], i) => ({ id: `work-${i + 1}`, number, yearTag, categoryTag, artistOrProjectName, headline, description, caseStudyUrl, coverImage, visible: true })),
     processSteps: ["Listen", "Frame", "Make", "Move"].map((title, i) => ({ id: `step-${i + 1}`, stepNumber: String(i + 1).padStart(2, "0"), title, description: "A considered step in the process.", visible: true })),
-    ctaSection: { headline: "Make some noise.", contactEmail: "hello@radarcharts.com", buttonText: "Start a conversation" },
+    ctaSection: { headline: "Make some noise.", contactEmail: "hello@radarcharts.net", buttonText: "Start a conversation" },
   },
   navigation: { headerLinks: [{ label: "RADARMe", url: "https://radarme.app", isExternal: true }], socialProfiles: { instagram: { visible: true, url: "https://www.instagram.com/remradar/" }, twitter: { visible: true, url: "https://x.com/RADARCharts" }, facebook: { visible: true, url: "https://www.facebook.com/radarcharts/" }, threads: { visible: true, url: "https://www.threads.com/@remradar" }, linkedin: { visible: true, url: "https://www.linkedin.com/company/radarcharts/" }, youtube: { visible: true, url: "https://www.youtube.com/@remradar" }, tiktok: { visible: true, url: "https://www.tiktok.com/@radarcharts" } } },
 };
 
+const LEGACY_HERO_TICKER_TEXT = ["NEW OFFICIAL SITE", "AKT!V", "ON THE RADAR"];
+const CURRENT_HERO_TICKER_TEXT = ["Music is life itself…", "#stayAKT!V", "Protect The Music, Fans & Brands, Always."];
+
 export function normalizeSiteConfig(input: unknown): GlobalSiteConfig {
   if (!input || typeof input !== "object") return defaultSiteConfig;
   const value = input as Partial<GlobalSiteConfig>;
-  return { ...defaultSiteConfig, ...value, tickers: { ...defaultSiteConfig.tickers, ...(value.tickers || {}) }, homepage: { ...defaultSiteConfig.homepage, ...(value.homepage || {}) }, navigation: { ...defaultSiteConfig.navigation, ...(value.navigation || {}) } };
+  const homepage = { ...defaultSiteConfig.homepage, ...(value.homepage || {}) };
+  const ctaSection = { ...defaultSiteConfig.homepage.ctaSection, ...(value.homepage?.ctaSection || {}) };
+  const storedTicker = value.tickers?.ticker2_heroMarquee;
+  const ticker = { ...defaultSiteConfig.tickers.ticker2_heroMarquee, ...(storedTicker || {}) };
+  const items = Array.isArray(ticker.items) ? ticker.items : defaultSiteConfig.tickers.ticker2_heroMarquee.items;
+  const isLegacyDefault = items.length === LEGACY_HERO_TICKER_TEXT.length && items.every((item, index) => item && typeof item === "object" && item.text === LEGACY_HERO_TICKER_TEXT[index]);
+  ticker.items = isLegacyDefault ? items.map((item, index) => ({ ...item, text: CURRENT_HERO_TICKER_TEXT[index] ?? item.text })) : items;
+  if (ctaSection.contactEmail === "hello@radarcharts.com") ctaSection.contactEmail = "hello@radarcharts.net";
+  return { ...defaultSiteConfig, ...value, tickers: { ...defaultSiteConfig.tickers, ...(value.tickers || {}), ticker2_heroMarquee: ticker }, homepage: { ...homepage, ctaSection }, navigation: { ...defaultSiteConfig.navigation, ...(value.navigation || {}) } };
 }
 
 export const SITE_CONFIG_KEY = "radar-global-site-config";

@@ -132,6 +132,12 @@ export function notionPageCoverUrl(page: NotionPage): string {
   return typeof url === "string" ? url : "";
 }
 
+/** The explicitly uploaded editorial image is authoritative; the page cover is fallback only. */
+export function notionFeaturedImageSource(page: NotionPage): string {
+  const uploaded = String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.featuredImageUpload) || "").trim();
+  return uploaded || notionPageCoverUrl(page);
+}
+
 export function readNotionProperty(page: NotionPage, name: string, typeHint?: string): unknown {
   const property = page.properties?.[name];
   if (!property) return undefined;
@@ -162,6 +168,13 @@ export function readNotionProperty(page: NotionPage, name: string, typeHint?: st
     return fileUrl || externalUrl;
   }
   return undefined;
+}
+
+export function notionEditorialPlacement(draft: Pick<EditorialDraft, "editorialType" | "projectSection">) {
+  if (draft.projectSection) return { section: "motherland-radar", category: "Motherland" };
+  if (draft.editorialType === "Spotlight") return { section: "discovery-spot", category: "Discovery Spot" };
+  if (draft.editorialType === "Magazine") return { section: "talk-to-us", category: "TALK TO US" };
+  return { section: "radar-articles", category: "RADARArticles" };
 }
 
 export function validatePageAuthorization(page: NotionPage, dataSource: NotionDataSource): { ok: true; status: string; publishChecked: boolean } | { ok: false; error: string } {
@@ -218,6 +231,18 @@ function renderRichText(value: unknown): string {
 type ChildReader = (blockId: string) => Promise<NotionBlock[]>;
 type ImageImporter = (url: string, blockId: string, alt: string, placementIndex: number) => Promise<string>;
 
+function notionInstagramEmbed(url: string) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:" || !["instagram.com", "www.instagram.com"].includes(parsed.hostname)) return "";
+    const match = parsed.pathname.match(/^\/(p|reel|tv)\/([A-Za-z0-9_-]+)\/?$/i);
+    if (!match) return "";
+    return `<iframe title="Instagram post" width="100%" height="700" loading="lazy" allowtransparency="true" src="https://www.instagram.com/${match[1].toLowerCase()}/${match[2]}/embed"></iframe>`;
+  } catch {
+    return "";
+  }
+}
+
 export async function renderNotionBlockTree(blocks: NotionBlock[], readChildren: ChildReader, importImage: ImageImporter, options: { maxBlocks?: number; maxDepth?: number } = {}): Promise<{ html: string; images: Array<{ sourceUrl: string; storedUrl: string; blockId: string; placementIndex: number }> }> {
   const maxBlocks = options.maxBlocks ?? 1500;
   const maxDepth = options.maxDepth ?? 8;
@@ -257,7 +282,10 @@ export async function renderNotionBlockTree(blocks: NotionBlock[], readChildren:
         const storedUrl = await importImage(source, block.id, alt, imageIndex++);
         images.push({ sourceUrl: source, storedUrl, blockId: block.id, placementIndex: imageIndex - 1 });
         html = `<figure><img src="${escapeHtml(storedUrl)}" alt="${escapeHtml(alt)}" loading="lazy"></figure>`;
-      } else if (type === "bookmark" || type === "embed" || type === "link_preview") {
+      } else if (type === "embed") {
+        const url = typeof value.url === "string" ? value.url : "";
+        html = notionInstagramEmbed(url) || (() => { try { const parsed = new URL(url); return parsed.protocol === "https:" ? `<p><a href="${escapeHtml(parsed.toString())}">${text || escapeHtml(parsed.hostname)}</a>${children}</p>` : ""; } catch { return ""; } })();
+      } else if (type === "bookmark" || type === "link_preview") {
         const url = typeof value.url === "string" ? value.url : "";
         try { const parsed = new URL(url); if (parsed.protocol === "https:") html = `<p><a href="${escapeHtml(parsed.toString())}">${text || escapeHtml(parsed.hostname)}</a>${children}</p>`; }
         catch { /* invalid external URL omitted */ }

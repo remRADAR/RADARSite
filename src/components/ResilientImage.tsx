@@ -2,6 +2,7 @@
 /* eslint-disable @next/next/no-img-element -- CMS hosts are intentionally rendered directly. */
 
 import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 const FALLBACK = "bg-[linear-gradient(135deg,#0c0c0c_0%,#7a1c00_55%,#ff3b00_100%)]";
@@ -21,9 +22,11 @@ type Props = {
   sizes?: string;
   /** Fetch priority hint for LCP optimization. */
   fetchPriority?: "high" | "low" | "auto";
+  /** Optional art-directed content shown when the source cannot be loaded. */
+  fallback?: ReactNode;
 };
 
-export function ResilientImage({ src, alt, className, loading = "lazy", objectPosition, srcSet, sizes, fetchPriority }: Props) {
+export function ResilientImage({ src, alt, className, loading = "lazy", objectPosition, srcSet, sizes, fetchPriority, fallback }: Props) {
   const [attempt, setAttempt] = useState(0);
   const [, setLoaded] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
@@ -71,8 +74,8 @@ export function ResilientImage({ src, alt, className, loading = "lazy", objectPo
 
   if (failed) {
     return (
-      <div className={cn("absolute inset-0 flex items-center justify-center", FALLBACK)} role="img" aria-label={alt + " image unavailable"}>
-        <span className="bg-ink/70 px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-widest text-paper">Image unavailable</span>
+      <div className="absolute inset-0" role="img" aria-label={alt + " image unavailable"}>
+        {fallback ?? <div className={cn("absolute inset-0", FALLBACK)} aria-hidden />}
       </div>
     );
   }

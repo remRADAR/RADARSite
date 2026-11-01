@@ -1,4 +1,5 @@
 import type { CmsRecord } from "@/lib/content-server";
+import { resolveCurrentMediaUrl } from "@/lib/current-media-map";
 
 /**
  * Pure editorial image utilities — safe for both server and client bundles.
@@ -10,8 +11,8 @@ import type { CmsRecord } from "@/lib/content-server";
  *
  * Handles:
  * - Jetpack/Photon rewrites (i0.wp.com/radarcharts.net/...) → stripped to the
- *   origin URL so the browser fetches the asset directly instead of through
- *   the retired Photon proxy.
+ *   direct source only when no verified R2 copy exists; the retired source may
+ *   still fail until the original is recovered.
  * - Local /editorial/... paths → passed through for Next.js static serving.
  * - R2 CDN URLs → passed through unchanged.
  * - HTTP radarcharts.net → upgraded to HTTPS.
@@ -21,6 +22,11 @@ export function resolveEditorialImageUrl(source: string | null | undefined): str
   if (!source) return "";
   const trimmed = typeof source === "string" ? source.trim() : "";
   if (!trimmed) return "";
+
+  // Prefer a verified R2 copy for retired current-CMS assets. The map is empty
+  // until originals are recovered, so unmapped sources retain the normal path.
+  const currentMediaUrl = resolveCurrentMediaUrl(trimmed);
+  if (currentMediaUrl) return currentMediaUrl;
 
   // Local static path — serve directly from /public.
   if (trimmed.startsWith("/")) return trimmed;
