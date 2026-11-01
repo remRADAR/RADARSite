@@ -1,0 +1,49 @@
+name: Merged main verification
+
+# Scoped verification of merged main after PRs #37/#38 (2026-11-01).
+# Runs every check CI does not run: Cloudflare content-store contract,
+# editorial feed contract, CSP + editorial-archives contract tests from PR #38,
+# and the actual Cloudflare/Vinext Workers build.
+on:
+  push:
+    branches: [verify/merged-main-2026-11-01]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: merged-main-verification-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Contract tests + Vinext Workers build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cloudflare content-store contract test
+        run: npm run cloudflare-content:contract-test
+
+      - name: Editorial feed contract test
+        run: npm run test:editorial-feed
+
+      - name: CSP contract test (PR #38)
+        run: npm run test:csp
+
+      - name: Editorial archives contract test (PR #38)
+        run: npm run test:editorial-archives
+
+      - name: Cloudflare (Vinext) Workers build
+        run: npm run build:vinext
