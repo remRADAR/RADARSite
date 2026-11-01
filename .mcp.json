@@ -1,0 +1,35 @@
+{
+  "mcpServers": {
+    "notion": {
+      "type": "http",
+      "url": "https://mcp.notion.com/mcp"
+    },
+    "vercel": {
+      "type": "http",
+      "url": "https://mcp.vercel.com"
+    },
+    "cloudflare-bindings": {
+      "type": "http",
+      "url": "https://bindings.mcp.cloudflare.com/mcp"
+    },
+    "cloudflare-observability": {
+      "type": "http",
+      "url": "https://observability.mcp.cloudflare.com/mcp"
+    },
+    "github": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [".devcontainer/mcp-github.sh"]
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    }
+  }
+}

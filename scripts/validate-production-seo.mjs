@@ -1,5 +1,5 @@
 const expected = "https://radarcharts.net";
-const production = process.env.PRODUCTION_DEPLOYMENT === "1" || process.env.DEPLOYMENT_ENV === "production" || process.env.VERCEL_ENV === "production";
+const production = process.env.PRODUCTION_DEPLOYMENT === "1" || process.env.DEPLOYMENT_ENV === "production";
 
 if (!production) {
   console.log("Production URL validation skipped: non-production environment.");

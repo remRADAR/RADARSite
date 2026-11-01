@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 
 const base = process.env.QA_BASE_URL || "http://127.0.0.1:3101";
 const routes = ["/", "/ontheradar/articles", "/ontheradar/articles/category/discovery-spot/page/1", "/ontheradar/articles/artist-spotlight-wealth-asuquo-abujas-livewire-afrobeats-star-on-a-relentless-rise"];
-const bad = /(localhost|127\.0\.0\.1|vercel\.app|wordpress|supabase|radarsite-two)/i;
+const bad = /(localhost|127\.0\.0\.1|vercel\.app|workers\.dev|wordpress|supabase|radarsite-two)/i;
 const get = (html, name, attribute = "property") => html.match(new RegExp(`<meta[^>]+${attribute}=["']${name}["'][^>]+content=["']([^"']*)["']`, "i"))?.[1] || html.match(new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]+${attribute}=["']${name}["']`, "i"))?.[1] || "";
 const canonical = (html) => html.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i)?.[1] || "";
 const results = [];

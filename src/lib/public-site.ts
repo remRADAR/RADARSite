@@ -4,7 +4,7 @@ import { defaultSiteOverrides, normalizeSiteOverrides } from "@/lib/site-overrid
 import { readStudioSettings } from "@/lib/studio-server";
 
 const FALLBACK_PUBLIC_SITE_URL = "https://radarcharts.net";
-const PREVIEW_HOSTS = ["localhost", "127.0.0.1", "vercel.app", "radarsite-two", "remradar.wordpress.com", "wordpress.com"];
+const PREVIEW_HOSTS = ["localhost", "127.0.0.1", "vercel.app", "workers.dev", "radarsite-two", "remradar.wordpress.com", "wordpress.com"];
 export const PUBLIC_SITE_OVERRIDES_CACHE_TAG = "radarsite-public-site-overrides";
 
 export function publicSiteUrl() {
@@ -42,7 +42,7 @@ export function safeSocialImageUrl(value: string | undefined, fallback = "/socia
   const candidate = value?.trim() || fallback;
   try {
     const parsed = new URL(candidate, publicSiteUrl());
-    if (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1" || parsed.hostname.includes("vercel.app") || parsed.hostname.includes("wordpress")) return absolutePublicUrl(fallback);
+    if (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1" || parsed.hostname.includes("vercel.app") || parsed.hostname.includes("workers.dev") || parsed.hostname.includes("wordpress")) return absolutePublicUrl(fallback);
     return parsed.origin === new URL(publicSiteUrl()).origin ? parsed.toString() : parsed.toString();
   } catch { return absolutePublicUrl(fallback); }
 }

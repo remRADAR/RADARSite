@@ -1,6 +1,7 @@
 const STATIC_PUBLIC_IMAGE_ORIGINS = [
   "https://images.unsplash.com",
   "https://lh3.googleusercontent.com",
+  "https://lh7-rt.googleusercontent.com",
   "https://cdn.radarcharts.net",
   "https://remradar.wordpress.com",
   "https://i0.wp.com",

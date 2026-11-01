@@ -40,6 +40,17 @@ export function recordsForEditorialType<T extends PublishedRecord>(records: T[],
   return canonicalEditorialRecords(records, type);
 }
 
+/**
+ * Homepage-eligible editorial sources are original Notion publications and
+ * recent Studio/site publications. Reconciled RADARCharts CMS records and the
+ * older WordPress archive remain available in editorial archives, but are not
+ * the current homepage pipeline. Unmarked records are not verified originals.
+ */
+export function isOriginalEditorialRecord(record: CmsRecord) {
+  const provider = typeof record.sourceProvider === "string" ? record.sourceProvider.trim().toLowerCase() : "";
+  return provider === "notion" || provider === "radarsite" || provider === "studio";
+}
+
 export function recordsForProject<T extends PublishedRecord>(records: T[], project = "Motherland") {
   return sortEditorialRecords(records.filter((record) => {
     if (record.status === "draft" || record.status === "archived") return false;

@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useSyncExternalStore } from "react";
+import { useSyncExternalStore, type ComponentType } from "react";
 import { FaLinkedinIn } from "react-icons/fa6";
 import { SiFacebook, SiInstagram, SiThreads, SiTiktok, SiX, SiYoutube } from "react-icons/si";
+import { Link2 } from "lucide-react";
 import { Marquee } from "@/components/motion/Marquee";
 import { RADARME_URL } from "@/lib/ia-content";
 import { getSiteOverridesServerSnapshot, getSiteOverridesSnapshot, parseSiteOverrides, subscribeToSiteOverrides } from "@/lib/site-overrides";
@@ -20,11 +21,38 @@ const SOCIALS = [
   { href: "https://www.tiktok.com/@radarcharts", label: "TikTok", Icon: SiTiktok },
 ];
 
+/**
+ * Studio overrides carry free-form social labels ("X (Twitter)", "IG", "Tik
+ * Tok"). The footer previously matched them case-sensitively against the exact
+ * SOCIALS keys, so any variation silently rendered an empty tile — the
+ * "missing icons" defect on freshly seeded stores. Canonicalize the label
+ * instead, and fall back to a generic link icon so a social tile never
+ * renders blank.
+ */
+const SOCIAL_LABEL_ALIASES: Record<string, string> = {
+  instagram: "Instagram", ig: "Instagram", insta: "Instagram",
+  x: "X", twitter: "X", xtwitter: "X",
+  facebook: "Facebook", fb: "Facebook",
+  threads: "Threads", thread: "Threads",
+  linkedin: "LinkedIn",
+  youtube: "YouTube", yt: "YouTube",
+  tiktok: "TikTok",
+};
+
+function canonicalSocialLabel(label: string) {
+  const key = label.toLowerCase().replace(/[^a-z0-9]/g, "");
+  return SOCIAL_LABEL_ALIASES[key] || label;
+}
+
+type SocialIconProps = { size?: number | string; className?: string; "aria-hidden"?: boolean };
+const SOCIAL_ICONS = new Map(SOCIALS.map((social) => [social.label, social.Icon]));
+const socialIconFor = (label: string): ComponentType<SocialIconProps> =>
+  (SOCIAL_ICONS.get(canonicalSocialLabel(label)) ?? Link2) as unknown as ComponentType<SocialIconProps>;
+
 export function SiteFooter() {
   const snapshot = useSyncExternalStore(subscribeToSiteOverrides, getSiteOverridesSnapshot, getSiteOverridesServerSnapshot);
   const overrides = parseSiteOverrides(snapshot);
   const socialLinks = overrides.socialLinks.filter((link) => link.enabled);
-  const socialIcons = new Map(SOCIALS.map((social) => [social.label, social.Icon]));
   const nav = (overrides.footerNav.length ? overrides.footerNav.filter((item) => item.visible).sort((a, b) => a.group.localeCompare(b.group)).map((item) => ({ href: item.url, label: item.label, newTab: item.newTab })) : NAV).map((item) => item.label === "RADARMe ↗" ? { ...item, href: overrides.radarMeUrl || RADARME_URL } : item);
 
   return (
@@ -52,7 +80,7 @@ export function SiteFooter() {
         <div className="border-b-2 border-paper p-6 md:border-b-0 md:border-r-2 md:p-8">
           <p className="font-mono text-[11px] font-bold uppercase tracking-widest text-muted-foreground">(Social)</p>
           <div className="mt-4 flex flex-wrap gap-3">
-            {socialLinks.map(({ href, label }) => { const Icon = socialIcons.get(label); return Icon ? <a key={label} href={href} target="_blank" rel="noreferrer" aria-label={`Follow remRADAR on ${label}`} title={label} className="brut-border border-paper inline-flex h-11 w-11 items-center justify-center text-paper transition-colors hover:bg-flare hover:text-flare-foreground"><Icon aria-hidden size={19} /></a> : null; })}
+            {socialLinks.map(({ href, label }) => { const Icon = socialIconFor(label); return <a key={label} href={href} target="_blank" rel="noreferrer" aria-label={`Follow remRADAR on ${label}`} title={label} className="brut-border border-paper inline-flex h-11 w-11 items-center justify-center text-paper transition-colors hover:bg-flare hover:text-flare-foreground"><Icon aria-hidden size={19} /></a>; })}
           </div>
         </div>
         <div className="p-6 md:p-8">

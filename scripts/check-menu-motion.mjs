@@ -1,6 +1,6 @@
 import { chromium } from "@playwright/test";
 
-const baseUrl = process.env.BASE_URL || "https://radarsite-staging.vercel.app";
+const baseUrl = process.env.BASE_URL || "https://radarcharts.net";
 const browser = await chromium.launch({ headless: true });
 const results = [];
 

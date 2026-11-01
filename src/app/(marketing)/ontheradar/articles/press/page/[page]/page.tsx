@@ -3,11 +3,15 @@ import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredD
 import { IaIndex } from "@/components/marketing/IaPages";
 import { ArchivePagination } from "@/components/marketing/ArchivePagination";
 import { readPublishedContent } from "@/lib/content-server";
-import { EDITORIAL_ARCHIVE_PAGE_SIZE, paginateRecords, parseArchivePage, recordsForEditorialType } from "@/lib/editorial-archives";
+import { paginateRecords, parseArchivePage, recordsForEditorialType } from "@/lib/editorial-archives";
 import { buildPageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
-export const dynamicParams = false;
+// The archive is CMS-backed and must reflect newly published Notion/CMS
+// records without requiring a site rebuild. readPublishedContent retains the
+// shared content cache and the publish webhook invalidates that cache.
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: { params: Promise<{ page: string }> }) {
   const page = parseArchivePage((await params).page);
@@ -16,12 +20,6 @@ export async function generateMetadata({ params }: { params: Promise<{ page: str
     description: "The current-first Press archive: ordinary RADAR editorial and news content, newest published entries first.",
     path: `/ontheradar/articles/press/page/${page}`,
   });
-}
-
-export async function generateStaticParams() {
-  const { articles } = await readPublishedContent();
-  const total = recordsForEditorialType(articles, "Press").length;
-  return Array.from({ length: Math.max(1, Math.ceil(total / EDITORIAL_ARCHIVE_PAGE_SIZE)) }, (_, index) => ({ page: String(index + 1) }));
 }
 
 export default async function PressArchive({ params }: { params: Promise<{ page: string }> }) {

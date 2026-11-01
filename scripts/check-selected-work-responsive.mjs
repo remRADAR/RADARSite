@@ -1,6 +1,6 @@
 import { chromium } from "@playwright/test";
 
-const baseUrl = process.env.BASE_URL || "https://radarsite-staging.vercel.app";
+const baseUrl = process.env.BASE_URL || "https://radarcharts.net";
 const viewports = [
   { name: "desktop-short", width: 1280, height: 720 },
   { name: "desktop-standard", width: 1280, height: 900 },
