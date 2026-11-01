@@ -18,7 +18,7 @@ function parseJsonLd(html) {
 }
 function flatten(value) { return Array.isArray(value) ? value.flatMap(flatten) : [value]; }
 function types(data) { return flatten(data).flatMap((item) => Array.isArray(item?.["@graph"]) ? item["@graph"] : [item]).map((item) => item?.["@type"]).filter(Boolean); }
-function hasUnsafeHost(value) { return /localhost|127\.0\.0\.1|vercel\.app|wordpress|supabase/i.test(value); }
+function hasUnsafeHost(value) { return /localhost|127\.0\.0\.1|vercel\.app|workers\.dev|wordpress|supabase/i.test(value); }
 
 const results = [];
 for (const route of routes) {

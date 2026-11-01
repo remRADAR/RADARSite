@@ -79,7 +79,7 @@ function types(data) {
 }
 
 function unsafeHost(value) {
-  return /localhost|127\.0\.0\.1|vercel\.app|wordpress|supabase/i.test(value);
+  return /localhost|127\.0\.0\.1|vercel\.app|workers\.dev|wordpress|supabase/i.test(value);
 }
 
 const sitemapResponse = await fetch(`${base}/sitemap.xml`);

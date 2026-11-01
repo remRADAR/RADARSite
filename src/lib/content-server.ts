@@ -2,11 +2,14 @@ import { unstable_cache } from "next/cache";
 import { gunzipSync, gzipSync } from "node:zlib";
 import type { Artist, Article, Event, MagazineStory, RadarProject, Release } from "@/lib/ia-content";
 import mergedContentSnapshot from "@/data/merged-content.json";
-import { validateMediaRelationship, type ContentMediaRelationship } from "@/lib/media-relationships";
+import { createMediaRelationshipId, validateMediaRelationship, type ContentMediaRelationship } from "@/lib/media-relationships";
 import { databaseSql } from "@/lib/database";
+import { cloudflareContentStoreConfigured, cloudflareContentStoreEnabled, createCloudflareContentState, isCloudflareConditionalWriteConflict, readCloudflareContentState, writeCloudflareContentState } from "@/lib/cloudflare-content-store";
+import { mediaStorageConfig } from "@/lib/media-storage";
+import type { ImportedNotionMedia } from "@/lib/notion-media";
 
-export const PUBLIC_CONTENT_CACHE_TAG = "radarsite-public-content";
-export const PUBLIC_CONTENT_REVALIDATE_SECONDS = 60 * 60;
+export const PUBLIC_CONTENT_CACHE_TAG = "radarsite-public-content-v2";
+export const PUBLIC_CONTENT_REVALIDATE_SECONDS = process.env.RADAR_NOTION_DIRECT_READ_ENABLED === "true" ? 240 : 60 * 60;
 export const REMOVED_DEMO_ARTICLE_SLUGS = new Set(["luna-vale-after-midnight", "rooms-that-remember"]);
 
 export type CmsRecord = { id?: string; sourceId?: string; sourceUrl?: string; slug: string; path?: string; title?: string; name?: string; subtitle?: string; excerpt?: string; description?: string; body?: string; bodyHtml?: string; metaTitle?: string; metaDescription?: string; canonicalUrl?: string; socialImage?: string; noindex?: boolean; focusTopic?: string; status?: "draft" | "published" | "archived"; imageUrl?: string; featuredImage?: string; featuredImageAlt?: string; featuredImageCaption?: string; publishedAt?: string; date?: string; author?: string; editorialType?: "Press" | "Spotlight" | "Magazine" | "article" | "interview" | "spotlight" | "magazine"; magazineSubtype?: "Special Episode" | "Magazine Episode" | ""; projectSection?: string; section?: string; categories?: string[]; tags?: string[]; tagsSuggested?: string[]; tagsApproved?: string[]; migrationWarnings?: string[]; sourceExcerpt?: string; sourceExcerptSurface?: string; sourceArtistId?: string; sourceArtistName?: string; sourceSongId?: string; sourceSongName?: string; sourceReleaseId?: string; sourceReleaseName?: string; [key: string]: unknown };
@@ -17,7 +20,172 @@ type ReadContentOptions = { fallbackToSnapshot?: boolean };
 const MAX_CONTENT_BYTES = 20 * 1024 * 1024;
 const mergedSnapshot = normalizeContent(mergedContentSnapshot);
 
+type NotionPageResponse = import("@/lib/notion-editorial-sync").NotionPage;
+type NotionBlockResponse = import("@/lib/notion-editorial-sync").NotionBlock;
+
+function notionDirectReadEnabled() {
+  return process.env.RADAR_NOTION_DIRECT_READ_ENABLED === "true" && Boolean(process.env.NOTION_API_KEY) && Boolean(process.env.RADAR_NOTION_DATA_SOURCE_ID);
+}
+
+async function notionDirectJson<T>(url: string, init: RequestInit = {}): Promise<T> {
+  const token = process.env.NOTION_API_KEY || "";
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const response = await fetch(url, {
+        ...init,
+        cache: "no-store",
+        redirect: "follow",
+        signal: init.signal || AbortSignal.timeout(15_000),
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Notion-Version": "2026-03-11",
+          accept: "application/json",
+          ...(init.body ? { "content-type": "application/json" } : {}),
+          ...init.headers,
+        },
+      });
+      if (!response.ok) {
+        if ((response.status === 429 || response.status >= 500) && attempt < 2) {
+          await new Promise((resolve) => setTimeout(resolve, 250 * 2 ** attempt));
+          continue;
+        }
+        throw new Error(`Notion direct read failed with HTTP ${response.status}.`);
+      }
+      return await response.json() as T;
+    } catch (error) {
+      lastError = error;
+      if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 250 * 2 ** attempt));
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error(String(lastError));
+}
+
+async function notionDirectChildren(blockId: string): Promise<NotionBlockResponse[]> {
+  const blocks: NotionBlockResponse[] = [];
+  let cursor = "";
+  do {
+    const query = new URLSearchParams({ page_size: "100" });
+    if (cursor) query.set("start_cursor", cursor);
+    const page = await notionDirectJson<{ results?: NotionBlockResponse[]; has_more?: boolean; next_cursor?: string | null }>(`https://api.notion.com/v1/blocks/${encodeURIComponent(blockId)}/children?${query}`);
+    blocks.push(...(page.results || []));
+    cursor = page.has_more ? (page.next_cursor || "") : "";
+    if (blocks.length > 1500) throw new Error("Notion article exceeds the supported 1,500-block limit.");
+  } while (cursor);
+  return blocks;
+}
+
+function directSlug(title: string) {
+  return title.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 180) || "notion-article";
+}
+
+async function readDirectNotionContent(): Promise<ContentCollections | null> {
+  if (!notionDirectReadEnabled()) return null;
+  const sync = await import("@/lib/notion-editorial-sync");
+  const dataSourceId = sync.normalizeNotionPageId(process.env.RADAR_NOTION_DATA_SOURCE_ID);
+  if (!dataSourceId) throw new Error("RADAR_NOTION_DATA_SOURCE_ID is invalid.");
+  const importedMedia = new Map<string, ImportedNotionMedia>();
+  if (cloudflareContentStoreConfigured()) {
+    try {
+      const state = await readCloudflareContentState();
+      const publicBaseUrl = mediaStorageConfig().publicBaseUrl;
+      if (state && publicBaseUrl) {
+        for (const relationship of state.state.relationships) {
+          if (!relationship || typeof relationship !== "object") continue;
+          const item = relationship as { contentKey?: unknown; sourceLocator?: unknown; mediaId?: unknown; provenance?: unknown };
+          const provenance = item.provenance && typeof item.provenance === "object" ? item.provenance as { mediaKey?: unknown; checksum?: unknown; sourceUrl?: unknown } : {};
+          if (typeof item.contentKey !== "string" || typeof item.sourceLocator !== "string" || typeof provenance.mediaKey !== "string") continue;
+          const key = provenance.mediaKey.replace(/^\/+/, "");
+          const locator = `${item.contentKey}:${item.sourceLocator}`;
+          importedMedia.set(locator, {
+            id: String(item.mediaId || ""),
+            url: `${publicBaseUrl}/${key.split("/").map(encodeURIComponent).join("/")}`,
+            key,
+            checksum: String(provenance.checksum || ""),
+            contentType: "image/webp",
+            size: 0,
+            blockId: String(item.sourceLocator).replace(/^notion:block:/, ""),
+            sourceUrl: String(provenance.sourceUrl || ""),
+          });
+        }
+      }
+    } catch (error) {
+      throw new Error(`Cloudflare media lookup failed; refusing to serve untracked Notion image URLs: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  const newlyImported = new Map<string, ImportedNotionMedia>();
+  const newlyImportedPlacement = new Map<string, number>();
+  const notionMedia = await import("@/lib/notion-media");
+  const resolveImage = async (pageId: string, url: string, blockId: string, alt: string) => {
+    const locator = `notion:${pageId}:notion:block:${blockId}`;
+    const existing = importedMedia.get(locator) || newlyImported.get(locator);
+    if (existing) return existing;
+    const imported = await notionMedia.importNotionImage({ url, pageId, blockId, alt });
+    newlyImported.set(locator, imported);
+    return imported;
+  };
+  const dataSource = await notionDirectJson<import("@/lib/notion-editorial-sync").NotionDataSource>(`https://api.notion.com/v1/data_sources/${encodeURIComponent(dataSourceId)}`);
+  const pages: NotionPageResponse[] = [];
+  let cursor = "";
+  do {
+    const query = await notionDirectJson<{ results?: NotionPageResponse[]; has_more?: boolean; next_cursor?: string | null }>(`https://api.notion.com/v1/data_sources/${encodeURIComponent(dataSourceId)}/query`, {
+      method: "POST",
+      body: JSON.stringify({ page_size: 100, ...(cursor ? { start_cursor: cursor } : {}), sorts: [{ timestamp: "last_edited_time", direction: "descending" }] }),
+    });
+    pages.push(...(query.results || []));
+    cursor = query.has_more ? (query.next_cursor || "") : "";
+    if (pages.length > 10_000) throw new Error("Notion editorial data source exceeds the supported 10,000-page limit.");
+  } while (cursor);
+  const publishablePages = pages.filter((page) => sync.readNotionProperty(page, sync.EDITORIAL_PROPERTY_NAMES.publish) === true && ["Approved", "Publishing", "Published"].includes(String(sync.readNotionProperty(page, sync.EDITORIAL_PROPERTY_NAMES.status) || "")));
+  const records: CmsRecord[] = [];
+  for (const page of publishablePages) {
+    const pageId = sync.normalizeNotionPageId(page.id);
+    if (!pageId) continue;
+    const blocks = await notionDirectChildren(pageId);
+    const rendered = await sync.renderNotionBlockTree(blocks, notionDirectChildren, async (url, blockId, alt) => (await resolveImage(pageId, url, blockId, alt || "RADARCharts article image")).url);
+    for (const image of rendered.images) newlyImportedPlacement.set(`notion:${pageId}:notion:block:${image.blockId}`, image.placementIndex);
+    const draft = sync.mapNotionPageToDraft(page, dataSource, rendered.html);
+    const placement = sync.notionEditorialPlacement(draft);
+    const slug = directSlug(draft.title);
+    const featuredSource = sync.notionFeaturedImageSource(page);
+    const featured = featuredSource ? await resolveImage(pageId, featuredSource, "featured-image", draft.title) : undefined;
+    const featuredImage = featured?.url || "";
+    const canonicalUrl = draft.canonicalUrl || `https://radarcharts.net/ontheradar/articles/${slug}`;
+    records.push(cleanRecord({
+      id: sync.deterministicCmsId(pageId), sourceProvider: "notion", sourceId: pageId, sourceUrl: draft.notionUrl, notionPageId: pageId,
+      slug, path: `/ontheradar/articles/${slug}`, title: draft.title, excerpt: draft.excerpt, body: draft.body, bodyHtml: draft.bodyHtml,
+      metaTitle: draft.seoTitle, metaDescription: draft.seoDescription, canonicalUrl, socialImage: featuredImage,
+      imageUrl: featuredImage, featuredImage, featuredImageAlt: draft.title, publishedAt: draft.scheduledAt || page.last_edited_time || new Date().toISOString(), date: draft.scheduledAt || page.last_edited_time || new Date().toISOString(),
+      author: draft.author, tags: draft.tags, categories: [placement.category], section: placement.section, featured: draft.featured, status: "published", editorialType: draft.editorialType, magazineSubtype: draft.magazineSubtype, projectSection: draft.projectSection,
+    }));
+  }
+  for (const [locator, image] of newlyImported) {
+    const match = locator.match(/^notion:([^:]+):notion:block:(.+)$/);
+    if (!match) continue;
+    const [, pageId, blockId] = match;
+    const isFeatured = blockId === "featured-image";
+    const relationship = {
+      id: "",
+      mediaId: image.id,
+      contentKey: `notion:${pageId}`,
+      contentSourceProvider: "notion",
+      contentSourceId: pageId,
+      role: isFeatured ? "featured" as const : "inline" as const,
+      ...(isFeatured ? {} : { placementIndex: newlyImportedPlacement.get(locator) ?? 0 }),
+      sourceLocator: `notion:block:${blockId}`,
+      migrationRunId: `notion-direct-read:${pageId}`,
+      provenance: { mediaKey: image.key, checksum: image.checksum, sourceUrl: image.sourceUrl },
+    };
+    relationship.id = createMediaRelationshipId(relationship);
+    await upsertMediaRelationship(relationship);
+  }
+  const notionIds = new Set(records.map((record) => record.sourceId));
+  const keepLegacy = (items: CmsRecord[]) => items.filter((item) => !(item.sourceProvider === "notion" || notionIds.has(item.sourceId || "")));
+  return { ...mergedSnapshot, articles: [...keepLegacy(mergedSnapshot.articles as CmsRecord[]), ...records] as Article[], magazine: keepLegacy(mergedSnapshot.magazine as CmsRecord[]) as MagazineStory[] };
+}
+
 export function hasContentDatabase() { return Boolean(process.env.DATABASE_URL); }
+export function usesCloudflareContentStore() { return cloudflareContentStoreEnabled() && cloudflareContentStoreConfigured(); }
 function sql() { return databaseSql(); }
 function isProductionBuild() { return process.env.NEXT_PHASE === "phase-production-build" || process.env.RADAR_SKIP_DATABASE === "1"; }
 function errorDetails(error: unknown) { return { name: error instanceof Error ? error.name : "UnknownError", message: error instanceof Error ? error.message : String(error) }; }
@@ -34,11 +202,27 @@ export function normalizeContent(input: unknown): ContentCollections { const val
 export async function ensureContentTable() { await sql()`CREATE TABLE IF NOT EXISTS studio_content (id integer PRIMARY KEY, content jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`; }
 export async function ensureMediaTable() { await sql()`CREATE TABLE IF NOT EXISTS content_media (id text PRIMARY KEY, content_id text, source_provider text, source_url text, source_id text, original_filename text, mime_type text, file_size bigint, width integer, height integer, storage_provider text NOT NULL, storage_bucket text NOT NULL, storage_key text NOT NULL UNIQUE, delivery_url text, checksum text, migration_status text NOT NULL, provenance jsonb NOT NULL DEFAULT '{}'::jsonb, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now())`; }
 export async function ensureMediaRelationshipsTable() { await ensureMediaTable(); await sql()`CREATE TABLE IF NOT EXISTS content_media_relationships (id text PRIMARY KEY, media_id text NOT NULL REFERENCES content_media(id) ON DELETE CASCADE, content_key text NOT NULL, content_source_provider text, content_source_id text, role text NOT NULL CHECK (role IN ('featured', 'inline')), placement_index integer, source_locator text, migration_run_id text NOT NULL, provenance jsonb NOT NULL DEFAULT '{}'::jsonb, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now(), CHECK ((role = 'featured' AND placement_index IS NULL) OR (role = 'inline' AND placement_index IS NOT NULL AND placement_index >= 0)) )`; await sql()`CREATE UNIQUE INDEX IF NOT EXISTS content_media_relationships_identity_idx ON content_media_relationships (media_id, content_key, role, COALESCE(placement_index, -1))`; await sql()`CREATE UNIQUE INDEX IF NOT EXISTS content_media_relationships_featured_idx ON content_media_relationships (content_key) WHERE role = 'featured'`; }
-export async function upsertMediaRecord(record: ContentMediaRecord) { await ensureMediaTable(); await sql()`INSERT INTO content_media (id, content_id, source_provider, source_url, source_id, original_filename, mime_type, file_size, width, height, storage_provider, storage_bucket, storage_key, delivery_url, checksum, migration_status, provenance, updated_at) VALUES (${record.id}, ${record.contentId || null}, ${record.sourceProvider || null}, ${record.sourceUrl || null}, ${record.sourceId || null}, ${record.originalFilename || null}, ${record.mimeType || null}, ${record.fileSize || null}, ${record.width || null}, ${record.height || null}, ${record.storageProvider}, ${record.storageBucket}, ${record.storageKey}, ${record.deliveryUrl || null}, ${record.checksum || null}, ${record.migrationStatus}, ${JSON.stringify(record.provenance || {})}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET content_id = EXCLUDED.content_id, source_provider = EXCLUDED.source_provider, source_url = EXCLUDED.source_url, source_id = EXCLUDED.source_id, original_filename = EXCLUDED.original_filename, mime_type = EXCLUDED.mime_type, file_size = EXCLUDED.file_size, width = EXCLUDED.width, height = EXCLUDED.height, storage_provider = EXCLUDED.storage_provider, storage_bucket = EXCLUDED.storage_bucket, storage_key = EXCLUDED.storage_key, delivery_url = EXCLUDED.delivery_url, checksum = EXCLUDED.checksum, migration_status = EXCLUDED.migration_status, provenance = EXCLUDED.provenance, updated_at = now()`; }
-export async function upsertMediaRelationship(input: ContentMediaRelationship) { const record = validateMediaRelationship(input); await ensureMediaRelationshipsTable(); await sql()`INSERT INTO content_media_relationships (id, media_id, content_key, content_source_provider, content_source_id, role, placement_index, source_locator, migration_run_id, provenance, updated_at) VALUES (${record.id}, ${record.mediaId}, ${record.contentKey}, ${record.contentSourceProvider || null}, ${record.contentSourceId || null}, ${record.role}, ${record.placementIndex ?? null}, ${record.sourceLocator || null}, ${record.migrationRunId}, ${JSON.stringify(record.provenance || {})}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET media_id = EXCLUDED.media_id, content_key = EXCLUDED.content_key, content_source_provider = EXCLUDED.content_source_provider, content_source_id = EXCLUDED.content_source_id, role = EXCLUDED.role, placement_index = EXCLUDED.placement_index, source_locator = EXCLUDED.source_locator, migration_run_id = EXCLUDED.migration_run_id, provenance = EXCLUDED.provenance, updated_at = now()`; return record; }
-export async function deleteMediaRelationship(id: string) { if (!hasContentDatabase()) return; await ensureMediaRelationshipsTable(); await sql()`DELETE FROM content_media_relationships WHERE id = ${id}`; }
+export async function upsertMediaRecord(record: ContentMediaRecord) {
+  // In the Cloudflare/R2 content-store mode, the object metadata plus the
+  // content_media_relationships entry are the durable media registry. Do not
+  // require the retired Neon media table for a Notion image import.
+  if (usesCloudflareContentStore()) return record;
+  await ensureMediaTable();
+  await sql()`INSERT INTO content_media (id, content_id, source_provider, source_url, source_id, original_filename, mime_type, file_size, width, height, storage_provider, storage_bucket, storage_key, delivery_url, checksum, migration_status, provenance, updated_at) VALUES (${record.id}, ${record.contentId || null}, ${record.sourceProvider || null}, ${record.sourceUrl || null}, ${record.sourceId || null}, ${record.originalFilename || null}, ${record.mimeType || null}, ${record.fileSize || null}, ${record.width || null}, ${record.height || null}, ${record.storageProvider}, ${record.storageBucket}, ${record.storageKey}, ${record.deliveryUrl || null}, ${record.checksum || null}, ${record.migrationStatus}, ${JSON.stringify(record.provenance || {})}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET content_id = EXCLUDED.content_id, source_provider = EXCLUDED.source_provider, source_url = EXCLUDED.source_url, source_id = EXCLUDED.source_id, original_filename = EXCLUDED.original_filename, mime_type = EXCLUDED.mime_type, file_size = EXCLUDED.file_size, width = EXCLUDED.width, height = EXCLUDED.height, storage_provider = EXCLUDED.storage_provider, storage_bucket = EXCLUDED.storage_bucket, storage_key = EXCLUDED.storage_key, delivery_url = EXCLUDED.delivery_url, checksum = EXCLUDED.checksum, migration_status = EXCLUDED.migration_status, provenance = EXCLUDED.provenance, updated_at = now()`;
+  return record;
+}
+async function updateCloudflareState(mutator: (state: ReturnType<typeof createCloudflareContentState>) => ReturnType<typeof createCloudflareContentState>) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const current = await readCloudflareContentState();
+    const base = current?.state || createCloudflareContentState(mergedSnapshot, []);
+    try { await writeCloudflareContentState(mutator(base), current?.etag || null); return; }
+    catch (error) { if (!isCloudflareConditionalWriteConflict(error) || attempt === 2) throw error; }
+  }
+}
+export async function upsertMediaRelationship(input: ContentMediaRelationship) { const record = validateMediaRelationship(input); if (usesCloudflareContentStore()) { await updateCloudflareState((state) => createCloudflareContentState(state.content, [...state.relationships.filter((item) => (item as ContentMediaRelationship).id !== record.id), record])); return record; } await ensureMediaRelationshipsTable(); await sql()`INSERT INTO content_media_relationships (id, media_id, content_key, content_source_provider, content_source_id, role, placement_index, source_locator, migration_run_id, provenance, updated_at) VALUES (${record.id}, ${record.mediaId}, ${record.contentKey}, ${record.contentSourceProvider || null}, ${record.contentSourceId || null}, ${record.role}, ${record.placementIndex ?? null}, ${record.sourceLocator || null}, ${record.migrationRunId}, ${JSON.stringify(record.provenance || {})}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET media_id = EXCLUDED.media_id, content_key = EXCLUDED.content_key, content_source_provider = EXCLUDED.content_source_provider, content_source_id = EXCLUDED.content_source_id, role = EXCLUDED.role, placement_index = EXCLUDED.placement_index, source_locator = EXCLUDED.source_locator, migration_run_id = EXCLUDED.migration_run_id, provenance = EXCLUDED.provenance, updated_at = now()`; return record; }
+export async function deleteMediaRelationship(id: string) { if (usesCloudflareContentStore()) { await updateCloudflareState((state) => createCloudflareContentState(state.content, state.relationships.filter((item) => (item as ContentMediaRelationship).id !== id))); return; } if (!hasContentDatabase()) return; await ensureMediaRelationshipsTable(); await sql()`DELETE FROM content_media_relationships WHERE id = ${id}`; }
 export async function deleteMediaRelationshipsByRun(migrationRunId: string) { if (!hasContentDatabase()) return; await ensureMediaRelationshipsTable(); await sql()`DELETE FROM content_media_relationships WHERE migration_run_id = ${migrationRunId}`; }
-export async function listMediaRelationshipsByContent(contentKey: string) { if (!hasContentDatabase()) return []; await ensureMediaRelationshipsTable(); return await sql()`SELECT id, media_id AS "mediaId", content_key AS "contentKey", content_source_provider AS "contentSourceProvider", content_source_id AS "contentSourceId", role, placement_index AS "placementIndex", source_locator AS "sourceLocator", migration_run_id AS "migrationRunId", provenance FROM content_media_relationships WHERE content_key = ${contentKey} ORDER BY CASE WHEN role = 'featured' THEN 0 ELSE 1 END, placement_index NULLS FIRST, id` as unknown as ContentMediaRelationship[]; }
+export async function listMediaRelationshipsByContent(contentKey: string) { if (usesCloudflareContentStore()) { const state = await readCloudflareContentState(); return (state?.state.relationships || []).filter((item) => (item as ContentMediaRelationship).contentKey === contentKey) as ContentMediaRelationship[]; } if (!hasContentDatabase()) return []; await ensureMediaRelationshipsTable(); return await sql()`SELECT id, media_id AS "mediaId", content_key AS "contentKey", content_source_provider AS "contentSourceProvider", content_source_id AS "contentSourceId", role, placement_index AS "placementIndex", source_locator AS "sourceLocator", migration_run_id AS "migrationRunId", provenance FROM content_media_relationships WHERE content_key = ${contentKey} ORDER BY CASE WHEN role = 'featured' THEN 0 ELSE 1 END, placement_index NULLS FIRST, id` as unknown as ContentMediaRelationship[]; }
 async function hydrateMigratedMedia(content: ContentCollections): Promise<ContentCollections> {
   if (!hasContentDatabase()) return content;
   try {
@@ -67,7 +251,28 @@ export async function countMediaRecords() { if (!hasContentDatabase()) return 0;
 function shouldUseMergedSnapshot(content: ContentCollections) { const demoSlugs = new Set(["north-star-release-note", "radar-sessions-season-two"]); return content.articles.length < mergedSnapshot.articles.length || content.articles.some((article) => demoSlugs.has(article.slug)); }
 
 async function readContentUncached({ fallbackToSnapshot = false }: ReadContentOptions = {}): Promise<ContentCollections> {
-  if (isProductionBuild() || !hasContentDatabase()) return mergedSnapshot;
+  if (isProductionBuild() && !notionDirectReadEnabled()) return mergedSnapshot;
+  // The Cloudflare content object is the published CMS source of truth. Read it
+  // before attempting a direct Notion traversal: direct mode has to enumerate
+  // every approved page, render every block tree, and resolve media, which can
+  // exceed a serverless request budget and incorrectly force a snapshot fallback.
+  if (usesCloudflareContentStore()) {
+    try {
+      const state = await readCloudflareContentState();
+      if (state) return normalizeContent(state.state.content);
+    } catch (error) {
+      logContentReadError(error, "Cloudflare public content read failed; trying direct Notion or the existing CMS source");
+    }
+  }
+  if (notionDirectReadEnabled()) {
+    try {
+      const direct = await readDirectNotionContent();
+      if (direct) return normalizeContent(direct);
+    } catch (error) {
+      logContentReadError(error, "Direct Notion public read failed; trying the existing CMS source");
+    }
+  }
+  if (!hasContentDatabase()) return mergedSnapshot;
   try {
     await ensureContentTable();
     const rows = await sql()`SELECT content FROM studio_content WHERE id = 1 LIMIT 1` as { content: unknown }[];
@@ -85,11 +290,11 @@ export async function readContent(options?: ReadContentOptions) { return readCon
 const readCachedPublicContent = unstable_cache(async () => {
   const content = await readContentUncached({ fallbackToSnapshot: true });
   return gzipSync(JSON.stringify(content)).toString("base64");
-}, ["radarsite-public-content"], { revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS, tags: [PUBLIC_CONTENT_CACHE_TAG] });
+}, ["radarsite-public-content-v2"], { revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS, tags: [PUBLIC_CONTENT_CACHE_TAG] });
 export async function readPublicContent() {
   // Static builds always use the committed snapshot. Avoid invoking the runtime
   // cache, gzip, and JSON round-trip once per prerendered page and metadata pass.
-  if (isProductionBuild()) return mergedSnapshot;
+  if (isProductionBuild() && !notionDirectReadEnabled()) return mergedSnapshot;
   const encoded = await readCachedPublicContent();
   return normalizeContent(JSON.parse(gunzipSync(Buffer.from(encoded, "base64")).toString("utf8")));
 }
@@ -99,8 +304,9 @@ export async function readPublishedContent(): Promise<ContentCollections> {
   function published<T>(items: T[]): T[] { return items.filter((item) => { const status = item && typeof item === "object" && "status" in item ? (item as { status?: string }).status : undefined; return status !== "draft" && status !== "archived"; }); }
   return { ...content, artists: published(content.artists), releases: published(content.releases), articles: published(content.articles), magazine: published(content.magazine), radarProjects: published(content.radarProjects), events: published(content.events), pages: published(content.pages), categories: published(content.categories), archives: published(content.archives) };
 }
-export async function writeContent(input: unknown) { const content = normalizeContent(input); if (Buffer.byteLength(JSON.stringify(content), "utf8") > MAX_CONTENT_BYTES) throw new Error("CMS content payload is too large"); await ensureContentTable(); await sql()`INSERT INTO studio_content (id, content, updated_at) VALUES (1, ${JSON.stringify(content)}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET content = EXCLUDED.content, updated_at = now()`; return content; }
+export async function writeContent(input: unknown) { const content = normalizeContent(input); if (Buffer.byteLength(JSON.stringify(content), "utf8") > MAX_CONTENT_BYTES) throw new Error("CMS content payload is too large"); if (usesCloudflareContentStore()) { const current = await readCloudflareContentState(); await writeCloudflareContentState(createCloudflareContentState(content, current?.state.relationships || []), current?.etag || null); return content; } await ensureContentTable(); await sql()`INSERT INTO studio_content (id, content, updated_at) VALUES (1, ${JSON.stringify(content)}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET content = EXCLUDED.content, updated_at = now()`; return content; }
 export async function readContentWriteSnapshot(): Promise<{ content: ContentCollections; revision: unknown | null }> {
+  if (usesCloudflareContentStore()) { const state = await readCloudflareContentState(); const seeded = state ? normalizeContent(state.state.content) : (await readDirectNotionContent()) || mergedSnapshot; return { content: seeded, revision: state ? { etag: state.etag, revision: state.state.revision } : null }; }
   if (!hasContentDatabase() || isProductionBuild()) throw new Error("Shared CMS writes are unavailable in this environment");
   await ensureContentTable();
   const rows = await sql()`SELECT content FROM studio_content WHERE id = 1 LIMIT 1` as { content: unknown }[];
@@ -109,6 +315,7 @@ export async function readContentWriteSnapshot(): Promise<{ content: ContentColl
   return { content: await hydrateMigratedMedia(content), revision };
 }
 export async function readContentSnapshotReadOnly(): Promise<ContentCollections | null> {
+  if (usesCloudflareContentStore()) { const state = await readCloudflareContentState(); return state ? normalizeContent(state.state.content) : (await readDirectNotionContent()) || null; }
   if (!hasContentDatabase() || isProductionBuild()) return null;
   try {
     // Intentionally do not call ensureContentTable here: a dry-run must not
@@ -123,6 +330,7 @@ export async function readContentSnapshotReadOnly(): Promise<ContentCollections 
 export async function writeContentIfUnchanged(revision: unknown | null, input: unknown): Promise<boolean> {
   const content = normalizeContent(input);
   if (Buffer.byteLength(JSON.stringify(content), "utf8") > MAX_CONTENT_BYTES) throw new Error("CMS content payload is too large");
+  if (usesCloudflareContentStore()) { const expected = revision as { etag?: string; revision?: string } | null; const current = await readCloudflareContentState(); if (expected === null) { if (current) return false; } else if (!current || current.etag !== expected.etag || current.state.revision !== expected.revision) return false; try { await writeCloudflareContentState(createCloudflareContentState(content, current?.state.relationships || []), current?.etag || null); return true; } catch (error) { if (isCloudflareConditionalWriteConflict(error)) return false; throw error; } }
   await ensureContentTable();
   if (revision === null) {
     const inserted = await sql()`INSERT INTO studio_content (id, content, updated_at) VALUES (1, ${JSON.stringify(content)}::jsonb, now()) ON CONFLICT (id) DO NOTHING RETURNING id` as { id: number }[];
@@ -137,4 +345,4 @@ export function isSnapshotOnlyBuild() { return isProductionBuild(); }
 export function contentCacheTag() { return PUBLIC_CONTENT_CACHE_TAG; }
 export function contentCacheRevalidateSeconds() { return PUBLIC_CONTENT_REVALIDATE_SECONDS; }
 export function logReadContentError(error: unknown, context: string) { logContentReadError(error, context); }
-export function readContentTransferRiskSummary() { return { public: "readPublicContent/readPublishedContent uses one tagged shared cache entry with a 1-hour revalidate; metadata and page rendering share it", studioGet: "GET /api/studio performs one uncached content read per request when DATABASE_URL is configured", studioWrite: "PUT /api/studio writes studio_content but does not read it", build: "Production builds use merged-content.json when NEXT_PHASE=phase-production-build or RADAR_SKIP_DATABASE=1" }; }
+export function readContentTransferRiskSummary() { return { public: "readPublicContent/readPublishedContent uses one tagged shared cache entry with a 1-hour revalidate; metadata and page rendering share it", studioGet: "GET /api/studio reads the active Cloudflare content object when the Cloudflare store is enabled", studioWrite: "PUT /api/studio writes the active Cloudflare content object when the Cloudflare store is enabled", legacy: "Neon studio_content remains available only when the Cloudflare store is disabled", build: "Production builds use merged-content.json when NEXT_PHASE=phase-production-build or RADAR_SKIP_DATABASE=1" }; }

@@ -1,0 +1,84 @@
+/*
+  MOTHERLand page motion — slow, sweet, scroll-linked life. Pure CSS, no JS,
+  reduced-motion safe. Three layers:
+
+  1. The hero breathes: a gentle ken-burns drift on loop.
+  2. Scroll-linked parallax: where scroll-driven animations are supported,
+     the hero eases upward and softly dims as it leaves the viewport.
+  3. Content rises softly into place as it enters the viewport — the title
+     block today, and any hero text added to this page later (add
+     .motherland-rise to any block to opt it in).
+
+  Timing and easing reuse the site motion tokens from globals.css
+  (--ease-out, --ease-in-out) so the page reads as one system.
+*/
+
+/* 1. The hero breathes. */
+@keyframes motherland-breathe {
+  from { transform: scale(1.05) translate3d(0, 0, 0); }
+  to { transform: scale(1.11) translate3d(0, -1.5%, 0); }
+}
+
+.motherland-hero-media {
+  animation: motherland-breathe 26s var(--ease-in-out) infinite alternate;
+  will-change: transform;
+}
+
+/* 2. Scroll-linked parallax. Browsers without scroll-driven animations
+      keep the breathing loop only — graceful fallback, never broken. */
+@keyframes motherland-hero-exit {
+  from { translate: 0 0; opacity: 1; }
+  to { translate: 0 5%; opacity: 0.55; }
+}
+
+@supports (animation-timeline: scroll(root block)) {
+  .motherland-hero-media {
+    animation:
+      motherland-breathe 26s var(--ease-in-out) infinite alternate,
+      motherland-hero-exit 1s linear both;
+    animation-timeline: auto, scroll(root block);
+    /* This page's opening scroll range spans roughly the hero's viewport
+       height, so the fade and upward drift finish as the hero exits. */
+    animation-range: normal, 0% 8%;
+  }
+
+  @media (max-width: 767px) {
+    .motherland-hero-media {
+      animation-range: normal, 0% 5.3%;
+    }
+  }
+}
+
+/* 3. Soft rise into place. */
+@keyframes motherland-rise {
+  from { opacity: 0; transform: translate3d(0, 1.75rem, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+.motherland-rise {
+  animation: motherland-rise 900ms var(--ease-out) both;
+}
+
+@supports (animation-timeline: scroll(root block)) {
+  .motherland-index > div:first-child > * {
+    animation: motherland-rise linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 1.3% 3.3%;
+  }
+
+  @media (max-width: 767px) {
+    .motherland-index > div:first-child > * {
+      animation-range: 0.75% 2.2%;
+    }
+  }
+}
+
+/* Reduced motion: everything settles instantly; nothing loops. The hero
+   GIF itself keeps playing (it is content, not decoration). */
+@media (prefers-reduced-motion: reduce) {
+  .motherland-hero-media,
+  .motherland-rise,
+  .motherland-index > div:first-child > * {
+    animation: none !important;
+  }
+}

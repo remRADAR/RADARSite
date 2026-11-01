@@ -16,8 +16,13 @@ const freezeVisuals = async (page: Page) => {
   });
   await page.evaluate(async () => {
     await document.fonts.ready;
+    const imagesToFreeze = [...document.images].filter((image) => {
+      if (image.closest("[data-hero-panel]")) return true;
+      const { top, bottom } = image.getBoundingClientRect();
+      return bottom > 0 && top < window.innerHeight;
+    });
     await Promise.all(
-      [...document.images].map((image) =>
+      imagesToFreeze.map((image) =>
         image.complete
           ? Promise.resolve()
           : new Promise<void>((resolve) => {

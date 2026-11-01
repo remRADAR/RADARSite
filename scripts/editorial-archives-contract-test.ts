@@ -19,6 +19,20 @@ assert.deepEqual(spotlight.map((item) => item.slug), ["artist-spotlight"]);
 assert.deepEqual(magazine.map((item) => item.slug), ["magazine-episode", "magazine-special"]);
 assert.equal(recordsForMagazineSubtype(fixture, "Special Episode")[0]?.slug, "magazine-special");
 assert.equal(recordsForMagazineSubtype(fixture, "Magazine Episode")[0]?.slug, "magazine-episode");
+const notionEditorialRecords: CmsRecord[] = [
+  { slug: "notion-press", title: "Published Notion Press article", editorialType: "Press", sourceProvider: "notion", status: "published" },
+  { slug: "notion-spotlight", title: "Published Notion Spotlight article", editorialType: "Spotlight", sourceProvider: "notion", status: "published" },
+];
+const adminPressRecord: CmsRecord = {
+  slug: "styling-is-choosing-life-with-aye-lawa-feat-wyza",
+  title: "Published admin Press article",
+  editorialType: "Press",
+  sourceProvider: "radarsite",
+  status: "published",
+};
+assert.equal(recordsForEditorialType([adminPressRecord], "Press")[0]?.slug, adminPressRecord.slug, "published admin CMS content appears in Press");
+assert.deepEqual(recordsForEditorialType(notionEditorialRecords, "Press").map((item) => item.slug), ["notion-press"]);
+assert.deepEqual(recordsForEditorialType(notionEditorialRecords, "Spotlight").map((item) => item.slug), ["notion-spotlight"]);
 assert.deepEqual(recordsForProject(fixture).map((item) => item.slug), ["artist-spotlight"]);
 assert.equal(paginateRecords(press, 1, 1).pageCount, 2);
 assert.deepEqual(paginateRecords(press, 2, 1).items.map((item) => item.slug), ["legacy-press"]);

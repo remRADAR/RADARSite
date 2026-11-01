@@ -13,15 +13,15 @@ import {
   deterministicCmsId, findNotionCmsRecord, mapNotionPageToDraft, normalizeNotionPageId,
   notionContentFingerprint, readNotionProperty, sameNotionPageRevision, sourceFingerprint, validateEditorialSchema,
   validatePageAuthorization, renderNotionBlockTree, EDITORIAL_PROPERTY_NAMES,
-  notionPageCoverUrl, isSafePublicHttpsUrl,
+  notionPageCoverUrl, notionFeaturedImageSource, notionEditorialPlacement, isSafePublicHttpsUrl,
   NOTION_API_VERSION, type NotionBlock, type NotionDataSource, type NotionPage,
 } from "@/lib/notion-editorial-sync";
+import { rateLimit } from "@/lib/request-security";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 const MAX_REQUEST_BYTES = 16 * 1024;
 const MAX_REQUESTS_PER_MINUTE = 30;
-const requestCounts = new Map<string, { count: number; expiresAt: number }>();
 
 type ApiError = Error & { status?: number; code?: string };
 function json(data: unknown, init?: ResponseInit) {
@@ -38,16 +38,7 @@ function apiError(message: string, status: number, code: string): ApiError {
   return error;
 }
 function rateLimited(request: NextRequest): boolean {
-  const now = Date.now();
-  const address = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
-  const existing = requestCounts.get(address);
-  if (!existing || existing.expiresAt <= now) {
-    if (requestCounts.size > 5000) for (const [key, item] of requestCounts) if (item.expiresAt <= now) requestCounts.delete(key);
-    requestCounts.set(address, { count: 1, expiresAt: now + 60_000 });
-    return false;
-  }
-  existing.count += 1;
-  return existing.count > MAX_REQUESTS_PER_MINUTE;
+  return !rateLimit(request, "notion-publish", MAX_REQUESTS_PER_MINUTE).allowed;
 }
 async function readBoundedRequestBody(request: NextRequest): Promise<string> {
   const reader = request.body?.getReader();
@@ -116,6 +107,7 @@ function recordsIn(content: ContentCollections): CmsRecord[] {
 }
 function toPublishedRecord(page: NotionPage, dataSource: NotionDataSource, html: string, existing?: CmsRecord, featuredImage = ""): CmsRecord {
   const draft = mapNotionPageToDraft(page, dataSource, html);
+  const placement = notionEditorialPlacement(draft);
   const article = normalizeArticleInput({
     id: existing?.id || deterministicCmsId(draft.pageId),
     sourceProvider: "notion",
@@ -129,9 +121,10 @@ function toPublishedRecord(page: NotionPage, dataSource: NotionDataSource, html:
     editorialType: draft.editorialType,
     magazineSubtype: draft.magazineSubtype,
     projectSection: draft.projectSection,
+    section: placement.section,
     tags: draft.tags,
     tagsApproved: draft.tags,
-    categories: draft.projectSection ? [draft.projectSection] : ["RADARArticles"],
+    categories: [placement.category],
     featured: draft.featured,
     featuredImage: featuredImage || existing?.featuredImage || "",
     featuredImageAlt: draft.title,
@@ -153,6 +146,8 @@ function toPublishedRecord(page: NotionPage, dataSource: NotionDataSource, html:
   article.sourceUrl = draft.notionUrl;
   article.notionPageId = draft.pageId;
   article.notionLastEditedAt = draft.sourceEditedAt;
+  article.section = placement.section;
+  article.categories = [placement.category];
   article.featured = draft.featured;
   article.sourceSnapshot = cmsSyncSnapshot(article);
   article.sourceSnapshotHash = sourceFingerprint(article);
@@ -239,6 +234,7 @@ export async function POST(request: NextRequest) {
     if (!permission.ok) return json({ error: permission.error, code: "not_approved" }, { status: 409 });
 
     const isDryRun = input.dryRun === true;
+    const directMode = process.env.RADAR_NOTION_DIRECT_READ_ENABLED === "true";
     const topLevelBlocks = await notionChildren(pageId, notionToken);
     const imported = new Map<string, ImportedNotionMedia>();
     let rendered: Awaited<ReturnType<typeof renderNotionBlockTree>>;
@@ -260,12 +256,16 @@ export async function POST(request: NextRequest) {
     let draft: ReturnType<typeof mapNotionPageToDraft>;
     try { draft = mapNotionPageToDraft(page, dataSource, rendered.html); }
     catch (error) { throw apiError(error instanceof Error ? error.message.slice(0, 300) : "Notion editorial fields are invalid.", 422, "editorial_content_invalid"); }
-    // Featured image priority: explicit Featured Image URL, then the Featured Image Upload
-    // file, then the Notion page cover. Notion file URLs (upload + cover) are short-lived
-    // signed links, so the chosen URL is always read fresh from the page payload at publish
-    // time and imported into R2 before the CMS write.
+    // Featured image priority: Featured Image Upload, then the Notion page cover.
+    // Featured Image URL is a deprecated compatibility field and is never used
+    // as an image source. Notion file URLs are short-lived signed links, so the
+    // chosen URL is read fresh and imported into R2 before the CMS write.
     const coverUrl = notionPageCoverUrl(page);
-    const featuredSource = draft.featuredImageUrl || draft.featuredImageUploadUrl || (coverUrl && isSafePublicHttpsUrl(coverUrl) ? coverUrl : "");
+    if (!draft.featuredImageUploadUrl && !coverUrl && draft.featuredImageUrl) {
+      throw apiError("Featured Image URL is deprecated. Upload the approved featured image to Featured Image Upload.", 422, "featured_image_upload_required");
+    }
+    const featuredCandidate = notionFeaturedImageSource(page);
+    const featuredSource = featuredCandidate && isSafePublicHttpsUrl(featuredCandidate) ? featuredCandidate : "";
     let featuredImage = "";
     if (featuredSource) {
       if (isDryRun) validateNotionImageUrl(featuredSource);
@@ -323,6 +323,66 @@ export async function POST(request: NextRequest) {
         },
         blockers, previewOnly: true,
       });
+    }
+
+    if (directMode) {
+      const directCmsId = deterministicCmsId(pageId);
+      let directExpectedPage = await assertNotionSourceCurrent(page, permission.status, draft, rendered, dataSource, notionToken);
+      directExpectedPage = await updateNotionPage(pageId, dataSource, { status: "Publishing", syncStatus: "Syncing" }, notionToken);
+      const snapshot = await notionPublishRuntime.readContentWriteSnapshot();
+      const existing = findNotionCmsRecord(recordsIn(snapshot.content), pageId);
+      const incoming = toPublishedRecord(page, dataSource, rendered.html, existing, featuredImage);
+      incoming.id = directCmsId;
+      incoming.lastSyncedAt = new Date().toISOString();
+      const content = replaceCollection(snapshot.content, incoming, existing);
+      const written = await notionPublishRuntime.writeContentIfUnchanged(snapshot.revision, content);
+      if (!written) return json({ error: "Cloudflare content changed concurrently; retry after review.", code: "concurrent_cloudflare_content_update" }, { status: 409 });
+      const syncRun = `notion-publish:${pageId}`;
+      const desiredRelationships = new Map<string, Parameters<typeof notionPublishRuntime.upsertMediaRelationship>[0]>();
+      for (const [blockId, image] of imported) {
+        const featuredRole = blockId === "featured-image";
+        const placementIndex = featuredRole ? undefined : rendered.images.find((item) => item.blockId === blockId)?.placementIndex;
+        const relationship = {
+          mediaId: image.id, contentKey: `notion:${pageId}`, contentSourceProvider: "notion", contentSourceId: pageId,
+          role: featuredRole ? "featured" as const : "inline" as const,
+          ...(featuredRole ? {} : { placementIndex: placementIndex ?? 0 }),
+          sourceLocator: `notion:block:${blockId}`, migrationRunId: syncRun,
+          provenance: { mediaKey: image.key, checksum: image.checksum, sourceUrl: image.sourceUrl },
+        };
+        const id = createMediaRelationshipId(relationship);
+        desiredRelationships.set(id, { ...relationship, id });
+      }
+      try {
+        const existingRelationships = await notionPublishRuntime.listMediaRelationshipsByContent(`notion:${pageId}`);
+        for (const relation of existingRelationships) {
+          if (relation.role === "featured" && !featuredImage) continue;
+          if (!desiredRelationships.has(relation.id)) await notionPublishRuntime.deleteMediaRelationship(relation.id);
+        }
+        for (const relation of desiredRelationships.values()) await notionPublishRuntime.upsertMediaRelationship(relation);
+      } catch {
+        try { await updateNotionPage(pageId, dataSource, { syncStatus: "Failed" }, notionToken); } catch { /* preserve the successful content write for retry */ }
+        throw apiError("Cloudflare content was saved, but media association failed. Retry after checking R2.", 503, "media_relationship_failed");
+      }
+      try {
+        notionPublishRuntime.revalidateTag(notionPublishRuntime.contentCacheTag(), { expire: 0 });
+        notionPublishRuntime.revalidatePath(articlePath(incoming));
+        notionPublishRuntime.revalidatePath("/");
+        notionPublishRuntime.revalidatePath("/ontheradar/articles");
+        notionPublishRuntime.revalidatePath("/ontheradar/articles/press/page/1");
+        notionPublishRuntime.revalidatePath("/ontheradar/articles/spotlight/page/1");
+        notionPublishRuntime.revalidatePath("/ontheradar");
+        if (incoming.editorialType === "Magazine") notionPublishRuntime.revalidatePath("/ontheradar/magazine");
+        if (incoming.projectSection === "Motherland") notionPublishRuntime.revalidatePath("/motherland");
+      } catch {
+        try { await updateNotionPage(pageId, dataSource, { syncStatus: "Failed" }, notionToken); } catch { /* preserve the successful content write for retry */ }
+        throw apiError("Cloudflare content was saved, but cache revalidation failed. Retry after checking deployment logs.", 503, "cache_revalidation_failed");
+      }
+      await assertNotionSourceCurrent(directExpectedPage, "Publishing", draft, rendered, dataSource, notionToken);
+      const notionUpdated = await updateNotionPage(pageId, dataSource, {
+        status: "Published", syncStatus: "Synced", cmsId: directCmsId, notionPageId: pageId,
+        canonicalUrl: incoming.canonicalUrl || draft.canonicalUrl || undefined, syncedAt: String(incoming.lastSyncedAt || new Date().toISOString()),
+      }, notionToken);
+      return json({ ok: true, direct: true, pageId, cmsId: directCmsId, canonicalUrl: incoming.canonicalUrl || draft.canonicalUrl || "", notionUpdated: Boolean(notionUpdated), importedImages: imported.size, cloudflareContentStored: true });
     }
 
     const cmsId = String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.cmsId) || "");
@@ -457,7 +517,7 @@ export async function POST(request: NextRequest) {
     try {
       const existingRelationships = await notionPublishRuntime.listMediaRelationshipsByContent(`notion:${pageId}`);
       for (const relation of existingRelationships) {
-        // An empty Featured Image URL means preserve the current featured asset.
+        // If no new upload or cover is provided, preserve the current featured asset.
         if (relation.role === "featured" && !featuredSource) continue;
         if (!desiredRelationships.has(relation.id)) await notionPublishRuntime.deleteMediaRelationship(relation.id);
       }
@@ -470,7 +530,10 @@ export async function POST(request: NextRequest) {
     try {
       notionPublishRuntime.revalidateTag(notionPublishRuntime.contentCacheTag(), { expire: 0 });
       notionPublishRuntime.revalidatePath(articlePath(finalArticle));
+      notionPublishRuntime.revalidatePath("/");
       notionPublishRuntime.revalidatePath("/ontheradar/articles");
+      notionPublishRuntime.revalidatePath("/ontheradar/articles/press/page/1");
+      notionPublishRuntime.revalidatePath("/ontheradar/articles/spotlight/page/1");
       notionPublishRuntime.revalidatePath("/ontheradar");
       if (finalArticle.editorialType === "Magazine") notionPublishRuntime.revalidatePath("/ontheradar/magazine");
       if (finalArticle.projectSection === "Motherland") notionPublishRuntime.revalidatePath("/motherland");
@@ -498,4 +561,3 @@ async function writeNotionSyncResult(pageId: string, dataSource: NotionDataSourc
   try { await updateNotionPage(pageId, dataSource, values, token); return true; }
   catch (error) { console.error("[notion-publish] idempotent finalization failed", { name: error instanceof Error ? error.name : "UnknownError" }); return false; }
 }
-

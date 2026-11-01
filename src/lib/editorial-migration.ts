@@ -24,7 +24,7 @@ const SOURCES: Record<SourceProvider, MigrationSource> = {
 
 const MAX_HTML = 2_000_000;
 const allowedTags = new Set(["p", "br", "h2", "h3", "h4", "strong", "em", "b", "i", "blockquote", "ul", "ol", "li", "a", "figure", "figcaption", "img", "hr", "iframe"]);
-const allowedHosts = new Set(["open.spotify.com", "www.youtube.com", "youtube.com", "www.youtube-nocookie.com", "youtube-nocookie.com", "w.soundcloud.com", "soundcloud.com"]);
+const allowedHosts = new Set(["open.spotify.com", "www.youtube.com", "youtube.com", "www.youtube-nocookie.com", "youtube-nocookie.com", "w.soundcloud.com", "soundcloud.com", "www.instagram.com", "instagram.com"]);
 
 function decodeEntities(value: string) {
   return decode(value, { level: "all" }).normalize("NFKC");
@@ -87,6 +87,16 @@ function embedLinkFallback(attrs: string) {
   return `<p class="editorial-embed-fallback">${provider} embed preserved as a safe link: <a href="${escapeAttr(url)}" rel="noopener noreferrer" target="_blank">View the original post on ${provider}</a></p>`;
 }
 
+function instagramEmbeds(source: string) {
+  return source.replace(/<embed\b[^>]*\bsrc\s*=\s*["'](https?:\/\/(?:www\.)?instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)(?:\?[^"']*)?)["'][^>]*>\s*<\/embed>/gi, (_, rawUrl: string, id: string) => {
+    const url = safeUrl(decodeEntities(rawUrl), "iframe");
+    if (!url) return "";
+    const path = new URL(url).pathname.match(/\/(p|reel|tv)\/([A-Za-z0-9_-]+)/i);
+    if (!path) return "";
+    return `<iframe title="Instagram post" width="100%" height="700" loading="lazy" allowtransparency="true" src="https://www.instagram.com/${path[1].toLowerCase()}/${path[2]}/embed"></iframe>`;
+  });
+}
+
 function spotifyEmbeds(source: string) {
   const embed = (type: string, id: string) => {
     const height = type === "track" ? "152" : "352";
@@ -101,7 +111,7 @@ function spotifyEmbeds(source: string) {
 
 /** Converts known WordPress HTML into the deliberately small, safe editorial subset. */
 export function sanitizeEditorialHtml(input: unknown) {
-  const source = spotifyEmbeds(socialFallbacks(typeof input === "string" ? input.slice(0, MAX_HTML) : ""));
+  const source = instagramEmbeds(spotifyEmbeds(socialFallbacks(typeof input === "string" ? input.slice(0, MAX_HTML) : "")));
   return source
     .replace(/<!--[\s\S]*?-->/g, "")
     .replace(/<\/?(script|style|object|embed|form|svg|math|link|meta|noscript)[^>]*>/gi, "")
@@ -121,7 +131,7 @@ export function sanitizeEditorialHtml(input: unknown) {
           const url = safeUrl(value, name === "img" ? "image" : "iframe");
           const effectiveUrl = name === "img" ? getEffectiveImageUrl(url).effectiveUrl : url;
           if (effectiveUrl) kept.push(`src="${escapeAttr(effectiveUrl)}"`);
-        } else if (["alt", "title", "width", "height", "allow", "allowfullscreen", "loading", "referrerpolicy"].includes(key)) {
+        } else if (["alt", "title", "width", "height", "allow", "allowfullscreen", "allowtransparency", "loading", "referrerpolicy"].includes(key)) {
           kept.push(`${key}="${escapeAttr(value.slice(0, 300))}"`);
         }
       }
@@ -138,7 +148,8 @@ export function sanitizeEditorialHtml(input: unknown) {
       // 352px large players); the wrapper modifier keeps the absolutely
       // positioned iframe from being cropped by the default 16/9 box.
       const spotify = /src=["']https:\/\/open\.spotify\.com\/embed\/(track|album|playlist|episode|show)\//i.exec(attrs);
-      const modifier = spotify ? (spotify[1].toLowerCase() === "track" ? " editorial-embed--spotify-track" : " editorial-embed--spotify-large") : "";
+      const instagram = /src=["']https:\/\/(?:www\.)?instagram\.com\/(?:p|reel|tv)\/[^"']+\/embed/i.test(attrs);
+      const modifier = spotify ? (spotify[1].toLowerCase() === "track" ? " editorial-embed--spotify-track" : " editorial-embed--spotify-large") : instagram ? " editorial-embed--instagram" : "";
       return `<div class="editorial-embed${modifier}"><iframe${attrs} loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`;
     })
     .replace(/<p>\s*<\/p>/gi, "")

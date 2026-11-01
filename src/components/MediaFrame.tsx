@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { getEffectiveImageUrl } from "@/lib/effective-image-url";
 import type { UnsplashPhoto } from "@/lib/unsplash";
@@ -36,6 +37,8 @@ type MediaFrameProps = {
   reveal?: boolean;
   /** Responsive srcset — forwarded to ResilientImage for multi-resolution delivery. */
   srcSet?: string;
+  /** Optional art-directed content shown when the editorial image is unavailable. */
+  fallback?: ReactNode;
 };
 
 export function MediaFrame({
@@ -52,8 +55,10 @@ export function MediaFrame({
   reveal = false,
   objectPosition = "50% 50%",
   srcSet,
+  fallback,
 }: MediaFrameProps) {
   const effectiveImage = getEffectiveImageUrl(imageUrl);
+  const unavailableFallback = fallback ?? <div className={cn("absolute inset-0", TONES[tone])} aria-hidden />;
   return (
     <div data-visual-regression-mask className={cn("relative isolate overflow-hidden bg-ink", aspect, className)}>
       {photo ? (
@@ -79,6 +84,7 @@ export function MediaFrame({
           alt={label || "Featured image"}
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : "auto"}
+          fallback={unavailableFallback}
           className={cn(
             "absolute inset-0 h-full w-full object-cover",
             reveal && "transform-gpu transition-transform duration-[800ms] ease-[var(--ease-out)] group-hover/card:scale-[1.06]"

@@ -11,6 +11,8 @@ export const EDITORIAL_PROPERTY_NAMES = {
   publish: "Publish to RADARSite",
   author: "Author",
   excerpt: "Excerpt",
+  // Deprecated compatibility field. It is optional and never selected as the
+  // featured-image source; uploads and page covers are the supported sources.
   featuredImage: "Featured Image URL",
   featuredImageUpload: "Featured Image Upload",
   seoTitle: "SEO Title",
@@ -45,7 +47,6 @@ const REQUIRED_SCHEMA: Record<string, string[]> = {
   [EDITORIAL_PROPERTY_NAMES.publish]: ["checkbox"],
   [EDITORIAL_PROPERTY_NAMES.author]: ["rich_text", "title", "people"],
   [EDITORIAL_PROPERTY_NAMES.excerpt]: ["rich_text", "title"],
-  [EDITORIAL_PROPERTY_NAMES.featuredImage]: ["url", "rich_text"],
   [EDITORIAL_PROPERTY_NAMES.seoTitle]: ["rich_text", "title"],
   [EDITORIAL_PROPERTY_NAMES.seoDescription]: ["rich_text", "title"],
   [EDITORIAL_PROPERTY_NAMES.tags]: ["multi_select", "rich_text"],
@@ -131,6 +132,12 @@ export function notionPageCoverUrl(page: NotionPage): string {
   return typeof url === "string" ? url : "";
 }
 
+/** The explicitly uploaded editorial image is authoritative; the page cover is fallback only. */
+export function notionFeaturedImageSource(page: NotionPage): string {
+  const uploaded = String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.featuredImageUpload) || "").trim();
+  return uploaded || notionPageCoverUrl(page);
+}
+
 export function readNotionProperty(page: NotionPage, name: string, typeHint?: string): unknown {
   const property = page.properties?.[name];
   if (!property) return undefined;
@@ -161,6 +168,13 @@ export function readNotionProperty(page: NotionPage, name: string, typeHint?: st
     return fileUrl || externalUrl;
   }
   return undefined;
+}
+
+export function notionEditorialPlacement(draft: Pick<EditorialDraft, "editorialType" | "projectSection">) {
+  if (draft.projectSection) return { section: "motherland-radar", category: "Motherland" };
+  if (draft.editorialType === "Spotlight") return { section: "discovery-spot", category: "Discovery Spot" };
+  if (draft.editorialType === "Magazine") return { section: "talk-to-us", category: "TALK TO US" };
+  return { section: "radar-articles", category: "RADARArticles" };
 }
 
 export function validatePageAuthorization(page: NotionPage, dataSource: NotionDataSource): { ok: true; status: string; publishChecked: boolean } | { ok: false; error: string } {
@@ -217,6 +231,18 @@ function renderRichText(value: unknown): string {
 type ChildReader = (blockId: string) => Promise<NotionBlock[]>;
 type ImageImporter = (url: string, blockId: string, alt: string, placementIndex: number) => Promise<string>;
 
+function notionInstagramEmbed(url: string) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:" || !["instagram.com", "www.instagram.com"].includes(parsed.hostname)) return "";
+    const match = parsed.pathname.match(/^\/(p|reel|tv)\/([A-Za-z0-9_-]+)\/?$/i);
+    if (!match) return "";
+    return `<iframe title="Instagram post" width="100%" height="700" loading="lazy" allowtransparency="true" src="https://www.instagram.com/${match[1].toLowerCase()}/${match[2]}/embed"></iframe>`;
+  } catch {
+    return "";
+  }
+}
+
 export async function renderNotionBlockTree(blocks: NotionBlock[], readChildren: ChildReader, importImage: ImageImporter, options: { maxBlocks?: number; maxDepth?: number } = {}): Promise<{ html: string; images: Array<{ sourceUrl: string; storedUrl: string; blockId: string; placementIndex: number }> }> {
   const maxBlocks = options.maxBlocks ?? 1500;
   const maxDepth = options.maxDepth ?? 8;
@@ -256,7 +282,10 @@ export async function renderNotionBlockTree(blocks: NotionBlock[], readChildren:
         const storedUrl = await importImage(source, block.id, alt, imageIndex++);
         images.push({ sourceUrl: source, storedUrl, blockId: block.id, placementIndex: imageIndex - 1 });
         html = `<figure><img src="${escapeHtml(storedUrl)}" alt="${escapeHtml(alt)}" loading="lazy"></figure>`;
-      } else if (type === "bookmark" || type === "embed" || type === "link_preview") {
+      } else if (type === "embed") {
+        const url = typeof value.url === "string" ? value.url : "";
+        html = notionInstagramEmbed(url) || (() => { try { const parsed = new URL(url); return parsed.protocol === "https:" ? `<p><a href="${escapeHtml(parsed.toString())}">${text || escapeHtml(parsed.hostname)}</a>${children}</p>` : ""; } catch { return ""; } })();
+      } else if (type === "bookmark" || type === "link_preview") {
         const url = typeof value.url === "string" ? value.url : "";
         try { const parsed = new URL(url); if (parsed.protocol === "https:") html = `<p><a href="${escapeHtml(parsed.toString())}">${text || escapeHtml(parsed.hostname)}</a>${children}</p>`; }
         catch { /* invalid external URL omitted */ }
@@ -309,8 +338,9 @@ export function mapNotionPageToDraft(page: NotionPage, _dataSource: NotionDataSo
   const magazineSubtype = magazineSubtypeRaw === "Special Episode" || magazineSubtypeRaw === "Magazine Episode" ? magazineSubtypeRaw : "";
   if (contentType === "Magazine" && !magazineSubtype) throw new Error("Magazine content needs a supported RADARSite subtype (Special Episode or Magazine Episode); the connected Notion schema must expose it before publishing.");
   const rawDate = String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.scheduledAt) || "");
+  // The legacy URL property may still exist during migration, but it is
+  // intentionally not a source of featured imagery anymore.
   const featuredImageUrl = String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.featuredImage) || "");
-  if (featuredImageUrl && !isSafePublicHttpsUrl(featuredImageUrl)) throw new Error("Featured Image URL must be a public HTTPS URL without credentials or a local/private host.");
   const featuredImageUploadUrl = String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.featuredImageUpload) || "");
   if (featuredImageUploadUrl && !isSafePublicHttpsUrl(featuredImageUploadUrl)) throw new Error("Featured Image Upload must resolve to a public HTTPS URL without credentials or a local/private host.");
   const canonicalRaw = String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.canonicalUrl) || "");
@@ -439,7 +469,8 @@ export function notionContentFingerprint(
     author: draft.author,
     tags: draft.tags,
     featured: draft.featured,
-    featuredImageUrl: draft.featuredImageUrl ? normalizedSourceUrl(draft.featuredImageUrl) : "",
+    // Featured Image URL is deprecated and must not affect source identity.
+    featuredImageUrl: "",
     featuredImageUploadUrl: draft.featuredImageUploadUrl ? normalizedSourceUrl(draft.featuredImageUploadUrl) : "",
     seoTitle: draft.seoTitle,
     seoDescription: draft.seoDescription,

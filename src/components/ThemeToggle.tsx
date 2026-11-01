@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Moon, Sun } from "lucide-react";
 
 const STORAGE_KEY = "radarcharts-theme";
 type Theme = "dark" | "light";
@@ -43,7 +44,7 @@ export function ThemeToggle() {
 
   return (
     <button type="button" onClick={toggle} aria-pressed={theme === "light"} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} className="flex items-center gap-2 border-l-2 border-ink px-3 font-mono text-[10px] font-bold uppercase tracking-widest transition-colors hover:bg-flare hover:text-flare-foreground sm:px-4">
-      <span aria-hidden className="text-sm">{theme === "dark" ? "☼" : "◐"}</span>
+      <span aria-hidden className="flex items-center">{theme === "dark" ? <Sun size={13} /> : <Moon size={13} />}</span>
       <span className="hidden sm:inline">{theme === "dark" ? "Light" : "Dark"}</span>
     </button>
   );

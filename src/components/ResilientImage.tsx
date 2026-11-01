@@ -2,6 +2,7 @@
 /* eslint-disable @next/next/no-img-element -- CMS hosts are intentionally rendered directly. */
 
 import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 const FALLBACK = "bg-[linear-gradient(135deg,#0c0c0c_0%,#7a1c00_55%,#ff3b00_100%)]";
@@ -21,11 +22,13 @@ type Props = {
   sizes?: string;
   /** Fetch priority hint for LCP optimization. */
   fetchPriority?: "high" | "low" | "auto";
+  /** Optional art-directed content shown when the source cannot be loaded. */
+  fallback?: ReactNode;
 };
 
-export function ResilientImage({ src, alt, className, loading = "lazy", objectPosition, srcSet, sizes, fetchPriority }: Props) {
+export function ResilientImage({ src, alt, className, loading = "lazy", objectPosition, srcSet, sizes, fetchPriority, fallback }: Props) {
   const [attempt, setAttempt] = useState(0);
-  const [loaded, setLoaded] = useState(false);
+  const [, setLoaded] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
   const probedRef = useRef(false);
   const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -35,6 +38,8 @@ export function ResilientImage({ src, alt, className, loading = "lazy", objectPo
   // A new source must never inherit the previous image's failure state.
   useEffect(() => {
     probedRef.current = false;
+    // The reset is intentional: these values belong to the previous source.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAttempt(0);
     setLoaded(false);
     return () => {
@@ -69,8 +74,8 @@ export function ResilientImage({ src, alt, className, loading = "lazy", objectPo
 
   if (failed) {
     return (
-      <div className={cn("absolute inset-0 flex items-center justify-center", FALLBACK)} role="img" aria-label={alt + " image unavailable"}>
-        <span className="bg-ink/70 px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-widest text-paper">Image unavailable</span>
+      <div className="absolute inset-0" role="img" aria-label={alt + " image unavailable"}>
+        {fallback ?? <div className={cn("absolute inset-0", FALLBACK)} aria-hidden />}
       </div>
     );
   }
@@ -88,7 +93,10 @@ export function ResilientImage({ src, alt, className, loading = "lazy", objectPo
       fetchPriority={fetchPriority}
       onLoad={() => setLoaded(true)}
       onError={handleError}
-      className={cn("transition-opacity duration-500 ease-[var(--ease-out)]", loaded || loading === "eager" ? "opacity-100" : "opacity-0", className)}
+      // Keep the server-rendered image visible while hydration catches up. A
+      // remote CDN may complete before React attaches onLoad, and hiding the
+      // element until that event can leave an otherwise valid image blank.
+      className={cn("opacity-100 transition-opacity duration-500 ease-[var(--ease-out)]", className)}
       style={{ objectPosition }}
     />
   );

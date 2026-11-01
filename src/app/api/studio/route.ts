@@ -3,10 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { defaultSiteOverrides } from "@/lib/site-overrides";
 import { contentCacheTag, hasContentDatabase, logReadContentError, normalizeContent, readContent, writeContent, type CmsRecord } from "@/lib/content-server";
-import { createSessionToken, getSessionCookieName, getSessionMaxAge, hasDatabase, isAdminPasswordValid, isSessionValid, readStudioSettings, writeStudioSettings } from "@/lib/studio-server";
+import { createSessionToken, getSessionCookieName, getSessionCookieOptions, hasDatabase, isAdminPasswordValid, isSessionValid, readStudioSettings, writeStudioSettings } from "@/lib/studio-server";
 import { deriveEditorialTaxonomy, EDITORIAL_TYPES, MAGAZINE_SUBTYPES, suggestArticleTags, suggestSeoMetadata, validateEditorialTaxonomy } from "@/lib/cms-taxonomy";
 import { sanitizeEditorialHtml } from "@/lib/editorial-migration";
-import { isSameOriginMutation, rateLimit } from "@/lib/request-security";
+import { getClientAddress, isSameOriginMutation, rateLimit } from "@/lib/request-security";
+import { PUBLIC_SITE_OVERRIDES_CACHE_TAG } from "@/lib/public-site";
 
 export const dynamic = "force-dynamic";
 const failedLogins = new Map<string, { count: number; resetAt: number }>();
@@ -19,7 +20,7 @@ type ArticleListItem = { id: string; sourceId?: string; slug: string; title: str
 function json(data: unknown, init?: ResponseInit) { const response = NextResponse.json(data, init); response.headers.set("Cache-Control", "no-store, max-age=0"); response.headers.set("X-Content-Type-Options", "nosniff"); return response; }
 function limited(request: NextRequest, scope: string, limit = 100) { const result = rateLimit(request, scope, limit); return result.allowed ? null : json({ error: "Too many requests. Try again later." }, { status: 429, headers: { "Retry-After": String(result.retryAfter) } }); }
 function mutationGuard(request: NextRequest) { return isSameOriginMutation(request) ? null : json({ error: "Cross-origin mutation rejected" }, { status: 403 }); }
-function clientKey(request: NextRequest) { return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"; }
+function clientKey(request: NextRequest) { return getClientAddress(request); }
 function hasSession(request: NextRequest) { return isSessionValid(request.cookies.get(getSessionCookieName())?.value); }
 function requireSession(request: NextRequest) { return hasSession(request) ? null : json({ error: "Admin authentication required" }, { status: 401 }); }
 async function readJson(request: NextRequest) { if (!(request.headers.get("content-type") || "").toLowerCase().includes("application/json")) return null; return request.json().catch(() => null) as Promise<unknown>; }
@@ -138,10 +139,10 @@ export async function POST(request: NextRequest) {
   if (attempt && attempt.resetAt > now && attempt.count >= LOGIN_LIMIT) return json({ error: "Too many login attempts. Try again later." }, { status: 429, headers: { "Retry-After": String(Math.ceil((attempt.resetAt - now) / 1000)) } });
   const body = await readJson(request) as { password?: unknown } | null; const password = typeof body?.password === "string" ? body.password : "";
   if (!isAdminPasswordValid(password)) { const next = attempt && attempt.resetAt > now ? { count: attempt.count + 1, resetAt: attempt.resetAt } : { count: 1, resetAt: now + LOGIN_WINDOW_MS }; failedLogins.set(key, next); return json({ error: "Invalid admin password" }, { status: 401 }); }
-  failedLogins.delete(key); const response = json({ authenticated: true }); response.cookies.set(getSessionCookieName(), createSessionToken(), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: getSessionMaxAge() }); return response;
+  failedLogins.delete(key); const response = json({ authenticated: true }); response.cookies.set(getSessionCookieName(), createSessionToken(), getSessionCookieOptions(request.nextUrl.hostname)); return response;
 }
 
-export async function DELETE(request: NextRequest) { const guard = mutationGuard(request); if (guard) return guard; const blocked = limited(request, "studio-logout"); if (blocked) return blocked; const response = json({ authenticated: false }); if (isSessionValid(request.cookies.get(getSessionCookieName())?.value)) response.cookies.set(getSessionCookieName(), "", { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 0 }); return response; }
+export async function DELETE(request: NextRequest) { const guard = mutationGuard(request); if (guard) return guard; const blocked = limited(request, "studio-logout"); if (blocked) return blocked; const response = json({ authenticated: false }); if (isSessionValid(request.cookies.get(getSessionCookieName())?.value)) response.cookies.set(getSessionCookieName(), "", getSessionCookieOptions(request.nextUrl.hostname, 0)); return response; }
 
 export async function PUT(request: NextRequest) {
   const guard = mutationGuard(request); if (guard) return guard;
@@ -157,6 +158,8 @@ export async function PUT(request: NextRequest) {
       const next = normalizeContent({ ...current, articles: existing ? current.articles.map((item) => item === existing ? article : item) : [...current.articles, article] }); await writeContent(next); revalidateTag(contentCacheTag(), { expire: 0 }); return json({ saved: true, article: articleForEditor(article), summary: summary(article) });
     }
     if (Object.prototype.hasOwnProperty.call(body, "content")) { const content = await writeContent(body.content); revalidateTag(contentCacheTag(), { expire: 0 }); return json({ saved: true, content }); }
-    return json({ saved: true, settings: await writeStudioSettings(body.settings) });
+    const settings = await writeStudioSettings(body.settings);
+    revalidateTag(PUBLIC_SITE_OVERRIDES_CACHE_TAG, { expire: 0 });
+    return json({ saved: true, settings });
   } catch (error) { logReadContentError(error, "Studio PUT persistence write failed"); const message = error instanceof Error ? error.message : "Unable to save Studio changes"; return json({ error: message }, { status: message.includes("payload is too large") ? 413 : 400 }); }
 }
