@@ -1,8 +1,11 @@
 import { bindings, defineConfig, defineWorker } from "cf/config";
 import { createWorkersResponseStoreSelfContainedConfig } from "@vinext/cloudflare/cache/config";
 
+// The cache adapter's worker name must match the deployed Worker name below;
+// a mismatch risks response-store bindings pointing at a nonexistent Worker
+// (docs/staging-retrace-2026-10-28.md, open item 3 — resolved here).
 const cache = await createWorkersResponseStoreSelfContainedConfig({
-  worker: "radarsite",
+  worker: "radarsite-staging",
   bucket: "radarsite-response-store-cache-bodies",
 });
 

@@ -2,6 +2,9 @@ name = "radarsite-cache-maintenance"
 main = "src/index.ts"
 compatibility_date = "2026-09-24"
 
+# Enable isolated branch previews; production cron triggers remain top-level.
+previews = {}
+
 [triggers]
 crons = ["0 3 * * *"]
 
