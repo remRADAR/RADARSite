@@ -102,3 +102,20 @@ Follow docs/notion-publishing-integration.md exactly (dry-run first, one approve
   configuration, and the Gande "Insta Babe" 404 imagery (per HANDOFF.md standing instructions).
 - The legacy archives (/ontheradar/articles) still intentionally list legacy imports; removing
   legacy content entirely from the archives is a separate owner decision.
+
+
+## PR consolidation & merge sequence (2026-11-01 — Vibe agent)
+
+Executed under explicit user authorization ("Proceed" to the four-action plan). No branches were deleted; no DNS, production config, secrets, database or R2 changes were made.
+
+### Merged (verified green before merge)
+- PR #37 (reconcile/cloudflare-content-store) marked ready, merged to main as 5fedfe7. Pre-merge evidence: CI run #170 green (lint 0 errors / 6 warnings, typecheck, 475-page build) and Phase 2 verification run 41267314159 all green — cloudflare-content:contract-test, test:editorial-feed, and the first successful npm run build:vinext.
+- PR #38 (fix/cms-image-delivery-2026-11-01) merged to main as 69849d2 (new main tip). Pre-merge evidence: CI "verify" green on head 1646c8f. Its CSP + editorial-archives contract tests are not part of ci.yml; a scoped merged-main verification workflow was dispatched on branch verify/merged-main-2026-11-01 (workflow .github/workflows/verify-merged-main.yml, commit 664bc78) running cloudflare-content:contract-test, test:editorial-feed, test:csp, test:editorial-archives and build:vinext against the merged tree — result pending at the time of this ledger entry (unverified until the run completes).
+
+### Closed as superseded (branches retained, evidence in each closing comment)
+PR #4 (PlaylistFloater), #5 (ci.yml/healthchecks), #8 (Oct 22 recovery + #34/#35), #15 (fixes in main), #18 (CAS write path, request-security.ts, 0b1bb1f), #24 (Studio overrides). PR #16 (SEO Auditor) left OPEN pending owner decision.
+
+### Claimed PRs reconciled with updated main (main + PR changes, conflict-free)
+- PR #17 (legal/privacy-terms): main merged into branch via update-branch; head feabf64; mergeable_state clean; CI verify green.
+- PR #26 (editorial-network-intake): three-step reconciliation on the branch (align shared files to main 9a2cafd -> merge main in 4f7372a -> re-apply PR changes 83fa66af). Net effect: package.json gains intake/media-manifest/receipt contract-test scripts; HANDOFF.md intake ledger section preserved; all seven new lib/script files untouched. Mergeable; CI in progress at time of entry. The three new contract tests have not been executed in CI (not part of ci.yml) — run them before merging this PR.
+- PR #19 (feat/zumzy-brown-legacy-memorial): same three-step reconciliation (ad1e865 -> 4e08d9d -> 1f121f3). Net effect: /legends/zumzy-brown sitemap route, PlaylistFloater aria-hidden label, ShareActions clipboard fallback + focus-visible styles; all nine new legend files untouched. Mergeable; CI in progress at time of entry.
