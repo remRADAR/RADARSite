@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { validateIntakeBrief, validateEmbed } from "@/lib/editorial-intake";
+import { validateIntakeBrief, validateEmbed, type EditorialContentType } from "@/lib/editorial-intake";
 
 const pressBrief = {
   workingTitle: "New single release",
@@ -23,7 +23,7 @@ assert.ok(missing.errors.some((error) => error.field === "purposeAngle"));
 assert.ok(missing.errors.some((error) => error.field === "sourceUrls"));
 
 // Incorrect taxonomy: invalid content type and Magazine without subtype
-assert.equal(validateIntakeBrief({ ...pressBrief, contentType: "Blog" }).ok, false);
+assert.equal(validateIntakeBrief({ ...pressBrief, contentType: "Blog" as EditorialContentType }).ok, false);
 const magazineMissingSubtype = validateIntakeBrief({ ...pressBrief, contentType: "Magazine" });
 assert.equal(magazineMissingSubtype.ok, false);
 assert.ok(magazineMissingSubtype.errors.some((error) => error.field === "magazineSubtype"));
@@ -33,7 +33,8 @@ assert.equal(validateIntakeBrief({ ...pressBrief, contentType: "Magazine", magaz
 assert.equal(validateIntakeBrief({ ...pressBrief, contentType: "Spotlight", magazineSubtype: "Magazine Episode" }).ok, false);
 
 // Invalid embeds: non-https, wrong host, youtube vs spotify mismatch
-assert.equal(validateEmbed({ provider: "spotify", url: "https://music.example.com/track" }).ok, false);
+assert.equal(validateEmbed({ provider: "spotify", url: "https://music.example.com/track" 
+}).ok, false);
 assert.equal(validateEmbed({ provider: "youtube", url: "https://open.spotify.com/watch?v=1" }).ok, false);
 assert.equal(validateEmbed({ provider: "spotify", url: "http://open.spotify.com/track/abc" }).ok, false);
 assert.equal(validateEmbed({ provider: "youtube", url: "https://www.youtube.com/watch?v=1" }).ok, true);

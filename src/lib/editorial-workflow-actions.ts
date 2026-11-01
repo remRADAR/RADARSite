@@ -6,11 +6,11 @@
 //
 // NOTE (2026-11-01): the original version of this file was corrupted in its Git blob
 // (binary garbage from the seo-entity-audit entry onward, mangled at the original
-// October push). This file was reconstructed from the intact head section and the
-// documented contract (the "Editorial Publishing Network" ledger entry): ten
-// actions, prerequisite graph, side-effect flags, a hard editorial-approval gate
-// before publication, and resume-from-last-confirmed-step semantics. Nothing
-// imports this module yet, so no consumer was affected by the corruption.
+// October push). It was rebuilt from the intact head section, the intact
+// publication-receipt contract test that imports this module, and the documented
+// contract (the "Editorial Publishing Network" ledger entry): ten actions,
+// prerequisite graph, side-effect flags, a hard editorial-approval gate before any
+// side-effecting action, and resume-from-last-confirmed-step semantics.
 
 export type WorkflowActionId =
   | "intake-validation"
@@ -47,23 +47,50 @@ export const WORKFLOW_ACTIONS: WorkflowActionDefinition[] = [
   { id: "publication-receipt", title: "Publication receipt", requires: ["live-page-verification"], hasSideEffects: false, resultShape: "{ receipt }" },
 ];
 
+/** Progress state for one publication job. Failures never discard confirmed steps. */
+export type WorkflowState = {
+  confirmed: WorkflowActionId[];
+  lastFailure?: { action: WorkflowActionId; reason: string };
+};
+
 export function getActionDefinition(id: WorkflowActionId): WorkflowActionDefinition {
   const definition = WORKFLOW_ACTIONS.find((action) => action.id === id);
   if (!definition) throw new Error(`Unknown workflow action: ${id}`);
   return definition;
 }
 
-/** True when every prerequisite of the action is in the confirmed set. */
-export function prerequisitesSatisfied(id: WorkflowActionId, confirmed: WorkflowActionId[]): boolean {
-  return getActionDefinition(id).requires.every((required) => confirmed.includes(required));
+/**
+ * Whether an action is permitted to run from this state. Pure analysis actions
+ * are permitted until confirmed; side-effecting actions additionally require the
+ * hard editorial-approval gate (the confirmed editorial-approval step). Action
+ * ordering is enforced by nextRunnableAction, not by this policy check.
+ */
+export function canRunAction(state: WorkflowState, id: WorkflowActionId): { ok: boolean; reason?: string } {
+  const definition = getActionDefinition(id);
+  if (state.confirmed.includes(id)) {
+    return { ok: false, reason: `${definition.title} has already been confirmed` };
+  }
+  if (definition.hasSideEffects && !state.confirmed.includes("editorial-approval")) {
+    return { ok: false, reason: `${definition.title} has side effects and requires editorial approval before it can run` };
+  }
+  return { ok: true };
 }
 
-/** Hard editorial-approval gate: publication is never permitted without confirmed approval. */
-export function isPublicationPermitted(confirmed: WorkflowActionId[]): boolean {
-  return confirmed.includes("editorial-approval");
+/** Records an action as confirmed. The orchestrator produces the results; the registry only tracks progress. */
+export function confirmAction(state: WorkflowState, id: WorkflowActionId): WorkflowState {
+  if (state.confirmed.includes(id)) return state;
+  return { ...state, confirmed: [...state.confirmed, id] };
 }
 
-/** Resume-from-last-confirmed-step: the next unconfirmed action whose prerequisites are all confirmed. */
-export function nextPendingAction(confirmed: WorkflowActionId[]): WorkflowActionDefinition | undefined {
-  return WORKFLOW_ACTIONS.find((action) => !confirmed.includes(action.id) && prerequisitesSatisfied(action.id, confirmed));
+/** Records a failure without discarding confirmed steps, so the job resumes from the last confirmed step. */
+export function failAction(state: WorkflowState, id: WorkflowActionId, reason: string): WorkflowState {
+  return { ...state, lastFailure: { action: id, reason } };
+}
+
+/** The next unconfirmed action whose prerequisites are all confirmed, in registry order; null when the job is complete. */
+export function nextRunnableAction(state: WorkflowState): WorkflowActionId | null {
+  const next = WORKFLOW_ACTIONS.find(
+    (action) => !state.confirmed.includes(action.id) && action.requires.every((required) => state.confirmed.includes(required))
+  );
+  return next ? next.id : null;
 }

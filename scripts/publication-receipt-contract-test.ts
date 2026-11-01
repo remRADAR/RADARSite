@@ -22,7 +22,8 @@ assert.equal(buildPublicationReceipt({ articleTitle: "X", articleType: "Press", 
 const verified = buildPublicationReceipt({
   articleTitle: "Hustler", articleType: "Press", publicationState: "published_verified",
   notionRecordUrl: "https://app.notion.com/p/abc", liveUrl: "https://radarcharts.net/articles/hustler",
-  liveVerification: { liveUrlVerified: true, statusCode: 200, expectedTitlePresent: true, featuredImagePresent: true, embedsPresent: true, metadataPresent: true, verifiedAt: "2026-10-19T16:00:00.000Z" },
+  liveVerification: { liveUrlVerified: true, statusCode: 200, expectedTitlePresent: true, featuredImagePresent: true, embedsPresent: true, metadataPresent: true, verifiedAt: 
+"2026-10-19T16:00:00.000Z" },
   mediaChecks: [{ role: "featured", label: "cover.jpg", verified: true }, { role: "embed", label: "spotify", verified: true }],
   seoMetadataComplete: true,
 });
@@ -52,8 +53,9 @@ state = confirmAction(state, "notion-upsert");
 // publication blocked before editorial approval even though prerequisites are confirmed
 const publicationGate = canRunAction(state, "radarsite-publication");
 assert.equal(publicationGate.ok, false);
-assert.od(publicationGate.reason?.includes("editorial approval"));
-state = confirmAction(state, "editorial-approval");
+assert.ok(publicationGate.reason?.includes("editorial approval"));
+state 
+= confirmAction(state, "editorial-approval");
 assert.equal(canRunAction(state, "radarsite-publication").ok, true);
 
 // Failed job stays resumable: failed publication does not discard confirmed steps
