@@ -65,7 +65,7 @@ export function buildPublicationReceipt(input: ReceiptInput): PublicationReceipt
   }
   const verifiedState: PublicationState = (() => {
     if (input.publicationState !== "published_verified") return input.publicationState;
-    const evidenceOd = Boolean(input.liveVerification?.liveUrlVerified && input.liveUrl);
+    const evidenceOk = Boolean(input.liveVerification?.liveUrlVerified && input.liveUrl);
     return evidenceOk ? "published_verified" : "publishing";
   })();
 
