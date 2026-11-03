@@ -125,3 +125,65 @@ PR #4 (PlaylistFloater), #5 (ci.yml/healthchecks), #8 (Oct 22 recovery + #34/#35
 - The merged-main verification run on verify/merged-main-2026-11-01 (commit 664bc78) completed successfully (run #1, 1m 48s): cloudflare-content:contract-test, test:editorial-feed, test:csp, test:editorial-archives, and build:vinext all passed against the merged tree (main 69849d2 + docs ledger commit).
 - PR #19 (zumzy-brown): CI verify green on final head 1f121f3; mergeable_state clean. Fully reconciled.
 - PR #26 (editorial-network-intake): CI verify green on final head 71843156; mergeable_state clean. Reaching green required fixing latent defects in the branch itself, none caused by the reconciliation: (1) publication-receipt.ts declared `evidenceOd` but referenced `evidenceOk` (typecheck error, present since the original push); (2) src/lib/editorial-workflow-actions.ts was corrupted in its Git blob (binary garbage from the seo-entity-audit entry onward — the original October push was mangled); it was rebuilt from its intact head section, the intact publication-receipt contract test that imports it (WorkflowState / canRunAction with the hard editorial-approval side-effect gate / confirmAction / failAction preserving confirmed steps / nextRunnableAction), and the documented ledger contract; (3) two typos in the contract tests (assert.od -> assert.ok; "Blog" cast to EditorialContentType). The three new contract tests now typecheck in CI but are still NOT executed there (they are standalone npm scripts outside ci.yml) — run intake:contract-test, media:manifest-contract-test, receipt:contract-test before merging this PR.
+## Cloudflare deploy enablement (2026-11-03 — Vibe agent)
+
+Prepared on branch `deploy/cloudflare-workers-staging` (from main da347f14) under explicit
+user authorization ("Proceed" to the deploy-preparation plan). No DNS, production domain,
+hosting-account, database, or R2 change was made from the repo side.
+
+- `.github/workflows/deploy-cloudflare-staging.yml` — manual-dispatch-ONLY deploy of the
+  `radarsite-staging` Worker: fail-fast check that repo secrets `CLOUDFLARE_API_TOKEN` +
+  `CLOUDFLARE_ACCOUNT_ID` exist (clear error message if absent), then checkout, node 22 +
+  npm cache, `npm ci`, `npm run build:vinext`, `npm run deploy:vinext` with the two secrets
+  injected as env. No push/schedule triggers — deploying stays an explicit owner action.
+- `docs/deployment-env-checklist-2026-11-03.md` — owner runbook: the two GitHub repo secrets,
+  the full Worker runtime env-var table (content chain: R2 store, Neon fallback, Notion
+  direct read; verified against src/lib/cloudflare-content-store.ts, src/lib/database.ts,
+  .env.local.example), the new-Vercel reconnect + env steps for radar-site-hazel, and the
+  ordered cutover sequence with DNS as the explicit final owner step.
+- This ledger entry.
+
+Verified: worker name matches cloudflare.config.ts (`radarsite-staging`); workflow steps
+mirror ci.yml conventions (node 22, cache npm, npm ci); `build:vinext` previously green in CI
+(run 41267314159) and on merged main (verify/merged-main-2026-11-01 run #1).
+NOT verified: an actual Cloudflare deploy (requires owner-supplied secrets; none exist in the
+repo), the exact Vinext runtime-var/secret mechanism (vars vs wrangler secrets — confirm on
+first dispatch), and any Vercel console state.
+### Update — live Vercel wiring discovered via PR #39 (same session, 2026-11-03)
+
+Commit statuses on the PR #39 head (f81ce729) show **four** Vercel projects automatically
+building every push to this repo — the GitHub ↔ Vercel integration is connected and active,
+contrary to the 2026-10-28/11-01 assumption that the new Vercel account was disconnected:
+
+- Vercel **"radarsite"** (team `remradars-projects`, `prj_Ntdr68Qf464bFdRMma0MZmmwyyPf`) —
+  legacy production project serving radarcharts.net.
+- Vercel **"radarsite-staging"** (team `remradars-projects`, `prj_2PtA6DB9iMq8EP2fUkE3D2X93H`) —
+  newer project. NOTE: name collision with the Cloudflare Worker `radarsite-staging` —
+  different things entirely (Vercel app vs Cloudflare Worker).
+- Vercel **"radarsite-supabase-preview-20260929"** (team `remradars-projects`) — appears to
+  be a 2026-09-29 experiment; candidate for disconnecting from the repo (owner-only).
+- Vercel **"radar-site"** (team `ontheradar`) — a separate Vercel team; likely the project
+  behind radar-site-hazel.vercel.app (the "new profile").
+
+All four deployed the PR #39 head successfully (commit statuses: success, 2026-11-03
+08:46–08:52 UTC). CI "verify" green on head f81ce729 (lint, typecheck, build). Production
+deployments were NOT affected (these are preview deployments of a feature branch).
+
+Verified: status contexts/descriptions/targets as returned by the GitHub commit-status API.
+NOT verified: which URL each preview serves (preview URLs blocked automated probing), and
+which project owns radar-site-hazel.vercel.app — owner should confirm in the Vercel
+dashboards. Operational note: every push currently triggers FOUR Vercel builds (build-minutes
+cost + noise); consider disconnecting stale projects from the repo integration.
+### Update — consolidation decision + runbook (2026-11-03, same session)
+
+Owner confirmed the target architecture: **Cloudflare Worker = production (plan of record),
+Vercel team `ontheradar` / project `radar-site` = the single Vercel home (staging/preview),
+old Vercel team `remradars-projects` retired** after cutover. Owner also confirmed the current
+`radar-site` build enacts the components missed from the original design. Disposition of the
+old team's projects per agent recommendation (keep `radarsite` until cutover verified, delete
+the other two). DNS verified via dns.google: nameservers already Cloudflare, A @ = 76.76.21.21
+(Vercel), www CNAME = cname.vercel-dns.com, MX on Cloudflare Email Routing — no registrar or
+nameserver change needed for any path; the cutover is one Custom-Domain attach inside the
+existing Cloudflare account. Full owner sequence in
+docs/vercel-account-consolidation-2026-11-03.md (added on this branch).
+CI note: PR #39 head 17e8ee8 — verify success; all four Vercel commit statuses success.
