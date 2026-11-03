@@ -21,19 +21,30 @@ function isCurrentRadarImport(record: CmsRecord) {
   }
 }
 
-export function sortEditorialRecords<T extends PublishedRecord>(records: T[]) {
+function isNotionRecord(record: CmsRecord) {
+  return typeof record.sourceProvider === "string" && record.sourceProvider.trim().toLowerCase() === "notion";
+}
+
+type EditorialSortOptions = { prioritizeNotion?: boolean };
+
+export function sortEditorialRecords<T extends PublishedRecord>(records: T[], options: EditorialSortOptions = {}) {
   return [...records].sort((a, b) => {
+    if (options.prioritizeNotion) {
+      const notionGroup = Number(isNotionRecord(b)) - Number(isNotionRecord(a));
+      if (notionGroup) return notionGroup;
+    }
     const currentGroup = Number(isCurrentRadarImport(b)) - Number(isCurrentRadarImport(a));
     return currentGroup || timestamp(b) - timestamp(a) || a.slug.localeCompare(b.slug);
   });
 }
 
 export function canonicalEditorialRecords<T extends PublishedRecord>(records: T[], type?: EditorialType) {
-  return sortEditorialRecords(records.filter((record) => {
+  const eligibleRecords = records.filter((record) => {
     if (record.status === "draft" || record.status === "archived") return false;
     const taxonomy = deriveEditorialTaxonomy(record);
     return taxonomy.editorialType !== "" && (!type || taxonomy.editorialType === type);
-  }));
+  });
+  return sortEditorialRecords(eligibleRecords, { prioritizeNotion: type === "Press" });
 }
 
 export function recordsForEditorialType<T extends PublishedRecord>(records: T[], type: EditorialType) {
