@@ -149,3 +149,28 @@ mirror ci.yml conventions (node 22, cache npm, npm ci); `build:vinext` previousl
 NOT verified: an actual Cloudflare deploy (requires owner-supplied secrets; none exist in the
 repo), the exact Vinext runtime-var/secret mechanism (vars vs wrangler secrets — confirm on
 first dispatch), and any Vercel console state.
+### Update — live Vercel wiring discovered via PR #39 (same session, 2026-11-03)
+
+Commit statuses on the PR #39 head (f81ce729) show **four** Vercel projects automatically
+building every push to this repo — the GitHub ↔ Vercel integration is connected and active,
+contrary to the 2026-10-28/11-01 assumption that the new Vercel account was disconnected:
+
+- Vercel **"radarsite"** (team `remradars-projects`, `prj_Ntdr68Qf464bFdRMma0MZmmwyyPf`) —
+  legacy production project serving radarcharts.net.
+- Vercel **"radarsite-staging"** (team `remradars-projects`, `prj_2PtA6DB9iMq8EP2fUkE3D2X93H`) —
+  newer project. NOTE: name collision with the Cloudflare Worker `radarsite-staging` —
+  different things entirely (Vercel app vs Cloudflare Worker).
+- Vercel **"radarsite-supabase-preview-20260929"** (team `remradars-projects`) — appears to
+  be a 2026-09-29 experiment; candidate for disconnecting from the repo (owner-only).
+- Vercel **"radar-site"** (team `ontheradar`) — a separate Vercel team; likely the project
+  behind radar-site-hazel.vercel.app (the "new profile").
+
+All four deployed the PR #39 head successfully (commit statuses: success, 2026-11-03
+08:46–08:52 UTC). CI "verify" green on head f81ce729 (lint, typecheck, build). Production
+deployments were NOT affected (these are preview deployments of a feature branch).
+
+Verified: status contexts/descriptions/targets as returned by the GitHub commit-status API.
+NOT verified: which URL each preview serves (preview URLs blocked automated probing), and
+which project owns radar-site-hazel.vercel.app — owner should confirm in the Vercel
+dashboards. Operational note: every push currently triggers FOUR Vercel builds (build-minutes
+cost + noise); consider disconnecting stale projects from the repo integration.
