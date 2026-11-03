@@ -7,7 +7,8 @@ import { recordsForProject } from "@/lib/editorial-archives";
 import { breadcrumbStructuredData, buildPageMetadata, webPageStructuredData } from "@/lib/seo";
 import "./motherland-motion.css";
 
-export const revalidate = 3600;
+// Keep the Motherland archive aligned with production's direct-Notion refresh.
+export const revalidate = 240;
 
 export const metadata = buildPageMetadata({
   title: "MOTHERLand",
