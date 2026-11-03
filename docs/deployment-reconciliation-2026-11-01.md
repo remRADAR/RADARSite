@@ -125,3 +125,27 @@ PR #4 (PlaylistFloater), #5 (ci.yml/healthchecks), #8 (Oct 22 recovery + #34/#35
 - The merged-main verification run on verify/merged-main-2026-11-01 (commit 664bc78) completed successfully (run #1, 1m 48s): cloudflare-content:contract-test, test:editorial-feed, test:csp, test:editorial-archives, and build:vinext all passed against the merged tree (main 69849d2 + docs ledger commit).
 - PR #19 (zumzy-brown): CI verify green on final head 1f121f3; mergeable_state clean. Fully reconciled.
 - PR #26 (editorial-network-intake): CI verify green on final head 71843156; mergeable_state clean. Reaching green required fixing latent defects in the branch itself, none caused by the reconciliation: (1) publication-receipt.ts declared `evidenceOd` but referenced `evidenceOk` (typecheck error, present since the original push); (2) src/lib/editorial-workflow-actions.ts was corrupted in its Git blob (binary garbage from the seo-entity-audit entry onward — the original October push was mangled); it was rebuilt from its intact head section, the intact publication-receipt contract test that imports it (WorkflowState / canRunAction with the hard editorial-approval side-effect gate / confirmAction / failAction preserving confirmed steps / nextRunnableAction), and the documented ledger contract; (3) two typos in the contract tests (assert.od -> assert.ok; "Blog" cast to EditorialContentType). The three new contract tests now typecheck in CI but are still NOT executed there (they are standalone npm scripts outside ci.yml) — run intake:contract-test, media:manifest-contract-test, receipt:contract-test before merging this PR.
+## Cloudflare deploy enablement (2026-11-03 — Vibe agent)
+
+Prepared on branch `deploy/cloudflare-workers-staging` (from main da347f14) under explicit
+user authorization ("Proceed" to the deploy-preparation plan). No DNS, production domain,
+hosting-account, database, or R2 change was made from the repo side.
+
+- `.github/workflows/deploy-cloudflare-staging.yml` — manual-dispatch-ONLY deploy of the
+  `radarsite-staging` Worker: fail-fast check that repo secrets `CLOUDFLARE_API_TOKEN` +
+  `CLOUDFLARE_ACCOUNT_ID` exist (clear error message if absent), then checkout, node 22 +
+  npm cache, `npm ci`, `npm run build:vinext`, `npm run deploy:vinext` with the two secrets
+  injected as env. No push/schedule triggers — deploying stays an explicit owner action.
+- `docs/deployment-env-checklist-2026-11-03.md` — owner runbook: the two GitHub repo secrets,
+  the full Worker runtime env-var table (content chain: R2 store, Neon fallback, Notion
+  direct read; verified against src/lib/cloudflare-content-store.ts, src/lib/database.ts,
+  .env.local.example), the new-Vercel reconnect + env steps for radar-site-hazel, and the
+  ordered cutover sequence with DNS as the explicit final owner step.
+- This ledger entry.
+
+Verified: worker name matches cloudflare.config.ts (`radarsite-staging`); workflow steps
+mirror ci.yml conventions (node 22, cache npm, npm ci); `build:vinext` previously green in CI
+(run 41267314159) and on merged main (verify/merged-main-2026-11-01 run #1).
+NOT verified: an actual Cloudflare deploy (requires owner-supplied secrets; none exist in the
+repo), the exact Vinext runtime-var/secret mechanism (vars vs wrangler secrets — confirm on
+first dispatch), and any Vercel console state.
