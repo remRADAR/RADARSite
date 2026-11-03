@@ -174,3 +174,16 @@ NOT verified: which URL each preview serves (preview URLs blocked automated prob
 which project owns radar-site-hazel.vercel.app — owner should confirm in the Vercel
 dashboards. Operational note: every push currently triggers FOUR Vercel builds (build-minutes
 cost + noise); consider disconnecting stale projects from the repo integration.
+### Update — consolidation decision + runbook (2026-11-03, same session)
+
+Owner confirmed the target architecture: **Cloudflare Worker = production (plan of record),
+Vercel team `ontheradar` / project `radar-site` = the single Vercel home (staging/preview),
+old Vercel team `remradars-projects` retired** after cutover. Owner also confirmed the current
+`radar-site` build enacts the components missed from the original design. Disposition of the
+old team's projects per agent recommendation (keep `radarsite` until cutover verified, delete
+the other two). DNS verified via dns.google: nameservers already Cloudflare, A @ = 76.76.21.21
+(Vercel), www CNAME = cname.vercel-dns.com, MX on Cloudflare Email Routing — no registrar or
+nameserver change needed for any path; the cutover is one Custom-Domain attach inside the
+existing Cloudflare account. Full owner sequence in
+docs/vercel-account-consolidation-2026-11-03.md (added on this branch).
+CI note: PR #39 head 17e8ee8 — verify success; all four Vercel commit statuses success.
