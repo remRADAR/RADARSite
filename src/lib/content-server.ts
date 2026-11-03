@@ -8,7 +8,7 @@ import { cloudflareContentStoreConfigured, cloudflareContentStoreEnabled, create
 import { mediaStorageConfig } from "@/lib/media-storage";
 import type { ImportedNotionMedia } from "@/lib/notion-media";
 
-export const PUBLIC_CONTENT_CACHE_TAG = "radarsite-public-content-v2";
+export const PUBLIC_CONTENT_CACHE_TAG = "radarsite-public-content-v3";
 export const PUBLIC_CONTENT_REVALIDATE_SECONDS = process.env.RADAR_NOTION_DIRECT_READ_ENABLED === "true" ? 240 : 60 * 60;
 export const REMOVED_DEMO_ARTICLE_SLUGS = new Set(["luna-vale-after-midnight", "rooms-that-remember"]);
 
@@ -79,7 +79,21 @@ function directSlug(title: string) {
   return title.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 180) || "notion-article";
 }
 
-async function readDirectNotionContent(): Promise<ContentCollections | null> {
+function safeProviderErrorDetails(error: unknown) {
+  const value = error && typeof error === "object" ? error as { name?: unknown; Code?: unknown; code?: unknown; $metadata?: { httpStatusCode?: unknown } } : {};
+  const code = value.code ?? value.Code;
+  return {
+    name: error instanceof Error ? error.name : "UnknownError",
+    ...(typeof code === "string" && /^[A-Za-z0-9_.-]{1,80}$/.test(code) ? { code } : {}),
+    ...(typeof value.$metadata?.httpStatusCode === "number" ? { httpStatusCode: value.$metadata.httpStatusCode } : {}),
+  };
+}
+
+function logNotionMediaIssue(context: string, pageId: string, blockId: string, error: unknown) {
+  console.warn(`[content-server] ${context}`, { pageId, blockId, ...safeProviderErrorDetails(error) });
+}
+
+async function readDirectNotionContent(baseContent: ContentCollections = mergedSnapshot, relationships?: unknown[]): Promise<ContentCollections | null> {
   if (!notionDirectReadEnabled()) return null;
   const sync = await import("@/lib/notion-editorial-sync");
   const dataSourceId = sync.normalizeNotionPageId(process.env.RADAR_NOTION_DATA_SOURCE_ID);
@@ -87,10 +101,10 @@ async function readDirectNotionContent(): Promise<ContentCollections | null> {
   const importedMedia = new Map<string, ImportedNotionMedia>();
   if (cloudflareContentStoreConfigured()) {
     try {
-      const state = await readCloudflareContentState();
+      const stateRelationships = relationships ?? (await readCloudflareContentState())?.state.relationships ?? [];
       const publicBaseUrl = mediaStorageConfig().publicBaseUrl;
-      if (state && publicBaseUrl) {
-        for (const relationship of state.state.relationships) {
+      if (publicBaseUrl) {
+        for (const relationship of stateRelationships) {
           if (!relationship || typeof relationship !== "object") continue;
           const item = relationship as { contentKey?: unknown; sourceLocator?: unknown; mediaId?: unknown; provenance?: unknown };
           const provenance = item.provenance && typeof item.provenance === "object" ? item.provenance as { mediaKey?: unknown; checksum?: unknown; sourceUrl?: unknown } : {};
@@ -110,7 +124,7 @@ async function readDirectNotionContent(): Promise<ContentCollections | null> {
         }
       }
     } catch (error) {
-      throw new Error(`Cloudflare media lookup failed; refusing to serve untracked Notion image URLs: ${error instanceof Error ? error.message : String(error)}`);
+      console.warn("[content-server] Cloudflare media relationship lookup failed; continuing with current Notion content", safeProviderErrorDetails(error));
     }
   }
   const newlyImported = new Map<string, ImportedNotionMedia>();
@@ -120,9 +134,14 @@ async function readDirectNotionContent(): Promise<ContentCollections | null> {
     const locator = `notion:${pageId}:notion:block:${blockId}`;
     const existing = importedMedia.get(locator) || newlyImported.get(locator);
     if (existing) return existing;
-    const imported = await notionMedia.importNotionImage({ url, pageId, blockId, alt });
-    newlyImported.set(locator, imported);
-    return imported;
+    try {
+      const imported = await notionMedia.importNotionImage({ url, pageId, blockId, alt });
+      newlyImported.set(locator, imported);
+      return imported;
+    } catch (error) {
+      logNotionMediaIssue("Notion image import failed; omitting the unverified image while keeping article text", pageId, blockId, error);
+      return null;
+    }
   };
   const dataSource = await notionDirectJson<import("@/lib/notion-editorial-sync").NotionDataSource>(`https://api.notion.com/v1/data_sources/${encodeURIComponent(dataSourceId)}`);
   const pages: NotionPageResponse[] = [];
@@ -142,7 +161,7 @@ async function readDirectNotionContent(): Promise<ContentCollections | null> {
     const pageId = sync.normalizeNotionPageId(page.id);
     if (!pageId) continue;
     const blocks = await notionDirectChildren(pageId);
-    const rendered = await sync.renderNotionBlockTree(blocks, notionDirectChildren, async (url, blockId, alt) => (await resolveImage(pageId, url, blockId, alt || "RADARCharts article image")).url);
+    const rendered = await sync.renderNotionBlockTree(blocks, notionDirectChildren, async (url, blockId, alt) => (await resolveImage(pageId, url, blockId, alt || "RADARCharts article image"))?.url || "");
     for (const image of rendered.images) newlyImportedPlacement.set(`notion:${pageId}:notion:block:${image.blockId}`, image.placementIndex);
     const draft = sync.mapNotionPageToDraft(page, dataSource, rendered.html);
     const placement = sync.notionEditorialPlacement(draft);
@@ -177,11 +196,44 @@ async function readDirectNotionContent(): Promise<ContentCollections | null> {
       provenance: { mediaKey: image.key, checksum: image.checksum, sourceUrl: image.sourceUrl },
     };
     relationship.id = createMediaRelationshipId(relationship);
-    await upsertMediaRelationship(relationship);
+    try {
+      await upsertMediaRelationship(relationship);
+    } catch (error) {
+      logNotionMediaIssue("Notion media relationship write failed; keeping the imported media URL for this response", pageId, blockId, error);
+    }
   }
+  return persistDirectNotionContent(baseContent, records);
+}
+
+export function mergeDirectNotionRecords(baseContent: ContentCollections, records: CmsRecord[]): ContentCollections {
   const notionIds = new Set(records.map((record) => record.sourceId));
   const keepLegacy = (items: CmsRecord[]) => items.filter((item) => !(item.sourceProvider === "notion" || notionIds.has(item.sourceId || "")));
-  return { ...mergedSnapshot, articles: [...keepLegacy(mergedSnapshot.articles as CmsRecord[]), ...records] as Article[], magazine: keepLegacy(mergedSnapshot.magazine as CmsRecord[]) as MagazineStory[] };
+  return { ...baseContent, articles: [...keepLegacy(baseContent.articles as CmsRecord[]), ...records] as Article[], magazine: keepLegacy(baseContent.magazine as CmsRecord[]) as MagazineStory[] };
+}
+
+async function persistDirectNotionContent(baseContent: ContentCollections, records: CmsRecord[]): Promise<ContentCollections> {
+  const fallback = mergeDirectNotionRecords(baseContent, records);
+  if (!usesCloudflareContentStore()) return fallback;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const current = await readCloudflareContentState();
+      const currentContent = current ? normalizeContent(current.state.content) : baseContent;
+      const merged = mergeDirectNotionRecords(currentContent, records);
+      if (Buffer.byteLength(JSON.stringify(merged), "utf8") > MAX_CONTENT_BYTES) {
+        console.warn("[content-server] Notion content merge exceeds the Cloudflare snapshot size limit; serving this read without persisting it");
+        return fallback;
+      }
+      const nextState = createCloudflareContentState(merged, current?.state.relationships || []);
+      if (current && current.state.revision === nextState.revision) return merged;
+      await writeCloudflareContentState(nextState, current?.etag ?? null);
+      return merged;
+    } catch (error) {
+      if (isCloudflareConditionalWriteConflict(error) && attempt < 2) continue;
+      console.warn("[content-server] Revision-checked Notion content snapshot write failed; serving the merged content from this read", safeProviderErrorDetails(error));
+      return fallback;
+    }
+  }
+  return fallback;
 }
 
 export function hasContentDatabase() { return Boolean(process.env.DATABASE_URL); }
@@ -252,26 +304,28 @@ function shouldUseMergedSnapshot(content: ContentCollections) { const demoSlugs 
 
 async function readContentUncached({ fallbackToSnapshot = false }: ReadContentOptions = {}): Promise<ContentCollections> {
   if (isProductionBuild() && !notionDirectReadEnabled()) return mergedSnapshot;
-  // The Cloudflare content object is the published CMS source of truth. Read it
-  // before attempting a direct Notion traversal: direct mode has to enumerate
-  // every approved page, render every block tree, and resolve media, which can
-  // exceed a serverless request budget and incorrectly force a snapshot fallback.
+  let cloudflareContent: ContentCollections | null = null;
+  let cloudflareRelationships: unknown[] = [];
   if (usesCloudflareContentStore()) {
     try {
       const state = await readCloudflareContentState();
-      if (state) return normalizeContent(state.state.content);
+      if (state) {
+        cloudflareContent = normalizeContent(state.state.content);
+        cloudflareRelationships = state.state.relationships;
+      }
     } catch (error) {
       logContentReadError(error, "Cloudflare public content read failed; trying direct Notion or the existing CMS source");
     }
   }
   if (notionDirectReadEnabled()) {
     try {
-      const direct = await readDirectNotionContent();
+      const direct = await readDirectNotionContent(cloudflareContent || mergedSnapshot, cloudflareRelationships);
       if (direct) return normalizeContent(direct);
     } catch (error) {
       logContentReadError(error, "Direct Notion public read failed; trying the existing CMS source");
     }
   }
+  if (cloudflareContent) return cloudflareContent;
   if (!hasContentDatabase()) return mergedSnapshot;
   try {
     await ensureContentTable();
@@ -290,7 +344,7 @@ export async function readContent(options?: ReadContentOptions) { return readCon
 const readCachedPublicContent = unstable_cache(async () => {
   const content = await readContentUncached({ fallbackToSnapshot: true });
   return gzipSync(JSON.stringify(content)).toString("base64");
-}, ["radarsite-public-content-v2"], { revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS, tags: [PUBLIC_CONTENT_CACHE_TAG] });
+}, ["radarsite-public-content-v3"], { revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS, tags: [PUBLIC_CONTENT_CACHE_TAG] });
 export async function readPublicContent() {
   // Static builds always use the committed snapshot. Avoid invoking the runtime
   // cache, gzip, and JSON round-trip once per prerendered page and metadata pass.

@@ -279,9 +279,10 @@ export async function renderNotionBlockTree(blocks: NotionBlock[], readChildren:
         const source = value.external && typeof value.external === "object" ? (value.external as Record<string, unknown>).url : value.file && typeof value.file === "object" ? (value.file as Record<string, unknown>).url : "";
         if (typeof source !== "string" || !source) throw new Error("A Notion image block has no usable image URL.");
         const alt = richTextText(value.caption) || "";
-        const storedUrl = await importImage(source, block.id, alt, imageIndex++);
-        images.push({ sourceUrl: source, storedUrl, blockId: block.id, placementIndex: imageIndex - 1 });
-        html = `<figure><img src="${escapeHtml(storedUrl)}" alt="${escapeHtml(alt)}" loading="lazy"></figure>`;
+        const placementIndex = imageIndex++;
+        const storedUrl = await importImage(source, block.id, alt, placementIndex);
+        images.push({ sourceUrl: source, storedUrl, blockId: block.id, placementIndex });
+        if (storedUrl) html = `<figure><img src="${escapeHtml(storedUrl)}" alt="${escapeHtml(alt)}" loading="lazy"></figure>`;
       } else if (type === "embed") {
         const url = typeof value.url === "string" ? value.url : "";
         html = notionInstagramEmbed(url) || (() => { try { const parsed = new URL(url); return parsed.protocol === "https:" ? `<p><a href="${escapeHtml(parsed.toString())}">${text || escapeHtml(parsed.hostname)}</a>${children}</p>` : ""; } catch { return ""; } })();

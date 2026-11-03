@@ -6,7 +6,7 @@ import {
   validateEditorialSchema, validatePageAuthorization, type NotionBlock, type NotionDataSource, type NotionPage,
 } from "@/lib/notion-editorial-sync";
 import { notionAssetKey, validateNotionImageUrl } from "@/lib/notion-media";
-import type { CmsRecord, ContentCollections } from "@/lib/content-server";
+import { mergeDirectNotionRecords, type CmsRecord, type ContentCollections } from "@/lib/content-server";
 import type { ContentMediaRelationship } from "@/lib/media-relationships";
 import { NextRequest } from "next/server";
 import { POST as notionPublishPost } from "@/app/api/integrations/notion/publish/route";
@@ -178,10 +178,27 @@ assert.ok(!rendered.html.includes("javascript:"));
 assert.ok(rendered.html.includes('src="https://cdn.example/block-image.webp"'));
 assert.equal(rendered.images.length, 1);
 assert.ok(rendered.html.includes("Additional context"));
+const textOnlyImageFallback = await renderNotionBlockTree([paragraph, image], async () => [], async () => "");
+assert.ok(textOnlyImageFallback.html.includes("A short story."));
+assert.ok(!textOnlyImageFallback.html.includes("<img"), "an image without a durable URL must not render an empty or expiring source");
+await assert.rejects(() => renderNotionBlockTree([paragraph, image], async () => [], async () => { throw new Error("R2 import failed"); }), /R2 import failed/, "the strict publishing path must not silently swallow image-import failures");
 await assert.rejects(() => renderNotionBlockTree([{ id: "unsupported-only", type: "unsupported" }], async () => [], async () => ""), /no supported content blocks/);
 const rawMarkup: NotionBlock = { id: "block-raw-markup", type: "paragraph", paragraph: { rich_text: text("<script>alert(1)</script>") } };
 const escapedMarkup = await renderNotionBlockTree([rawMarkup], async () => [], async () => "");
 assert.ok(!escapedMarkup.html.includes("<script>"));
+
+const r2Base = {
+  artists: [], releases: [],
+  articles: [
+    Object.assign({ slug: "studio-article", title: "Studio", date: "2026-01-01", tags: [], body: "", imageQuery: "", related: {} }, { sourceProvider: "radarsite", sourceId: "studio-1" }),
+    Object.assign({ slug: "stale-notion-article", title: "Old Notion", date: "2026-01-01", tags: [], body: "", imageQuery: "", related: {} }, { sourceProvider: "notion", sourceId: "old-page" }),
+  ],
+  magazine: [Object.assign({ slug: "studio-magazine", title: "Studio Magazine", subtitle: "", year: "2026", body: "", imageQuery: "", related: {} }, { sourceProvider: "radarsite", sourceId: "mag-1" })],
+  radarProjects: [], events: [], pages: [], categories: [], archives: [],
+} as ContentCollections;
+const mergedDirect = mergeDirectNotionRecords(r2Base, [{ slug: "fresh-notion-article", sourceProvider: "notion", sourceId: "new-page" }]);
+assert.deepEqual(mergedDirect.articles.map((article) => article.slug), ["studio-article", "fresh-notion-article"], "fresh Notion content must replace stale Notion rows while preserving unrelated R2 articles");
+assert.deepEqual(mergedDirect.magazine.map((story) => story.slug), ["studio-magazine"], "unrelated R2 magazine records must be preserved");
 
 const before: CmsRecord = { id: "cms-1", slug: "a-signal", title: "A Signal", excerpt: "Excerpt", body: "Body", bodyHtml: "<p>Body</p>", status: "published", tags: ["News"] };
 before.sourceSnapshot = cmsSyncSnapshot(before);
