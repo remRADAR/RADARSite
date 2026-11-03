@@ -7,6 +7,7 @@ import {
 } from "@/lib/notion-editorial-sync";
 import { notionAssetKey, validateNotionImageUrl } from "@/lib/notion-media";
 import { mergeDirectNotionRecords, type CmsRecord, type ContentCollections } from "@/lib/content-server";
+import { deriveEditorialTaxonomy } from "@/lib/cms-taxonomy";
 import type { ContentMediaRelationship } from "@/lib/media-relationships";
 import { NextRequest } from "next/server";
 import { POST as notionPublishPost } from "@/app/api/integrations/notion/publish/route";
@@ -450,15 +451,20 @@ try {
   await withPublisherScenario("success", async ({ post, state }) => {
     process.env.RADAR_NOTION_DIRECT_READ_ENABLED = "true";
     state.page.properties[EDITORIAL_PROPERTY_NAMES.contentType] = { type: "select", select: { name: "Spotlight" } };
+    state.page.properties[EDITORIAL_PROPERTY_NAMES.tags] = { type: "multi_select", multi_select: [{ name: "Artist Spotlight" }, { name: "MOTHERLand" }] };
     const response = await post();
     assert.equal(response.status, 200);
     const result = await response.json() as { direct: boolean; cloudflareContentStored: boolean };
     assert.equal(result.direct, true);
     assert.equal(result.cloudflareContentStored, true);
     assert.equal(state.content.articles.length, 1, "direct mode writes the article to the Cloudflare content seam");
-    assert.equal((state.content.articles[0] as CmsRecord).section, "discovery-spot");
+    const article = state.content.articles[0] as CmsRecord;
+    assert.equal(article.section, "discovery-spot");
+    assert.deepEqual(article.tags, ["Artist Spotlight", "MOTHERLand"]);
+    assert.equal(deriveEditorialTaxonomy(article).projectSection, "Motherland", "MOTHERLand tag dual-lists the Spotlight article in the Motherland archive");
     assert.ok(state.revalidatedPaths.includes("/"));
     assert.ok(state.revalidatedPaths.includes("/ontheradar/articles/spotlight/page/1"));
+    assert.ok(state.revalidatedPaths.includes("/motherland"), "Motherland archive is revalidated for a tagged Spotlight article");
     assert.equal((state.page.properties[EDITORIAL_PROPERTY_NAMES.status] as { status: { name: string } }).status.name, "Published");
   });
 

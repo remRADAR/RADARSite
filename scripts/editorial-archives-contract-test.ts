@@ -22,7 +22,7 @@ assert.equal(recordsForMagazineSubtype(fixture, "Magazine Episode")[0]?.slug, "m
 const notionEditorialRecords: CmsRecord[] = [
   { slug: "notion-press-older", title: "Older Notion Press article", editorialType: "Press", sourceProvider: "notion", status: "published", date: "2026-10-13" },
   { slug: "notion-press-newest", title: "Newest Notion Press article", editorialType: "Press", sourceProvider: "notion", status: "published", date: "2026-10-24" },
-  { slug: "notion-spotlight", title: "Published Notion Spotlight article", editorialType: "Spotlight", sourceProvider: "notion", status: "published" },
+  { slug: "notion-spotlight", title: "Published Notion Spotlight article", editorialType: "Spotlight", sourceProvider: "notion", status: "published", date: "2026-11-03T13:20:00.000Z", tags: ["Artist Spotlight", "MOTHERLand"] },
 ];
 const adminPressRecord: CmsRecord = {
   slug: "styling-is-choosing-life-with-aye-lawa-feat-wyza",
@@ -38,9 +38,14 @@ const prioritizedPress = recordsForEditorialType([...fixture, ...notionEditorial
 assert.deepEqual(prioritizedPress.map((item) => item.slug), ["notion-press-newest", "notion-press-older", "current-press", "legacy-press"]);
 assert.deepEqual(paginateRecords(prioritizedPress, 1, 2).items.map((item) => item.slug), ["notion-press-newest", "notion-press-older"], "newest Notion Press articles lead page 1");
 const currentSpotlight: CmsRecord = { slug: "current-spotlight", title: "Current Spotlight", editorialType: "Spotlight", date: "2026-11-01", sourceUrl: "https://radarcharts.net/2026/11/01/current-spotlight" };
-assert.deepEqual(recordsForEditorialType([currentSpotlight, ...notionEditorialRecords], "Spotlight").map((item) => item.slug), ["current-spotlight", "notion-spotlight"], "Spotlight keeps its existing current-first ordering");
+const prioritizedSpotlight = recordsForEditorialType([currentSpotlight, ...notionEditorialRecords], "Spotlight");
+assert.deepEqual(prioritizedSpotlight.map((item) => item.slug), ["notion-spotlight", "current-spotlight"], "Notion Spotlight articles lead the Spotlight archive");
+assert.deepEqual(paginateRecords(prioritizedSpotlight, 1, 1).items.map((item) => item.slug), ["notion-spotlight"], "newest Notion Spotlight article leads page 1");
+const motherlandRecords = recordsForProject([...fixture, ...notionEditorialRecords]);
+assert.ok(motherlandRecords.some((item) => item.slug === "notion-spotlight"), "MOTHERLand-tagged Spotlight also appears in the Motherland archive");
+assert.ok(motherlandRecords.some((item) => item.slug === "artist-spotlight"), "existing Motherland archive records remain visible");
 assert.deepEqual(recordsForProject(fixture).map((item) => item.slug), ["artist-spotlight"]);
 assert.equal(paginateRecords(press, 1, 1).pageCount, 2);
 assert.deepEqual(paginateRecords(press, 2, 1).items.map((item) => item.slug), ["legacy-press"]);
 assert.deepEqual(sortEditorialRecords([...press]).map((item) => item.slug), ["current-press", "legacy-press"]);
-console.log(JSON.stringify({ filtering: "PASS", motherlandOverlap: "PASS", magazineSubtypes: "PASS", pagination: "PASS", notionFirstPress: "PASS", spotlightOrderingUnchanged: "PASS", currentBeforeLegacy: "PASS", draftsExcluded: "PASS" }, null, 2));
+console.log(JSON.stringify({ filtering: "PASS", motherlandOverlap: "PASS", magazineSubtypes: "PASS", pagination: "PASS", notionFirstPress: "PASS", notionFirstSpotlight: "PASS", motherlandTaggedSpotlight: "PASS", currentBeforeLegacy: "PASS", draftsExcluded: "PASS" }, null, 2));

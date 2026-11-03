@@ -44,7 +44,7 @@ export function canonicalEditorialRecords<T extends PublishedRecord>(records: T[
     const taxonomy = deriveEditorialTaxonomy(record);
     return taxonomy.editorialType !== "" && (!type || taxonomy.editorialType === type);
   });
-  return sortEditorialRecords(eligibleRecords, { prioritizeNotion: type === "Press" });
+  return sortEditorialRecords(eligibleRecords, { prioritizeNotion: type === "Press" || type === "Spotlight" });
 }
 
 export function recordsForEditorialType<T extends PublishedRecord>(records: T[], type: EditorialType) {

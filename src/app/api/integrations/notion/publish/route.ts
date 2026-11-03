@@ -1,6 +1,7 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { normalizeArticleInput } from "@/app/api/studio/route";
+import { deriveEditorialTaxonomy } from "@/lib/cms-taxonomy";
 import {
   type CmsRecord, type ContentCollections,
 } from "@/lib/content-server";
@@ -372,7 +373,7 @@ export async function POST(request: NextRequest) {
         notionPublishRuntime.revalidatePath("/ontheradar/articles/spotlight/page/1");
         notionPublishRuntime.revalidatePath("/ontheradar");
         if (incoming.editorialType === "Magazine") notionPublishRuntime.revalidatePath("/ontheradar/magazine");
-        if (incoming.projectSection === "Motherland") notionPublishRuntime.revalidatePath("/motherland");
+        if (deriveEditorialTaxonomy(incoming).projectSection === "Motherland") notionPublishRuntime.revalidatePath("/motherland");
       } catch {
         try { await updateNotionPage(pageId, dataSource, { syncStatus: "Failed" }, notionToken); } catch { /* preserve the successful content write for retry */ }
         throw apiError("Cloudflare content was saved, but cache revalidation failed. Retry after checking deployment logs.", 503, "cache_revalidation_failed");
@@ -536,7 +537,7 @@ export async function POST(request: NextRequest) {
       notionPublishRuntime.revalidatePath("/ontheradar/articles/spotlight/page/1");
       notionPublishRuntime.revalidatePath("/ontheradar");
       if (finalArticle.editorialType === "Magazine") notionPublishRuntime.revalidatePath("/ontheradar/magazine");
-      if (finalArticle.projectSection === "Motherland") notionPublishRuntime.revalidatePath("/motherland");
+      if (deriveEditorialTaxonomy(finalArticle).projectSection === "Motherland") notionPublishRuntime.revalidatePath("/motherland");
     } catch {
       try { await updateNotionPage(pageId, dataSource, { syncStatus: "Failed" }, notionToken); } catch { /* retry through the stable Notion/CMS identity without changing editorial status */ }
       throw apiError("CMS content was saved, but cache revalidation failed. The editor's Status was preserved; retry or review deployment logs.", 503, "cache_revalidation_failed");
