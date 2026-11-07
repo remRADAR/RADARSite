@@ -110,11 +110,474 @@
      MOTHERLand hero, the pinned editorial film — subtract it so the chrome
      and the hero together fill exactly one viewport at load: no sliver of
      the next section intruding into the first frame, no hero extending
-     under the fold. Update consumers with calc(100svh - var(--header-height)). */
+     under the fold. Consumers use calc(100svh - var(--header-height)). */
   --header-height: 3.5rem;
 }
 
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 5rem;
+}
+
+:root.theme-light {
+  --paper: #f7f7f2;
+  --ink: #050505;
+  --flare: #168a3a;
+  --flare-foreground: #050505;
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--paper);
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --secondary: #e7e7df;
+  --secondary-foreground: var(--ink);
+  --muted: #e7e7df;
+  --muted-foreground: #55554f;
+  --accent: var(--flare);
+  --accent-foreground: var(--flare-foreground);
+  --border: var(--ink);
+  --input: var(--ink);
+  --ring: var(--flare);
+  --sidebar: var(--paper);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--ink);
+  --sidebar-primary-foreground: var(--paper);
+  --sidebar-accent: var(--flare);
+  --sidebar-accent-foreground: var(--flare-foreground);
+  --sidebar-border: var(--ink);
+  --sidebar-ring: var(--flare);
+}
+
+@layer base {
+  html,
+  body,
+  body *,
+  body *::before,
+  body *::after {
+    transition-property: background-color, color, border-color, outline-color, box-shadow, fill, stroke;
+    transition-duration: var(--theme-transition);
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-synthesis-weight: none;
+    text-align: left;
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+    word-break: normal;
+    overflow-wrap: break-word;
+    overflow-x: hidden;
+  }
+  html {
+    @apply font-sans;
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+    overflow-wrap: break-word;
+    overflow-x: hidden;
+    /* Cursor is a custom blend-difference block on capable pointers. */
+  }
+  :where(h1, h2, h3, h4, h5, h6, p, a, span, label, button, li) {
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+  ::selection {
+    background: var(--flare);
+    color: var(--flare-foreground);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html,
+  body,
+  body *,
+  body *::before,
+  body *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+}
+
+@keyframes mistDriftSlow {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-3%, -2%, 0) scale(1.05); }
+}
+
+@keyframes mistDriftMedium {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(2%, -3%, 0) rotate(1deg); }
+}
+
+.bg-mist-cloud-1 {
+  background-image: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.25) 0%, transparent 50%), radial-gradient(circle at 70% 20%, rgba(200, 220, 255, 0.18) 0%, transparent 45%), radial-gradient(circle at 50% 60%, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
+  filter: blur(40px);
+}
+
+.bg-mist-cloud-2 {
+  background-image: radial-gradient(circle at 80% 40%, rgba(255, 255, 255, 0.2) 0%, transparent 40%), radial-gradient(circle at 30% 70%, rgba(180, 200, 255, 0.15) 0%, transparent 50%);
+  filter: blur(60px);
+}
+
+.animate-mist-slow { animation: mistDriftSlow 22s ease-in-out infinite; will-change: transform; }
+.animate-mist-medium { animation: mistDriftMedium 16s ease-in-out infinite; will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-mist-slow,
+  .animate-mist-medium { animation: none; }
+}
+
+@layer utilities {
+  /* Legacy section utilities now resolve to the inverted RADAR field. */
+  .bg-ink,
+  .bg-paper {
+    background-color: var(--paper) !important;
+  }
+  .text-ink,
+  .text-paper {
+    color: var(--ink) !important;
+  }
+  .border-ink,
+  .border-paper {
+    border-color: var(--ink) !important;
+  }
+
+  /* Tickers intentionally invert the active field: dark theme = white field /
+     black type; light theme = black field / warm-white type. Explicit tokens
+     prevent inherited utility colors from collapsing into one low-contrast hue. */
+  .ticker-surface {
+    background-color: var(--ink) !important;
+    color: var(--paper) !important;
+    border-color: var(--ink) !important;
+  }
+  .ticker-surface [data-ticker-text] {
+    color: var(--paper) !important;
+  }
+
+  /* Inverted section: full-ink block with paper type — used aggressively as
+     brutalist tonal slams between paper sections. */
+  .on-dark {
+    --background: var(--paper);
+    --foreground: var(--ink);
+    --border: var(--ink);
+    --muted-foreground: color-mix(in oklch, var(--ink) 65%, transparent);
+    --secondary: #171717;
+    --input: var(--ink);
+  }
+
+  .brut-border {
+    border: 2px solid var(--ink);
+  }
+  .brut-border-t {
+    border-top: 2px solid var(--ink);
+  }
+  .brut-border-b {
+    border-bottom: 2px solid var(--ink);
+  }
+  .brut-shadow {
+    box-shadow: 6px 6px 0 0 var(--ink);
+  }
+  .brut-shadow-lg {
+    box-shadow: 10px 10px 0 0 var(--ink);
+  }
+  .brut-shadow-flare {
+    box-shadow: 6px 6px 0 0 var(--flare);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Colossal display type: tight, uppercase, edge-to-edge. */
+  .display {
+    font-family: var(--font-grotesk);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 0.86;
+    text-transform: uppercase;
+    overflow-wrap: normal;
+    word-break: normal;
+    text-wrap: balance;
+    text-align: left;
+  }
+
+  /* Keep terminal punctuation attached to the word it decorates. */
+  .punctuation-lock {
+    display: inline-block;
+    white-space: nowrap;
+  }
+
+  /* Faint dot-grid — brutalist newsprint texture, always present as the
+     WebGL halftone's static fallback. */
+  .dot-grid {
+    background-image: radial-gradient(var(--ink) 1px, transparent 1.4px);
+    background-size: 14px 14px;
+  }
+
+  .grain-overlay {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Keeps dark hero type legible without dimming or tinting the photography. */
+  .hero-readable-ink {
+    -webkit-text-stroke: 2.5px rgb(255 255 255 / 0.85);
+    paint-order: stroke fill;
+  }
+
+  .hero-readable-support {
+    -webkit-text-stroke: 0;
+    paint-order: stroke fill;
+  }
+
+  .hero-shell.bg-ink {
+    background-color: #050505 !important;
+    color: #f7f7f2 !important;
+  }
+
+  .hero-shell .text-paper {
+    color: #f7f7f2 !important;
+  }
+
+  .hero-shell .border-paper {
+    border-color: #f7f7f2 !important;
+  }
+
+  /* The hero owns its media treatment: keep source pixels crisp while the
+     engine, grade, and type layers do the compositing above the photograph. */
+  .hero-image {
+    image-rendering: auto;
+    backface-visibility: hidden;
+    filter: saturate(1.04) contrast(1.02);
+  }
+
+  /* Cinematic triptych: each panel drifts at a slightly different scale so the
+     merged hero never feels like a static collage. Reduced motion disables it. */
+  @keyframes hero-drift-in {
+    from { transform: scale(1) translateZ(0); }
+    to { transform: scale(1.06) translateZ(0); }
+  }
+  @keyframes hero-drift-out {
+    from { transform: scale(1.06) translateZ(0); }
+    to { transform: scale(1) translateZ(0); }
+  }
+  .hero-panel-drift-in {
+    animation: hero-drift-in 6.5s var(--ease-in-out) forwards;
+  }
+  .hero-panel-drift-out {
+    animation: hero-drift-out 6.5s var(--ease-in-out) forwards;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-panel-drift-in,
+    .hero-panel-drift-out {
+      animation: none;
+    }
+  }
+
+  /* Fixed cinematic hero (src/components/marketing/HeroCinematic.tsx):
+     two stacked full-bleed film layers crossfade on opacity while every panel
+     drifts on a subtle Ken Burns move — flat compositor-only motion, no 3D
+     geometry, no layout work during a turn. */
+  .hero-film {
+    contain: paint;
+  }
+  .hero-film-layer {
+    contain: paint;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    will-change: opacity;
+  }
+  /* Alternating drift directions: neighbouring panels never move in lockstep,
+     so the merged scene reads as one integrated composition. */
+  @keyframes hero-kenburns-a {
+    from { transform: scale(1.03) translate3d(0.6%, 0.4%, 0); }
+    to { transform: scale(1.1) translate3d(-0.6%, -0.4%, 0); }
+  }
+  @keyframes hero-kenburns-b {
+    from { transform: scale(1.1) translate3d(-0.5%, -0.3%, 0); }
+    to { transform: scale(1.03) translate3d(0.5%, 0.3%, 0); }
+  }
+  .hero-kenburns {
+    animation: hero-kenburns-a var(--hero-drift-duration, 6s) var(--ease-in-out) both;
+    will-change: transform;
+  }
+  .hero-kenburns-alt {
+    animation-name: hero-kenburns-b;
+  }
+  /* Portrait-first presentation: the blurred, focal-positioned cover copy fills
+     the panel while the contained foreground keeps the full artwork. */
+  .hero-film-layer .hero-film-backdrop {
+    filter: blur(28px) saturate(1.02) brightness(0.6);
+    transform: scale(1.3);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-kenburns,
+    .hero-kenburns-alt {
+      animation: none;
+    }
+    .hero-film-layer {
+      transition: none !important;
+    }
+  }
+
+  .hero-engine canvas {
+    display: block;
+    height: 100% !important;
+    width: 100% !important;
+  }
+}
+
+/* Infinite marquee — pure CSS, bulletproof, reduced-motion-safe. */
+@keyframes marquee-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee-x var(--marquee-duration, 22s) linear infinite;
+}
+.animate-marquee-reverse {
+  animation: marquee-x var(--marquee-duration, 22s) linear infinite reverse;
+}
+
+/* Animated logo monogram: frame wipes up, N stroke draws in on load. */
+.logo-mark {
+  animation: logo-reveal 0.6s var(--ease-slam) 0.2s both;
+}
+.logo-stroke {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: logo-draw 0.9s var(--ease-slam) 0.35s forwards;
+}
+.logo-scan {
+  top: -10%;
+  opacity: 0;
+  animation: logo-scan 7s linear 2.4s infinite;
+}
+@keyframes logo-reveal {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes logo-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes logo-scan {
+  0% {
+    top: -10%;
+    opacity: 0;
+  }
+  3% {
+    opacity: 0.55;
+  }
+  11% {
+    top: 110%;
+    opacity: 0;
+  }
+  100% {
+    top: 110%;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-marquee-reverse,
+  .logo-mark,
+  .logo-scan {
+    animation: none;
+  }
+  .logo-scan {
+    opacity: 0;
+  }
+  .logo-stroke {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+.editorial-body { overflow-wrap: anywhere; font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif; font-size: clamp(1.05rem, 1.7vw, 1.35rem); line-height: 1.55; }
+.editorial-body h2, .editorial-body h3, .editorial-body h4 { margin: 2.2rem 0 .8rem; font-weight: 900; line-height: .98; text-transform: uppercase; }
+.editorial-body h2 { font-size: clamp(2rem, 5vw, 4rem); }
+.editorial-body h3 { font-size: clamp(1.5rem, 3vw, 2.5rem); }
+.editorial-body p, .editorial-body ul, .editorial-body ol, .editorial-body blockquote, .editorial-body figure { margin: 1.2rem 0; }
+.editorial-body ul, .editorial-body ol { padding-left: 1.5rem; }
+.editorial-body ul { list-style: disc; }
+.editorial-body ol { list-style: decimal; }
+.editorial-body a { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.editorial-body blockquote { border-left: 4px solid currentColor; padding: .5rem 0 .5rem 1.25rem; font-size: 1.2em; font-weight: 800; }
+.editorial-body img { display: block; width: 100%; max-width: 100%; height: auto; max-height: min(78svh, 72rem); margin-inline: auto; object-fit: contain; object-position: 50% 50%; background: color-mix(in srgb, currentColor 5%, transparent); }
+.editorial-body .editorial-media { transform: scale(1.01); transition: transform 900ms var(--ease-out), filter 900ms var(--ease-out); animation: editorial-media-reveal 900ms var(--ease-out) both; filter: saturate(.82) contrast(1.04); }
+.editorial-body figure:hover .editorial-media { transform: scale(1.035); filter: saturate(1) contrast(1); }
+.editorial-body figure { width: 100%; max-width: 100%; overflow: hidden; }
+.editorial-body figure img { width: 100%; }
+.editorial-body figcaption { margin-top: .5rem; font-family: ui-monospace, monospace; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; opacity: .7; }
+.editorial-body .editorial-embed { position: relative; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; margin: 2rem 0; overflow: hidden; background: color-mix(in srgb, currentColor 8%, transparent); }
+/* Spotify players keep their intrinsic height: 152px compact tracks vs the
+   352px large players (albums/playlists/episodes/shows). The wrapper modifier
+   is emitted by the editorial sanitizer so the absolutely positioned iframe is
+   never cropped by the default 16/9 box. */
+.editorial-body .editorial-embed--spotify-track { aspect-ratio: auto; height: 152px; margin: 1.2rem 0; background: transparent; }
+.editorial-body .editorial-embed--spotify-large { aspect-ratio: auto; height: 352px; margin: 1.2rem 0; background: transparent; }
+.editorial-body .editorial-embed--instagram { aspect-ratio: auto; height: 700px; max-width: 540px; margin: 2rem auto; background: transparent; }
+.editorial-body .editorial-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.editorial-body .editorial-embed.is-loading::after { content: "Loading media"; position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; font: 700 .65rem/1 ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; opacity: .55; animation: editorial-pulse 1.2s ease-in-out infinite; }
+.editorial-body img[data-src] { min-height: 4rem; }
+.editorial-body img.is-error { min-height: 8rem; opacity: .45; background: linear-gradient(135deg, color-mix(in srgb, currentColor 14%, transparent), color-mix(in srgb, currentColor 5%, transparent)); }
+.editorial-body .editorial-embed.is-error::after { content: "Media unavailable"; position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; font: 700 .65rem/1 ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; opacity: .65; }
+.editorial-body .editorial-embed-fallback { margin: 1.2rem 0; padding: 1rem 1.25rem; border: 2px solid currentColor; font-family: ui-monospace, monospace; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.editorial-body .editorial-media,
+.editorial-body .editorial-embed { will-change: opacity, transform; }
+.editorial-body hr { margin: 2.5rem 0; border: 0; border-top: 2px solid currentColor; }
+.editorial-featured-media img { animation: editorial-featured-drift 14s ease-in-out infinite alternate; transform-origin: center; filter: saturate(.82) contrast(1.06); }
+.editorial-featured-media::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(120deg, transparent 35%, color-mix(in srgb, #ff3b00 18%, transparent) 50%, transparent 65%); mix-blend-mode: screen; animation: editorial-scan 8s ease-in-out infinite; }
+
+@keyframes editorial-media-reveal {
+  from { opacity: 0; transform: translate3d(0, 1.25rem, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes editorial-pulse {
+  0%, 100% { opacity: .3; }
+  50% { opacity: .75; }
+}
+
+@keyframes editorial-featured-drift {
+  from { transform: scale(1.01) translate3d(-.5%, -.5%, 0); }
+  to { transform: scale(1.07) translate3d(.5%, .5%, 0); }
+}
+
+@keyframes editorial-scan {
+  0% { opacity: 0; transform: translateX(-18%); }
+  45%, 60% { opacity: .65; }
+  82% { opacity: 0; transform: translateX(18%); }
+}
+
+@supports (animation-timeline: view()) {
+  .editorial-body .editorial-media,
+  .editorial-body .editorial-embed {
+    animation: editorial-media-reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 28%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .editorial-body .editorial-media,
+  .editorial-body .editorial-embed { animation: none !important; }
+  .editorial-body .editorial-embed.is-loading::after { animation: none; }
 }
