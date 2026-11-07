@@ -10,19 +10,24 @@ export function PillarsSection() {
   const pillars = config.homepage.aktivGrid.filter((item) => item.visible).map((item) => ({ number: item.badgeNumber, label: item.title, description: item.subtitle, href: item.linkUrl }));
   return (
     <section className="bg-paper">
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 px-4 py-8 md:grid-cols-[8rem_minmax(0,1fr)_28rem] md:gap-8 md:px-8">
-        <p className="font-mono text-xs font-bold uppercase tracking-widest md:col-span-2">(02) AKT!V</p>
-        <p className="font-mono text-right text-xs font-bold uppercase tracking-widest text-muted-foreground md:text-left">ECOSYSTEM</p>
+      {/* The 8rem / 1fr / 28rem three-column grid only fits the colossal
+          nowrap labels at xl (1280px+). Between md and xl the pillar rows keep
+          the two-column stack and the description wraps — previously the label
+          column was 8rem wide from 768px up, so "MOTHERLAND." at clamp(6.5vw)
+          overflowed straight into the description column. */}
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 px-4 py-8 md:px-8 xl:grid-cols-[8rem_minmax(0,1fr)_28rem] xl:gap-8">
+        <p className="font-mono text-xs font-bold uppercase tracking-widest xl:col-span-2">(02) AKT!V</p>
+        <p className="font-mono text-right text-xs font-bold uppercase tracking-widest text-muted-foreground xl:text-left">ECOSYSTEM</p>
       </div>
       <div className="brut-border-t">
         {(pillars.length ? pillars : homepageContent.pillars.map((pillar) => ({ ...pillar, href: pillar.label === "ARTICLES" ? "/ontheradar/articles" : pillar.label === "MUSIC" ? "/radarmusic" : pillar.label === "MAGAZINE" ? "/ontheradar/magazine" : "/motherland" }))).map((pillar) => (
           <FadeIn key={pillar.number}>
             <Link href={pillar.href} onPointerDown={() => { if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate(8); }} className="group brut-border-b relative block overflow-hidden transition-transform duration-150 active:scale-[0.995] active:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-flare">
               <div className="pointer-events-none absolute inset-0 origin-left scale-x-0 bg-flare transition-transform duration-500 ease-[var(--ease-slam)] group-hover:scale-x-100" />
-              <div className="relative grid min-w-0 grid-cols-[2.25rem_minmax(0,1fr)] items-center gap-x-3 gap-y-3 px-4 py-6 md:grid-cols-[8rem_minmax(0,1fr)_28rem] md:gap-8 md:px-8 md:py-10">
+              <div className="relative grid min-w-0 grid-cols-[2.25rem_minmax(0,1fr)] items-center gap-x-3 gap-y-3 px-4 py-6 md:px-8 md:py-10 xl:grid-cols-[8rem_minmax(0,1fr)_28rem] xl:gap-8">
                 <span className="whitespace-nowrap font-mono text-[clamp(.55rem,1.8vw,.875rem)] font-bold group-hover:text-flare-foreground">{pillar.number}</span>
                 <h2 className={`display min-w-0 whitespace-nowrap !text-[clamp(1.2rem,6.5vw,6rem)] ![overflow-wrap:normal] ![word-break:keep-all] leading-none group-hover:text-flare-foreground ${pillar.label.toLowerCase().includes("motherland") ? "text-[#31d158] group-hover:text-[#31d158]" : ""}`}><span className="punctuation-lock">{pillar.label.replace(/\s*([.!?])$/, "")}{/[.!?]$/.test(pillar.label) ? <span aria-hidden="true">{pillar.label.slice(-1)}</span> : null}</span></h2>
-                <p className={`col-span-2 min-w-0 justify-self-end text-right font-mono text-[clamp(.6rem,1.5vw,.875rem)] uppercase leading-tight tracking-[.02em] text-muted-foreground group-hover:text-flare-foreground md:col-span-1 md:whitespace-nowrap md:leading-none ${pillar.label.toLowerCase().includes("motherland") ? "text-[#31d158] group-hover:text-[#31d158]" : ""}`}>{pillar.description}</p>
+                <p className={`col-span-2 min-w-0 justify-self-end text-right font-mono text-[clamp(.6rem,1.5vw,.875rem)] uppercase leading-tight tracking-[.02em] text-muted-foreground group-hover:text-flare-foreground xl:col-span-1 xl:whitespace-nowrap xl:leading-none ${pillar.label.toLowerCase().includes("motherland") ? "text-[#31d158] group-hover:text-[#31d158]" : ""}`}>{pillar.description}</p>
               </div>
             </Link>
           </FadeIn>
