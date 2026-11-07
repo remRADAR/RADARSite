@@ -4,7 +4,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import type { HeroSlide } from "@/lib/radar-content";
 import { heroConfig } from "@/lib/radar-content";
 import { focalPointToObjectPosition } from "@/lib/hero-image-library";
@@ -18,6 +17,8 @@ import {
 // opacity while every panel drifts on a subtle Ken Burns move. Mobile shows a
 // single dominant image; md+ composites a seamless three-panel scene. No 3D
 // geometry and no layout work during a turn — only opacity and transform run.
+// The film is autoplay-only: there are no visible controls, the images advance
+// on the configured cadence, and touch swipe remains the only manual gesture.
 const DESKTOP_PANEL_COUNT = 3;
 const FADE_MS = heroConfig.fadeTransitionMs || 1100;
 const AUTOPLAY_RESUME_DELAY_MS = 8000;
@@ -61,10 +62,6 @@ export function HeroCinematic({ slides, fallbackSrc, resolveSrc }: HeroCinematic
   const [frontIndex, setFrontIndex] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [imageFailures, setImageFailures] = useState<Record<string, ImageFailureStage>>({});
-  const [autoplayPaused, setAutoplayPaused] = useState(false);
-  const [controlsFocused, setControlsFocused] = useState(false);
-  const autoplayPausedRef = useRef(false);
-  const controlsFocusedRef = useRef(false);
   const transitionLockRef = useRef(false);
   const shuffleBagRef = useRef<number[]>([]);
   const transitionTokenRef = useRef(0);
@@ -202,17 +199,17 @@ export function HeroCinematic({ slides, fallbackSrc, resolveSrc }: HeroCinematic
     goRef.current = go;
   }, [go]);
 
-  // Autoplay respects reduced motion, an explicit pause, and keyboard focus
-  // within the controls; manual turns also get a brief reading pause.
+  // Autoplay respects reduced motion and holds off while the tab is hidden or
+  // a fade is already in flight; a manual swipe still gets a brief pause.
   useEffect(() => {
-    if (reducedMotion || autoplayPaused || controlsFocused || slides.length < 2) return;
+    if (reducedMotion || slides.length < 2) return;
     const timer = window.setInterval(() => {
-      if (autoplayPausedRef.current || controlsFocusedRef.current || document.visibilityState === "hidden" || transitionLockRef.current) return;
+      if (document.visibilityState === "hidden" || transitionLockRef.current) return;
       if (Date.now() - interactedAtRef.current < AUTOPLAY_RESUME_DELAY_MS) return;
       goRef.current(1, true);
     }, heroConfig.durationMs);
     return () => window.clearInterval(timer);
-  }, [autoplayPaused, controlsFocused, reducedMotion, slides.length]);
+  }, [reducedMotion, slides.length]);
 
   const renderPanel = (panelSlide: HeroSlide, prioritize: boolean, desktopPanel: boolean, panelIndex: number) => {
     const panelFailure = imageFailures[panelSlide.id];
@@ -352,56 +349,6 @@ export function HeroCinematic({ slides, fallbackSrc, resolveSrc }: HeroCinematic
         }}
       >
         {[0, 1].map((layerIndex) => renderLayer(layerIndex))}
-      </div>
-
-      <div
-        className="absolute right-4 top-32 z-20 flex flex-col gap-2 md:right-8 md:top-36"
-        role="group"
-        aria-label="Hero image controls"
-        data-hero-controls
-        onFocusCapture={() => {
-          controlsFocusedRef.current = true;
-          setControlsFocused(true);
-        }}
-        onBlurCapture={(event) => {
-          const next = event.relatedTarget as Node | null;
-          if (!next || !event.currentTarget.contains(next)) {
-            controlsFocusedRef.current = false;
-            setControlsFocused(false);
-          }
-        }}
-      >
-        <button
-          type="button"
-          onClick={() => goRef.current(-1)}
-          aria-label="Previous hero image"
-          className="flex h-10 w-10 items-center justify-center border border-white/25 bg-black/30 text-paper/80 backdrop-blur-[2px] transition-colors hover:border-white/60 hover:text-paper"
-        >
-          <ChevronLeft className="h-5 w-5" aria-hidden />
-        </button>
-        <button
-          type="button"
-          onClick={() => goRef.current(1)}
-          aria-label="Next hero image"
-          className="flex h-10 w-10 items-center justify-center border border-white/25 bg-black/30 text-paper/80 backdrop-blur-[2px] transition-colors hover:border-white/60 hover:text-paper"
-        >
-          <ChevronRight className="h-5 w-5" aria-hidden />
-        </button>
-        {slides.length > 1 && !reducedMotion ? (
-          <button
-            type="button"
-            onClick={() => {
-              const next = !autoplayPausedRef.current;
-              autoplayPausedRef.current = next;
-              setAutoplayPaused(next);
-            }}
-            aria-label={autoplayPaused ? "Resume hero slideshow" : "Pause hero slideshow"}
-            aria-pressed={autoplayPaused}
-            className="flex h-10 w-10 items-center justify-center border border-white/25 bg-black/30 text-paper/80 backdrop-blur-[2px] transition-colors hover:border-white/60 hover:text-paper"
-          >
-            {autoplayPaused ? <Play className="h-5 w-5" aria-hidden /> : <Pause className="h-5 w-5" aria-hidden />}
-          </button>
-        ) : null}
       </div>
 
       <p className="sr-only" aria-live="polite" aria-atomic="true">
