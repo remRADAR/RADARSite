@@ -30,7 +30,7 @@ assert.equal(defaultSiteOverrides.contactCTA.email, newAddress);
 assert.equal(normalizeSiteOverrides({ contactCTA: { email: oldAddress } }).contactCTA.email, newAddress);
 assert.equal(normalizeSiteOverrides({ contactCTA: { email: customAddress } }).contactCTA.email, customAddress);
 
-const expectedTickerText = ["Music is life itself…", "#stayAKT!V", "Protect The Music, Fans & Brands, Always."];
+const expectedTickerText = ["LIQUID CAFÉ, CITY PARK WUSE-ABUJA", "10TH DECEMBER", "6PM"];
 assert.deepEqual(defaultSiteConfig.tickers.ticker2_heroMarquee.items.map((item) => item.text), expectedTickerText);
 const previousTickerText = ["NEW OFFICIAL SITE", "AKT!V", "ON THE RADAR"];
 const legacyTicker = normalizeSiteConfig({

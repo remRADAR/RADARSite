@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -36,7 +37,8 @@ export function Hero() {
     : [config.homepage.hero.line1, config.homepage.hero.line2, config.homepage.hero.line3];
   const subheadline = overrides.heroSubheadline || config.homepage.hero.subtitle || heroConfig.subheadline;
   const coordinates = overrides.geoSignature || config.homepage.hero.coordinates;
-  const ticker = config.tickers.ticker2_heroMarquee.items.map((item) => item.text);
+  const tickerItems = config.tickers.ticker2_heroMarquee.items;
+  const tickerHref = tickerItems.find((item) => item.linkUrl)?.linkUrl || "/stayaktiv";
 
   useEffect(() => {
     const root = rootRef.current;
@@ -110,14 +112,17 @@ export function Hero() {
           white bar with black text (dark theme) / black bar with white text
           (light theme). Do NOT add text-paper here — .hero-shell .text-paper
           would force white-on-white and hide the ticker text. */}
-      <div className="ticker-surface pointer-events-none relative z-10 border-t border-white/55 bg-black/20 backdrop-blur-[2px]">
-        <Marquee durationSeconds={26} className="py-3">
-          {ticker.map((item, index) => (
-            <span data-ticker-text key={item + "-" + index} className="mx-3 whitespace-nowrap font-mono text-sm font-bold uppercase tracking-widest md:mx-6">
-              {item}<span className="mx-3 text-flare md:mx-6" aria-hidden>|</span>
-            </span>
-          ))}
-        </Marquee>
+      <div className="ticker-surface relative z-10 border-t border-white/55 bg-black/20 backdrop-blur-[2px]">
+        <a href={tickerHref} aria-label="Open stayAKTiV events" className="block cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-flare">
+          <Marquee durationSeconds={config.tickers.ticker2_heroMarquee.speedSeconds} className="py-3">
+            {tickerItems.map((item, index) => (
+              <span data-ticker-text key={item.id + "-" + index} className="inline-flex items-center whitespace-nowrap font-mono text-sm font-bold uppercase tracking-widest">
+                <Image src="/stayaktiv-logo.png" alt="" aria-hidden width={173} height={32} className="mx-4 h-7 w-auto object-contain md:mx-7 md:h-9" data-testid="ticker-logo" />
+                <span>{item.text}</span>
+              </span>
+            ))}
+          </Marquee>
+        </a>
       </div>
     </section>
   );
