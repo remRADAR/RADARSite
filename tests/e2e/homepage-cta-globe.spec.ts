@@ -11,7 +11,7 @@ async function revealCta(page: import("@playwright/test").Page) {
   return section;
 }
 
-test("loads the local transparent globe and adapts its backdrop by viewport", async ({ page }) => {
+test("loads the local transparent globe on the section surface at every viewport", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   const section = await revealCta(page);
   const image = page.getByTestId("cta-globe");
@@ -19,10 +19,18 @@ test("loads the local transparent globe and adapts its backdrop by viewport", as
   await expect(image).toHaveAttribute("src", globeGif);
   await expect.poll(() => image.evaluate((element: HTMLImageElement) => element.complete && element.naturalWidth > 0)).toBe(true);
 
+  // The stage paints nothing: the background-removed globe floats on the section surface.
+  const stage = page.getByTestId("cta-globe-stage");
+  await expect
+    .poll(() => stage.evaluate((element) => getComputedStyle(element).backgroundColor))
+    .toBe("rgba(0, 0, 0, 0)");
+
+  // One section surface at every viewport — the retired gray mobile backdrop must not return.
   const desktopBackground = await section.evaluate((element) => getComputedStyle(element).backgroundColor);
   await page.setViewportSize({ width: 390, height: 844 });
   const mobileBackground = await section.evaluate((element) => getComputedStyle(element).backgroundColor);
-  expect(mobileBackground).not.toBe(desktopBackground);
+  expect(mobileBackground).toBe(desktopBackground);
+  expect(mobileBackground).not.toBe("rgb(115, 115, 115)");
 });
 
 test("shows a local static poster when the animation file fails", async ({ page }) => {

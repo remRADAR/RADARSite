@@ -1,8 +1,8 @@
-/* Change these two values to tune the surface behind the transparent globe per device. */
+/* The background-removed globe is transparent: it floats directly on the
+   site's paper surface with no painted backdrop on any device. If a surface is
+   ever needed again, set it here and on .globeStage — never repaint mobile. */
 .section {
-  --cta-globe-background-desktop: #080808;
-  --cta-globe-background-mobile: #737373;
-  background-color: var(--cta-globe-background-desktop);
+  background-color: var(--paper);
 }
 
 .header {
@@ -38,7 +38,7 @@
   aspect-ratio: 1 / 1;
   overflow: hidden;
   border-radius: 50%;
-  background-color: var(--cta-globe-background-desktop);
+  background-color: transparent;
 }
 
 .globeImage {
@@ -49,10 +49,6 @@
 }
 
 @media (max-width: 767px) {
-  .section {
-    background-color: var(--cta-globe-background-mobile);
-  }
-
   .content {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
@@ -64,7 +60,6 @@
 
   .globeStage {
     width: min(76vw, 16rem);
-    background-color: var(--cta-globe-background-mobile);
   }
 
   .contact {
