@@ -1,5 +1,23 @@
 # HANDOFF — RADARSite (radarcharts.net)
 
+## Autoplay-only homepage hero (2026-11-07 — Vibe agent)
+
+Branch `fix/hero-autoplay-only` (from main @ 0f014a83 post-PR #40), PR #41, merged to main as `5087aa6d` with the `verify` CI check green. Owner instruction: "Remove the buttons on the homepage hero for front back and pause/play the images should just autoplay."
+
+Change (verified via push diff):
+- `src/components/marketing/HeroCinematic.tsx` — the film is autoplay-only: the lucide-react icon import (ChevronLeft/ChevronRight/Pause/Play), the `autoplayPaused`/`controlsFocused` state + refs, the entire `[data-hero-controls]` button group JSX, and the explicit pause/resume logic are removed. The autoplay effect now simply holds off while the tab is hidden or a fade is mid-flight (`transitionLockRef`), keeps the 8s post-swipe pause (`AUTOPLAY_RESUME_DELAY_MS`), and advances on the configured cadence via the shuffle bag. Touch swipe remains the only manual gesture (invisible, no buttons).
+- `tests/e2e/hero-cinematic.spec.ts` — rewritten for the autoplay-only contract: NEW "renders no control buttons — the hero is autoplay-only" (asserts `[data-hero-controls]` count 0 and no /hero (image|slideshow)/i buttons), NEW clock-driven "autoplays slides with a crossfade on the configured cadence" (page.clock install/pauseAt/fastForward 5000 x2, announcement text changes, film rests between turns), reduced-motion test now also asserts no controls, fallback test trimmed of its button-driven tail, and the button-specific tests ("advances and reverses", "ignores rapid extra input", "wraps backward from first to final", "autoplay can be paused and resumes only after control focus leaves") deleted. Helper added: `expectNoHeroControls(page)`. Overrides + ticker tests unchanged.
+- Verified via code search: no other file in the repo referenced `data-hero-controls` or the hero button labels; Hero.tsx, globals.css and the hero contract test needed no changes.
+
+Autoplay behavior retained: 5s dwell (heroConfig.durationMs), 1100ms crossfade, shuffle bag (visits every slide once before repeating), Ken Burns drift, preloaded/decoded incoming scenes, token-guarded safety timer, hidden-tab hold, reduced-motion static single image, two-stage image failure fallback.
+
+NOT VERIFIED in this session (no Node runtime): npm run lint, npm run typecheck, npm run build, and the Playwright suite were NOT executed. PR CI runs the Phase 2 contract tests + build:vinext (verify check: success); the e2e suite is NOT part of CI — run `npm run test:e2e -- tests/e2e/hero-cinematic.spec.ts` on a checkout to confirm.
+
+Production: Vercel auto-deploys main pushes; hard-refresh radarcharts.net to confirm the hero shows no buttons and the images advance on their own.
+
+---
+
+
 ## CTA globe transparent surface fix (2026-11-07 — Vibe agent)
 
 Branch `fix/homepage-cta-transparent-surface` (from main @ 0399f528, head fc4c541 + this ledger commit), PR #40. Owner instruction: fix the homepage (05) Start CTA segment "with the most recent build that implemented the background removal and having the GIF with a transparent background and moving" (screenshot IMG_5725.PNG: mobile, gray section, dotted globe, frozen).
@@ -94,15 +112,16 @@ NEXT STEPS (ordered):
 
 ## Hero image library, 3D cube engine & 8K pipeline (2026-10-26 — Vibe agent)
 
-Branch `hero-image-library` (created from main @ f4b481a, first commit 74df970) — NOT merged to main, NOT deployed. No production surface was touched.
+Branch `hero-image-library` (created from main @ f4b481a, first commit 74df970) — NOT merged, NOT deployed. No production surface was touched.
 
 What was implemented (all on the branch):
-- `public/images/hero/` + `README.md` — dedicated GitHub-managed hero library folder with format (WebP), 9:16 ratio, naming (`hero-artist-001.webp`), focal-point, replacement, and validation documentation. No artwork was invented or committed; the folder is preserved by the README, so no `.gitkeep` is needed.
+- `public/images/hero/` + `README.md` — dedicated GitHub-managed hero library folder with format (WebP), 9:16 ratio, naming (`hero-artist-001.webp`), focal-point, r
+eplacement, and validation documentation. No artwork was invented or committed; the folder is preserved by the README, so no `.gitkeep` is needed.
 - `src/lib/hero-image-library.ts` — centralized `heroImages` configuration (id/src/alt/focalPoint/fit/order/active). Empty by design; `getLibraryHeroSlides()` maps entries to hero slides.
 - `src/lib/radar-content.ts` — `HeroSlide` gained `focalPoint` and `fit`; `HeroConfig` gained `cubeTransitionMs: 900`; `heroConfig.slides` now uses library entries when configured and falls back to the legacy `DRIVE_HERO_IMAGES` otherwise. Drive URLs remain the live fallback until the library is populated and verified.
 - `src/lib/hero-media.ts` — extracted Drive source helpers (`heroSourceSet`, `isOptimizableHeroSource`, `heroPreloadSource`) and added `preloadHeroImage()` (load + decode + timeout, never rejects).
-- `src/components/marketing/HeroCube.tsx` — genuine CSS 3D cube: 4 faces, `perspective: 1400px`, `transform-style: preserve-3d`, `backface-visibility: hidden`, faces at `translateZ(width/2)` via ResizeObserver. Forward = -90deg outward rotation, backward = +90deg, easing `var(--ease-in-out)`, 900ms. Incoming image is preloaded and decoded before rotating; a safety timer normalizes state if transitionend is missed. Portrait-first: `fit: "contain"` renders the full 9:16 artwork over a blurred focal-positioned cover backdrop; `fit: "cover"` crops around the focal point. Autoplay (4s dwell, 8s pause after interaction), touch swipe, accessible prev/next buttons, aria-live slide status, failed-image fallback to `reducedMotionFallback`, and reduced-motion users get a static image with no rotation or autoplay.
-- `src/components/marketing/Hero.tsx` — media engine delegated to `HeroCube`; headline, subheadline, ticker, GSAP reveal, and Three.js engine preserved. The fade-triptych transition machinery was removed (replaced by the cube).
+- `src/components/marketing/HeroCube.tsx` — genuine CSS 3D cube: 4 faces, `perspective: 1400px`, `transform-style: preserve-3d`, `backface-visibility: hidden`, faces at `translateZ(width/2)` via ResizeObserver. Forward = -90deg outward rotation, backward = +90deg, easing `var(--ease-in-out)`, 900ms. Incoming image is preloaded and decoded before rotating; a safety timer normalizes state if `transitionend` is missed. Portrait-first: `fit: "contain"` renders the full 9:16 artwork over a blurred focal-positioned cover backdrop; `fit: "cover"` crops around the focal point. Autoplay (4s dwell, 8s pause after interaction), touch swipe, accessible prev/next buttons, aria-live slide status, failed-image fallback to `reducedMotionFallback`, and reduced-motion users get a static image with no rotation or autoplay.
+- `src/components/marketing/Hero.tsx` — media engine delegated to HeroCube; headline, subheadline, ticker, site overrides, GSAP reveal, and Three.js engine preserved. The fade-triptych transition machinery was removed (replaced by the cube).
 - `src/app/globals.css` — added `.hero-cube-scene/.hero-cube/.hero-cube-face/.hero-cub
 e-backdrop` styles plus a reduced-motion transition kill-switch. Nothing else in the file changed.
 - `scripts/hero-image-process.ts` (+ `npm run hero:process`) — sharp pipeline: validates WebP type/integrity/dimensions, preserves the original in `originals/`, optional 8K-class master (4320x7680 portrait / 7680x4320 landscape, Lanczos3 — interpolation, NOT AI upscaling; no AI service exists in this environment and none was invented), delivery derivatives at 720/1080/1600/2160 (never upscaled), manifest `hero-images.manifest.json` with actual output dimensions, printed config snippet.
@@ -121,7 +140,7 @@ NEXT STEPS (ordered):
 
 
 ## Current state
-The Motherland motion correction was committed on `main` as `3036e779b62cc20d9e8c2cb5e44fd3
+The Motherland motion correction was committed on `main` as `3036e779b62cc20d9e8c2cb5e44fd3f
 61eb106b3` (`fix: preserve Motherland scroll motion behavior`) and deployed to production. Vercel deployment `dpl_AMcfsuQ6YiSkwLw6u5cVpGTLihy4` reached `READY`, target `production`, with `radarcharts.net` assigned. Live behavior was verified after the deployment. The correction is limited to `src/app/(marketing)/motherland/motherland-motion.css`; this handoff has been updated with deployment evidence.
 
 The latest repository activity was checked before committing: the pre-change remote main head was PR #23 merge `0a746d5`; open PR #24 was unrelated and left untouched. The correction was pushed directly to `main` after the user explicitly authorized commit and production deployment.
@@ -167,4 +186,3 @@ Do not modify `public/motherland/featured.gif`, the homepage `Hero.tsx` ticker c
 **Local verification:** `npm run notion:contract-test`, `npm run cloudflare-content:contract-test`, `npm run notion:media-webp-contract-test`, focused ESLint on the three changed TypeScript files, and `npm run typecheck` passed. `npm run lint -- --ignore-pattern '.cloudflare/**' --ignore-pattern '.next/**'` passed with zero errors and six pre-existing warnings outside the changed files. `RADAR_NOTION_DIRECT_READ_ENABLED= npm run build` passed and generated 475 routes using only the committed snapshot; it intentionally did not contact Notion or R2. The default `npm run test` was also attempted but its repository-wide lint step traversed generated `.cloudflare` bundles and reported 319 errors/12,930 warnings; changed-file lint and the source-only lint run passed.
 
 **Production deployment verification:** Pending the authorized push to `main` and Vercel's production build. Confirm the deployment is READY on the `radarsite` project and that all six canonical article URLs return HTTP 200 with their article text. Verify images resolve to validated R2 public URLs where import succeeds; if R2 media remains unavailable, confirm the page renders text without Notion signed URLs. Confirm the R2 content revision now includes the six page IDs/slugs while retaining existing content. Vercel runtime error aggregation at review time had no clusters in the last seven days; a broad 7-day log query timed out, so this code finding—not current runtime logs—is the direct evidence for the root cause.
-
