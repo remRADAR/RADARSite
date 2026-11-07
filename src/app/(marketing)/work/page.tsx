@@ -15,7 +15,7 @@ export default async function WorkPage() {
 
   return (
     <div>
-      <ArchiveStructuredData name="Radar Work" description="Selected artist, release, editorial, and campaign work from RADARCharts." path: "/work" breadcrumbs={[{ name: "Home", path: "/" }, { name: "Work", path: "/work" }]} />
+      <ArchiveStructuredData name="Radar Work" description="Selected artist, release, editorial, and campaign work from RADARCharts." path="/work" breadcrumbs={[{ name: "Home", path: "/" }, { name: "Work", path: "/work" }]} />
       <div className="flex items-end justify-between px-4 pb-8 pt-12 md:px-8 md:pt-20">
         <div>
           <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
