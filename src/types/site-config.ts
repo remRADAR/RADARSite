@@ -12,7 +12,7 @@ export interface GlobalSiteConfig {
 export const defaultSiteConfig: GlobalSiteConfig = {
   tickers: {
     ticker1_audioPlayer: { enabled: true, trackTitle: "Top10: *Track", playlistStatusText: "PLAYLIST LIVE", audioStreamUrl: "", autoPlay: false },
-    ticker2_heroMarquee: { enabled: true, speedSeconds: 26, items: ["Music is life itself…", "#stayAKT!V", "Protect The Music, Fans & Brands, Always."].map((text, i) => ({ id: `hero-ticker-${i + 1}`, text, icon: "|", linkUrl: "" })) },
+    ticker2_heroMarquee: { enabled: true, speedSeconds: 26, items: ["LIQUID CAFÉ, CITY PARK WUSE-ABUJA", "10TH DECEMBER", "6PM"].map((text, i) => ({ id: `hero-ticker-${i + 1}`, text, icon: "", linkUrl: "/stayaktiv" })) },
     ticker3_partnerMarquee: { enabled: true, speedSeconds: 30, items: ["RADARUnit", "RADARMe", "On The Radar", "RADARArticles", "RADAR Sessions", "RADAR Live"] },
     ticker4_footerMarquee: { enabled: true, speedSeconds: 32, text: "remRADAR", separatorSymbol: "✳" },
     ticker5_projectSelector: { enabled: true, speedSeconds: 30, label: "SELECT PROJECT", projectSlugs: ["mamuzo-dark-era-peak-release", "after-hours-vol-02", "north-star-release"] },
@@ -34,7 +34,8 @@ export const defaultSiteConfig: GlobalSiteConfig = {
 };
 
 const LEGACY_HERO_TICKER_TEXT = ["NEW OFFICIAL SITE", "AKT!V", "ON THE RADAR"];
-const CURRENT_HERO_TICKER_TEXT = ["Music is life itself…", "#stayAKT!V", "Protect The Music, Fans & Brands, Always."];
+const PREVIOUS_HERO_TICKER_TEXT = ["Music is life itself…", "#stayAKT!V", "Protect The Music, Fans & Brands, Always."];
+const CURRENT_HERO_TICKER_TEXT = ["LIQUID CAFÉ, CITY PARK WUSE-ABUJA", "10TH DECEMBER", "6PM"];
 
 export function normalizeSiteConfig(input: unknown): GlobalSiteConfig {
   if (!input || typeof input !== "object") return defaultSiteConfig;
@@ -44,7 +45,7 @@ export function normalizeSiteConfig(input: unknown): GlobalSiteConfig {
   const storedTicker = value.tickers?.ticker2_heroMarquee;
   const ticker = { ...defaultSiteConfig.tickers.ticker2_heroMarquee, ...(storedTicker || {}) };
   const items = Array.isArray(ticker.items) ? ticker.items : defaultSiteConfig.tickers.ticker2_heroMarquee.items;
-  const isLegacyDefault = items.length === LEGACY_HERO_TICKER_TEXT.length && items.every((item, index) => item && typeof item === "object" && item.text === LEGACY_HERO_TICKER_TEXT[index]);
+  const isLegacyDefault = [LEGACY_HERO_TICKER_TEXT, PREVIOUS_HERO_TICKER_TEXT].some((legacyText) => items.length === legacyText.length && items.every((item, index) => item && typeof item === "object" && item.text === legacyText[index]));
   ticker.items = isLegacyDefault ? items.map((item, index) => ({ ...item, text: CURRENT_HERO_TICKER_TEXT[index] ?? item.text })) : items;
   if (ctaSection.contactEmail === "hello@radarcharts.com") ctaSection.contactEmail = "hello@radarcharts.net";
   return { ...defaultSiteConfig, ...value, tickers: { ...defaultSiteConfig.tickers, ...(value.tickers || {}), ticker2_heroMarquee: ticker }, homepage: { ...homepage, ctaSection }, navigation: { ...defaultSiteConfig.navigation, ...(value.navigation || {}) } };
