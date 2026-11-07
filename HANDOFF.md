@@ -1,5 +1,27 @@
 # HANDOFF — RADARSite (radarcharts.net)
 
+## CTA globe transparent surface fix (2026-11-07 — Vibe agent)
+
+Branch `fix/homepage-cta-transparent-surface` (from main @ 0399f528, head fc4c541 + this ledger commit), PR #40. Owner instruction: fix the homepage (05) Start CTA segment "with the most recent build that implemented the background removal and having the GIF with a transparent background and moving" (screenshot IMG_5725.PNG: mobile, gray section, dotted globe, frozen).
+
+Diagnosis (verified, read-only):
+- The background-removal build IS on main and deployed: commit `c7624323` "fix: add resilient transparent CTA globe" (2026-10-26) is the latest commit touching CTASection.tsx / CTASection.module.css; production radarcharts.net serves a current main build (live /privacy and /terms routes from the 2026-11-06 PR #17 merge; 2026-11-03 editorial priority copy live).
+- The gray in the owner's mobile screenshot is the DELIBERATE mobile backdrop `--cta-globe-background-mobile: #737373` (desktop painted #080808) in CTASection.module.css — it makes the segment look like the retired full-bleed gray homepage-cta.gif, i.e. like the background removal never happened.
+- The frozen globe is the by-design poster path: CTASection swaps the animated GIF for homepage-cta-globe-poster.png when `prefers-reduced-motion: reduce` (also on load failure). The owner was unsure whether iPhone Reduce Motion is enabled; that device setting, not a code defect, is the most likely cause of the freeze. The GIF asset (public/media/homepage-cta-globe-transparent.gif, 2,230,991 bytes) is distinct from the retired gray full-bleed homepage-cta.gif (2,701,380 bytes) and was NOT touched.
+
+Change (this branch):
+- `src/components/marketing/CTASection.module.css` — both painted backdrops removed: .section paints var(--paper) (the site surface, #050505 dark theme) and .globeStage is fully transparent at every viewport; the mobile media query keeps only layout rules. The transparent animated GIF now floats directly on the dark section surface on desktop AND mobile.
+- `tests/e2e/homepage-cta-globe.spec.ts` — first test renamed "loads the local transparent globe on the section surface at every viewport"; now asserts the stage backdrop is rgba(0, 0, 0, 0), the section background is identical at desktop and 390x844, and the retired rgb(115, 115, 115) gray never returns. Poster-failure and reduced-motion tests unchanged.
+
+NOT VERIFIED in this session (no Node runtime): npm run lint, npm run typecheck, npm run build, and the Playwright suite were NOT executed. PR CI runs the Phase 2 contract tests + build:vinext; the e2e suite is NOT part of CI — run `npm run test:e2e -- tests/e2e/homepage-cta-globe.spec.ts` on a checkout before/after merge.
+
+Owner follow-ups:
+1. Check iPhone Settings > Accessibility > Motion > Reduce Motion: when on, the site intentionally shows the static poster instead of the animation. Forcing animation for reduced-motion users would be an accessibility regression and needs an explicit owner decision.
+2. To confirm the deployed asset plays standalone: open https://radarcharts.net/media/homepage-cta-globe-transparent.gif directly in Safari.
+3. Four Vercel projects auto-deploy main pushes; after merge, hard-refresh production to bypass cache and confirm the globe animates on the dark surface.
+
+---
+
 ## Homepage featured pipeline: new originals only (2026-10-26 — Vibe agent)
 
 MERGED: PR #34 (branch `homepage-featured-pipeline`) merged to main as `4e3a298` on 2026-10-26 with explicit user authorization ("Merge now — deploy to production"), after full branch validation. Production deploy via Vercel followed automatically.
@@ -51,7 +73,7 @@ Branch `hero/fixed-cinematic-2026-10-26` (created from main @ c7624323, head 7c0
 
 What was implemented (all on the branch):
 - `src/components/marketing/HeroCinematic.tsx` — NEW engine replacing HeroCube: two stacked full-bleed film layers crossfade on opacity (fadeTransitionMs 1100, var(--ease-in-out)); each panel drifts on a Ken Burns move for durationMs + fade; the incoming scene is preloaded and decoded BEFORE the fade starts; token-guarded safety timer commits the fade if transitionend is missed; transition lock ignores rapid input; autoplay (5s dwell, 8s post-interaction pause, visibility- and focus-aware, shuffle bag); touch swipe; prev/next + pause buttons; two-stage image failure fallback (fallback -> terminal); reduced motion = direct swap, no autoplay, no drift.
-- Layout integration: mobile renders one dominant full-bleed image; md+ renders a seamless grid-cols-3 composite of three consecutive library images per scene (same front, front+1, front+2 window semantics as the cube, so shuffle/next/prev and announcement text are unchanged for users).
+- Layout integration: mobile renders one dominant full-bleed image; md+ renders a seamless grid-cols-3 composite of three consecutive library images per scene (same front, front+1, front+2 window semantics as the cube, so shuffle/next/prev and announcement text is unchanged for users).
 - `src/components/marketing/Hero.tsx` — media engine swapped to HeroCinematic with the same props contract (slides / fallbackSrc / resolveSrc); headline, subheadline, ticker, site overrides, GSAP reveal (clipPath on [data-hero-panel]), and the Three.js engine layer are untouched.
 - `src/app/globals.css` — cube scene styles replaced with .hero-film / .hero-film-layer / .hero-film-backdrop, @keyframes hero-kenburns-a / hero-kenburns-b (alternating per-panel drift direction), and a reduced-motion kill-switch for drift + layer transitions. Ken Burns duration is driven by --hero-drift-duration (set inline = durationMs + fadeTransitionMs) so dwell and drift stay in sync from config. Nothing else in the file changed.
 - `src/lib/radar-content.ts` — HeroConfig.cubeTransitionMs replaced with fadeTransitionMs (1100); durationMs stays 5000; 
@@ -75,13 +97,12 @@ NEXT STEPS (ordered):
 Branch `hero-image-library` (created from main @ f4b481a, first commit 74df970) — NOT merged to main, NOT deployed. No production surface was touched.
 
 What was implemented (all on the branch):
-- `public/images/hero/` + `README.md` — dedicated GitHub-managed hero library folder with format (WebP), 9:16 ratio, naming (`hero-artist-001.webp`), focal-point, r
-eplacement, and validation documentation. No artwork was invented or committed; the folder is preserved by the README, so no `.gitkeep` is needed.
+- `public/images/hero/` + `README.md` — dedicated GitHub-managed hero library folder with format (WebP), 9:16 ratio, naming (`hero-artist-001.webp`), focal-point, replacement, and validation documentation. No artwork was invented or committed; the folder is preserved by the README, so no `.gitkeep` is needed.
 - `src/lib/hero-image-library.ts` — centralized `heroImages` configuration (id/src/alt/focalPoint/fit/order/active). Empty by design; `getLibraryHeroSlides()` maps entries to hero slides.
 - `src/lib/radar-content.ts` — `HeroSlide` gained `focalPoint` and `fit`; `HeroConfig` gained `cubeTransitionMs: 900`; `heroConfig.slides` now uses library entries when configured and falls back to the legacy `DRIVE_HERO_IMAGES` otherwise. Drive URLs remain the live fallback until the library is populated and verified.
 - `src/lib/hero-media.ts` — extracted Drive source helpers (`heroSourceSet`, `isOptimizableHeroSource`, `heroPreloadSource`) and added `preloadHeroImage()` (load + decode + timeout, never rejects).
-- `src/components/marketing/HeroCube.tsx` — genuine CSS 3D cube: 4 faces, `perspective: 1400px`, `transform-style: preserve-3d`, `backface-visibility: hidden`, faces at `translateZ(width/2)` via ResizeObserver. Forward = -90deg outward rotation, backward = +90deg, easing `var(--ease-in-out)`, 900ms. Incoming image is preloaded and decoded before rotating; a safety timer normalizes state if `transitionend` is missed. Portrait-first: `fit: "contain"` renders the full 9:16 artwork over a blurred focal-positioned cover backdrop; `fit: "cover"` crops around the focal point. Autoplay (4s dwell, 8s pause after interaction), touch swipe, accessible prev/next buttons, aria-live slide status, failed-image fallback to `reducedMotionFallback`, and reduced-motion users get a static image with no rotation or autoplay.
-- `src/components/marketing/Hero.tsx` — media engine delegated to `HeroCube`; headline, subheadline, ticker, site overrides, GSAP reveal, and Three.js engine preserved. The fade-triptych transition machinery was removed (replaced by the cube).
+- `src/components/marketing/HeroCube.tsx` — genuine CSS 3D cube: 4 faces, `perspective: 1400px`, `transform-style: preserve-3d`, `backface-visibility: hidden`, faces at `translateZ(width/2)` via ResizeObserver. Forward = -90deg outward rotation, backward = +90deg, easing `var(--ease-in-out)`, 900ms. Incoming image is preloaded and decoded before rotating; a safety timer normalizes state if transitionend is missed. Portrait-first: `fit: "contain"` renders the full 9:16 artwork over a blurred focal-positioned cover backdrop; `fit: "cover"` crops around the focal point. Autoplay (4s dwell, 8s pause after interaction), touch swipe, accessible prev/next buttons, aria-live slide status, failed-image fallback to `reducedMotionFallback`, and reduced-motion users get a static image with no rotation or autoplay.
+- `src/components/marketing/Hero.tsx` — media engine delegated to `HeroCube`; headline, subheadline, ticker, GSAP reveal, and Three.js engine preserved. The fade-triptych transition machinery was removed (replaced by the cube).
 - `src/app/globals.css` — added `.hero-cube-scene/.hero-cube/.hero-cube-face/.hero-cub
 e-backdrop` styles plus a reduced-motion transition kill-switch. Nothing else in the file changed.
 - `scripts/hero-image-process.ts` (+ `npm run hero:process`) — sharp pipeline: validates WebP type/integrity/dimensions, preserves the original in `originals/`, optional 8K-class master (4320x7680 portrait / 7680x4320 landscape, Lanczos3 — interpolation, NOT AI upscaling; no AI service exists in this environment and none was invented), delivery derivatives at 720/1080/1600/2160 (never upscaled), manifest `hero-images.manifest.json` with actual output dimensions, printed config snippet.
@@ -100,13 +121,13 @@ NEXT STEPS (ordered):
 
 
 ## Current state
-The Motherland motion correction was committed on `main` as `3036e779b62cc20d9e8c2cb5e44fd3f
+The Motherland motion correction was committed on `main` as `3036e779b62cc20d9e8c2cb5e44fd3
 61eb106b3` (`fix: preserve Motherland scroll motion behavior`) and deployed to production. Vercel deployment `dpl_AMcfsuQ6YiSkwLw6u5cVpGTLihy4` reached `READY`, target `production`, with `radarcharts.net` assigned. Live behavior was verified after the deployment. The correction is limited to `src/app/(marketing)/motherland/motherland-motion.css`; this handoff has been updated with deployment evidence.
 
 The latest repository activity was checked before committing: the pre-change remote main head was PR #23 merge `0a746d5`; open PR #24 was unrelated and left untouched. The correction was pushed directly to `main` after the user explicitly authorized commit and production deployment.
 
 ## What was fixed
-Production inspection found that the scroll animation shorthand displaced the 26-second hero breathe animation. It also found that the page’s `view()`-timeline effects stayed at fixed progress in the tested browser. The correction preserves both hero animations and drives fade/parallax from `scroll(root block)` using opacity and the independent `translate` property. The desktop root-scroll range is 0%–8%; at widths up to 767px it is 0%–5.3%. The title/intro rise uses 1.3%–3.3% on desktop and 0.75%–2.2% on mobile. Reduced-motion rules disable the CSS hero, title/intro, and ticker animations; the animated GIF remains image content.
+Production inspection found that the scroll animation shorthand displaced the 26-second hero breathe animation. It also found that page’s `view()`-timeline effects stayed at fixed progress in the tested browser. The correction preserves both hero animations and drives fade/parallax from `scroll(root block)` using opacity and the independent `translate` property. The desktop root-scroll range is 0%–8%; at widths up to 767px it is 0%–5.3%. The title/intro rise uses 1.3%–3.3% on desktop and 0.75%–2.2% on mobile. Reduced-motion rules disable the CSS hero, title/intro, and ticker animations; the animated GIF remains image content.
 
 No page copy or ticker content was changed. `MOTHERLAND_TICKER_ITEMS` remains the placeholder `['MOTHERLAND']`. The page remains a page highlighting the female segment, not an archive. No other pages were changed.
 
@@ -146,3 +167,4 @@ Do not modify `public/motherland/featured.gif`, the homepage `Hero.tsx` ticker c
 **Local verification:** `npm run notion:contract-test`, `npm run cloudflare-content:contract-test`, `npm run notion:media-webp-contract-test`, focused ESLint on the three changed TypeScript files, and `npm run typecheck` passed. `npm run lint -- --ignore-pattern '.cloudflare/**' --ignore-pattern '.next/**'` passed with zero errors and six pre-existing warnings outside the changed files. `RADAR_NOTION_DIRECT_READ_ENABLED= npm run build` passed and generated 475 routes using only the committed snapshot; it intentionally did not contact Notion or R2. The default `npm run test` was also attempted but its repository-wide lint step traversed generated `.cloudflare` bundles and reported 319 errors/12,930 warnings; changed-file lint and the source-only lint run passed.
 
 **Production deployment verification:** Pending the authorized push to `main` and Vercel's production build. Confirm the deployment is READY on the `radarsite` project and that all six canonical article URLs return HTTP 200 with their article text. Verify images resolve to validated R2 public URLs where import succeeds; if R2 media remains unavailable, confirm the page renders text without Notion signed URLs. Confirm the R2 content revision now includes the six page IDs/slugs while retaining existing content. Vercel runtime error aggregation at review time had no clusters in the last seven days; a broad 7-day log query timed out, so this code finding—not current runtime logs—is the direct evidence for the root cause.
+
