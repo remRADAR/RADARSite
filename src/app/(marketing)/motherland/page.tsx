@@ -30,7 +30,12 @@ export default async function MotherlandPage() {
     <>
       <StructuredData data={webPageStructuredData({ name: "MOTHERLand", description: "Music To Her. Stories, artists, and conversations centered on the women moving culture forward.", path: "/motherland", type: "CollectionPage" })} />
       <StructuredData data={breadcrumbStructuredData([{ name: "Home", path: "/" }, { name: "MOTHERLand", path: "/motherland" }])} />
-      <section aria-label="MOTHERLand hero" className="relative h-[calc(100svh-3.5rem)] min-h-[20rem] w-full overflow-hidden border-y-2 border-ink bg-ink">
+      {/* First frame: the sticky header (58px, --header-height) plus this hero
+          fills exactly one viewport — the hero lands edge-to-edge under the
+          chrome and the archive starts at the fold. The hero keeps only its
+          bottom border; the header already draws the line above it, so a
+          top border would double the rule to 4px. */}
+      <section aria-label="MOTHERLand hero" className="relative h-[calc(100svh-var(--header-height))] min-h-[20rem] w-full overflow-hidden border-b-2 border-ink bg-ink">
         <Image
           src="/motherland/featured.gif"
           alt="Aerial view of a dense tropical forest surrounding a turquoise lake"

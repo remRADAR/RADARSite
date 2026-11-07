@@ -79,7 +79,7 @@ export function Hero() {
   }, []);
 
   return (
-    <section ref={rootRef} className="hero-shell relative flex min-h-[100svh] flex-col justify-end overflow-hidden [contain:paint] bg-ink pt-14 text-paper">
+    <section ref={rootRef} className="hero-shell relative flex min-h-[calc(100svh-var(--header-height))] flex-col justify-end overflow-hidden [contain:paint] bg-ink text-paper">
       <div className="hero-media absolute inset-0 bg-ink">
         {slides.length > 0 ? (
           <HeroCinematic
