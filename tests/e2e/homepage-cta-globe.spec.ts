@@ -1,6 +1,10 @@
 import { expect, test } from "@playwright/test";
 
-test("renders the Framer Music Globe in the CTA slot", async ({ page }) => {
+test("renders the Framer Music Globe without material warnings", async ({ page }) => {
+  const materialWarnings: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "warning" && message.text().includes("THREE.Material")) materialWarnings.push(message.text());
+  });
   await page.goto("/");
   const section = page.getByTestId("cta-section");
   await section.scrollIntoViewIfNeeded();
@@ -9,6 +13,7 @@ test("renders the Framer Music Globe in the CTA slot", async ({ page }) => {
   await expect(stage).toBeVisible();
   await expect(stage.locator('[aria-label="Interactive globe"]')).toBeVisible();
   await expect(stage.locator("canvas")).toBeVisible();
+  expect(materialWarnings).toEqual([]);
 });
 
 test("keeps the CTA globe slot transparent on mobile", async ({ page }) => {
