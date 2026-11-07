@@ -3,7 +3,6 @@ import { Hero } from "@/components/marketing/Hero";
 import { PillarsSection } from "@/components/marketing/PillarsSection";
 import { EditorialTree } from "@/components/marketing/EditorialTree";
 import { CapabilitiesStrip } from "@/components/marketing/CapabilitiesStrip";
-import { ClientProof } from "@/components/marketing/ClientProof";
 import { CTASection } from "@/components/marketing/CTASection";
 import { getRecentEditorialPosts } from "@/lib/editorial-tree";
 import { buildPageMetadata } from "@/lib/seo";
@@ -29,7 +28,6 @@ export default async function LandingPage() {
       <PillarsSection />
       <EditorialTree posts={recentPosts} />
       <CapabilitiesStrip />
-      <ClientProof />
       <CTASection />
     </>
   );

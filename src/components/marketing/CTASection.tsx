@@ -44,7 +44,7 @@ export function CTASection() {
       data-testid="cta-section"
     >
       <div className={`relative z-10 flex items-center justify-between px-4 py-6 md:px-8 ${styles.header}`}>
-        <p className="font-mono text-xs font-bold uppercase tracking-widest">(05) Start</p>
+        <p className="font-mono text-xs font-bold uppercase tracking-widest">(04) Start</p>
         <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
           Put it on the RADAR
         </p>

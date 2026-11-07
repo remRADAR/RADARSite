@@ -29,7 +29,6 @@ export type HeroConfig = {
 export type HomepageContent = {
   ticker: string[];
   pillars: { number: string; label: string; description: string }[];
-  proof: { quote: string; attribution: string; partners: string[] };
   cta: { headline: string[]; email: string };
 };
 
@@ -48,7 +47,7 @@ export const DRIVE_HERO_IMAGES = [
   "https://lh3.googleusercontent.com/d/1hxgQaHKr19HElmYu1vQVe7KDRkzvtHfa=w2000", // Untitled design - 7.webp
   "https://lh3.googleusercontent.com/d/1-3QOpTcZ5IK1oNfbSsC8vTfpifaZREfU=w2000", // Untitled design - 8.webp
   "https://lh3.googleusercontent.com/d/1J2PDB_RaSDlnn-V-7-Pb8veeQk8PU9T-=w2000", // Untitled design - 9.webp
-  "https://lh3.googleusercontent.com/d/1CBsDAgcclwv7mxL49NkKk5OrCutFCEcX=w2000", // Untitled design - 10.webp
+  "https://lh3.googleusercontent.com/d/1CBsDAgcclwv7mxL49NkK5OrCutFCEcX=w2000", // Untitled design - 10.webp
   "https://lh3.googleusercontent.com/d/1Be5ZAjl0srPDUO2qxldazDijKoKhU4LH=w2000", // Untitled design - 11.webp
   "https://lh3.googleusercontent.com/d/1bMIaoMbcepxoxXg0dzs-LQMqv4S8x5fH=w2000", // Untitled design - 12.webp
   "https://lh3.googleusercontent.com/d/1eHp-U3vdKwNpZyNww4XriqIHATwuA03V=w2000", // Untitled design - 13.webp
@@ -124,11 +123,6 @@ export const homepageContent: HomepageContent = {
     { number: "03", label: "MAGAZINE", description: "Talk To Us Interviews" },
     { number: "04", label: "MOTHERLand", description: "The Music To Her" },
   ],
-  proof: {
-    quote: "RADAR understands that the release is only the beginning. They gave the whole world around the record a pulse.",
-    attribution: "→ Maya Ellis, independent artist",
-    partners: ["RADARUnit", "RADARMe", "On The Radar", "RADARArticles", "RADAR Sessions", "RADAR Live"],
-  },
   cta: { headline: ["Make", "some", "noise."], email: "hello@radarcharts.net" },
 };
 
