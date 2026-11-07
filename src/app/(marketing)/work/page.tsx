@@ -14,7 +14,7 @@ export default async function WorkPage() {
   const photosBySlug = await getHeroPhotosBySlug(caseStudies);
 
   return (
-    <div className="pt-14">
+    <div>
       <ArchiveStructuredData name="Radar Work" description="Selected artist, release, editorial, and campaign work from RADARCharts." path="/work" breadcrumbs={[{ name: "Home", path: "/" }, { name: "Work", path: "/work" }]} />
       <div className="flex items-end justify-between px-4 pb-8 pt-12 md:px-8 md:pt-20">
         <div>

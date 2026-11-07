@@ -104,6 +104,15 @@
   --duration-base: 0.6s;
   --duration-slow: 1s;
   --theme-transition: 260ms cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Chrome geometry: the sticky site header is exactly this tall — the h-14
+     inner bar plus its 2px bottom border (SiteHeader.tsx), 58px total.
+     First-frame surfaces — the homepage hero, the MOTHERLand hero, the
+     pinned editorial film — subtract it so the chrome and the hero together
+     fill exactly one viewport at load: no sliver of the next section
+     intruding into the first frame, no hero extending under the fold.
+     Consumers use calc(100svh - var(--header-height)). */
+  --header-height: 3.625rem;
 }
 
 html {
@@ -313,7 +322,7 @@ html {
   }
 
   .grain-overlay {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
   /* Keeps dark hero type legible without dimming or tinting the photography. */

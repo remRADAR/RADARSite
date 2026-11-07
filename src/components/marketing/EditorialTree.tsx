@@ -195,7 +195,7 @@ export function EditorialTree({ posts }: EditorialTreeProps) {
       {/* Desktop: pinned crossfade sequence */}
       <div
         ref={sectionRef}
-        className="relative hidden h-[calc(100svh-3.625rem)] min-h-[34rem] w-full overflow-hidden md:block"
+        className="relative hidden h-[calc(100svh-var(--header-height))] min-h-[34rem] w-full overflow-hidden md:block"
       >
         {visiblePosts.map((post, i) => (
           <div

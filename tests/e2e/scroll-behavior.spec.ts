@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Scroll and hover behavior", () => {
-  test("scrolling the landing page and hovering work imagery raises no JS errors", async ({
+  test("scrolling the landing page and hovering pillar links raises no JS errors", async ({
     page,
   }) => {
     const errors: string[] = [];
@@ -17,9 +17,9 @@ test.describe("Scroll and hover behavior", () => {
       await page.waitForTimeout(150);
     }
 
-    const workImage = page.getByRole("link", { name: "View case study" }).first();
-    await workImage.scrollIntoViewIfNeeded();
-    await workImage.hover();
+    const pillarLink = page.getByRole("link", { name: /MOTHERLand/i }).first();
+    await pillarLink.scrollIntoViewIfNeeded();
+    await pillarLink.hover();
     await page.waitForTimeout(300);
 
     expect(errors).toEqual([]);
@@ -32,7 +32,7 @@ test.describe("Scroll and hover behavior", () => {
       if (msg.type() === "error") errors.push(msg.text());
     });
 
-    await page.goto("/work/luna-vale-first-light");
+    await page.goto("/work/mamuzo-dark-era-peak-release");
 
     for (let i = 0; i < 10; i++) {
       await page.mouse.wheel(0, 700);

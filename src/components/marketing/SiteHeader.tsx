@@ -22,7 +22,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky inset-x-0 top-0 z-50 border-b-2 border-ink bg-paper">
-      <div className="flex min-h-14 items-stretch justify-between">
+      <div className="flex h-14 items-stretch justify-between">
         <Logo className="min-w-0 shrink border-r-2 border-ink px-3 sm:px-4 md:px-6" />
 
         <nav className="hidden min-w-0 items-stretch lg:flex" aria-label="Primary navigation">

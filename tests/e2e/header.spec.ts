@@ -15,7 +15,7 @@ const marketingRoutes = [
   "/radarmusic/artists",
   "/radarmusic/releases",
   "/work",
-  "/work/luna-vale-first-light",
+  "/work/mamuzo-dark-era-peak-release",
   "/privacy",
   "/terms",
 ];
