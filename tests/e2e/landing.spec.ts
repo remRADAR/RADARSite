@@ -17,15 +17,14 @@ test.describe("Landing page", () => {
     expect(errors).toEqual([]);
   });
 
-  test("selected work section links through to a case study", async ({ page }) => {
-    // Use a mobile viewport: the Selected Work section renders a plain stacked
-    // list there (the desktop variant is a pinned scrub-crossfade whose entries
-    // fade/disable as you scroll, which makes clicking a specific one racy).
-    await page.setViewportSize({ width: 390, height: 844 });
+  test("primary navigation links into the ON THE RADAR gateway", async ({ page }) => {
+    // Desktop viewport so the primary nav bar renders (mobile collapses it
+    // behind the menu button). The homepage no longer carries a "View case
+    // study" section, so navigation itself is the click-through contract.
+    await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
-    const link = page.getByRole("link", { name: "View case study" }).first();
-    await link.scrollIntoViewIfNeeded();
-    await link.click();
-    await expect(page).toHaveURL(/\/work\/.+/, { timeout: 15_000 });
+    await page.getByRole("link", { name: "ON THE RADAR" }).first().click();
+    await expect(page).toHaveURL(/\/ontheradar$/);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Stories");
   });
 });

@@ -7,14 +7,14 @@ test.describe("Case study page", () => {
     await page.goto("/work");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
-    await page.getByRole("link", { name: /Luna Vale/ }).first().click();
-    await expect(page).toHaveURL("/work/luna-vale-first-light");
+    await page.getByRole("link", { name: /Mamuzo/i }).first().click();
+    await expect(page).toHaveURL("/work/mamuzo-dark-era-peak-release");
 
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "Giving a debut artist a world"
+      "Mamuzo Enters His DARK ERA"
     );
-    await expect(page.getByText("The Challenge")).toBeVisible();
-    await expect(page.getByText("The Approach")).toBeVisible();
+    await expect(page.getByText("The Signal")).toBeVisible();
+    await expect(page.getByText("The Sound")).toBeVisible();
     await expect(page.getByText("Results")).toBeVisible();
     await expect(page.getByText("Credits")).toBeVisible();
     await expect(page.getByText("Next case study")).toBeVisible();

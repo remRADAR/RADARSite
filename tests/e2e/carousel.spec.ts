@@ -9,6 +9,10 @@ import { test, expect, type Locator } from "@playwright/test";
  * starves unreliably when several WebGL/GSAP pages run in parallel workers,
  * making that check environmentally flaky. Enhanced + overflowing is the stable,
  * meaningful contract; live drag feel is validated visually.
+ *
+ * The homepage partner carousel was removed together with the fabricated
+ * ClientProof section; the case-study detail gallery remains the reference
+ * implementation of the drag-carousel pattern.
  */
 async function assertDraggableCarousel(track: Locator) {
   await track.scrollIntoViewIfNeeded();
@@ -22,22 +26,12 @@ async function assertDraggableCarousel(track: Locator) {
 }
 
 test.describe("Drag carousels", () => {
-  test("client logo carousel is draggable and overflows its viewport", async ({ page }) => {
-    await page.goto("/");
-    const track = page
-      .getByText("RADARUnit", { exact: true })
-      .first()
-      .locator('xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " w-max ")]')
-      .first();
-    await assertDraggableCarousel(track);
-  });
-
   test("case study detail gallery carousel is draggable and overflows its viewport", async ({
     page,
   }) => {
-    await page.goto("/work/luna-vale-first-light");
+    await page.goto("/work/mamuzo-dark-era-peak-release");
     const track = page
-      .getByText("First light, first take", { exact: true })
+      .getByText("The room comes alive", { exact: true })
       .first()
       .locator('xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " w-max ")]')
       .first();
