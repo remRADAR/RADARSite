@@ -11,6 +11,11 @@ async function expectRestingFilm(page: import("@playwright/test").Page) {
   await expect(film(page)).toHaveAttribute("data-animating", "false");
 }
 
+async function expectNoHeroControls(page: import("@playwright/test").Page) {
+  await expect(page.locator("[data-hero-controls]")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /hero (image|slideshow)/i })).toHaveCount(0);
+}
+
 test.describe("Hero cinematic engine", () => {
   test("renders stacked full-bleed film layers with no 3D geometry", async ({ page }) => {
     await page.goto("/");
@@ -50,65 +55,31 @@ test.describe("Hero cinematic engine", () => {
     await expect(layers(page).locator("[data-hero-triptych-panel]").first()).toBeHidden();
   });
 
-  test("advances and reverses with a crossfade", async ({ page }) => {
+  test("renders no control buttons — the hero is autoplay-only", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("button", { name: "Pause hero slideshow" }).click();
-    await expectRestingFilm(page);
+    await expectNoHeroControls(page);
+  });
+
+  test("autoplays slides with a crossfade on the configured cadence", async ({ page }) => {
+    await page.clock.install({ time: new Date("2026-10-26T16:00:00.000Z") });
+    await page.clock.pauseAt(new Date("2026-10-26T16:00:00.000Z"));
+    await page.goto("/");
     const status = currentSlideAnnouncement(page);
-    const initialIndex = Number((await status.textContent())?.match(/\d+/)?.[0] || 1);
-    const nextIndex = initialIndex === 58 ? 1 : initialIndex + 1;
+    await expect(status).toHaveText("RADAR hero image 1");
+    await expectNoHeroControls(page);
 
-    await page.getByRole("button", { name: "Next hero image" }).click();
-    await expect(film(page)).toHaveAttribute("data-animating", "true");
-    // The incoming layer is staged above the current one and fully opaque.
-    const incomingOpacity = await page.locator('[data-hero-film-layer][data-active="false"]').evaluate((el) => getComputedStyle(el).opacity);
-    expect(Number(incomingOpacity)).toBeGreaterThan(0);
-    await expect(status).toHaveText("RADAR hero image " + nextIndex);
+    await page.clock.fastForward(5000);
+    await expect(status).not.toHaveText("RADAR hero image 1", { timeout: 5000 });
+    const firstSlide = await status.textContent();
     await expectRestingFilm(page);
 
-    await page.getByRole("button", { name: "Previous hero image" }).click();
-    await expect(film(page)).toHaveAttribute("data-animating", "true");
-    await expect(status).toHaveText("RADAR hero image " + initialIndex);
+    await page.clock.fastForward(5000);
+    await expect(status).not.toHaveText(firstSlide ?? "", { timeout: 5000 });
+    await expect(status).toHaveText(/^RADAR hero image \d+$/);
     await expectRestingFilm(page);
   });
 
-  test("ignores rapid extra input during a fade", async ({ page }) => {
-    await page.goto("/");
-    await page.getByRole("button", { name: "Pause hero slideshow" }).click();
-    await expectRestingFilm(page);
-    const next = page.getByRole("button", { name: "Next hero image" });
-    const status = currentSlideAnnouncement(page);
-    const initialIndex = Number((await status.textContent())?.match(/\d+/)?.[0] || 1);
-    const nextIndex = initialIndex === 58 ? 1 : initialIndex + 1;
-    const followingIndex = nextIndex === 58 ? 1 : nextIndex + 1;
-
-    await next.evaluate((button) => {
-      (button as HTMLButtonElement).click();
-      (button as HTMLButtonElement).click();
-    });
-    await expect(status).toHaveText("RADAR hero image " + nextIndex);
-    await expectRestingFilm(page);
-
-    await next.click();
-    await page.waitForTimeout(300);
-    await expect(film(page)).toHaveAttribute("data-animating", "true");
-    await expect(status).toHaveText("RADAR hero image " + followingIndex);
-    await expectRestingFilm(page);
-  });
-
-  test("wraps backward from the first image to the final image", async ({ page }) => {
-    await page.goto("/");
-    await page.getByRole("button", { name: "Pause hero slideshow" }).click();
-    await expectRestingFilm(page);
-    const status = currentSlideAnnouncement(page);
-    const initialIndex = Number((await status.textContent())?.match(/\d+/)?.[0] || 1);
-    const previousIndex = initialIndex === 1 ? 58 : initialIndex - 1;
-    await page.getByRole("button", { name: "Previous hero image" }).click();
-    await expect(status).toHaveText("RADAR hero image " + previousIndex);
-    await expectRestingFilm(page);
-  });
-
-  test("reduced motion swaps slides without fading, drifting, or autoplaying", async ({ browser }) => {
+  test("reduced motion plays nothing, fades nothing, and renders no controls", async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: "reduce" });
     const page = await context.newPage();
     await page.clock.install({ time: new Date("2026-10-26T16:00:00.000Z") });
@@ -118,44 +89,12 @@ test.describe("Hero cinematic engine", () => {
 
     await page.clock.fastForward(10000);
     await expect(status).toHaveText("RADAR hero image 1");
-    await page.getByRole("button", { name: "Next hero image" }).click();
-    await expect(status).toHaveText("RADAR hero image 2");
+    await expectNoHeroControls(page);
     const transition = await layers(page).first().evaluate((el) => getComputedStyle(el).transitionProperty);
     expect(transition).toBe("none");
     const animationName = await layers(page).locator(".hero-image").first().evaluate((el) => getComputedStyle(el).animationName);
     expect(animationName).toBe("none");
-    await expect(page.getByRole("button", { name: /hero slideshow/i })).toHaveCount(0);
     await context.close();
-  });
-
-  test("autoplay can be paused and resumes only after control focus leaves", async ({ page }) => {
-    await page.clock.install({ time: new Date("2026-10-26T16:00:00.000Z") });
-    await page.clock.pauseAt(new Date("2026-10-26T16:00:00.000Z"));
-    await page.goto("/");
-    const status = currentSlideAnnouncement(page);
-    await expect(status).toHaveText("RADAR hero image 1");
-
-    await page.getByRole("button", { name: "Pause hero slideshow" }).click();
-    await expect(page.getByRole("button", { name: "Resume hero slideshow" })).toBeVisible();
-    await page.clock.fastForward(9000);
-    await expect(status).toHaveText("RADAR hero image 1");
-
-    await page.getByRole("button", { name: "Resume hero slideshow" }).click();
-    // Focus within the controls is itself a pause, even after the explicit
-    // pause state is toggled off.
-    await page.clock.fastForward(9000);
-    await expect(status).toHaveText("RADAR hero image 1");
-    await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
-    await page.clock.fastForward(4999);
-    await expect(status).toHaveText("RADAR hero image 1");
-    await page.clock.fastForward(1);
-    await expect(status).not.toHaveText("RADAR hero image 1", { timeout: 5000 });
-    const firstShuffledSlide = await status.textContent();
-    await page.clock.fastForward(4999);
-    await expect(status).toHaveText(firstShuffledSlide ?? "");
-    await page.clock.fastForward(1);
-    await expect(status).not.toHaveText(firstShuffledSlide ?? "", { timeout: 5000 });
-    await expect(status).toHaveText(/^RADAR hero image \d+$/);
   });
 
   test("uses a local fallback after a source failure and degrades safely if it errors", async ({ page }) => {
@@ -175,13 +114,6 @@ test.describe("Hero cinematic engine", () => {
     await expect(fallbackImage).toHaveAttribute("src", /hero-new/);
     await fallbackImage.evaluate((image) => image.dispatchEvent(new Event("error", { bubbles: true })));
     await expect(page.locator('[data-hero-image-fallback="terminal"]').first()).toBeAttached();
-    await page.getByRole("button", { name: "Pause hero slideshow" }).click();
-    await expectRestingFilm(page);
-    const status = currentSlideAnnouncement(page);
-    const current = Number((await status.textContent())?.match(/\d+/)?.[0] || 1);
-    const next = current === 58 ? 1 : current + 1;
-    await page.getByRole("button", { name: "Next hero image" }).click();
-    await expect(status).toHaveText("RADAR hero image " + next);
     await expectRestingFilm(page);
   });
 
