@@ -26,7 +26,9 @@ test.describe("stayAKTiV events", () => {
     const pageOrder = await page.locator("main").evaluate((main) =>
       Array.from(main.children).map((child) => child.getAttribute("aria-label") || child.tagName),
     );
-    expect(pageOrder.indexOf("Event actions and countdown")).toBeGreaterThan(pageOrder.indexOf("Featured event"));
+    expect(pageOrder.indexOf("Event actions")).toBeGreaterThan(pageOrder.indexOf("OMAJIVERSE hero"));
+    expect(pageOrder.indexOf("Featured event")).toBeGreaterThan(pageOrder.indexOf("Event actions"));
+    expect(pageOrder.indexOf("Event countdown")).toBeGreaterThan(pageOrder.indexOf("Featured event"));
     expect(pageOrder.indexOf("More promoted events")).toBe(pageOrder.length - 1);
   });
 

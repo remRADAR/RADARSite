@@ -64,10 +64,46 @@ function downloadAppleCalendar() {
   window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
 }
 
-export function StayAktivActions() {
-  const [remaining, setRemaining] = useState<CountdownValue>(ZERO);
+export function StayAktivActionBar() {
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
+
+  return (
+    <div className={styles.actionBar} aria-label="Event actions">
+      <div className={styles.actionRule} aria-hidden="true" />
+      <div className={styles.actionButtons}>
+        <div className={styles.actionControl}>
+          <button type="button" className={styles.actionButton} onClick={() => { setScheduleOpen((open) => !open); setMapOpen(false); }} aria-expanded={scheduleOpen}>
+            Set schedule <span aria-hidden="true">↗</span>
+          </button>
+          {scheduleOpen && (
+            <div className={styles.actionPopover} role="menu">
+              <p>Choose your calendar</p>
+              <a href={googleCalendarUrl()} target="_blank" rel="noreferrer" role="menuitem">Google Calendar</a>
+              <button type="button" onClick={downloadAppleCalendar} role="menuitem">Apple / iOS calendar</button>
+            </div>
+          )}
+        </div>
+        <span className={styles.actionDivider} aria-hidden="true" />
+        <div className={styles.actionControl}>
+          <button type="button" className={styles.actionButton} onClick={() => { setMapOpen((open) => !open); setScheduleOpen(false); }} aria-expanded={mapOpen}>
+            Map location <span aria-hidden="true">↗</span>
+          </button>
+          {mapOpen && (
+            <div className={styles.actionPopover} role="menu">
+              <p>Liquid Café / City Park Wuse</p>
+              <a href="https://www.google.com/maps/dir/?api=1&destination=Liquid%20Cafe%2C%20City%20Park%20Wuse%2C%20Abuja%2C%20Nigeria" target="_blank" rel="noreferrer" role="menuitem">Get directions</a>
+            </div>
+          )}
+        </div>
+      </div>
+      <div className={styles.actionRule} aria-hidden="true" />
+    </div>
+  );
+}
+
+export function StayAktivCountdown() {
+  const [remaining, setRemaining] = useState<CountdownValue>(ZERO);
 
   useEffect(() => {
     const targetMs = Date.parse(EVENT_START);
@@ -85,55 +121,31 @@ export function StayAktivActions() {
   ] as const;
 
   return (
-    <section className={styles.actionZone} aria-label="Event actions and countdown">
-      <div className={styles.countdown} data-countdown data-countdown-target={EVENT_START}>
-        <div className={styles.countdownHeader}>
-          <div>
-            <p className={styles.countdownEyebrow}>OMAJI VERSE 2.0 / EVENT CLOCK</p>
-            <h2 className={styles.countdownTitle}>{remaining.isLive ? "We are live." : "Until the doors open."}</h2>
-          </div>
-          <p className={styles.countdownMeta}>10 DECEMBER / 6PM / WAT</p>
+    <div className={styles.countdown} data-countdown data-countdown-target={EVENT_START}>
+      <div className={styles.countdownHeader}>
+        <div>
+          <p className={styles.countdownEyebrow}>OMAJI VERSE 2.0 / EVENT CLOCK</p>
+          <h2 className={styles.countdownTitle}>{remaining.isLive ? "We are live." : "Until the doors open."}</h2>
         </div>
-        <div className={styles.countdownGrid} aria-live="polite" aria-atomic="true">
-          {units.map(([value, label]) => (
-            <div className={styles.countdownUnit} key={label}>
-              <strong>{pad(value)}</strong>
-              <span>{label}</span>
-            </div>
-          ))}
-        </div>
+        <p className={styles.countdownMeta}>10 DECEMBER / 6PM / WAT</p>
       </div>
+      <div className={styles.countdownGrid} aria-live="polite" aria-atomic="true">
+        {units.map(([value, label]) => (
+          <div className={styles.countdownUnit} key={label}>
+            <strong>{pad(value)}</strong>
+            <span>{label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-      <div className={styles.actionBar}>
-        <div className={styles.actionRule} aria-hidden="true" />
-        <div className={styles.actionButtons}>
-          <div className={styles.actionControl}>
-            <button type="button" className={styles.actionButton} onClick={() => { setScheduleOpen((open) => !open); setMapOpen(false); }} aria-expanded={scheduleOpen}>
-              Set schedule <span aria-hidden="true">↗</span>
-            </button>
-            {scheduleOpen && (
-              <div className={styles.actionPopover} role="menu">
-                <p>Choose your calendar</p>
-                <a href={googleCalendarUrl()} target="_blank" rel="noreferrer" role="menuitem">Google Calendar</a>
-                <button type="button" onClick={downloadAppleCalendar} role="menuitem">Apple / iOS calendar</button>
-              </div>
-            )}
-          </div>
-          <span className={styles.actionDivider} aria-hidden="true" />
-          <div className={styles.actionControl}>
-            <button type="button" className={styles.actionButton} onClick={() => { setMapOpen((open) => !open); setScheduleOpen(false); }} aria-expanded={mapOpen}>
-              Map location <span aria-hidden="true">↗</span>
-            </button>
-            {mapOpen && (
-              <div className={styles.actionPopover} role="menu">
-                <p>Liquid Café / City Park Wuse</p>
-                <a href="https://www.google.com/maps/dir/?api=1&destination=Liquid%20Cafe%2C%20City%20Park%20Wuse%2C%20Abuja%2C%20Nigeria" target="_blank" rel="noreferrer" role="menuitem">Get directions</a>
-              </div>
-            )}
-          </div>
-        </div>
-        <div className={styles.actionRule} aria-hidden="true" />
-      </div>
+export function StayAktivActions() {
+  return (
+    <section className={styles.actionZone} aria-label="Event actions and countdown">
+      <StayAktivActionBar />
+      <StayAktivCountdown />
       <p className={styles.actionHint}>Save the date or get directions to the highlighted event.</p>
     </section>
   );

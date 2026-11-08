@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
 import { buildPageMetadata } from "@/lib/seo";
-import { StayAktivActions } from "./StayAktivActions";
+import { StayAktivActionBar, StayAktivCountdown } from "./StayAktivActions";
 import styles from "./StayAktiv.module.css";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -60,7 +60,7 @@ export default function StayAktivPage() {
           </div>
         </div>
 
-        <section className={styles.hero} aria-labelledby="omajiverse-title">
+        <section className={styles.hero} aria-label="OMAJIVERSE hero" aria-labelledby="omajiverse-title">
           <h1 id="omajiverse-title" className="sr-only">OMAJIVERSE event</h1>
           <div className={styles.posterWrap} data-testid="floating-event-poster">
             <img
@@ -74,6 +74,11 @@ export default function StayAktivPage() {
             />
           </div>
           <p className={styles.heroStamp}>Active event<strong>{featuredEvent.artist}</strong>{featuredEvent.date} / {featuredEvent.time}</p>
+        </section>
+
+        <section className={styles.actionZone} aria-label="Event actions">
+          <StayAktivActionBar />
+          <p className={styles.actionHint}>Save the date or get directions to the highlighted event.</p>
         </section>
 
         <section className={styles.cards} id="event-details" aria-label="Featured event">
@@ -96,7 +101,9 @@ export default function StayAktivPage() {
           </article>
         </section>
 
-        <StayAktivActions />
+        <section className={styles.actionZone} aria-label="Event countdown">
+          <StayAktivCountdown />
+        </section>
 
         <p className={styles.footerNote}>The active event sets the color, type, ticker, and ticket path.</p>
 
