@@ -63,7 +63,14 @@ function ProjectCard({ project }: { project: BrandProject }) {
       <div className="border-t-0 p-5 md:p-7">
         <div className="flex items-start justify-between gap-4">
           <p className="font-mono text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{project.eyebrow}</p>
-          <p className={`shrink-0 font-mono text-[11px] font-bold uppercase tracking-widest ${project.href ? "text-flare" : "text-muted-foreground"}`}>{project.status}</p>
+          {project.href ? (
+            <p className="shrink-0 font-mono text-[11px] font-bold uppercase tracking-widest text-flare">{project.status}</p>
+          ) : (
+            <span className="inline-flex shrink-0 items-center gap-2 border-2 border-flare bg-flare px-2.5 py-1 font-mono text-[10px] font-black uppercase tracking-[.16em] text-ink shadow-[3px_3px_0_0_currentColor]">
+              <span className="h-1.5 w-1.5 rounded-full bg-ink" aria-hidden="true" />
+              {project.status}
+            </span>
+          )}
         </div>
         <h2 className="mt-4 display max-w-[12ch] text-[clamp(2rem,4vw,4.5rem)] leading-[.9]">{project.title}</h2>
         <p className="mt-5 max-w-xl font-mono text-xs uppercase leading-relaxed tracking-wide text-muted-foreground">{project.description}</p>
