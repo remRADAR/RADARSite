@@ -80,6 +80,26 @@ export default function StayAktivPage() {
               </div>
             </div>
           </article>
+          <div className="mt-8 border-t-2 border-ink" aria-label="Event details">
+            <details className="group border-b-2 border-ink py-5" open>
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-6 font-mono text-xs font-bold uppercase tracking-[.16em] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-flare [&::-webkit-details-marker]:hidden">
+                <span>Event essentials</span>
+                <span className="text-flare transition-transform group-open:rotate-45" aria-hidden="true">＋</span>
+              </summary>
+              <div className="grid gap-6 pb-2 pt-6 font-mono text-xs uppercase leading-relaxed tracking-wide text-muted-foreground md:grid-cols-3">
+                <p><span className="mb-2 block text-[10px] font-bold tracking-widest text-ink">When</span>{event.date} / {event.time}</p>
+                <p><span className="mb-2 block text-[10px] font-bold tracking-widest text-ink">Where</span>{event.location}</p>
+                <p><span className="mb-2 block text-[10px] font-bold tracking-widest text-ink">What</span>{event.title}</p>
+              </div>
+            </details>
+            <details className="group border-b-2 border-ink py-5">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-6 font-mono text-xs font-bold uppercase tracking-[.16em] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-flare [&::-webkit-details-marker]:hidden">
+                <span>Access &amp; updates</span>
+                <span className="text-flare transition-transform group-open:rotate-45" aria-hidden="true">＋</span>
+              </summary>
+              <p className="max-w-2xl pb-2 pt-6 font-mono text-xs uppercase leading-relaxed tracking-wide text-muted-foreground">Details and access information will follow. Stay close to the signal.</p>
+            </details>
+          </div>
         </section>
 
         <section className="grid border-b-2 border-ink md:grid-cols-2" aria-label="StayAKTiV principles">

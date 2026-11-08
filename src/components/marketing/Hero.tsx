@@ -117,7 +117,7 @@ export function Hero() {
           <Marquee durationSeconds={config.tickers.ticker2_heroMarquee.speedSeconds} className="py-3">
             {tickerItems.map((item, index) => (
               <span data-ticker-text key={item.id + "-" + index} className="inline-flex items-center whitespace-nowrap font-mono text-sm font-bold uppercase tracking-widest">
-                <Image src="/stayaktiv-logo.png" alt="" aria-hidden="true" width={243} height={45} className="mx-4 h-7 w-auto object-contain md:mx-7 md:h-9" />
+                <Image data-ticker-logo src="/stayaktiv-logo.png" alt="" aria-hidden="true" width={243} height={45} className="mx-4 h-7 w-auto object-contain md:mx-7 md:h-9" />
                 <span>{item.text}</span>
               </span>
             ))}
