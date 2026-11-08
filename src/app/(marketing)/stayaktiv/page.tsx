@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
 import { buildPageMetadata } from "@/lib/seo";
+import { StayAktivActions } from "./StayAktivActions";
 import styles from "./StayAktiv.module.css";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -31,6 +32,12 @@ const eventTheme = {
   "--event-accent-rgb": featuredEvent.accentRgb,
 } as CSSProperties;
 
+const tickerLogos = [
+  ["/stayaktiv/tickers/omaji-verse-2.png", "OMAJI VERSE 2.0", styles.tickerLogoOmaji],
+  ["/stayaktiv/tickers/last-thursdays.png", "THE LAST THURSDAYS", styles.tickerLogoLast],
+  ["/stayaktiv/tickers/release-radar-reel.png", "RELEASE RADAR REEL", styles.tickerLogoRelease],
+] as const;
+
 export default function StayAktivPage() {
   return (
     <>
@@ -44,16 +51,11 @@ export default function StayAktivPage() {
       <main className={styles.canvas} style={eventTheme} data-event={featuredEvent.slug}>
         <div className={`${styles.rail} ${styles.topRail}`} aria-label="Active event ticker">
           <div className={styles.railInner}>
-            <span className={styles.logoTickerMark}>
-              <Image src="/stayaktiv-logo.png" alt="OMAJI VERSE 2.0" width={243} height={45} priority unoptimized />
-            </span>
-            <span className={styles.aktvTickerMark}>AKTiV</span>
-            <span className={styles.lastTickerMark}>THE LAST THU</span>
-            <span className={styles.logoTickerMark}>
-              <Image src="/stayaktiv-logo.png" alt="" aria-hidden="true" width={243} height={45} unoptimized />
-            </span>
-            <span className={styles.aktvTickerMark}>AKTiV</span>
-            <span className={styles.lastTickerMark}>THE LAST THU</span>
+            {[...tickerLogos, ...tickerLogos].map(([src, alt, className], index) => (
+              <span className={`${styles.tickerLogoMark} ${className}`} key={`${src}-${index}`}>
+                <Image src={src} alt={alt} width={320} height={64} priority={index < 3} unoptimized />
+              </span>
+            ))}
           </div>
         </div>
 
@@ -70,25 +72,13 @@ export default function StayAktivPage() {
           <p className={styles.heroStamp}>Active event<strong>{featuredEvent.artist}</strong>{featuredEvent.date} / {featuredEvent.time}</p>
         </section>
 
-        <div className={`${styles.rail} ${styles.bottomRail}`} aria-label="Event actions">
-          <div className={styles.railInner}>
-            <a href="#event-details">Set schedule</a>
-            <span aria-hidden="true">•</span>
-            <a href="#event-details">Map location</a>
-            <span aria-hidden="true">•</span>
-            <a href="#event-details">Set schedule</a>
-            <span aria-hidden="true">•</span>
-            <a href="#event-details">Map location</a>
-          </div>
-        </div>
-
         <section className={styles.cards} id="event-details" aria-label="Promoted events">
           <article className={`${styles.card} ${styles.cardPrimary}`}>
             <div className={styles.cardTopline}>
               <span>Promoted event / 01</span>
               <span>{featuredEvent.date}</span>
             </div>
-            <p className={styles.eventMark}>✣ {featuredEvent.title}</p>
+            <p className={styles.eventMark}>{featuredEvent.title}</p>
             <h2 className={styles.cardTitle}>The annual end of year clarion call.</h2>
             <p className={styles.cardCopy}>{featuredEvent.description}</p>
             <Link className={styles.cardLink} href={`/stayaktiv/events/${featuredEvent.slug}`}>
@@ -104,6 +94,8 @@ export default function StayAktivPage() {
             <p className={styles.placeholderCopy}>More promoted events can land here. One active event keeps the hero focused.</p>
           </article>
         </section>
+
+        <StayAktivActions />
 
         <p className={styles.footerNote}>The active event sets the color, type, ticker, and ticket path.</p>
       </main>
