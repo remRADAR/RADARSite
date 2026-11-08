@@ -1,0 +1,60 @@
+.hero {
+  position: relative;
+  min-height: min(88svh, 58rem);
+  overflow: hidden;
+  background: #050505;
+  color: #f7f7f2;
+}
+.media { position: absolute; inset: 0; }
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(180deg, rgba(5,5,5,.2), rgba(5,5,5,.08) 38%, rgba(5,5,5,.88));
+}
+.copy {
+  position: absolute;
+  right: 1rem;
+  bottom: 3.5rem;
+  left: 1rem;
+  z-index: 3;
+  max-width: 56rem;
+}
+.eyebrow,
+.signature {
+  color: #a8e51f;
+  font: 700 .65rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+.copy h1 {
+  margin-top: 1rem;
+  font: 900 clamp(4rem, 15vw, 13rem)/.78 var(--font-grotesk), Arial Black, sans-serif;
+  letter-spacing: -.1em;
+  text-transform: uppercase;
+}
+.copy h1 span {
+  display: inline-block;
+  color: #a8e51f;
+}
+.copy > p:last-child {
+  max-width: 32rem;
+  margin-top: 1.5rem;
+  color: rgba(247,247,242,.82);
+  font: 700 .75rem/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.signature {
+  position: absolute;
+  right: 1rem;
+  top: 5rem;
+  z-index: 3;
+  max-width: 14rem;
+  text-align: right;
+  color: rgba(247,247,242,.75);
+}
+@media (min-width: 768px) {
+  .copy { right: 2rem; bottom: 5rem; left: 2rem; }
+  .signature { right: 2rem; top: 6rem; }
+}

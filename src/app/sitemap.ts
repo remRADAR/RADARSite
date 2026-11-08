@@ -16,7 +16,7 @@ export const SITEMAP_EXCLUDED_ARTICLE_SLUGS = new Set([
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { articles, artists, events, magazine, radarProjects, releases } = await readPublicContent();
-  const routes = ["/", "/radarmusic", "/radarmusic/artists", "/radarmusic/releases", "/ontheradar", "/ontheradar/articles", "/ontheradar/magazine", "/ontheradar/projects", "/ontheradar/events", "/work", "/about", "/about/our-story", "/about/ecosystem", "/motherland", "/privacy", "/terms"];
+  const routes = ["/", "/radarmusic", "/radarmusic/artists", "/radarmusic/releases", "/ontheradar", "/ontheradar/articles", "/ontheradar/magazine", "/ontheradar/projects", "/stayaktiv", "/omajiverse", "/work", "/about", "/about/our-story", "/about/ecosystem", "/motherland", "/privacy", "/terms"];
   const date = (item: unknown) => {
     const record = item && typeof item === "object" ? item as Record<string, unknown> : {};
     const raw = record.updatedAt || record.sourceModifiedAt || record.modifiedAt || record.publishedAt;
@@ -38,6 +38,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const total = pageCount(articles.filter((article) => articleCategories(article).some((value) => value.toLowerCase() === label.toLowerCase())).length);
     return Array.from({ length: total }, (_, index) => entry(`/ontheradar/articles/category/${categorySlug(label)}/page/${index + 1}`));
   });
-  const allEntries = [...routes.map((route) => entry(route)), ...editorialArchives, ...categoryArchives, ...artists.map((item) => entry(`/radarmusic/artists/${item.slug}`, item)), ...releases.map((item) => entry(`/radarmusic/releases/${item.slug}`, item)), ...articleEntries, ...magazine.map((item) => entry(`/ontheradar/magazine/${item.slug}`, item)), ...radarProjects.map((item) => entry(`/ontheradar/projects/${item.slug}`, item)), ...events.map((item) => entry(`/ontheradar/events/${item.slug}`, item)), ...caseStudies.filter((item) => item.slug !== "luna-vale-first-light").map((item) => entry(`/work/${item.slug}`, item))];
+  const allEntries = [...routes.map((route) => entry(route)), ...editorialArchives, ...categoryArchives, ...artists.map((item) => entry(`/radarmusic/artists/${item.slug}`, item)), ...releases.map((item) => entry(`/radarmusic/releases/${item.slug}`, item)), ...articleEntries, ...magazine.map((item) => entry(`/ontheradar/magazine/${item.slug}`, item)), ...radarProjects.map((item) => entry(`/ontheradar/projects/${item.slug}`, item)), ...(events.length ? [entry("/omajiverse", events[0])] : []), ...caseStudies.filter((item) => item.slug !== "luna-vale-first-light").map((item) => entry(`/work/${item.slug}`, item))];
   return [...new Map(allEntries.map((item) => [item.url, item])).values()];
 }

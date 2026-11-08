@@ -1,0 +1,84 @@
+.page { background: #f7f7f2; color: #050505; }
+.ticker {
+  position: relative;
+  overflow: hidden;
+  border-top: 2px solid #050505;
+  border-bottom: 2px solid #050505;
+  background: #050505;
+  color: #a8e51f;
+  transform: rotate(-2deg);
+  transform-origin: center;
+}
+.tickerTrack {
+  display: inline-flex;
+  min-width: max-content;
+  align-items: center;
+  gap: 1.5rem;
+  padding: .7rem 1rem;
+  animation: tickerRight 28s linear infinite;
+}
+.tickerItem { display: inline-flex; align-items: center; gap: 1.5rem; }
+.tickerItem img { display: block; height: clamp(2rem, 4.5vw, 3.5rem); width: auto; object-fit: contain; }
+.tickerRule { display: block; width: 3rem; height: 1px; background: currentColor; }
+.archive { padding: 6rem 1rem 8rem; }
+.archiveHeader { display: grid; gap: 1rem; max-width: 76rem; margin: 0 auto 3rem; }
+.eyebrow {
+  color: #6c9500;
+  font: 700 .65rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+.archiveHeader h2 {
+  max-width: 10ch;
+  font: 900 clamp(3rem, 10vw, 9rem)/.82 var(--font-grotesk), Arial Black, sans-serif;
+  letter-spacing: -.1em;
+  text-transform: uppercase;
+}
+.archiveHeader h2 span, .eventInfo h3 span { color: #a8e51f; }
+.archiveHeader > p:last-child {
+  max-width: 28rem;
+  font: 700 .72rem/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.eventCard {
+  display: grid;
+  gap: 2rem;
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: 1rem;
+  border: 2px solid #050505;
+  background: #f7f7f2;
+}
+.posterFrame { position: relative; aspect-ratio: 10 / 11; overflow: hidden; background: #050505; }
+.poster { object-fit: cover; }
+.eventInfo { display: flex; flex-direction: column; justify-content: center; padding: .5rem; }
+.eventInfo h3 {
+  margin-top: 1rem;
+  font: 900 clamp(3rem, 9vw, 8rem)/.78 var(--font-grotesk), Arial Black, sans-serif;
+  letter-spacing: -.1em;
+  text-transform: uppercase;
+}
+.eventDescription {
+  max-width: 30rem;
+  margin-top: 2rem;
+  font: 700 .82rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.eventInfo dl { display: grid; gap: 1rem; margin-top: 2.5rem; border-top: 2px solid #050505; border-bottom: 2px solid #050505; padding: 1rem 0; }
+.eventInfo dl div { display: grid; gap: .35rem; }
+.eventInfo dt { color: #6c9500; font: 700 .6rem/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .16em; text-transform: uppercase; }
+.eventInfo dd { font: 800 .75rem/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; }
+.openEvent { display: inline-flex; align-items: center; gap: .45rem; width: fit-content; margin-top: 2.5rem; padding-bottom: .3rem; border-bottom: 2px solid #a8e51f; color: #050505; font: 800 .75rem/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; text-transform: uppercase; transition: color .25s ease, gap .25s ease; }
+.openEvent:hover, .openEvent:focus-visible { color: #6c9500; gap: .8rem; }
+@keyframes tickerRight { from { transform: translateX(-25%); } to { transform: translateX(0); } }
+@media (min-width: 768px) {
+  .archive { padding: 9rem 2rem 12rem; }
+  .archiveHeader { grid-template-columns: 1fr 1fr; align-items: end; }
+  .archiveHeader .eyebrow { grid-column: 1 / -1; }
+  .eventCard { grid-template-columns: minmax(18rem, .95fr) minmax(0, 1.05fr); gap: 4rem; padding: 2rem; }
+  .eventInfo { padding: 2rem 1rem 2rem 0; }
+  .eventInfo dl { grid-template-columns: 1fr 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { .tickerTrack { animation: none; } }

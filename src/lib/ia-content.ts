@@ -32,8 +32,7 @@ export const radarProjects: RadarProject[] = [
 ];
 
 export const events: Event[] = [
-  { slug: "radar-live-london", title: "RADAR Live: London", date: "2026-10-24", location: "Village Underground, London", description: "A night of new signals from Luna Vale, Kofi North, and friends of the ecosystem.", imageQuery: "intimate concert venue audience", related: { artists: ["luna-vale", "kofi-north"], releases: ["first-light"] } },
-  { slug: "radar-live-accra", title: "RADAR Live: Accra", date: "2026-11-14", location: "Untitled, Accra", description: "North Star arrives home for a listening room, live set, and conversation.", imageQuery: "concert audience silhouette blue", related: { artists: ["kofi-north"], releases: ["north-star"] } },
+  { slug: "omaji-verse-2", title: "OMAJIVERSE", date: "2026-12-10", location: "Liquid Café / City Park Wuse, Abuja", description: "The annual end of year clarion call by Abuja’s renowned artist, OMAJI.", imageQuery: "OMAJI VERSE 2.0 event poster Abuja", imageUrl: "/events/omaji-verse-2-poster.png", featuredImage: "/events/omaji-verse-2-poster.png", metaTitle: "OMAJIVERSE", metaDescription: "OMAJI VERSE 2.0 — the annual end of year clarion call by Abuja’s renowned artist, OMAJI.", related: {} },
 ];
 
 export const findBySlug = <T extends { slug: string }>(items: T[], slug: string) => items.find((item) => item.slug === slug);

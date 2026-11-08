@@ -169,14 +169,14 @@ export function EditorialTree({ posts }: EditorialTreeProps) {
     <section className="bg-paper">
       {/* Section header with ticker */}
       <div className="brut-border-b bg-paper text-ink">
-        <Link href="/ontheradar/events" aria-label="The Last Thursdays — Thurs 29 Oct, Cage Abuja, 8PM. View events." className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flare">
+          <Link href="/stayaktiv" aria-label="OMAJIVERSE — 10 December, Liquid Café Abuja. View stayAKTiV events." className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flare">
           <Marquee durationSeconds={30} reverse className="py-3">
             <span className="mx-5 inline-flex shrink-0 items-center gap-4 whitespace-nowrap md:mx-8 md:gap-6">
               <span className="inline-flex shrink-0 items-center px-2 py-1">
-                <Image src="/events/the-last-thursdays.png" alt="" width={1088} height={608} className="h-8 w-auto object-contain md:h-11" />
+                <Image src="/stayaktiv/tickers/omaji-verse-2.png" alt="" width={320} height={64} className="h-8 w-auto object-contain md:h-11" />
               </span>
               <span className="font-mono text-sm font-bold uppercase tracking-[0.14em] md:text-base md:tracking-[0.2em]">
-                THURS 29 OCT <span className="mx-2 text-flare md:mx-4" aria-hidden>|</span> CAGE ABUJA <span className="mx-2 text-flare md:mx-4" aria-hidden>|</span> 8PM
+                10TH DECEMBER <span className="mx-2 text-flare md:mx-4" aria-hidden>|</span> LIQUID CAFÉ, ABUJA <span className="mx-2 text-flare md:mx-4" aria-hidden>|</span> 6PM PROMPT
               </span>
             </span>
           </Marquee>
