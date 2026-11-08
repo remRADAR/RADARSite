@@ -2,6 +2,7 @@
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
 import { buildPageMetadata } from "@/lib/seo";
 import { StayAktivActions } from "./StayAktivActions";
@@ -75,7 +76,7 @@ export default function StayAktivPage() {
           <p className={styles.heroStamp}>Active event<strong>{featuredEvent.artist}</strong>{featuredEvent.date} / {featuredEvent.time}</p>
         </section>
 
-        <section className={styles.cards} id="event-details" aria-label="Promoted events">
+        <section className={styles.cards} id="event-details" aria-label="Featured event">
           <article className={`${styles.card} ${styles.cardPrimary}`}>
             <div className={styles.cardTopline}>
               <span>Promoted event / 01</span>
@@ -93,19 +94,21 @@ export default function StayAktivPage() {
               unoptimized
             />
           </article>
-
-          <article className={`${styles.card} ${styles.cardSecondary}`} aria-label="Add another promoted event">
-            <div>
-              <div className={styles.cardTopline}><span>stayAKTiV / open slot</span><span>02</span></div>
-              <div className={styles.placeholderLine} aria-hidden />
-            </div>
-            <p className={styles.placeholderCopy}>More promoted events can land here. One active event keeps the hero focused.</p>
-          </article>
         </section>
 
         <StayAktivActions />
 
         <p className={styles.footerNote}>The active event sets the color, type, ticker, and ticket path.</p>
+
+        <section className={`${styles.cards} ${styles.moreEvents}`} aria-label="More promoted events">
+          <Link className={`${styles.card} ${styles.cardSecondary}`} href="/stayaktiv" aria-label="View more stayAKTiV events">
+            <div>
+              <div className={styles.cardTopline}><span>stayAKTiV / more events</span><span>↗</span></div>
+              <div className={styles.placeholderLine} aria-hidden />
+            </div>
+            <p className={styles.placeholderCopy}>View more events<span aria-hidden="true">…</span></p>
+          </Link>
+        </section>
       </main>
     </>
   );

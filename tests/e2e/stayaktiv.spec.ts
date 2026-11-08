@@ -22,6 +22,12 @@ test.describe("stayAKTiV events", () => {
     await expect(page.getByText("The annual end of year clarion call.", { exact: true })).toBeVisible();
     await expect(page.getByAltText("OMAJI VERSE 2.0 event highlights and venue details")).toBeVisible();
     await expect(page.getByText("View more ↗", { exact: true })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "View more stayAKTiV events" })).toHaveAttribute("href", "/stayaktiv");
+    const pageOrder = await page.locator("main").evaluate((main) =>
+      Array.from(main.children).map((child) => child.getAttribute("aria-label") || child.tagName),
+    );
+    expect(pageOrder.indexOf("Event actions and countdown")).toBeGreaterThan(pageOrder.indexOf("Featured event"));
+    expect(pageOrder.indexOf("More promoted events")).toBe(pageOrder.length - 1);
   });
 
   test("opens the promoted event brief", async ({ page }) => {

@@ -163,7 +163,7 @@
   transform: translateY(-.35rem);
 }
 .cardPrimary, .cardSecondary { padding: 1.35rem; }
-.cardSecondary { display: flex; flex-direction: column; justify-content: space-between; }
+.cardSecondary { display: flex; flex-direction: column; justify-content: space-between; color: inherit; text-decoration: none; }
 .cardTopline {
   display: flex;
   align-items: center;
