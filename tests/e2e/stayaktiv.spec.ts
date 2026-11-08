@@ -23,12 +23,16 @@ test.describe("stayAKTiV events", () => {
     await expect(page.getByAltText("OMAJI VERSE 2.0 event highlights and venue details")).toBeVisible();
     await expect(page.getByText("View more ↗", { exact: true })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "View more stayAKTiV events" })).toHaveAttribute("href", "/stayaktiv");
+    await expect(page.getByTitle("OMAJIVERSE Instagram post")).toHaveAttribute("src", "https://www.instagram.com/p/DffKokojWiY/embed");
+    await expect(page.getByTitle("OMAJIVERSE Spotify playlist")).toHaveAttribute("src", "https://open.spotify.com/embed/playlist/7EiR4j5BTDjgBkB1PYtsNm?utm_source=generator&theme=0");
     const pageOrder = await page.locator("main").evaluate((main) =>
       Array.from(main.children).map((child) => child.getAttribute("aria-label") || child.tagName),
     );
     expect(pageOrder.indexOf("Event actions")).toBeGreaterThan(pageOrder.indexOf("OMAJIVERSE hero"));
     expect(pageOrder.indexOf("Featured event")).toBeGreaterThan(pageOrder.indexOf("Event actions"));
     expect(pageOrder.indexOf("Event countdown")).toBeGreaterThan(pageOrder.indexOf("Featured event"));
+    expect(pageOrder.indexOf("OMAJIVERSE Instagram post")).toBeGreaterThan(pageOrder.indexOf("Event countdown"));
+    expect(pageOrder.indexOf("OMAJIVERSE Spotify playlist")).toBeGreaterThan(pageOrder.indexOf("OMAJIVERSE Instagram post"));
     expect(pageOrder.indexOf("More promoted events")).toBe(pageOrder.length - 1);
   });
 

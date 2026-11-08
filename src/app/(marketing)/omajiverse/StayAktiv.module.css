@@ -221,6 +221,10 @@
   text-align: center;
 }
 .actionZone { padding: 0 1rem 4rem; }
+.instagramEmbedSection { display: flex; justify-content: center; padding: 0 1rem 4rem; }
+.instagramEmbed { display: block; width: min(100%, 33.75rem); height: 43.75rem; border: 0; background: #fff; }
+.spotifyEmbedSection { display: flex; justify-content: center; padding: 0 1rem 4rem; }
+.spotifyEmbed { display: block; width: min(100%, 41.25rem); height: 22rem; border: 0; border-radius: .75rem; }
 .countdown {
   max-width: 74rem;
   margin: 0 auto;
@@ -332,6 +336,8 @@
   .cards { grid-template-columns: minmax(0, 1.65fr) minmax(16rem, .85fr); max-width: 74rem; margin: 0 auto; padding: 4rem 2rem 6rem; }
   .cardPrimary, .cardSecondary { padding: 2rem; }
   .actionZone { padding: 0 2rem 5rem; }
+  .instagramEmbedSection { padding: 0 2rem 5rem; }
+  .spotifyEmbedSection { padding: 0 2rem 5rem; }
   .countdown { padding: 1.75rem 2rem; }
   .footerNote { padding-bottom: 3rem; }
 }
@@ -343,6 +349,8 @@
   .actionButton { font-size: .72rem; }
   .actionRule { min-width: 1.5rem; }
   .actionPopover { right: auto; left: 0; }
+  .instagramEmbed { height: 40rem; }
+  .spotifyEmbed { height: 28rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .railInner, .posterWrap, .hero::before, .hero::after, .placeholderLine { animation: none; }

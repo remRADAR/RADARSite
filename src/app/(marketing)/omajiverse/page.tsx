@@ -105,6 +105,26 @@ export default function StayAktivPage() {
           <StayAktivCountdown />
         </section>
 
+        <section className={styles.instagramEmbedSection} aria-label="OMAJIVERSE Instagram post">
+          <iframe
+            className={styles.instagramEmbed}
+            title="OMAJIVERSE Instagram post"
+            src="https://www.instagram.com/p/DffKokojWiY/embed"
+            loading="lazy"
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+          />
+        </section>
+
+        <section className={styles.spotifyEmbedSection} aria-label="OMAJIVERSE Spotify playlist">
+          <iframe
+            className={styles.spotifyEmbed}
+            title="OMAJIVERSE Spotify playlist"
+            src="https://open.spotify.com/embed/playlist/7EiR4j5BTDjgBkB1PYtsNm?utm_source=generator&theme=0"
+            loading="lazy"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          />
+        </section>
+
         <p className={styles.footerNote}>The active event sets the color, type, ticker, and ticket path.</p>
 
         <section className={`${styles.cards} ${styles.moreEvents}`} aria-label="More promoted events">
