@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
+import { EventCountdown } from "@/components/marketing/EventCountdown";
 import { buildPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -80,6 +81,7 @@ export default function StayAktivPage() {
               </div>
             </div>
           </article>
+          <EventCountdown targetIso="2026-12-10T18:00:00+01:00" />
           <div className="mt-8 border-t-2 border-ink" aria-label="Event details">
             <details className="group border-b-2 border-ink py-5" open>
               <summary className="flex cursor-pointer list-none items-center justify-between gap-6 font-mono text-xs font-bold uppercase tracking-[.16em] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-flare [&::-webkit-details-marker]:hidden">

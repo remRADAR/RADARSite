@@ -35,4 +35,14 @@ test.describe("stayAKTiV events", () => {
     await expect(updates).toHaveAttribute("open", "");
     await expect(updates).toContainText("Details and access information will follow");
   });
+
+  test("renders the December 10 countdown in Abuja time", async ({ page }) => {
+    await page.goto("/stayaktiv");
+    const countdown = page.locator("[data-countdown]");
+    await expect(countdown).toHaveAttribute("data-countdown-target", "2026-12-10T18:00:00+01:00");
+    await expect(countdown).toContainText("Until the doors open.");
+    for (const label of ["Days", "Hours", "Minutes", "Seconds"]) {
+      await expect(countdown.getByText(label, { exact: true })).toBeVisible();
+    }
+  });
 });
