@@ -11,12 +11,18 @@ test.describe("stayAKTiV events", () => {
     await expect(ticker.getByTestId("ticker-logo")).toHaveCount(24);
   });
 
-  test("renders the initial stayAKTiV event landing page", async ({ page }) => {
+  test("renders the single active-event poster canvas", async ({ page }) => {
     const response = await page.goto("/stayaktiv");
     expect(response?.status()).toBe(200);
     await expect(page.getByRole("heading", { level: 1 })).toContainText("stayAKTiV");
-    await expect(page.getByRole("heading", { name: "LIQUID CAFÉ." })).toBeVisible();
-    await expect(page.getByText("CITY PARK WUSE-ABUJA", { exact: true })).toBeVisible();
-    await expect(page.getByText("10TH DECEMBER", { exact: true })).toBeVisible();
+    await expect(page.getByTestId("floating-event-poster")).toBeVisible();
+    await expect(page.getByAltText("OMAJI VERSE 2.0 event poster")).toBeVisible();
+    await expect(page.getByText("The annual end of year clarion call.", { exact: true })).toBeVisible();
+  });
+
+  test("opens the promoted event brief", async ({ page }) => {
+    await page.goto("/stayaktiv/events/omaji-verse-2");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("OMAJI VERSE 2.0");
+    await expect(page.getByRole("heading", { name: "Highlights." })).toBeVisible();
   });
 });
