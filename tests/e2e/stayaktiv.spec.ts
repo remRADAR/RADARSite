@@ -18,6 +18,8 @@ test.describe("stayAKTiV events", () => {
     await expect(page.getByTestId("floating-event-poster")).toBeVisible();
     await expect(page.getByAltText("OMAJI VERSE 2.0 event poster")).toBeVisible();
     await expect(page.getByText("The annual end of year clarion call.", { exact: true })).toBeVisible();
+    await expect(page.getByAltText("OMAJI VERSE 2.0 event highlights and venue details")).toBeVisible();
+    await expect(page.getByText("View more ↗", { exact: true })).toHaveCount(0);
   });
 
   test("opens the promoted event brief", async ({ page }) => {

@@ -2,7 +2,6 @@
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
 import { buildPageMetadata } from "@/lib/seo";
 import { StayAktivActions } from "./StayAktivActions";
@@ -82,9 +81,14 @@ export default function StayAktivPage() {
             <p className={styles.eventMark}>{featuredEvent.title}</p>
             <h2 className={styles.cardTitle}>The annual end of year clarion call.</h2>
             <p className={styles.cardCopy}>{featuredEvent.description}</p>
-            <Link className={styles.cardLink} href="/omajiverse">
-              View more ↗
-            </Link>
+            <Image
+              className={styles.cardPoster}
+              src="/events/omaji-verse-2-details.jpg"
+              alt="OMAJI VERSE 2.0 event highlights and venue details"
+              width={1080}
+              height={1350}
+              unoptimized
+            />
           </article>
 
           <article className={`${styles.card} ${styles.cardSecondary}`} aria-label="Add another promoted event">

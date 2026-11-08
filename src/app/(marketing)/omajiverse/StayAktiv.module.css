@@ -185,15 +185,13 @@
   font: 500 .75rem/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
   text-transform: uppercase;
 }
-.cardLink {
-  display: inline-flex;
-  margin-top: 2.5rem;
-  color: var(--event-accent);
-  font: 700 .75rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  text-decoration: underline;
-  text-underline-offset: .25rem;
+.cardPoster {
+  display: block;
+  width: min(100%, 24rem);
+  height: auto;
+  margin-top: 1.75rem;
+  border: 1px solid rgba(247, 247, 242, .25);
+  object-fit: cover;
 }
 .placeholderLine {
   width: 65%;
