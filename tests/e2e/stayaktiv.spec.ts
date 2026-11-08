@@ -16,7 +16,9 @@ test.describe("stayAKTiV events", () => {
     expect(response?.status()).toBe(200);
     await expect(page.getByRole("heading", { level: 1 })).toContainText("stayAKTiV");
     await expect(page.getByTestId("floating-event-poster")).toBeVisible();
-    await expect(page.getByAltText("OMAJI VERSE 2.0 event poster")).toBeVisible();
+    const heroPoster = page.getByAltText("OMAJI VERSE 2.0 event poster");
+    await expect(heroPoster).toBeVisible();
+    await expect(heroPoster).toHaveAttribute("src", /omaji-verse-2-hero\.jpg/);
     await expect(page.getByText("The annual end of year clarion call.", { exact: true })).toBeVisible();
     await expect(page.getByAltText("OMAJI VERSE 2.0 event highlights and venue details")).toBeVisible();
     await expect(page.getByText("View more ↗", { exact: true })).toHaveCount(0);

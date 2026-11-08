@@ -88,11 +88,22 @@
   z-index: 1;
   width: min(72vw, 25rem);
   aspect-ratio: 10 / 11;
-  background: url("/events/omaji-verse-2-poster.png") center / cover no-repeat;
+  background: url("/events/omaji-verse-2-hero.jpg") center / cover no-repeat;
+  transform-style: preserve-3d;
   transform: perspective(1000px) rotateX(1deg) rotateY(-4deg) rotateZ(-1deg);
-  animation: floatPoster 6s ease-in-out infinite;
+  animation: floatPoster 7s ease-in-out infinite;
   filter: drop-shadow(0 2.5rem 2.25rem rgba(0, 0, 0, .55)) drop-shadow(0 0 2.5rem rgba(var(--event-accent-rgb), .16));
   will-change: transform;
+}
+.posterWrap::before {
+  position: absolute;
+  inset: 1% -1% -1% 1%;
+  z-index: -1;
+  border: 1px solid rgba(247, 247, 242, .55);
+  background: rgba(247, 247, 242, .08);
+  box-shadow: 0 .8rem 1.5rem rgba(0, 0, 0, .3);
+  content: "";
+  transform: translateZ(-2px) rotate(1.5deg);
 }
 .posterWrap::after {
   position: absolute;
@@ -107,9 +118,10 @@
   display: block;
   width: 100%;
   height: auto;
-  opacity: 0;
+  opacity: 1;
   object-fit: cover;
   border: 2px solid var(--event-accent);
+  border-radius: 2px 5px 3px 4px;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, .25), inset 0 0 0 1px rgba(0, 0, 0, .5);
 }
 .heroStamp {
@@ -306,8 +318,10 @@
   text-transform: uppercase;
 }
 @keyframes floatPoster {
-  0%, 100% { transform: perspective(1000px) rotateX(1deg) rotateY(-4deg) rotateZ(-1deg) translate3d(0, 0, 0); }
-  50% { transform: perspective(1000px) rotateX(-2deg) rotateY(4deg) rotateZ(1deg) translate3d(0, -.85rem, 0); }
+  0%, 100% { transform: perspective(1000px) rotateX(1deg) rotateY(-4deg) rotateZ(-1deg) translate3d(0, 0, 0) skewX(0); }
+  25% { transform: perspective(1000px) rotateX(-1deg) rotateY(-2deg) rotateZ(1.2deg) translate3d(.15rem, -.35rem, 0) skewX(-.15deg); }
+  50% { transform: perspective(1000px) rotateX(-3deg) rotateY(5deg) rotateZ(1deg) translate3d(0, -.85rem, 0) skewX(.25deg); }
+  75% { transform: perspective(1000px) rotateX(2deg) rotateY(2deg) rotateZ(-1.5deg) translate3d(-.1rem, -.45rem, 0) skewX(-.1deg); }
 }
 @keyframes pulseRing { 0%, 100% { opacity: .2; transform: scale(.95); } 50% { opacity: .6; transform: scale(1.03); } }
 @keyframes railDriftRight { from { transform: translateX(-25%); } to { transform: translateX(0); } }

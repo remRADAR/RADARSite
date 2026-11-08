@@ -11,7 +11,7 @@ export const metadata: Metadata = buildPageMetadata({
   title: "OMAJIVERSE",
   description: "OMAJI VERSE 2.0 — the annual end of year clarion call by Abuja’s renowned artist, OMAJI.",
   path: "/omajiverse",
-  image: "/events/omaji-verse-2-poster.png",
+  image: "/events/omaji-verse-2-hero.jpg",
 });
 
 const featuredEvent = {
@@ -23,7 +23,7 @@ const featuredEvent = {
   time: "6PM PROMPT",
   accent: "#a8e51f",
   accentRgb: "168, 229, 31",
-  poster: "/events/omaji-verse-2-poster.png",
+  poster: "/events/omaji-verse-2-hero.jpg",
   description: "The annual end of year clarion call by Abuja’s renowned artist, OMAJI.",
 };
 
@@ -66,6 +66,9 @@ export default function StayAktivPage() {
               src={featuredEvent.poster}
               alt={`${featuredEvent.title} event poster`}
               sizes="(min-width: 700px) 32rem, 72vw"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
               className={styles.poster}
             />
           </div>
