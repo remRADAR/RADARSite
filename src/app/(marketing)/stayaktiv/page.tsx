@@ -1,9 +1,11 @@
-import Image from "next/image";
+/* eslint-disable @next/next/no-img-element */
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
-import { EventCountdown } from "@/components/marketing/EventCountdown";
 import { buildPageMetadata } from "@/lib/seo";
+import styles from "./StayAktiv.module.css";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "stayAKTiV",
@@ -11,12 +13,23 @@ export const metadata: Metadata = buildPageMetadata({
   path: "/stayaktiv",
 });
 
-const event = {
-  title: "LIQUID CAFÉ",
-  location: "CITY PARK WUSE-ABUJA",
+const featuredEvent = {
+  slug: "omaji-verse-2",
+  title: "OMAJI VERSE 2.0",
+  artist: "OMAJI",
+  location: "LIQUID CAFÉ / CITY PARK WUSE, ABUJA",
   date: "10TH DECEMBER",
-  time: "6PM",
+  time: "6PM PROMPT",
+  accent: "#a8e51f",
+  accentRgb: "168, 229, 31",
+  poster: "/events/omaji-verse-2-poster.png",
+  description: "The annual end of year clarion call by Abuja’s renowned artist, OMAJI.",
 };
+
+const eventTheme = {
+  "--event-accent": featuredEvent.accent,
+  "--event-accent-rgb": featuredEvent.accentRgb,
+} as CSSProperties;
 
 export default function StayAktivPage() {
   return (
@@ -27,97 +40,72 @@ export default function StayAktivPage() {
         path="/stayaktiv"
         breadcrumbs={[{ name: "Home", path: "/" }, { name: "stayAKTiV", path: "/stayaktiv" }]}
       />
-      <main className="pt-14">
-        <section className="grid min-h-[72svh] border-b-2 border-ink bg-ink text-paper md:grid-cols-[1.15fr_.85fr]">
-          <div className="flex flex-col justify-between border-b-2 border-paper/30 p-5 md:border-b-0 md:border-r-2 md:p-10">
-            <div className="flex items-start justify-between gap-6 font-mono text-[10px] font-bold uppercase tracking-[.18em] text-paper/60">
-              <span>(RADAR / Events)</span>
-              <span>01 — 01</span>
-            </div>
-            <div className="max-w-4xl py-20 md:py-28">
-              <p className="font-mono text-xs font-bold uppercase tracking-[.2em] text-flare">The city is calling</p>
-              <h1 className="mt-5 display text-[clamp(4rem,13vw,12rem)] leading-[.78]">stay<span className="text-flare">AKTiV</span><span className="text-paper">.</span></h1>
-              <p className="mt-8 max-w-xl font-mono text-sm uppercase leading-relaxed tracking-wide text-paper/70 md:text-base">
-                A live events lane for music, culture, and the people moving it forward.
-              </p>
-            </div>
-            <span className="font-mono text-xs uppercase tracking-widest text-paper/60">Scroll to find the next room ↓</span>
+
+      <main className={styles.canvas} style={eventTheme} data-event={featuredEvent.slug}>
+        <div className={`${styles.rail} ${styles.topRail}`} aria-label="Active event ticker">
+          <div className={styles.railInner}>
+            <span className={styles.logoTickerMark}>
+              <Image src="/stayaktiv-logo.png" alt="OMAJI VERSE 2.0" width={243} height={45} priority unoptimized />
+            </span>
+            <span className={styles.aktvTickerMark}>AKTiV</span>
+            <span className={styles.lastTickerMark}>THE LAST THU</span>
+            <span className={styles.logoTickerMark}>
+              <Image src="/stayaktiv-logo.png" alt="" aria-hidden="true" width={243} height={45} unoptimized />
+            </span>
+            <span className={styles.aktvTickerMark}>AKTiV</span>
+            <span className={styles.lastTickerMark}>THE LAST THU</span>
           </div>
-          <div className="relative flex min-h-[28rem] items-end overflow-hidden bg-[#171717] p-5 md:min-h-0 md:p-10">
-            <Image src="/events/the-last-thursdays.png" alt="The Last Thursdays event artwork" fill sizes="(min-width: 768px) 42vw, 100vw" className="object-cover opacity-60 grayscale" priority />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-transparent" aria-hidden />
-            <div className="relative z-10 w-full border-t-2 border-flare pt-5">
-              <p className="font-mono text-xs font-bold uppercase tracking-[.2em] text-flare">Next up</p>
-              <p className="mt-4 display text-4xl leading-none md:text-6xl">Make room<br />for the night.</p>
-            </div>
+        </div>
+
+        <section className={styles.hero} aria-labelledby="stayaktiv-title">
+          <h1 id="stayaktiv-title" className="sr-only">stayAKTiV events</h1>
+          <div className={styles.posterWrap} data-testid="floating-event-poster">
+            <img
+              src={featuredEvent.poster}
+              alt={`${featuredEvent.title} event poster`}
+              sizes="(min-width: 700px) 32rem, 72vw"
+              className={styles.poster}
+            />
           </div>
+          <p className={styles.heroStamp}>Active event<strong>{featuredEvent.artist}</strong>{featuredEvent.date} / {featuredEvent.time}</p>
         </section>
 
-        <section className="border-b-2 border-ink px-5 py-16 md:px-10 md:py-24" aria-labelledby="upcoming-event-heading">
-          <div className="flex flex-wrap items-end justify-between gap-6 border-b-2 border-ink pb-5">
-            <div>
-              <p className="font-mono text-xs font-bold uppercase tracking-[.2em] text-muted-foreground">01 / Upcoming</p>
-              <h2 id="upcoming-event-heading" className="mt-3 display text-[clamp(3rem,8vw,8rem)] leading-[.82]">Pull up<span className="text-flare">.</span></h2>
-            </div>
-            <p className="max-w-sm font-mono text-xs uppercase leading-relaxed tracking-widest text-muted-foreground">One signal. One room. Everybody tuned in.</p>
+        <div className={`${styles.rail} ${styles.bottomRail}`} aria-label="Event actions">
+          <div className={styles.railInner}>
+            <a href="#event-details">Set schedule</a>
+            <span aria-hidden="true">•</span>
+            <a href="#event-details">Map location</a>
+            <span aria-hidden="true">•</span>
+            <a href="#event-details">Set schedule</a>
+            <span aria-hidden="true">•</span>
+            <a href="#event-details">Map location</a>
           </div>
-          <article className="mt-8 grid border-2 border-ink md:grid-cols-[1fr_1.3fr]">
-            <div className="border-b-2 border-ink bg-flare p-6 text-flare-foreground md:border-b-0 md:border-r-2 md:p-10">
-              <p className="font-mono text-xs font-bold uppercase tracking-[.2em]">Save the date</p>
-              <p className="mt-16 display text-[clamp(3rem,7vw,7rem)] leading-[.78]">{event.date}</p>
-              <p className="mt-8 font-mono text-sm font-bold uppercase tracking-widest">{event.time}</p>
+        </div>
+
+        <section className={styles.cards} id="event-details" aria-label="Promoted events">
+          <article className={`${styles.card} ${styles.cardPrimary}`}>
+            <div className={styles.cardTopline}>
+              <span>Promoted event / 01</span>
+              <span>{featuredEvent.date}</span>
             </div>
-            <div className="flex flex-col justify-between gap-16 p-6 md:p-10">
-              <div>
-                <p className="font-mono text-xs font-bold uppercase tracking-[.2em] text-muted-foreground">Live event</p>
-                <h3 className="mt-4 display text-[clamp(2.8rem,6vw,6rem)] leading-[.82]">{event.title}<span className="text-flare">.</span></h3>
-              </div>
-              <div className="flex flex-wrap items-end justify-between gap-8 border-t-2 border-ink pt-5">
-                <div>
-                  <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Where</p>
-                  <p className="mt-2 font-mono text-sm font-bold uppercase tracking-wide">{event.location}</p>
-                </div>
-                <p className="max-w-xs font-mono text-xs uppercase leading-relaxed tracking-wide text-muted-foreground">Details and access information will follow. Stay close to the signal.</p>
-              </div>
-            </div>
+            <p className={styles.eventMark}>✣ {featuredEvent.title}</p>
+            <h2 className={styles.cardTitle}>The annual end of year clarion call.</h2>
+            <p className={styles.cardCopy}>{featuredEvent.description}</p>
+            <Link className={styles.cardLink} href={`/stayaktiv/events/${featuredEvent.slug}`}>
+              View more ↗
+            </Link>
           </article>
-          <EventCountdown targetIso="2026-12-10T18:00:00+01:00" />
-          <div className="mt-8 border-t-2 border-ink" aria-label="Event details">
-            <details className="group border-b-2 border-ink py-5" open>
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-6 font-mono text-xs font-bold uppercase tracking-[.16em] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-flare [&::-webkit-details-marker]:hidden">
-                <span>Event essentials</span>
-                <span className="text-flare transition-transform group-open:rotate-45" aria-hidden="true">＋</span>
-              </summary>
-              <div className="grid gap-6 pb-2 pt-6 font-mono text-xs uppercase leading-relaxed tracking-wide text-muted-foreground md:grid-cols-3">
-                <p><span className="mb-2 block text-[10px] font-bold tracking-widest text-ink">When</span>{event.date} / {event.time}</p>
-                <p><span className="mb-2 block text-[10px] font-bold tracking-widest text-ink">Where</span>{event.location}</p>
-                <p><span className="mb-2 block text-[10px] font-bold tracking-widest text-ink">What</span>{event.title}</p>
-              </div>
-            </details>
-            <details className="group border-b-2 border-ink py-5">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-6 font-mono text-xs font-bold uppercase tracking-[.16em] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-flare [&::-webkit-details-marker]:hidden">
-                <span>Access &amp; updates</span>
-                <span className="text-flare transition-transform group-open:rotate-45" aria-hidden="true">＋</span>
-              </summary>
-              <p className="max-w-2xl pb-2 pt-6 font-mono text-xs uppercase leading-relaxed tracking-wide text-muted-foreground">Details and access information will follow. Stay close to the signal.</p>
-            </details>
-          </div>
-        </section>
 
-        <section className="grid border-b-2 border-ink md:grid-cols-2" aria-label="StayAKTiV principles">
-          {[['01', 'Find the room', 'A moving calendar for the nights, sessions, and gatherings shaping the culture.'], ['02', 'Bring your people', 'Stay connected to the artists, brands, and communities making the next moment.']].map(([number, title, copy]) => (
-            <div key={number} className="border-b-2 border-ink p-6 last:border-b-0 md:border-b-0 md:border-r-2 md:p-10 md:last:border-r-0">
-              <p className="font-mono text-xs font-bold text-flare">{number}</p>
-              <h2 className="mt-16 display text-4xl leading-none md:text-6xl">{title}<span className="text-flare">.</span></h2>
-              <p className="mt-6 max-w-md font-mono text-xs uppercase leading-relaxed tracking-wide text-muted-foreground">{copy}</p>
+          <article className={`${styles.card} ${styles.cardSecondary}`} aria-label="Add another promoted event">
+            <div>
+              <div className={styles.cardTopline}><span>stayAKTiV / open slot</span><span>02</span></div>
+              <div className={styles.placeholderLine} aria-hidden />
             </div>
-          ))}
+            <p className={styles.placeholderCopy}>More promoted events can land here. One active event keeps the hero focused.</p>
+          </article>
         </section>
 
-        <section className="flex flex-wrap items-center justify-between gap-8 bg-flare px-5 py-12 text-flare-foreground md:px-10 md:py-16">
-          <p className="display max-w-3xl text-[clamp(2.5rem,6vw,6rem)] leading-[.82]">Keep your night open<span className="text-paper">.</span></p>
-          <Link href="/" className="brut-border border-flare-foreground px-5 py-4 font-mono text-xs font-bold uppercase tracking-widest transition-colors hover:bg-flare-foreground hover:text-flare">Back to RADAR ↗</Link>
-        </section>
+        <p className={styles.footerNote}>The active event sets the color, type, ticker, and ticket path.</p>
       </main>
     </>
   );
