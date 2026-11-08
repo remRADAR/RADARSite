@@ -221,9 +221,9 @@
   text-align: center;
 }
 .actionZone { padding: 0 1rem 4rem; }
-.instagramEmbedSection { display: flex; justify-content: center; padding: 0 1rem 4rem; }
+.instagramEmbedSection { display: flex; justify-content: center; padding: 0 1rem 4rem; content-visibility: auto; contain-intrinsic-size: 0 700px; }
 .instagramEmbed { display: block; width: min(100%, 33.75rem); height: 43.75rem; border: 0; background: #fff; }
-.spotifyEmbedSection { display: flex; justify-content: center; padding: 0 1rem 4rem; }
+.spotifyEmbedSection { display: flex; justify-content: center; padding: 0 1rem 4rem; content-visibility: auto; contain-intrinsic-size: 0 352px; }
 .spotifyEmbed { display: block; width: min(100%, 41.25rem); height: 22rem; border: 0; border-radius: .75rem; }
 .countdown {
   max-width: 74rem;

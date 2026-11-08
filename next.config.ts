@@ -22,7 +22,7 @@ const securityHeaders = [
       "font-src 'self' https://fonts.gstatic.com",
       `img-src ${imageSourceTokens} https://radarcharts.net https://drive.google.com https://lh3.googleusercontent.com https://www.google-analytics.com https://www.googletagmanager.com`,
       "connect-src 'self' https://api.unsplash.com https://*.ingest.de.sentry.io https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com",
-      "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://open.spotify.com https://www.instagram.com https://instagram.com https://w.soundcloud.com https://soundcloud.com",
+      "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://open.spotify.com https://www.instagram.com https://instagram.com https://w.soundcloud.com https://soundcloud.com https://spline.design https://*.spline.design",
       "upgrade-insecure-requests",
     ].join("; "),
   },

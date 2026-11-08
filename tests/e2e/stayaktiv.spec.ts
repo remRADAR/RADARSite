@@ -34,6 +34,8 @@ test.describe("stayAKTiV events", () => {
     expect(pageOrder.indexOf("OMAJIVERSE Instagram post")).toBeGreaterThan(pageOrder.indexOf("Event countdown"));
     expect(pageOrder.indexOf("OMAJIVERSE Spotify playlist")).toBeGreaterThan(pageOrder.indexOf("OMAJIVERSE Instagram post"));
     expect(pageOrder.indexOf("More promoted events")).toBe(pageOrder.length - 1);
+    await expect(page.getByTitle("OMAJIVERSE Instagram post")).toHaveAttribute("loading", "lazy");
+    await expect(page.getByTitle("OMAJIVERSE Spotify playlist")).toHaveAttribute("loading", "lazy");
   });
 
   test("opens the promoted event brief", async ({ page }) => {
