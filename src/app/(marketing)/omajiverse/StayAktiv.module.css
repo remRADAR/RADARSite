@@ -189,7 +189,7 @@
   display: block;
   width: min(100%, 24rem);
   height: auto;
-  margin-top: 1.75rem;
+  margin: 1.75rem auto 0;
   border: 1px solid rgba(247, 247, 242, .25);
   object-fit: cover;
 }
