@@ -39,14 +39,14 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
       .set(content, { autoAlpha: 0 })
       .fromTo(
         letters,
-        { autoAlpha: 0, y: 20 },
-        { autoAlpha: 1, y: 0, duration: 0.42, ease: "power3.out", stagger: 0.055 },
+        { autoAlpha: 0, y: 14 },
+        { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out", stagger: 0.065 },
       )
       .fromTo(
         underline,
         { scaleX: 0 },
         { scaleX: 1, duration: 0.55, ease: "power2.inOut" },
-        "-=0.1",
+        "-=0.05",
       )
       .to(wordmark, { autoAlpha: 0, duration: 0.24 }, "+=0.4")
       .to(topCurtain, { yPercent: -100, duration: 0.72, ease: "power2.inOut" }, "<")
