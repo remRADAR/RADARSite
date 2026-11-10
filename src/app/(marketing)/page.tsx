@@ -9,7 +9,7 @@ import { getRecentEditorialPosts } from "@/lib/editorial-tree";
 import { buildPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "African Music & Culture",
+  title: "#stayAKTiV Always..",
   description: "RADARCharts by REM — protecting the music as remRADAR. Discover Nigerian and African music, artists, releases, stories, and culture.",
   path: "/",
 });

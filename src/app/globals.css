@@ -407,6 +407,22 @@ html {
     filter: blur(28px) saturate(1.02) brightness(0.6);
     transform: scale(1.3);
   }
+
+  /* A mobile browser can request a desktop layout viewport (for example via
+     iOS "Request Desktop Website") without changing the physical device. The
+     hero must follow the device's input capabilities, not that emulated CSS
+     width, so touch/coarse-pointer phones keep the portrait composition. */
+  @media (min-width: 768px) and (pointer: coarse),
+    (min-width: 768px) and (hover: none) {
+    .hero-film .hero-desktop-scene {
+      display: none !important;
+    }
+
+    .hero-film .hero-mobile-scene {
+      display: block !important;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .hero-kenburns,
     .hero-kenburns-alt {

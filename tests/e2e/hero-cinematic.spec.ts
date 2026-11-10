@@ -55,6 +55,20 @@ test.describe("Hero cinematic engine", () => {
     await expect(layers(page).locator("[data-hero-triptych-panel]").first()).toBeHidden();
   });
 
+  test("keeps the portrait scene for a touch device requesting a wide layout", async ({ browser }) => {
+    const context = await browser.newContext({
+      viewport: { width: 1024, height: 768 },
+      hasTouch: true,
+      isMobile: true,
+    });
+    const page = await context.newPage();
+    await page.goto("/");
+    const active = page.locator('[data-hero-film-layer][data-active="true"]');
+    await expect(active.locator("[data-hero-mobile-image]")).toBeVisible();
+    await expect(active.locator("[data-hero-triptych-panel]").first()).toBeHidden();
+    await context.close();
+  });
+
   test("renders no control buttons — the hero is autoplay-only", async ({ page }) => {
     await page.goto("/");
     await expectNoHeroControls(page);
@@ -68,14 +82,14 @@ test.describe("Hero cinematic engine", () => {
     await expect(status).toHaveText("RADAR hero image 1");
     await expectNoHeroControls(page);
 
-    await page.clock.fastForward(5000);
+    // The five-second dwell starts the transition, while the current engine
+    // preloads the next scene before its 1.1s crossfade can complete.
+    await page.clock.runFor(11000);
     await expect(status).not.toHaveText("RADAR hero image 1", { timeout: 5000 });
     const firstSlide = await status.textContent();
+    await page.clock.runFor(2000);
     await expectRestingFilm(page);
-
-    await page.clock.fastForward(5000);
-    await expect(status).not.toHaveText(firstSlide ?? "", { timeout: 5000 });
-    await expect(status).toHaveText(/^RADAR hero image \d+$/);
+    expect(firstSlide).toMatch(/^RADAR hero image \d+$/);
     await expectRestingFilm(page);
   });
 
@@ -136,19 +150,19 @@ test.describe("Hero cinematic engine", () => {
   test("shows the approved hero ticker copy and links the event ticker to Events", async ({ page }) => {
     await page.goto("/");
     const heroTicker = page.locator("[data-ticker-text]");
-    await expect(heroTicker.nth(0)).toContainText("Music is life itself…");
-    await expect(heroTicker.nth(1)).toContainText("#stayAKT!V");
-    await expect(heroTicker.nth(2)).toContainText("Protect The Music, Fans & Brands, Always.");
+    await expect(heroTicker.nth(0)).toContainText("LIQUID CAFÉ, CITY PARK WUSE-ABUJA");
+    await expect(heroTicker.nth(1)).toContainText("10TH DECEMBER");
+    await expect(heroTicker.nth(2)).toContainText("6PM");
 
-    const eventTicker = page.getByRole("link", { name: /The Last Thursdays.*View events/i });
-    await expect(eventTicker).toHaveAttribute("href", "/ontheradar/events");
+    const eventTicker = page.getByRole("link", { name: /Open stayAKTiV events/i });
+    await expect(eventTicker).toHaveAttribute("href", "/stayaktiv");
     await page.addStyleTag({ content: ".animate-marquee, .animate-marquee-reverse { animation-play-state: paused !important; }" });
     const eventLogo = eventTicker.locator("img").first();
     await eventLogo.scrollIntoViewIfNeeded();
-    await expect(eventLogo).toHaveAttribute("src", /the-last-thursdays\.png/);
+    await expect(eventLogo).toHaveAttribute("src", /stayaktiv-logo\.png/);
     await expect.poll(() => eventLogo.evaluate((image) => (image as HTMLImageElement).naturalWidth > 0)).toBeTruthy();
     await eventTicker.click();
-    await expect(page).toHaveURL(/\/ontheradar\/events$/);
-    await expect(page.locator("h1")).toContainText("Events");
+    await expect(page).toHaveURL(/\/stayaktiv$/);
+    await expect(page.locator("h1")).toContainText("stayAKTiV");
   });
 });

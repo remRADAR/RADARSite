@@ -312,12 +312,12 @@ export function HeroCinematic({ slides, fallbackSrc, resolveSrc }: HeroCinematic
           transition: isIncoming ? "opacity " + FADE_MS + "ms var(--ease-in-out)" : "none",
         }}
       >
-        <div className="hidden h-full w-full grid-cols-3 md:grid">
+        <div className="hero-desktop-scene hidden h-full w-full grid-cols-3 md:grid">
           {sceneIndices.map((index, panelIndex) =>
             renderPanel(slides[index], isActive && panelIndex === 0, true, panelIndex),
           )}
         </div>
-        <div className="h-full w-full md:hidden" data-hero-mobile-image>
+        <div className="hero-mobile-scene h-full w-full md:hidden" data-hero-mobile-image>
           {slides[front] ? renderPanel(slides[front], isActive, false, 0) : null}
         </div>
       </div>
