@@ -21,6 +21,22 @@ import { HeroCinematic } from "@/components/marketing/HeroCinematic";
 gsap.registerPlugin(ScrollTrigger);
 
 const ACTIVE_HERO_SLIDES = getActiveHeroSlides();
+const BRAND_TICKER_LOGOS = [
+  { src: "/brand-ticker/brand-01.png", alt: "RADARCharts" },
+  { src: "/brand-ticker/brand-02.png", alt: "remRADAR" },
+  { src: "/brand-ticker/brand-03.png", alt: "Brand emblem" },
+  { src: "/brand-ticker/brand-04.png", alt: "Talk to Us" },
+  { src: "/brand-ticker/brand-05.png", alt: "Top 100 Abuja Playlist" },
+  { src: "/brand-ticker/brand-06.png", alt: "Xcape brand mark" },
+  { src: "/brand-ticker/brand-07.png", alt: "Flame emblem" },
+  { src: "/brand-ticker/brand-08.png", alt: "XCAPE" },
+  { src: "/brand-ticker/brand-09.png", alt: "Top 100 Abuja Playlist" },
+  { src: "/brand-ticker/brand-10.png", alt: "Omaji Verse 2.0" },
+  { src: "/brand-ticker/brand-11.png", alt: "RADAR Legacies" },
+  { src: "/brand-ticker/brand-12.png", alt: "XCAPE Plan" },
+  { src: "/brand-ticker/brand-13.png", alt: "Creative Culture" },
+  { src: "/brand-ticker/brand-14.png", alt: "AfroCamp" },
+];
 
 export function Hero() {
   const { config } = useSiteConfig();
@@ -37,8 +53,6 @@ export function Hero() {
     : [config.homepage.hero.line1, config.homepage.hero.line2, config.homepage.hero.line3];
   const subheadline = overrides.heroSubheadline || config.homepage.hero.subtitle || heroConfig.subheadline;
   const coordinates = overrides.geoSignature || config.homepage.hero.coordinates;
-  const tickerItems = config.tickers.ticker2_heroMarquee.items;
-  const tickerHref = tickerItems.find((item) => item.linkUrl)?.linkUrl || "/stayaktiv";
 
   useEffect(() => {
     const root = rootRef.current;
@@ -108,21 +122,14 @@ export function Hero() {
         <p data-hero-meta className="hero-readable-support mt-6 max-w-[34rem] font-mono text-[11px] font-bold uppercase leading-[1.45] tracking-[0.12em] !text-[#f7f7f2] md:text-xs">{subheadline}</p>
       </div>
 
-      {/* Ticker inherits its colors from .ticker-surface in globals.css:
-          white bar with black text (dark theme) / black bar with white text
-          (light theme). Do NOT add text-paper here — .hero-shell .text-paper
-          would force white-on-white and hide the ticker text. */}
-      <div className="ticker-surface relative z-10 border-t border-white/55 bg-black/20 backdrop-blur-[2px]">
-        <a href={tickerHref} aria-label="Open stayAKTiV events" className="block cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-flare">
-          <Marquee durationSeconds={config.tickers.ticker2_heroMarquee.speedSeconds} className="py-3">
-            {tickerItems.map((item, index) => (
-              <span data-ticker-text key={item.id + "-" + index} className="inline-flex items-center whitespace-nowrap font-mono text-sm font-bold uppercase tracking-widest">
-                <Image data-ticker-logo src="/stayaktiv-logo.png" alt="" aria-hidden="true" width={243} height={45} className="mx-4 h-7 w-auto object-contain md:mx-7 md:h-9" />
-                <span>{item.text}</span>
-              </span>
-            ))}
-          </Marquee>
-        </a>
+      <div role="group" aria-label="remRADAR brand and partner logos" className="relative z-10 bg-transparent py-3 sm:py-4">
+        <Marquee durationSeconds={32} repeat={1} className="">
+          {BRAND_TICKER_LOGOS.map((logo) => (
+            <span key={logo.src} className="flex shrink-0 items-center px-6 md:px-10">
+              <Image src={logo.src} alt={logo.alt} width={2426} height={448} unoptimized className="h-8 w-auto object-contain sm:h-9 md:h-10" />
+            </span>
+          ))}
+        </Marquee>
       </div>
     </section>
   );
