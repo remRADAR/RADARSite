@@ -12,7 +12,7 @@ import { getSiteOverridesServerSnapshot, getSiteOverridesSnapshot, parseSiteOver
 const groups = [
   { href: "/radarmusic", label: "THE RADARMusic", children: [{ href: "/radarmusic/artists", label: "Artists" }, { href: "/radarmusic/releases", label: "Releases" }] },
   { href: "/ontheradar", label: "ON THE RADAR", children: [{ href: "/ontheradar/articles", label: "Articles" }, { href: "/ontheradar/magazine", label: "Magazine" }, { href: "/ontheradar/projects", label: "Projects" }, { href: "/stayaktiv", label: "stayAKTiV" }] },
-  { href: "/about", label: "ABOUT", children: [{ href: "/about/our-story", label: "Our Story" }, { href: "/about/ecosystem", label: "Ecosystem" }] },
+  { href: "/about", label: "ABOUT", children: [{ href: "/remradar", label: "RemRADAR" }, { href: "/about/ecosystem", label: "Ecosystem" }] },
 ];
 
 export function SiteHeader() {

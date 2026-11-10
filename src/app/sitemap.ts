@@ -16,7 +16,7 @@ export const SITEMAP_EXCLUDED_ARTICLE_SLUGS = new Set([
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { articles, artists, events, magazine, radarProjects, releases } = await readPublicContent();
-  const routes = ["/", "/radarmusic", "/radarmusic/artists", "/radarmusic/releases", "/ontheradar", "/ontheradar/articles", "/ontheradar/magazine", "/ontheradar/projects", "/stayaktiv", "/omajiverse", "/work", "/about", "/about/our-story", "/about/ecosystem", "/motherland", "/privacy", "/terms"];
+  const routes = ["/", "/radarmusic", "/radarmusic/artists", "/radarmusic/releases", "/ontheradar", "/ontheradar/articles", "/ontheradar/magazine", "/ontheradar/projects", "/stayaktiv", "/omajiverse", "/work", "/about", "/remradar", "/about/ecosystem", "/motherland", "/privacy", "/terms"];
   const date = (item: unknown) => {
     const record = item && typeof item === "object" ? item as Record<string, unknown> : {};
     const raw = record.updatedAt || record.sourceModifiedAt || record.modifiedAt || record.publishedAt;
