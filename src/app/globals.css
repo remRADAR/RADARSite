@@ -142,6 +142,16 @@ html {
   --sidebar-ring: var(--flare);
 }
 
+/* Keep supplied black-and-white ticker marks visible in both site themes. */
+.ticker-logo-monochrome {
+  filter: invert(1);
+  transition: filter var(--theme-transition);
+}
+
+.theme-light .ticker-logo-monochrome {
+  filter: none;
+}
+
 @layer base {
   html,
   body,

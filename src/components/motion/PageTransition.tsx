@@ -68,7 +68,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
           ref={wordmarkRef}
           className="absolute left-1/2 top-1/2 z-10 inline-flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-4 whitespace-nowrap"
         >
-          <div className="font-sans text-[clamp(2.25rem,9vw,5.5rem)] font-extrabold leading-none tracking-[0.055em] text-paper">
+          <div className="font-sans text-[clamp(1.9rem,7vw,4.5rem)] font-extrabold leading-none tracking-[0.055em] text-paper">
             {Array.from(WORDMARK).map((letter, index) => (
               <span data-preloader-letter key={`${letter}-${index}`} className="inline-block">
                 {letter}

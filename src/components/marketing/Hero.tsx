@@ -22,20 +22,20 @@ gsap.registerPlugin(ScrollTrigger);
 
 const ACTIVE_HERO_SLIDES = getActiveHeroSlides();
 const BRAND_TICKER_LOGOS = [
-  { src: "/brand-ticker/brand-01.png", alt: "RADARCharts" },
+  { src: "/brand-ticker/brand-01.png", alt: "RADARCharts", monochrome: true },
   { src: "/brand-ticker/brand-02.png", alt: "remRADAR" },
   { src: "/brand-ticker/brand-03.png", alt: "Brand emblem" },
-  { src: "/brand-ticker/brand-04.png", alt: "Talk to Us" },
+  { src: "/brand-ticker/brand-04.png", alt: "Talk to Us", monochrome: true },
   { src: "/brand-ticker/brand-05.png", alt: "Top 100 Abuja Playlist" },
   { src: "/brand-ticker/brand-06.png", alt: "Xcape brand mark" },
   { src: "/brand-ticker/brand-07.png", alt: "Flame emblem" },
   { src: "/brand-ticker/brand-08.png", alt: "XCAPE" },
   { src: "/brand-ticker/brand-09.png", alt: "Top 100 Abuja Playlist" },
   { src: "/brand-ticker/brand-10.png", alt: "Omaji Verse 2.0" },
-  { src: "/brand-ticker/brand-11.png", alt: "RADAR Legacies" },
-  { src: "/brand-ticker/brand-12.png", alt: "XCAPE Plan" },
-  { src: "/brand-ticker/brand-13.png", alt: "Creative Culture" },
-  { src: "/brand-ticker/brand-14.png", alt: "AfroCamp" },
+  { src: "/brand-ticker/brand-11.png", alt: "RADAR Legacies", monochrome: true },
+  { src: "/brand-ticker/brand-12.png", alt: "XCAPE Plan", monochrome: true },
+  { src: "/brand-ticker/brand-13.png", alt: "Creative Culture", monochrome: true },
+  { src: "/brand-ticker/brand-14.png", alt: "AfroCamp", monochrome: true },
 ];
 
 export function Hero() {
@@ -126,7 +126,7 @@ export function Hero() {
         <Marquee durationSeconds={28} repeat={1}>
           {BRAND_TICKER_LOGOS.map((logo) => (
             <span key={logo.src} className="flex shrink-0 items-center px-5 md:px-8">
-              <Image src={logo.src} alt={logo.alt} width={2426} height={448} unoptimized className="h-8 w-auto object-contain sm:h-9 md:h-10" />
+              <Image src={logo.src} alt={logo.alt} width={2426} height={448} unoptimized className={`h-8 w-auto object-contain sm:h-9 md:h-10${logo.monochrome ? " ticker-logo-monochrome" : ""}`} />
             </span>
           ))}
         </Marquee>
