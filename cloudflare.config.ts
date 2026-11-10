@@ -24,6 +24,8 @@ export default defineConfig({
     env: {
       ...cache.env,
       ASSETS: bindings.assets(),
+      RADAR_DB: bindings.d1({ name: "radarsite-studio" }),
+      DATABASE_PROVIDER: bindings.text("d1"),
     },
   }),
 });

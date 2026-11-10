@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { normalizeSiteOverrides as normalizeSharedSiteOverrides, type SiteOverrides } from "@/lib/site-overrides";
-import { databaseSql } from "@/lib/database";
+import { databaseConfigured, databaseSql } from "@/lib/database";
+import { d1First, d1Run, isD1DatabaseConfigured } from "@/lib/d1-database";
 
 const SESSION_COOKIE = "radar_studio_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
@@ -28,7 +29,7 @@ export function getSessionCookieOptions(hostname: string, maxAge = SESSION_TTL_S
 }
 
 export function hasDatabase() {
-  return Boolean(process.env.DATABASE_URL);
+  return databaseConfigured();
 }
 
 function getSql() {
@@ -68,12 +69,20 @@ export function isSessionValid(value: string | undefined, now = Math.floor(Date.
 }
 
 export async function ensureStudioTable() {
+  if (isD1DatabaseConfigured()) {
+    await d1Run("CREATE TABLE IF NOT EXISTS studio_settings (id INTEGER PRIMARY KEY, settings TEXT NOT NULL, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)");
+    return;
+  }
   const sql = getSql();
   await sql`CREATE TABLE IF NOT EXISTS studio_settings (id integer PRIMARY KEY, settings jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`;
 }
 
 export async function readStudioSettings(): Promise<SiteOverrides> {
   await ensureStudioTable();
+  if (isD1DatabaseConfigured()) {
+    const row = await d1First<{ settings: string }>("SELECT settings FROM studio_settings WHERE id = 1 LIMIT 1");
+    return normalizeSiteOverrides(row?.settings ? JSON.parse(row.settings) : undefined);
+  }
   const sql = getSql();
   const rows = await sql`SELECT settings FROM studio_settings WHERE id = 1 LIMIT 1` as { settings: unknown }[];
   return normalizeSiteOverrides(rows[0]?.settings);
@@ -85,6 +94,10 @@ export async function writeStudioSettings(input: unknown) {
     throw new Error("Studio settings payload is too large");
   }
   await ensureStudioTable();
+  if (isD1DatabaseConfigured()) {
+    await d1Run("INSERT INTO studio_settings (id, settings, updated_at) VALUES (1, ?, CURRENT_TIMESTAMP) ON CONFLICT (id) DO UPDATE SET settings = excluded.settings, updated_at = CURRENT_TIMESTAMP", JSON.stringify(settings));
+    return settings;
+  }
   const sql = getSql();
   await sql`INSERT INTO studio_settings (id, settings, updated_at) VALUES (1, ${JSON.stringify(settings)}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET settings = EXCLUDED.settings, updated_at = now()`;
   return settings;

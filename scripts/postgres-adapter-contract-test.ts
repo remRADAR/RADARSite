@@ -26,7 +26,12 @@ try {
   resetDatabaseClientForTests();
   assert.throws(() => databaseSql(), /Unsupported database provider/);
 
-  console.log("PostgreSQL adapter contract passed: provider selection, missing URL, and unsupported provider guards are valid.");
+  process.env.DATABASE_PROVIDER = "d1";
+  resetDatabaseClientForTests();
+  assert.equal(databaseProvider(), "d1");
+  assert.throws(() => databaseSql(), /not available when DATABASE_PROVIDER=d1/);
+
+  console.log("Database adapter contract passed: PostgreSQL provider selection, D1 routing, missing URL, and unsupported provider guards are valid.");
 } finally {
   if (originalUrl === undefined) delete process.env.DATABASE_URL;
   else process.env.DATABASE_URL = originalUrl;

@@ -3,7 +3,7 @@ import { gunzipSync, gzipSync } from "node:zlib";
 import type { Artist, Article, Event, MagazineStory, RadarProject, Release } from "@/lib/ia-content";
 import mergedContentSnapshot from "@/data/merged-content.json";
 import { createMediaRelationshipId, validateMediaRelationship, type ContentMediaRelationship } from "@/lib/media-relationships";
-import { databaseSql } from "@/lib/database";
+import { databaseConfigured, databaseSql } from "@/lib/database";
 import { cloudflareContentStoreConfigured, cloudflareContentStoreEnabled, createCloudflareContentState, isCloudflareConditionalWriteConflict, readCloudflareContentState, writeCloudflareContentState } from "@/lib/cloudflare-content-store";
 import { mediaStorageConfig } from "@/lib/media-storage";
 import type { ImportedNotionMedia } from "@/lib/notion-media";
@@ -236,7 +236,7 @@ async function persistDirectNotionContent(baseContent: ContentCollections, recor
   return fallback;
 }
 
-export function hasContentDatabase() { return Boolean(process.env.DATABASE_URL); }
+export function hasContentDatabase() { return databaseConfigured(); }
 export function usesCloudflareContentStore() { return cloudflareContentStoreEnabled() && cloudflareContentStoreConfigured(); }
 function sql() { return databaseSql(); }
 function isProductionBuild() { return process.env.NEXT_PHASE === "phase-production-build" || process.env.RADAR_SKIP_DATABASE === "1"; }

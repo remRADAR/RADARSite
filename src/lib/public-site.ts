@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 import type { SiteOverrides } from "@/lib/site-overrides";
 import { defaultSiteOverrides, normalizeSiteOverrides } from "@/lib/site-overrides";
+import { databaseConfigured } from "@/lib/database";
 import { readStudioSettings } from "@/lib/studio-server";
 
 const FALLBACK_PUBLIC_SITE_URL = "https://radarcharts.net";
@@ -28,7 +29,7 @@ export function absolutePublicUrl(pathOrUrl: string) {
 }
 
 export async function readPublicSiteOverrides(): Promise<SiteOverrides> {
-  if (!process.env.DATABASE_URL) return defaultSiteOverrides;
+  if (!databaseConfigured()) return defaultSiteOverrides;
   try { return await readCachedPublicSiteOverrides(); } catch { return defaultSiteOverrides; }
 }
 
