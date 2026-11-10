@@ -39,19 +39,19 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
       .set(content, { autoAlpha: 0 })
       .fromTo(
         letters,
-        { autoAlpha: 0, y: 14 },
-        { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out", stagger: 0.065 },
+        { autoAlpha: 0, y: 12 },
+        { autoAlpha: 1, y: 0, duration: 0.56, ease: "power3.out", stagger: 0.05 },
       )
       .fromTo(
         underline,
         { scaleX: 0 },
-        { scaleX: 1, duration: 0.55, ease: "power2.inOut" },
-        "-=0.05",
+        { scaleX: 1, duration: 0.62, ease: "power2.inOut" },
+        "-=0.08",
       )
-      .to(wordmark, { autoAlpha: 0, duration: 0.24 }, "+=0.4")
-      .to(topCurtain, { yPercent: -100, duration: 0.72, ease: "power2.inOut" }, "<")
-      .to(bottomCurtain, { yPercent: 100, duration: 0.72, ease: "power2.inOut" }, "<")
-      .to(content, { autoAlpha: 1, duration: 0.3 }, "-=0.16")
+      .to(wordmark, { autoAlpha: 0, duration: 0.32, ease: "power2.inOut" }, "+=0.35")
+      .to(topCurtain, { yPercent: -100, duration: 0.88, ease: "power3.inOut" }, "<")
+      .to(bottomCurtain, { yPercent: 100, duration: 0.88, ease: "power3.inOut" }, "<")
+      .to(content, { autoAlpha: 1, duration: 0.42, ease: "power2.out" }, "-=0.28")
       .set(overlay, { display: "none" });
 
     return () => {
