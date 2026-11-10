@@ -123,10 +123,10 @@ export function Hero() {
       </div>
 
       <div role="group" aria-label="remRADAR brand and partner logos" className="relative z-10 bg-transparent py-3 sm:py-4">
-        <Marquee durationSeconds={28} repeat={1}>
+        <Marquee durationSeconds={14} repeat={1}>
           {BRAND_TICKER_LOGOS.map((logo) => (
-            <span key={logo.src} className="flex shrink-0 items-center px-5 md:px-8">
-              <Image src={logo.src} alt={logo.alt} width={2426} height={448} unoptimized className={`h-8 w-auto object-contain sm:h-9 md:h-10${logo.monochrome ? " ticker-logo-monochrome" : ""}`} />
+            <span key={logo.src} className="flex shrink-0 items-center px-2.5 md:px-4">
+              <Image src={logo.src} alt={logo.alt} width={2426} height={448} unoptimized loading="eager" className={`h-8 w-auto object-contain sm:h-9 md:h-10${logo.monochrome ? " ticker-logo-monochrome" : ""}`} />
             </span>
           ))}
         </Marquee>
