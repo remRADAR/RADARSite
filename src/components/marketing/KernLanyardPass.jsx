@@ -6,7 +6,7 @@
  * removed; reduced-motion handling is implemented with the platform media query.
  */
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { useEffect, useMemo, useRef, useState, startTransition } from "react";
+import { useEffect, useRef, useState, startTransition } from "react";
 import * as THREE from "three";
 
 function usePrefersReducedMotion() {
@@ -1571,7 +1571,7 @@ function updateWebbing(
     ticket.backArt = artRef.current.backArt;
     drawFront(canvas, null, ticket);
   };
-  const stageH = useMemo(() => Math.round(size * 1.72), [size]);
+  const stageH = Math.round(size * 1.72);
   useEffect(() => {
     if (typeof window === "undefined") return;
     const host = rootRef.current;

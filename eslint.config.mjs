@@ -5,6 +5,11 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  {
+    files: ["src/components/marketing/KernLanyardPass.jsx"],
+    // This imperative canvas renderer intentionally refreshes refs for its animation loop and JSX canvas targets.
+    rules: { "react-hooks/refs": "off" },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
