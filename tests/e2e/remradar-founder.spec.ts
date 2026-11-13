@@ -1,6 +1,6 @@
 import { devices, expect, test } from "@playwright/test";
 
-const portraitPath = "/images/founder/tarzaa-gerald-caesar.webp";
+const portraitPath = "/images/founder/cza-of-rem.webp";
 
 async function expectFounderProfile(page: import("@playwright/test").Page) {
   await page.goto("/remradar");
