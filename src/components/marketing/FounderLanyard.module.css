@@ -3,7 +3,6 @@
   isolation: isolate;
   min-height: 35rem;
   overflow: hidden;
-  border-block: 1px solid rgb(247 247 242 / 28%);
   background:
     radial-gradient(ellipse at 50% 42%, rgb(247 247 242 / 7%), transparent 55%),
     linear-gradient(135deg, rgb(247 247 242 / 2%), transparent 48%);
@@ -12,7 +11,7 @@
 .pass {
   position: relative;
   z-index: 1;
-  min-height: 33rem;
+  min-height: 35rem;
 }
 
 .pass :focus-visible {
@@ -20,66 +19,9 @@
   outline-offset: 5px;
 }
 
-.stageLabel,
-.keyboardHelp {
-  position: absolute;
-  z-index: 2;
-  left: 1rem;
-  margin: 0;
-  font-family: var(--font-mono), monospace;
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  line-height: 1.5;
-  text-transform: uppercase;
-  color: var(--muted-foreground);
-  pointer-events: none;
-}
-
-.stageLabel {
-  top: 1rem;
-  animation: label-arrive 700ms var(--ease-out) both;
-}
-
-.keyboardHelp {
-  right: 1rem;
-  bottom: 1rem;
-  left: 1rem;
-  text-align: center;
-  letter-spacing: 0.07em;
-  text-transform: none;
-}
-
-@keyframes label-arrive {
-  from {
-    opacity: 0;
-    transform: translateY(0.4rem);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @media (max-width: 767px) {
-  .stage {
-    min-height: 32rem;
-  }
-
+  .stage,
   .pass {
-    min-height: 30rem;
-  }
-
-  .stageLabel,
-  .keyboardHelp {
-    left: 0.75rem;
-    right: 0.75rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .stageLabel {
-    animation: none;
+    min-height: 31rem;
   }
 }

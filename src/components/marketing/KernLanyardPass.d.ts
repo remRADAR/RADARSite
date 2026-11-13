@@ -30,6 +30,7 @@ type KernLanyardPassProps = {
   light?: { angle?: number; height?: number; intensity?: number; rim?: boolean };
   layout?: { size?: number; padding?: number; stackGap?: number; thickness?: number };
   motion?: boolean;
+  onClick?: (event?: unknown) => void;
   style?: CSSProperties;
 };
 

@@ -2877,14 +2877,20 @@ function updateWebbing(
     ref: rootRef,
     tabIndex: 0,
     role: "group",
-    "aria-label": `Interactive lanyard pass for ${attendeeName}. Use the left and right arrow keys to swing it.`,
-    "aria-describedby": "founder-lanyard-keyboard-help founder-portrait-description",
+    "aria-label": `Interactive founder pass for ${attendeeName}.`,
+    "aria-describedby": "founder-portrait-description",
+    onClick: typeof props.onClick === "function" ? props.onClick : undefined,
     onKeyDown: (event) => {
       if (
         ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)
       ) {
         event.preventDefault();
         engineRef.current?.nudge?.(event.key);
+        return;
+      }
+      if (typeof props.onClick === "function" && (event.key === "Enter" || event.key === " ")) {
+        event.preventDefault();
+        props.onClick(event);
       }
     },
     "data-lanyard-stage": "true",

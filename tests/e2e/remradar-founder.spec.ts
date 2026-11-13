@@ -16,7 +16,7 @@ async function expectFounderProfile(page: import("@playwright/test").Page) {
   await expect(pass).toHaveAttribute("tabindex", "0");
   await expect(pass).toHaveAttribute(
     "aria-describedby",
-    "founder-lanyard-keyboard-help founder-portrait-description",
+    "founder-portrait-description",
   );
   await expect(page.getByText("CZA OF REM", { exact: true }).first()).toBeVisible();
   return pass;
@@ -134,11 +134,16 @@ test("keeps the founder profile within an iPhone viewport and accepts touch inpu
   }
 });
 
-test("keeps the existing About page connected to the founder route", async ({ page }) => {
+test("renders RADAR Explore, the founder frame, and the ecosystem tab on About", async ({ page }) => {
   await page.goto("/about");
-  await expect(page.getByRole("heading", { level: 1, name: /The people/ })).toBeVisible();
-  await expect(page.getByRole("link", { name: /RemRADAR/ })).toHaveAttribute(
-    "href",
-    "/remradar",
-  );
+  await expect(page.getByRole("heading", { level: 1, name: /ENTER THE RADAR/ })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: /THE FOUNDER/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Explore THE INSTITUTION/ })).toBeVisible();
+  await expect(page.getByTestId("about-ecosystem-tab")).toHaveAttribute("href", "/about/ecosystem");
+  const aboutPass = page.locator('[data-lanyard-stage="true"]').last();
+  await aboutPass.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("dialog", { name: /Tarzaa Gerald Caesar/ })).toBeVisible();
+  await page.getByRole("button", { name: /Close founder highlight/ }).click();
+  await expect(aboutPass).toBeFocused();
 });

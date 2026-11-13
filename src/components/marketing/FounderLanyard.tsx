@@ -3,30 +3,31 @@
 import KernLanyardPass from "./KernLanyardPass";
 import styles from "./FounderLanyard.module.css";
 
+type FounderLanyardProps = {
+  onActivate?: () => void;
+};
+
 const portrait = { src: "/images/founder/tarzaa-gerald-caesar.webp" };
 
-export function FounderLanyard() {
+export function FounderLanyard({ onActivate }: FounderLanyardProps) {
   return (
     <div className={styles.stage}>
-      <p className={styles.stageLabel} id="founder-pass-instructions">
-        Interactive founder pass <span aria-hidden="true">/</span> drag to swing
-      </p>
       <div className={styles.pass}>
         <KernLanyardPass
           content={{
             attendeeName: "Tarzaa Gerald Caesar",
-            ticketType: "THE iNDUSTRY MESSiAH",
+            ticketType: "CZA OF REM",
             ticketNumber: "FOUNDER / REM",
-            eventName: "CZA OF REM",
+            eventName: "REM",
             eventDate: "RADARCharts by REM",
-            barcodeValue: "",
-            backText: "CZA OF REM",
-            strapText: "RADARCharts by REM",
+            barcodeValue: "REMFOUNDER",
+            backText: "REM",
+            strapText: "REM / RADARCharts",
           }}
           look={{
             paper: "#131417",
             ink: "#f2f1ec",
-            accent: "#8796b2",
+            accent: "#c9ff33",
             strapColor: "#111214",
             strapStyle: "flat",
             photo: portrait,
@@ -35,24 +36,34 @@ export function FounderLanyard() {
             foil: "off",
             sleeve: true,
             sleeveTexture: "clear",
-            numberFont: {
-              fontSize: "32px",
+            nameFont: {
+              fontSize: "20px",
               fontWeight: 600,
-              letterSpacing: "-0.04em",
+              letterSpacing: "-0.035em",
+              lineHeight: "1em",
+            },
+            metaFont: {
+              fontSize: "10px",
+              fontWeight: 500,
+              letterSpacing: "0.04em",
+              lineHeight: "1.15em",
+            },
+            numberFont: {
+              fontSize: "18px",
+              fontWeight: 600,
+              letterSpacing: "-0.03em",
               lineHeight: "1em",
             },
           }}
           light={{ angle: 25, height: 55, intensity: 0.9, rim: true }}
-          layout={{ size: 320, padding: 38, stackGap: 14, thickness: 3 }}
+          layout={{ size: 320, padding: 38, stackGap: 10, thickness: 3 }}
           motion
+          onClick={onActivate}
           style={{ width: "100%", height: "100%" }}
         />
       </div>
-      <p className={styles.keyboardHelp} id="founder-lanyard-keyboard-help">
-        Drag with a pointer or touch. Focus the pass and use the arrow keys to move it.
-      </p>
       <span className="sr-only" id="founder-portrait-description">
-        Original founder portrait of Tarzaa Gerald Caesar, CZA OF REM.
+        Founder pass for Tarzaa Gerald Caesar, CZA OF REM. Activate the pass to open the founder highlight.
       </span>
     </div>
   );
