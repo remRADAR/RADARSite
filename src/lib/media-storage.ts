@@ -5,6 +5,37 @@ export type MediaStorageConfig = { provider: "r2"; bucket: string; endpoint: str
 export type StoredMedia = { key: string; url: string; provider: "r2"; bucket: string; contentType: string; size: number; etag?: string; checksum?: string; width?: number; height?: number };
 export type MediaDeliveryUrlValidation = { ok: boolean; configuredBaseUrl: boolean; protocol: "https" | "other"; hostValid: boolean; semantics: "public-base" | "r2-endpoint-fallback" | "invalid" };
 
+type NativeR2Object = {
+  key: string;
+  size: number;
+  etag: string;
+  httpMetadata?: { contentType?: string; cacheControl?: string };
+  customMetadata?: Record<string, string>;
+  checksums?: { sha256?: ArrayBuffer };
+  arrayBuffer?: () => Promise<ArrayBuffer>;
+};
+type NativeR2Bucket = {
+  list(options?: { limit?: number }): Promise<unknown>;
+  head(key: string): Promise<NativeR2Object | null>;
+  get(key: string): Promise<(NativeR2Object & { arrayBuffer: () => Promise<ArrayBuffer> }) | null>;
+  put(key: string, value: Uint8Array | ArrayBuffer | string | Blob | null, options?: {
+    httpMetadata?: { contentType?: string; cacheControl?: string };
+    customMetadata?: Record<string, string>;
+    onlyIf?: { etagMatches?: string; etagDoesNotMatch?: string };
+  }): Promise<NativeR2Object | null>;
+  delete(key: string): Promise<void>;
+};
+type R2ObjectInfo = { key: string; size: number; etag?: string; contentType: string; checksum?: string; metadata: Record<string, string> };
+type R2ObjectData = R2ObjectInfo & { body: Buffer };
+type R2Backend = {
+  transport: "workers-binding" | "s3-compatible";
+  check(): Promise<void>;
+  put(key: string, body: Uint8Array | Buffer, contentType: string, cacheControl: string, metadata?: Record<string, string>, conditions?: { ifMatch?: string; ifNoneMatch?: string }): Promise<R2ObjectInfo>;
+  head(key: string): Promise<R2ObjectInfo | null>;
+  get(key: string): Promise<R2ObjectData | null>;
+  delete(key: string): Promise<void>;
+};
+
 function required(name: string) { const value = process.env[name]; if (!value) throw new Error(`${name} is not configured`); return value; }
 export function mediaStorageConfig(): MediaStorageConfig {
   const accountId = required("R2_ACCOUNT_ID");
@@ -17,19 +48,122 @@ export function mediaStorageDiagnostics() {
   let parsed: URL | undefined;
   try { parsed = endpoint ? new URL(endpoint) : undefined; } catch { parsed = undefined; }
   const expectedEndpoint = accountId ? `https://${accountId}.r2.cloudflarestorage.com` : "";
-  return { accountId, bucket, endpoint, endpointSource: process.env.R2_ENDPOINT ? "explicit" : "derived", accountIdFormatValid: /^[a-f0-9]{32}$/.test(accountId), bucketMatchesTarget: bucket === "radarsite-media", credentialsPresent: Boolean(process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY), endpointFormatValid: Boolean(parsed && parsed.protocol === "https:" && parsed.hostname === `${accountId}.r2.cloudflarestorage.com` && parsed.pathname === "/" && !parsed.search && !parsed.hash && !parsed.username && !parsed.password && !parsed.port), endpointMatchesDerivedAccount: endpoint === expectedEndpoint };
+  const nativeWorkersBinding = process.env.RADARSITE_R2_TRANSPORT === "native";
+  return {
+    accountId,
+    bucket,
+    endpoint,
+    endpointSource: process.env.R2_ENDPOINT ? "explicit" : "derived",
+    accountIdFormatValid: /^[a-f0-9]{32}$/.test(accountId),
+    bucketMatchesTarget: bucket === "radarsite-media",
+    credentialsPresent: nativeWorkersBinding || Boolean(process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY),
+    transport: nativeWorkersBinding ? "workers-binding" : "s3-compatible",
+    endpointFormatValid: Boolean(parsed && parsed.protocol === "https:" && parsed.hostname === `${accountId}.r2.cloudflarestorage.com` && parsed.pathname === "/" && !parsed.search && !parsed.hash && !parsed.username && !parsed.password && !parsed.port),
+    endpointMatchesDerivedAccount: endpoint === expectedEndpoint,
+  };
 }
-function assertMediaStorageConfig(config: MediaStorageConfig) { const diagnostics = mediaStorageDiagnostics(); if (!diagnostics.accountIdFormatValid || !diagnostics.bucketMatchesTarget || !diagnostics.credentialsPresent || !diagnostics.endpointFormatValid) throw new Error(`Invalid R2 configuration: ${JSON.stringify({ ...diagnostics, accountId: diagnostics.accountId ? "valid-format" : "missing", endpoint: diagnostics.endpoint ? "present" : "missing" })}`); return config; }
-function client(config = mediaStorageConfig()) { return new S3Client({ region: "auto", endpoint: config.endpoint, forcePathStyle: false, credentials: { accessKeyId: required("R2_ACCESS_KEY_ID"), secretAccessKey: required("R2_SECRET_ACCESS_KEY") } }); }
+function assertMediaStorageConfig(config: MediaStorageConfig) {
+  const diagnostics = mediaStorageDiagnostics();
+  if (!diagnostics.accountIdFormatValid || !diagnostics.bucketMatchesTarget || !diagnostics.credentialsPresent || !diagnostics.endpointFormatValid) {
+    throw new Error(`Invalid R2 configuration: ${JSON.stringify({ ...diagnostics, accountId: diagnostics.accountId ? "valid-format" : "missing", endpoint: diagnostics.endpoint ? "present" : "missing" })}`);
+  }
+  return config;
+}
+function client(config = mediaStorageConfig()) {
+  return new S3Client({ region: "auto", endpoint: config.endpoint, forcePathStyle: false, credentials: { accessKeyId: required("R2_ACCESS_KEY_ID"), secretAccessKey: required("R2_SECRET_ACCESS_KEY") } });
+}
+async function nativeBucket(): Promise<NativeR2Bucket | undefined> {
+  if (process.env.RADARSITE_R2_TRANSPORT !== "native") return undefined;
+  try {
+    // @ts-expect-error -- supplied by the Cloudflare Vite/Vinext runtime, not by Vercel's Node runtime
+    const workerModule = await import("cloudflare:workers");
+    const bucket = (workerModule.env as unknown as { RADARSITE_MEDIA?: NativeR2Bucket }).RADARSITE_MEDIA;
+    if (!bucket) throw new Error("Native R2 binding RADARSITE_MEDIA is missing");
+    return bucket;
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("Native R2 binding")) throw error;
+    throw new Error("Native R2 transport is enabled but the Cloudflare Workers binding API is unavailable");
+  }
+}
+function etag(value?: string) { return value?.replaceAll('"', ""); }
+function checksumHex(value?: ArrayBuffer) { return value ? Buffer.from(value).toString("hex") : undefined; }
+function missingObject(key: string) {
+  const error = new Error(`R2 object not found: ${key}`);
+  Object.assign(error, { name: "NoSuchKey", Code: "NoSuchKey", code: "NoSuchKey", $metadata: { httpStatusCode: 404 } });
+  return error;
+}
+function conditionalWriteError() {
+  const error = new Error("Cloudflare R2 write precondition failed");
+  Object.assign(error, { name: "PreconditionFailed", Code: "PreconditionFailed", code: "PreconditionFailed", $metadata: { httpStatusCode: 412 } });
+  return error;
+}
+function nativeInfo(object: NativeR2Object): R2ObjectInfo {
+  return { key: object.key, size: object.size, etag: etag(object.etag), contentType: object.httpMetadata?.contentType || "application/octet-stream", checksum: checksumHex(object.checksums?.sha256), metadata: object.customMetadata || {} };
+}
+async function backend(config = mediaStorageConfig()): Promise<R2Backend> {
+  const native = await nativeBucket();
+  if (native) {
+    return {
+      transport: "workers-binding",
+      check: async () => { await native.list({ limit: 1 }); },
+      put: async (key, body, contentType, cacheControl, metadata, conditions) => {
+        const onlyIf = conditions?.ifMatch ? { etagMatches: conditions.ifMatch } : conditions?.ifNoneMatch ? { etagDoesNotMatch: conditions.ifNoneMatch } : undefined;
+        const result = await native.put(key, body, { httpMetadata: { contentType, cacheControl }, ...(metadata ? { customMetadata: metadata } : {}), ...(onlyIf ? { onlyIf } : {}) });
+        if (!result) throw conditionalWriteError();
+        return nativeInfo(result);
+      },
+      head: async (key) => {
+        const result = await native.head(key);
+        return result ? nativeInfo(result) : null;
+      },
+      get: async (key) => {
+        const result = await native.get(key);
+        if (!result) return null;
+        return { ...nativeInfo(result), body: Buffer.from(await result.arrayBuffer()) };
+      },
+      delete: async (key) => { await native.delete(key); },
+    };
+  }
+
+  const s3 = client(config);
+  return {
+    transport: "s3-compatible",
+    check: async () => { await s3.send(new HeadBucketCommand({ Bucket: config.bucket })); },
+    put: async (key, body, contentType, cacheControl, metadata, conditions) => {
+      const response = await s3.send(new PutObjectCommand({
+        Bucket: config.bucket,
+        Key: key,
+        Body: body,
+        ContentType: contentType,
+        CacheControl: cacheControl,
+        Metadata: metadata,
+        ...(conditions?.ifMatch ? { IfMatch: conditions.ifMatch } : {}),
+        ...(conditions?.ifNoneMatch ? { IfNoneMatch: conditions.ifNoneMatch } : {}),
+      }));
+      return { key, size: body.byteLength, etag: etag(response.ETag), contentType, metadata: metadata || {} };
+    },
+    head: async (key) => {
+      const response = await s3.send(new HeadObjectCommand({ Bucket: config.bucket, Key: key }));
+      return { key, size: response.ContentLength || 0, etag: etag(response.ETag), contentType: response.ContentType || "application/octet-stream", checksum: response.ChecksumSHA256, metadata: response.Metadata || {} };
+    },
+    get: async (key) => {
+      const response = await s3.send(new GetObjectCommand({ Bucket: config.bucket, Key: key }));
+      if (!response.Body) throw missingObject(key);
+      return { key, body: await bodyToBuffer(response.Body as { transformToByteArray?: () => Promise<Uint8Array> } | undefined), size: response.ContentLength || 0, etag: etag(response.ETag), contentType: response.ContentType || "application/octet-stream", checksum: response.ChecksumSHA256, metadata: response.Metadata || {} };
+    },
+    delete: async (key) => { await s3.send(new DeleteObjectCommand({ Bucket: config.bucket, Key: key })); },
+  };
+}
 function publicUrl(key: string, config: MediaStorageConfig) { return config.publicBaseUrl ? `${config.publicBaseUrl}/${key.split("/").map(encodeURIComponent).join("/")}` : undefined; }
 function mediaObjectUrl(key: string, config: MediaStorageConfig) { return publicUrl(key, config) || `${config.endpoint}/${config.bucket}/${key}`; }
-function etag(value?: string) { return value?.replaceAll('"', ""); }
 
 export function checksumSha256(value: Uint8Array | Buffer) { return createHash("sha256").update(value).digest("hex"); }
 
-export async function bodyToBuffer(body: { transformToByteArray?: () => Promise<Uint8Array> } | undefined) {
-  if (!body || typeof body.transformToByteArray !== "function") throw new Error("R2 object body is unavailable");
-  return Buffer.from(await body.transformToByteArray());
+export async function bodyToBuffer(body: { transformToByteArray?: () => Promise<Uint8Array>; arrayBuffer?: () => Promise<ArrayBuffer> } | undefined) {
+  if (!body) throw new Error("R2 object body is unavailable");
+  if (typeof body.transformToByteArray === "function") return Buffer.from(await body.transformToByteArray());
+  if (typeof body.arrayBuffer === "function") return Buffer.from(await body.arrayBuffer());
+  throw new Error("R2 object body is unavailable");
 }
 
 export function validateMediaDeliveryUrl(input: { key: string; url: string; config: MediaStorageConfig }): MediaDeliveryUrlValidation {
@@ -50,45 +184,47 @@ export function validateMediaDeliveryUrl(input: { key: string; url: string; conf
 export async function checkMediaStorage() {
   const diagnostics = mediaStorageDiagnostics();
   const config = assertMediaStorageConfig(mediaStorageConfig());
-  await client(config).send(new HeadBucketCommand({ Bucket: config.bucket }));
-  return { provider: config.provider, bucket: config.bucket, endpoint: config.endpoint, publicBaseUrlConfigured: Boolean(config.publicBaseUrl), diagnostics: { accountIdFormatValid: diagnostics.accountIdFormatValid, bucketMatchesTarget: diagnostics.bucketMatchesTarget, credentialsPresent: diagnostics.credentialsPresent, endpointFormatValid: diagnostics.endpointFormatValid, endpointMatchesDerivedAccount: diagnostics.endpointMatchesDerivedAccount, endpointSource: diagnostics.endpointSource } };
+  const storage = await backend(config);
+  await storage.check();
+  return { provider: config.provider, transport: storage.transport, bucket: config.bucket, endpoint: config.endpoint, publicBaseUrlConfigured: Boolean(config.publicBaseUrl), diagnostics: { accountIdFormatValid: diagnostics.accountIdFormatValid, bucketMatchesTarget: diagnostics.bucketMatchesTarget, credentialsPresent: diagnostics.credentialsPresent, endpointFormatValid: diagnostics.endpointFormatValid, endpointMatchesDerivedAccount: diagnostics.endpointMatchesDerivedAccount, endpointSource: diagnostics.endpointSource, transport: diagnostics.transport } };
 }
 
 export async function putMediaObject(input: { key: string; body: Uint8Array | Buffer; contentType: string; cacheControl?: string; metadata?: Record<string, string> }): Promise<StoredMedia> {
   const config = mediaStorageConfig();
-  const url = mediaObjectUrl(input.key, config);
-  const response = await client(config).send(new PutObjectCommand({ Bucket: config.bucket, Key: input.key, Body: input.body, ContentType: input.contentType, CacheControl: input.cacheControl || "public, max-age=31536000, immutable", Metadata: input.metadata }));
-  return { key: input.key, url, provider: config.provider, bucket: config.bucket, contentType: input.contentType, size: input.body.byteLength, etag: etag(response.ETag) };
+  const storage = await backend(config);
+  const result = await storage.put(input.key, input.body, input.contentType, input.cacheControl || "public, max-age=31536000, immutable", input.metadata);
+  return { key: input.key, url: mediaObjectUrl(input.key, config), provider: config.provider, bucket: config.bucket, contentType: result.contentType, size: result.size, etag: result.etag };
 }
-export async function headMediaObject(key: string) { const config = mediaStorageConfig(); const response = await client(config).send(new HeadObjectCommand({ Bucket: config.bucket, Key: key })); return { key, url: mediaObjectUrl(key, config), provider: config.provider, bucket: config.bucket, contentType: response.ContentType || "application/octet-stream", size: response.ContentLength || 0, etag: etag(response.ETag), checksum: response.ChecksumSHA256, metadata: response.Metadata || {} }; }
-export async function getMediaObject(key: string) { const config = mediaStorageConfig(); return client(config).send(new GetObjectCommand({ Bucket: config.bucket, Key: key })); }
-export async function readMediaObjectBytes(key: string) { const object = await getMediaObject(key); return bodyToBuffer(object.Body as { transformToByteArray?: () => Promise<Uint8Array> } | undefined); }
-export async function deleteMediaObject(key: string) { const config = mediaStorageConfig(); await client(config).send(new DeleteObjectCommand({ Bucket: config.bucket, Key: key })); }
+export async function headMediaObject(key: string) {
+  const config = mediaStorageConfig();
+  const result = await (await backend(config)).head(key);
+  if (!result) throw missingObject(key);
+  return { key, url: mediaObjectUrl(key, config), provider: config.provider, bucket: config.bucket, contentType: result.contentType, size: result.size, etag: result.etag, checksum: result.checksum, metadata: result.metadata };
+}
+export async function getMediaObject(key: string) {
+  const result = await (await backend()).get(key);
+  if (!result) throw missingObject(key);
+  return { Body: { transformToByteArray: async () => new Uint8Array(result.body) }, ContentLength: result.size, ContentType: result.contentType, ETag: result.etag };
+}
+export async function readMediaObjectBytes(key: string) { const result = await (await backend()).get(key); if (!result) throw missingObject(key); return result.body; }
+export async function deleteMediaObject(key: string) { await (await backend()).delete(key); }
 
 export async function putStorageObject(input: { key: string; body: Uint8Array | Buffer; contentType: string; cacheControl?: string; ifMatch?: string; ifNoneMatch?: string; metadata?: Record<string, string> }) {
   const config = mediaStorageConfig();
-  const response = await client(config).send(new PutObjectCommand({
-    Bucket: config.bucket,
-    Key: input.key,
-    Body: input.body,
-    ContentType: input.contentType,
-    CacheControl: input.cacheControl || "no-cache, no-store, max-age=0",
-    IfMatch: input.ifMatch,
-    IfNoneMatch: input.ifNoneMatch,
-    Metadata: input.metadata,
-  }));
-  return { key: input.key, etag: etag(response.ETag) || "" };
+  const result = await (await backend(config)).put(input.key, input.body, input.contentType, input.cacheControl || "no-cache, no-store, max-age=0", input.metadata, { ifMatch: input.ifMatch, ifNoneMatch: input.ifNoneMatch });
+  return { key: input.key, etag: result.etag || "" };
 }
 
 export async function readStorageObject(key: string) {
-  const object = await getMediaObject(key);
-  return { body: await bodyToBuffer(object.Body as { transformToByteArray?: () => Promise<Uint8Array> } | undefined), etag: etag(object.ETag) || "" };
+  const result = await (await backend()).get(key);
+  if (!result) throw missingObject(key);
+  return { body: result.body, etag: result.etag || "" };
 }
 
 export async function headStorageObject(key: string) {
-  const config = mediaStorageConfig();
-  const response = await client(config).send(new HeadObjectCommand({ Bucket: config.bucket, Key: key }));
-  return { key, etag: etag(response.ETag) || "", size: response.ContentLength || 0 };
+  const result = await (await backend()).head(key);
+  if (!result) throw missingObject(key);
+  return { key, etag: result.etag || "", size: result.size };
 }
 
 export async function createWebpDerivatives(input: { source: Buffer; keyPrefix: string; width?: number; height?: number; quality?: number }) {

@@ -24,6 +24,8 @@ export default defineConfig({
     env: {
       ...cache.env,
       ASSETS: bindings.assets(),
+      RADARSITE_MEDIA: bindings.r2({ name: "radarsite-media" }),
+      RADARSITE_R2_TRANSPORT: bindings.text("native"),
     },
   }),
 });

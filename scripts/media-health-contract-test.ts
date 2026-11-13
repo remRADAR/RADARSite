@@ -49,6 +49,10 @@ async function expectFailure(action: () => Promise<unknown>, message: string) {
 async function main() {
   const streamed = await bodyToBuffer({ transformToByteArray: async () => new Uint8Array(body) });
   assert.deepEqual(streamed, body);
+  const nativeBody = new ArrayBuffer(body.byteLength);
+  new Uint8Array(nativeBody).set(body);
+  const nativeRead = await bodyToBuffer({ arrayBuffer: async () => nativeBody });
+  assert.deepEqual(nativeRead, body);
 
   const validFallback = validateMediaDeliveryUrl({ key, url: fallbackUrl, config: fallbackConfig });
   assert.deepEqual(validFallback, { ok: true, configuredBaseUrl: false, protocol: "https", hostValid: true, semantics: "r2-endpoint-fallback" });
@@ -69,6 +73,7 @@ async function main() {
 
   console.log(JSON.stringify({
     exactByteMatch: "PASS",
+    nativeArrayBufferRead: "PASS",
     byteMismatch: "PASS",
     sizeMismatch: "PASS",
     metadata: "PASS",

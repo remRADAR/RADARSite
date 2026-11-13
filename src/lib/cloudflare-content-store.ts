@@ -19,7 +19,8 @@ export function cloudflareContentStoreEnabled() {
 }
 
 export function cloudflareContentStoreConfigured() {
-  return Boolean(process.env.R2_ACCOUNT_ID && process.env.R2_BUCKET && process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY);
+  const nativeWorkersBinding = process.env.RADARSITE_R2_TRANSPORT === "native";
+  return Boolean(process.env.R2_ACCOUNT_ID && process.env.R2_BUCKET && (nativeWorkersBinding || (process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY)));
 }
 
 export function contentRevision(content: unknown, relationships: unknown[] = []) {
