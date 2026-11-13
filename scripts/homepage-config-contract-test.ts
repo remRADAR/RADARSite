@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { defaultSiteConfig, normalizeSiteConfig } from "@/types/site-config";
+import { COMMUNITY_CHANNEL_URL, defaultSiteConfig, normalizeSiteConfig } from "@/types/site-config";
 import { defaultSiteOverrides, normalizeSiteOverrides } from "@/lib/site-overrides";
 
 const oldAddress = "hello@radarcharts.com";
@@ -7,6 +7,17 @@ const newAddress = "hello@radarcharts.net";
 const customAddress = "editor@example.org";
 
 assert.equal(defaultSiteConfig.homepage.ctaSection.contactEmail, newAddress);
+assert.equal(defaultSiteConfig.homepage.ctaSection.headline, "REMEBER, stayAKTiV ALWAYS.");
+assert.equal(COMMUNITY_CHANNEL_URL, "https://www.instagram.com/channel/Abb6oZ2Ug1FKhWyh/");
+assert.equal(
+  normalizeSiteConfig({
+    homepage: {
+      ...defaultSiteConfig.homepage,
+      ctaSection: { ...defaultSiteConfig.homepage.ctaSection, headline: "Make some noise." },
+    },
+  }).homepage.ctaSection.headline,
+  "REMEBER, stayAKTiV ALWAYS.",
+);
 assert.equal(
   normalizeSiteConfig({
     homepage: {

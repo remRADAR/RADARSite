@@ -1,8 +1,10 @@
 "use client";
 import dynamic from "next/dynamic";
+import { UsersRound } from "lucide-react";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useSiteConfig } from "@/lib/site-config-context";
+import { COMMUNITY_CHANNEL_URL } from "@/types/site-config";
 import styles from "./CTASection.module.css";
 
 const MusicGlobe = dynamic(() => import("./MusicGlobe"), { ssr: false });
@@ -17,7 +19,7 @@ const globeLocations = [
 
 export function CTASection() {
   const { config } = useSiteConfig();
-  const cta = { headline: config.homepage.ctaSection.headline.split(" "), email: config.homepage.ctaSection.contactEmail };
+  const cta = { headline: config.homepage.ctaSection.headline.split(" ") };
   return (
     <section className={`on-dark relative isolate overflow-hidden text-paper ${styles.section}`} data-testid="cta-section">
       <div className={`relative z-10 flex items-center justify-between px-4 py-6 md:px-8 ${styles.header}`}>
@@ -48,8 +50,14 @@ export function CTASection() {
         </div>
         <div className={styles.contact}>
           <Magnetic strength={0.5}>
-            <a href={`mailto:${cta.email}`} className="inline-flex max-w-full items-center gap-4 whitespace-normal brut-border border-paper bg-flare px-5 py-5 text-left font-mono text-sm font-bold uppercase tracking-widest text-flare-foreground transition-transform hover:-translate-y-1 sm:px-8">
-              {cta.email}<span aria-hidden>↗</span>
+            <a
+              href={COMMUNITY_CHANNEL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Join the RADAR community"
+              className="inline-flex h-16 w-16 items-center justify-center brut-border border-paper bg-flare text-flare-foreground transition-transform hover:-translate-y-1"
+            >
+              <UsersRound aria-hidden size={28} strokeWidth={2.5} />
             </a>
           </Magnetic>
         </div>

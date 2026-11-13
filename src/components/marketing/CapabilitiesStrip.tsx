@@ -1,10 +1,10 @@
 import { FadeIn } from "@/components/motion/FadeIn";
 
 const STEPS = [
-  { n: "01", label: "Strategy" },
-  { n: "02", label: "Craft" },
-  { n: "03", label: "Production" },
-  { n: "04", label: "Launch" },
+  { n: "01", label: "IDEA" },
+  { n: "02", label: "PLAN" },
+  { n: "03", label: "PROJECT" },
+  { n: "04", label: "AKTiV" },
 ];
 
 export function CapabilitiesStrip() {

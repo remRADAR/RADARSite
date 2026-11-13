@@ -125,8 +125,8 @@ export const homepageContent: HomepageContent = {
     { number: "04", label: "MOTHERLand", description: "The Music To Her" },
   ],
   proof: {
-    quote: "RADAR understands that the release is only the beginning. They gave the whole world around the record a pulse.",
-    attribution: "→ Maya Ellis, independent artist",
+    quote: "The Mission is to protect The Music, Artists, Queens, Fans & Brands always and stayAKTiV, That’s the RADAR Way🗽",
+    attribution: "→ CZA OF REM. Founder, REM",
     partners: ["RADARUnit", "RADARMe", "On The Radar", "RADARArticles", "RADAR Sessions", "RADAR Live"],
   },
   cta: { headline: ["Make", "some", "noise."], email: "hello@radarcharts.net" },
