@@ -73,6 +73,7 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       ...legacyArticleRedirects(),
+      { source: "/about/our-story", destination: "/remradar", permanent: true },
       { source: "/on-the-radar", destination: "/ontheradar", permanent: true },
       { source: "/on-the-radar/:path*", destination: "/ontheradar/:path*", permanent: true },
       { source: "/ontheradar/discovery", destination: "/ontheradar/articles/spotlight/page/1", permanent: true },
