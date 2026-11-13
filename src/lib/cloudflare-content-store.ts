@@ -19,7 +19,7 @@ export function cloudflareContentStoreEnabled() {
 }
 
 export function cloudflareContentStoreConfigured() {
-  const nativeWorkersBinding = process.env.RADARSITE_R2_TRANSPORT === "native";
+  const nativeWorkersBinding = process.env.RADAR_CONTENT_STORE === "cloudflare";
   return Boolean(process.env.R2_ACCOUNT_ID && process.env.R2_BUCKET && (nativeWorkersBinding || (process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY)));
 }
 

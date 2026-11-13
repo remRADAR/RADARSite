@@ -48,7 +48,6 @@ export function mediaStorageDiagnostics() {
   let parsed: URL | undefined;
   try { parsed = endpoint ? new URL(endpoint) : undefined; } catch { parsed = undefined; }
   const expectedEndpoint = accountId ? `https://${accountId}.r2.cloudflarestorage.com` : "";
-  const nativeWorkersBinding = process.env.RADARSITE_R2_TRANSPORT === "native";
   return {
     accountId,
     bucket,
@@ -56,15 +55,14 @@ export function mediaStorageDiagnostics() {
     endpointSource: process.env.R2_ENDPOINT ? "explicit" : "derived",
     accountIdFormatValid: /^[a-f0-9]{32}$/.test(accountId),
     bucketMatchesTarget: bucket === "radarsite-media",
-    credentialsPresent: nativeWorkersBinding || Boolean(process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY),
-    transport: nativeWorkersBinding ? "workers-binding" : "s3-compatible",
+    credentialsPresent: Boolean(process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY),
     endpointFormatValid: Boolean(parsed && parsed.protocol === "https:" && parsed.hostname === `${accountId}.r2.cloudflarestorage.com` && parsed.pathname === "/" && !parsed.search && !parsed.hash && !parsed.username && !parsed.password && !parsed.port),
     endpointMatchesDerivedAccount: endpoint === expectedEndpoint,
   };
 }
-function assertMediaStorageConfig(config: MediaStorageConfig) {
+function assertMediaStorageConfig(config: MediaStorageConfig, transport: R2Backend["transport"] = "s3-compatible") {
   const diagnostics = mediaStorageDiagnostics();
-  if (!diagnostics.accountIdFormatValid || !diagnostics.bucketMatchesTarget || !diagnostics.credentialsPresent || !diagnostics.endpointFormatValid) {
+  if (!diagnostics.accountIdFormatValid || !diagnostics.bucketMatchesTarget || (transport === "s3-compatible" && !diagnostics.credentialsPresent) || !diagnostics.endpointFormatValid) {
     throw new Error(`Invalid R2 configuration: ${JSON.stringify({ ...diagnostics, accountId: diagnostics.accountId ? "valid-format" : "missing", endpoint: diagnostics.endpoint ? "present" : "missing" })}`);
   }
   return config;
@@ -73,17 +71,15 @@ function client(config = mediaStorageConfig()) {
   return new S3Client({ region: "auto", endpoint: config.endpoint, forcePathStyle: false, credentials: { accessKeyId: required("R2_ACCESS_KEY_ID"), secretAccessKey: required("R2_SECRET_ACCESS_KEY") } });
 }
 async function nativeBucket(): Promise<NativeR2Bucket | undefined> {
-  if (process.env.RADARSITE_R2_TRANSPORT !== "native") return undefined;
+  let workerModule: { env: unknown };
   try {
     // @ts-expect-error -- supplied by the Cloudflare Vite/Vinext runtime, not by Vercel's Node runtime
-    const workerModule = await import("cloudflare:workers");
-    const bucket = (workerModule.env as unknown as { RADARSITE_MEDIA?: NativeR2Bucket }).RADARSITE_MEDIA;
-    if (!bucket) throw new Error("Native R2 binding RADARSITE_MEDIA is missing");
-    return bucket;
-  } catch (error) {
-    if (error instanceof Error && error.message.includes("Native R2 binding")) throw error;
-    throw new Error("Native R2 transport is enabled but the Cloudflare Workers binding API is unavailable");
-  }
+    workerModule = await import("cloudflare:workers");
+  } catch { return undefined; }
+  const environment = workerModule.env as { RADARSITE_MEDIA?: NativeR2Bucket; RADARSITE_R2_TRANSPORT?: string };
+  if (environment.RADARSITE_MEDIA) return environment.RADARSITE_MEDIA;
+  if (environment.RADARSITE_R2_TRANSPORT === "native") throw new Error("Native R2 binding RADARSITE_MEDIA is missing");
+  return undefined;
 }
 function etag(value?: string) { return value?.replaceAll('"', ""); }
 function checksumHex(value?: ArrayBuffer) { return value ? Buffer.from(value).toString("hex") : undefined; }
@@ -183,10 +179,11 @@ export function validateMediaDeliveryUrl(input: { key: string; url: string; conf
 
 export async function checkMediaStorage() {
   const diagnostics = mediaStorageDiagnostics();
-  const config = assertMediaStorageConfig(mediaStorageConfig());
+  const config = mediaStorageConfig();
   const storage = await backend(config);
+  assertMediaStorageConfig(config, storage.transport);
   await storage.check();
-  return { provider: config.provider, transport: storage.transport, bucket: config.bucket, endpoint: config.endpoint, publicBaseUrlConfigured: Boolean(config.publicBaseUrl), diagnostics: { accountIdFormatValid: diagnostics.accountIdFormatValid, bucketMatchesTarget: diagnostics.bucketMatchesTarget, credentialsPresent: diagnostics.credentialsPresent, endpointFormatValid: diagnostics.endpointFormatValid, endpointMatchesDerivedAccount: diagnostics.endpointMatchesDerivedAccount, endpointSource: diagnostics.endpointSource, transport: diagnostics.transport } };
+  return { provider: config.provider, transport: storage.transport, bucket: config.bucket, endpoint: config.endpoint, publicBaseUrlConfigured: Boolean(config.publicBaseUrl), diagnostics: { accountIdFormatValid: diagnostics.accountIdFormatValid, bucketMatchesTarget: diagnostics.bucketMatchesTarget, credentialsPresent: diagnostics.credentialsPresent, endpointFormatValid: diagnostics.endpointFormatValid, endpointMatchesDerivedAccount: diagnostics.endpointMatchesDerivedAccount, endpointSource: diagnostics.endpointSource, transport: storage.transport } };
 }
 
 export async function putMediaObject(input: { key: string; body: Uint8Array | Buffer; contentType: string; cacheControl?: string; metadata?: Record<string, string> }): Promise<StoredMedia> {
