@@ -1,46 +1,48 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("stayAKTiV events", () => {
-  test("homepage ticker uses the event copy, logo separators, and links to stayAKTiV", async ({ page }) => {
+  test("site navigation retains the stayAKTiV route", async ({ page }) => {
     await page.goto("/");
-    const ticker = page.locator(".ticker-surface a").first();
-    await expect(ticker).toHaveAttribute("href", "/stayaktiv");
-    await expect(ticker).toContainText("LIQUID CAFÉ, CITY PARK WUSE-ABUJA");
-    await expect(ticker).toContainText("10TH DECEMBER");
-    await expect(ticker).toContainText("6PM");
-    await expect(ticker.getByTestId("ticker-logo")).toHaveCount(24);
+    await page.getByRole("button", { name: "Open site navigation" }).click();
+    await expect(
+      page
+        .getByRole("navigation", { name: "Primary navigation" })
+        .getByRole("link", { name: "stayAKTiV" }),
+    ).toHaveAttribute("href", "/stayaktiv");
   });
 
-  test("renders the single active-event poster canvas", async ({ page }) => {
+  test("renders the current event archive and its featured poster", async ({ page }) => {
     const response = await page.goto("/stayaktiv");
     expect(response?.status()).toBe(200);
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("stayAKTiV");
-    await expect(page.getByTestId("floating-event-poster")).toBeVisible();
-    const heroPoster = page.getByAltText("OMAJI VERSE 2.0 event poster");
-    await expect(heroPoster).toBeVisible();
-    await expect(heroPoster).toHaveAttribute("src", /omaji-verse-2-hero\.jpg/);
-    await expect(page.getByText("The annual end of year clarion call.", { exact: true })).toBeVisible();
-    await expect(page.getByAltText("OMAJI VERSE 2.0 event highlights and venue details")).toBeVisible();
-    await expect(page.getByText("View more ↗", { exact: true })).toHaveCount(0);
-    await expect(page.getByRole("link", { name: "View more stayAKTiV events" })).toHaveAttribute("href", "/stayaktiv");
-    await expect(page.getByTitle("OMAJIVERSE Instagram post")).toHaveAttribute("src", "https://www.instagram.com/p/DffKokojWiY/embed");
-    await expect(page.getByTitle("OMAJIVERSE Spotify playlist")).toHaveAttribute("src", "https://open.spotify.com/embed/playlist/7EiR4j5BTDjgBkB1PYtsNm?utm_source=generator&theme=0");
-    const pageOrder = await page.locator("main").evaluate((main) =>
-      Array.from(main.children).map((child) => child.getAttribute("aria-label") || child.tagName),
+    await expect(page.getByRole("heading", { level: 1, name: /stay\s*AKTiV/i })).toBeVisible();
+    await expect(page.getByRole("region", { name: /stay\s*AKTiV/i })).toBeVisible();
+    await expect(page.getByRole("img", { name: "OMAJI VERSE 2.0", exact: true })).toHaveCount(2);
+    await expect(page.getByRole("img", { name: "THE LAST THURSDAYS", exact: true })).toHaveCount(2);
+    await expect(page.getByRole("img", { name: "RELEASE RADAR REEL", exact: true })).toHaveCount(2);
+    const poster = page.getByRole("img", { name: "OMAJI VERSE 2.0 event poster" });
+    await expect(poster).toBeVisible();
+    await expect(poster).toHaveAttribute("src", /omaji-verse-2-poster\.png/);
+    await expect(
+      page.getByText("The annual end of year clarion call by Abuja’s renowned artist, OMAJI.", {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(page.getByText("LIQUID CAFÉ / CITY PARK WUSE, ABUJA")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Open OMAJIVERSE" })).toHaveAttribute(
+      "href",
+      "/omajiverse",
     );
-    expect(pageOrder.indexOf("Event actions")).toBeGreaterThan(pageOrder.indexOf("OMAJIVERSE hero"));
-    expect(pageOrder.indexOf("Featured event")).toBeGreaterThan(pageOrder.indexOf("Event actions"));
-    expect(pageOrder.indexOf("Event countdown")).toBeGreaterThan(pageOrder.indexOf("Featured event"));
-    expect(pageOrder.indexOf("OMAJIVERSE Instagram post")).toBeGreaterThan(pageOrder.indexOf("Event countdown"));
-    expect(pageOrder.indexOf("OMAJIVERSE Spotify playlist")).toBeGreaterThan(pageOrder.indexOf("OMAJIVERSE Instagram post"));
-    expect(pageOrder.indexOf("More promoted events")).toBe(pageOrder.length - 1);
-    await expect(page.getByTitle("OMAJIVERSE Instagram post")).toHaveAttribute("loading", "lazy");
-    await expect(page.getByTitle("OMAJIVERSE Spotify playlist")).toHaveAttribute("loading", "lazy");
   });
 
   test("opens the promoted event brief", async ({ page }) => {
     await page.goto("/stayaktiv/events/omaji-verse-2");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("OMAJI VERSE 2.0");
-    await expect(page.getByRole("heading", { name: "Highlights." })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("OMAJIVERSE event");
+    await expect(
+      page.getByRole("heading", { name: "The annual end of year clarion call." }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "View more stayAKTiV events" })).toHaveAttribute(
+      "href",
+      "/stayaktiv",
+    );
   });
 });

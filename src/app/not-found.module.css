@@ -1,0 +1,78 @@
+.page {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100svh;
+  overflow: hidden;
+  background: #050505;
+}
+
+.backgroundImage {
+  z-index: 0;
+  object-fit: cover;
+  object-position: center 50%;
+}
+
+.scrim {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgb(0 0 0 / 16%) 0%,
+    transparent 23%,
+    transparent 62%,
+    rgb(0 0 0 / 38%) 100%
+  );
+  pointer-events: none;
+}
+
+.fallback {
+  position: absolute;
+  z-index: 2;
+  bottom: max(2rem, calc(env(safe-area-inset-bottom) + 1.25rem));
+  left: 50%;
+  display: inline-flex;
+  min-height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  border: 2px solid var(--ink);
+  padding: 0.8rem 1.25rem;
+  background: var(--flare);
+  box-shadow: 4px 4px 0 var(--ink);
+  color: var(--paper);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+  transition: box-shadow 180ms ease, transform 180ms ease, filter 180ms ease;
+  white-space: nowrap;
+}
+
+.fallback:hover {
+  box-shadow: 2px 2px 0 var(--ink);
+  filter: brightness(1.1);
+  transform: translate(calc(-50% + 2px), 2px);
+}
+
+.fallback:focus-visible {
+  outline: 3px solid var(--paper);
+  outline-offset: 5px;
+}
+
+@media (min-aspect-ratio: 4 / 3) {
+  .backgroundImage {
+    object-position: center 42%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fallback {
+    transition: none;
+  }
+}

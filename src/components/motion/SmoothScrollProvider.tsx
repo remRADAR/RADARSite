@@ -27,6 +27,13 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
 
     lenis.on("scroll", ScrollTrigger.update);
 
+    const onMenuScrollLock = (event: Event) => {
+      if ((event as CustomEvent<boolean>).detail) lenis.stop();
+      else lenis.start();
+    };
+    window.addEventListener("radar:menu-scroll-lock", onMenuScrollLock);
+    if (document.documentElement.dataset.motionMenuOpen === "true") lenis.stop();
+
     const onTick = (time: number) => {
       lenis.raf(time * 1000);
     };
@@ -36,6 +43,7 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
     gsap.ticker.lagSmoothing(1000, 16);
 
     return () => {
+      window.removeEventListener("radar:menu-scroll-lock", onMenuScrollLock);
       gsap.ticker.remove(onTick);
       lenis.destroy();
     };
