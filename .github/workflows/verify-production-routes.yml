@@ -26,7 +26,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24.22.1
           cache: npm
 
       - name: Wait for production to serve the new deployment
