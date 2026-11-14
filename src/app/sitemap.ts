@@ -4,6 +4,7 @@ import { absoluteUrl } from "@/lib/seo";
 import { caseStudies } from "@/lib/case-studies";
 import { articleCategories, categorySlug, pageCount } from "@/lib/article-taxonomy";
 import { EDITORIAL_ARCHIVE_PAGE_SIZE, recordsForEditorialType } from "@/lib/editorial-archives";
+import { getTrackStories } from "@/lib/track-story";
 export const revalidate = 3600;
 
 // These CMS rows are currently present in the runtime feed but resolve to 404.
@@ -15,8 +16,10 @@ export const SITEMAP_EXCLUDED_ARTICLE_SLUGS = new Set([
 ]);
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { articles, artists, events, magazine, radarProjects, releases } = await readPublicContent();
-  const routes = ["/", "/radarmusic", "/radarmusic/artists", "/radarmusic/releases", "/ontheradar", "/ontheradar/articles", "/ontheradar/magazine", "/ontheradar/projects", "/stayaktiv", "/omajiverse", "/work", "/about", "/remradar", "/about/ecosystem", "/motherland", "/privacy", "/terms"];
+  const content = await readPublicContent();
+  const { articles, artists, events, magazine, radarProjects, releases } = content;
+  const tracks = getTrackStories(content);
+  const routes = ["/", "/radarmusic", "/radarmusic/artists", "/radarmusic/releases", "/radarmusic/tracks", "/ontheradar", "/ontheradar/articles", "/ontheradar/magazine", "/ontheradar/projects", "/stayaktiv", "/omajiverse", "/work", "/about", "/remradar", "/about/ecosystem", "/motherland", "/privacy", "/terms"];
   const date = (item: unknown) => {
     const record = item && typeof item === "object" ? item as Record<string, unknown> : {};
     const raw = record.updatedAt || record.sourceModifiedAt || record.modifiedAt || record.publishedAt;
@@ -38,6 +41,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const total = pageCount(articles.filter((article) => articleCategories(article).some((value) => value.toLowerCase() === label.toLowerCase())).length);
     return Array.from({ length: total }, (_, index) => entry(`/ontheradar/articles/category/${categorySlug(label)}/page/${index + 1}`));
   });
-  const allEntries = [...routes.map((route) => entry(route)), ...editorialArchives, ...categoryArchives, ...artists.map((item) => entry(`/radarmusic/artists/${item.slug}`, item)), ...releases.map((item) => entry(`/radarmusic/releases/${item.slug}`, item)), ...articleEntries, ...magazine.map((item) => entry(`/ontheradar/magazine/${item.slug}`, item)), ...radarProjects.map((item) => entry(`/ontheradar/projects/${item.slug}`, item)), ...(events.length ? [entry("/omajiverse", events[0])] : []), ...caseStudies.filter((item) => item.slug !== "luna-vale-first-light").map((item) => entry(`/work/${item.slug}`, item))];
+  const allEntries = [...routes.map((route) => entry(route)), ...editorialArchives, ...categoryArchives, ...artists.map((item) => entry(`/radarmusic/artists/${item.slug}`, item)), ...releases.map((item) => entry(`/radarmusic/releases/${item.slug}`, item)), ...tracks.map((item) => entry(`/radarmusic/tracks/${item.slug}`, item)), ...articleEntries, ...magazine.map((item) => entry(`/ontheradar/magazine/${item.slug}`, item)), ...radarProjects.map((item) => entry(`/ontheradar/projects/${item.slug}`, item)), ...(events.length ? [entry("/omajiverse", events[0])] : []), ...caseStudies.filter((item) => item.slug !== "luna-vale-first-light").map((item) => entry(`/work/${item.slug}`, item))];
   return [...new Map(allEntries.map((item) => [item.url, item])).values()];
 }
