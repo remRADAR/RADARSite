@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { contentCacheTag, hasContentDatabase, normalizeContent, readContent, writeContent } from "@/lib/content-server";
 import { getSessionCookieName, isSessionValid } from "@/lib/studio-server";
-import { getTrackStories, normalizeTrackStory } from "@/lib/track-story";
+import { getAllTrackStories, normalizeTrackStory, TrackStoryValidationError } from "@/lib/track-story";
 import { isSameOriginMutation, rateLimit } from "@/lib/request-security";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
   if (!authorized(request)) return json({ error: "Admin authentication required" }, { status: 401 });
   const limited = rateLimit(request, "studio-track-read", 100); if (!limited.allowed) return json({ error: "Too many requests" }, { status: 429 });
   const content = await readContent();
-  return json({ tracks: getTrackStories(content) });
+  return json({ tracks: getAllTrackStories(content) });
 }
 
 export async function PUT(request: NextRequest) {
@@ -27,13 +27,12 @@ export async function PUT(request: NextRequest) {
     const current = await readContent();
     const currentTracks = current.tracks || [];
     const existing = currentTracks.find((item) => item.slug === text((body.track as Record<string, unknown>).slug) || item.id === text((body.track as Record<string, unknown>).id));
-    const track = normalizeTrackStory(body.track, existing || undefined);
-    if (!track.slug || !track.spotifyTrackId || !track.title || !track.artistName) return json({ error: "Title, artist, slug, and Spotify track ID are required" }, { status: 400 });
+    const track = normalizeTrackStory(body.track);
     const duplicate = currentTracks.some((item) => item.slug === track.slug && item.id !== track.id);
     if (duplicate) return json({ error: "Another TrackStory already uses this slug" }, { status: 409 });
     const tracks = existing ? currentTracks.map((item) => item.id === existing.id ? track : item) : [...currentTracks, track];
     await writeContent(normalizeContent({ ...current, tracks }));
     revalidateTag(contentCacheTag(), { expire: 0 });
     return json({ saved: true, track });
-  } catch (error) { return json({ error: error instanceof Error ? error.message : "Unable to save TrackStory" }, { status: 400 }); }
+  } catch (error) { const errors = error instanceof TrackStoryValidationError ? error.errors : [error instanceof Error ? error.message : "Unable to save TrackStory"]; return json({ error: errors.join(" "), errors }, { status: 400 }); }
 }

@@ -1,107 +1,61 @@
 import type { CmsRecord, ContentCollections } from "@/lib/content-server";
 
-export type StorySyncCard = {
-  id: string;
-  atSeconds: number;
-  title: string;
-  body: string;
-  mediaUrl?: string;
-  sourceUrl?: string;
-};
+export type StorySyncCard = { id: string; atSeconds: number; title: string; body: string; mediaUrl?: string; sourceUrl?: string };
+export type TrackStory = CmsRecord & { slug: string; title: string; artistName: string; artistSlug?: string; releaseTitle?: string; releaseSlug?: string; spotifyTrackId: string; description?: string; background?: string; productionCredits?: string[]; contributors?: string[]; sourceUrls?: string[]; relatedArticleSlugs?: string[]; storySyncCards: StorySyncCard[] };
 
-export type TrackStory = CmsRecord & {
-  slug: string;
-  title: string;
-  artistName: string;
-  artistSlug?: string;
-  releaseTitle?: string;
-  releaseSlug?: string;
-  spotifyTrackId: string;
-  description?: string;
-  background?: string;
-  productionCredits?: string[];
-  contributors?: string[];
-  sourceUrls?: string[];
-  relatedArticleSlugs?: string[];
-  storySyncCards: StorySyncCard[];
-};
+const MAX_CARDS = 100;
+const SPOTIFY_TRACK_ID = /^[A-Za-z0-9]{22}$/;
+const STATUS_VALUES = new Set(["draft", "published", "archived"]);
 
-const seedTrack: TrackStory = {
-  id: "track-mind-r33nzo",
-  sourceProvider: "radarsite",
-  slug: "mind-r33nzo",
-  title: "M I N D",
-  artistName: "R33nzo",
-  artistSlug: "r33nzo",
-  spotifyTrackId: "23PBTJplLcKv16Wv8xJ68a",
-  description: "A track-centred listening note for a record built around memory, attachment, and emotional preservation.",
-  background: "The record turns personal loss into an intimate sonic document, holding its tension between fracture and surrender.",
-  productionCredits: ["Production details pending editorial confirmation"],
-  contributors: ["Artsalghul"],
-  sourceUrls: ["https://open.spotify.com/track/23PBTJplLcKv16Wv8xJ68a"],
-  relatedArticleSlugs: [],
-  storySyncCards: [
-    { id: "opening", atSeconds: 0, title: "Enter the memory", body: "The opening establishes the emotional room before the record starts to explain itself." },
-    { id: "fracture", atSeconds: 28, title: "Fracture / surrender", body: "Listen for the shift between emotional fracture and emotional surrender." },
-    { id: "afterimage", atSeconds: 66, title: "The afterimage", body: "The track keeps loss present without forcing a resolution." },
-  ],
-  status: "published",
-  date: "2026-01-01",
-};
+export class TrackStoryValidationError extends Error { constructor(public readonly errors: string[]) { super(errors.join(" ")); this.name = "TrackStoryValidationError"; } }
+function text(value: unknown, field: string, max: number, errors: string[]) { if (typeof value !== "string") { errors.push(`${field} is required.`); return ""; } const result = value.trim(); if (!result) errors.push(`${field} is required.`); if (result.length > max) errors.push(`${field} must be ${max} characters or fewer.`); return result; }
+function optionalText(value: unknown, max: number) { return typeof value === "string" ? value.trim().slice(0, max) : ""; }
+function list(value: unknown, maxItems: number, maxLength: number) { return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string").map((item) => item.trim().slice(0, maxLength)).filter(Boolean).slice(0, maxItems) : []; }
+function validUrl(value: string) { try { const url = new URL(value); return url.protocol === "https:"; } catch { return false; } }
+function validSlug(value: string) { return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value) && value.length <= 180; }
 
-function cleanText(value: unknown, max = 2000) { return typeof value === "string" ? value.trim().slice(0, max) : ""; }
-function cleanList(value: unknown, max = 40) { return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string").map((item) => cleanText(item, 300)).filter(Boolean).slice(0, max) : []; }
-
-export function normalizeStorySyncCards(value: unknown): StorySyncCard[] {
+export function normalizeStorySyncCards(value: unknown, errors: string[] = []): StorySyncCard[] {
   if (!Array.isArray(value)) return [];
-  return value.map((item, index) => {
+  if (value.length > MAX_CARDS) errors.push(`StorySync cards cannot exceed ${MAX_CARDS}.`);
+  const ids = new Set<string>();
+  const cards = value.slice(0, MAX_CARDS).map((item, index) => {
     const input = item && typeof item === "object" ? item as Record<string, unknown> : {};
-    const atSeconds = Number(input.atSeconds);
-    return { id: cleanText(input.id, 80) || `card-${index + 1}`, atSeconds: Number.isFinite(atSeconds) ? Math.max(0, Math.round(atSeconds * 10) / 10) : 0, title: cleanText(input.title, 160) || "Untitled card", body: cleanText(input.body, 1200), ...(cleanText(input.mediaUrl, 2000) ? { mediaUrl: cleanText(input.mediaUrl, 2000) } : {}), ...(cleanText(input.sourceUrl, 2000) ? { sourceUrl: cleanText(input.sourceUrl, 2000) } : {}) };
-  }).sort((a, b) => a.atSeconds - b.atSeconds).slice(0, 100);
+    const id = text(input.id, `StorySync card ${index + 1} ID`, 80, errors);
+    const timestamp = typeof input.atSeconds === "number" ? input.atSeconds : Number(input.atSeconds);
+    if (!Number.isFinite(timestamp) || timestamp < 0) errors.push(`StorySync card ${index + 1} timestamp must be a finite, non-negative number.`);
+    if (id && ids.has(id)) errors.push(`StorySync card ID "${id}" is duplicated.`);
+    if (id) ids.add(id);
+    const title = text(input.title, `StorySync card ${index + 1} title`, 160, errors);
+    const body = text(input.body, `StorySync card ${index + 1} body`, 1200, errors);
+    const mediaUrl = optionalText(input.mediaUrl, 2000);
+    const sourceUrl = optionalText(input.sourceUrl, 2000);
+    if (mediaUrl && !validUrl(mediaUrl)) errors.push(`StorySync card ${index + 1} media URL must be HTTPS.`);
+    if (sourceUrl && !validUrl(sourceUrl)) errors.push(`StorySync card ${index + 1} source URL must be HTTPS.`);
+    return { id, atSeconds: Math.round(Math.max(0, timestamp || 0) * 10) / 10, title, body, ...(mediaUrl ? { mediaUrl } : {}), ...(sourceUrl ? { sourceUrl } : {}) };
+  });
+  return cards.sort((a, b) => a.atSeconds - b.atSeconds);
 }
 
-export function normalizeTrackStory(input: unknown, fallback = seedTrack): TrackStory {
+export function normalizeTrackStory(input: unknown): TrackStory {
   const value = input && typeof input === "object" ? input as Record<string, unknown> : {};
-  const title = cleanText(value.title, 300) || fallback.title;
-  const slug = cleanText(value.slug, 180) || fallback.slug;
-  const spotifyTrackId = cleanText(value.spotifyTrackId, 100).replace(/[^A-Za-z0-9]/g, "");
-  return {
-    ...fallback,
-    ...value,
-    id: cleanText(value.id, 120) || fallback.id,
-    sourceProvider: cleanText(value.sourceProvider, 80) || "radarsite",
-    slug,
-    title,
-    name: title,
-    artistName: cleanText(value.artistName, 300) || fallback.artistName,
-    artistSlug: cleanText(value.artistSlug, 180) || undefined,
-    releaseTitle: cleanText(value.releaseTitle, 300) || undefined,
-    releaseSlug: cleanText(value.releaseSlug, 180) || undefined,
-    spotifyTrackId: spotifyTrackId || fallback.spotifyTrackId,
-    description: cleanText(value.description, 3000),
-    background: cleanText(value.background, 6000),
-    productionCredits: cleanList(value.productionCredits),
-    contributors: cleanList(value.contributors),
-    sourceUrls: cleanList(value.sourceUrls, 20),
-    relatedArticleSlugs: cleanList(value.relatedArticleSlugs, 50),
-    storySyncCards: normalizeStorySyncCards(value.storySyncCards),
-    status: value.status === "draft" || value.status === "archived" ? value.status : "published",
-  };
+  const errors: string[] = [];
+  const title = text(value.title, "Track title", 300, errors);
+  const artistName = text(value.artistName, "Artist name", 300, errors);
+  const slug = text(value.slug, "Track slug", 180, errors);
+  const spotifyTrackId = text(value.spotifyTrackId, "Spotify track ID", 22, errors);
+  if (slug && !validSlug(slug)) errors.push("Track slug must contain lowercase letters, numbers, and hyphens only.");
+  if (spotifyTrackId && !SPOTIFY_TRACK_ID.test(spotifyTrackId)) errors.push("Spotify track ID must be a 22-character Spotify identifier.");
+  const status = value.status === undefined ? "draft" : String(value.status);
+  if (!STATUS_VALUES.has(status)) errors.push("Track status must be draft, published, or archived.");
+  const sourceUrls = list(value.sourceUrls, 20, 2000);
+  const relatedArticleSlugs = list(value.relatedArticleSlugs, 50, 180);
+  sourceUrls.forEach((url) => { if (!validUrl(url)) errors.push(`Source URL must be HTTPS: ${url}`); });
+  const storySyncCards = normalizeStorySyncCards(value.storySyncCards, errors);
+  if (errors.length) throw new TrackStoryValidationError(errors);
+  return { ...(value as CmsRecord), id: optionalText(value.id, 120) || `studio-${crypto.randomUUID()}`, sourceProvider: optionalText(value.sourceProvider, 80) || "radarsite", slug, title, name: title, artistName, artistSlug: optionalText(value.artistSlug, 180) || undefined, releaseTitle: optionalText(value.releaseTitle, 300) || undefined, releaseSlug: optionalText(value.releaseSlug, 180) || undefined, spotifyTrackId, description: optionalText(value.description, 3000), background: optionalText(value.background, 6000), productionCredits: list(value.productionCredits, 40, 300), contributors: list(value.contributors, 40, 300), sourceUrls, relatedArticleSlugs, storySyncCards, status: status as TrackStory["status"], date: optionalText(value.date, 100) || new Date().toISOString().slice(0, 10) };
 }
 
-export function getTrackStories(content: ContentCollections): TrackStory[] {
-  const records = Array.isArray(content.tracks) ? content.tracks : [];
-  const normalized = records.map((item) => normalizeTrackStory(item));
-  const bySlug = new Map(normalized.map((item) => [item.slug, item]));
-  if (!bySlug.has(seedTrack.slug)) bySlug.set(seedTrack.slug, seedTrack);
-  return [...bySlug.values()].filter((item) => item.status !== "draft" && item.status !== "archived");
-}
-
+export function getAllTrackStories(content: ContentCollections): TrackStory[] { return (content.tracks || []).flatMap((record) => { try { return [normalizeTrackStory(record)]; } catch { return []; } }); }
+export function getTrackStories(content: ContentCollections): TrackStory[] { return getAllTrackStories(content).filter((item) => item.status === "published"); }
 export function trackPath(track: Pick<TrackStory, "slug">) { return `/radarmusic/tracks/${encodeURIComponent(track.slug)}`; }
-
-export function musicRecordingStructuredData(track: TrackStory, canonicalUrl: string) {
-  return { "@context": "https://schema.org", "@type": "MusicRecording", "@id": `${canonicalUrl}#recording`, name: track.title, url: canonicalUrl, byArtist: { "@type": "MusicGroup", name: track.artistName, ...(track.artistSlug ? { url: `/radarmusic/artists/${track.artistSlug}` } : {}) }, ...(track.releaseTitle ? { inAlbum: { "@type": "MusicAlbum", name: track.releaseTitle, ...(track.releaseSlug ? { url: `/radarmusic/releases/${track.releaseSlug}` } : {}) } } : {}), sameAs: track.sourceUrls?.filter((url) => /^https:\/\//.test(url)), description: track.description || track.background };
-}
-
-export function trackStoryPayload(tracks: unknown[]) { return tracks.map((track) => normalizeTrackStory(track)); }
+export function musicRecordingStructuredData(track: TrackStory, canonicalUrl: string) { return { "@context": "https://schema.org", "@type": "MusicRecording", "@id": `${canonicalUrl}#recording`, name: track.title, url: canonicalUrl, byArtist: { "@type": "MusicGroup", name: track.artistName, ...(track.artistSlug ? { url: `/radarmusic/artists/${track.artistSlug}` } : {}) }, ...(track.releaseTitle ? { inAlbum: { "@type": "MusicAlbum", name: track.releaseTitle, ...(track.releaseSlug ? { url: `/radarmusic/releases/${track.releaseSlug}` } : {}) } } : {}), sameAs: track.sourceUrls, description: track.description || track.background }; }
