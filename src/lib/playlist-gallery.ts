@@ -25,6 +25,7 @@ export const playlistGalleryItems: PlaylistGalleryItem[] = [
   { src: "/images/radarmusic/playlists/editorial-4.webp", label: "Editorial Playlist 04", category: "editorial" },
   { src: "/images/radarmusic/playlists/editorial-5.webp", label: "Editorial Playlist 05", category: "editorial" },
   { src: "/images/radarmusic/playlists/editorial-8.webp", label: "Editorial Playlist 08", category: "editorial" },
+  { src: "/images/radarmusic/playlists/legacy-code-plus-base.webp", label: "Legacy Code+ Playlist / Base", category: "legacy-code-plus" },
   ...Array.from({ length: 24 }, (_, index) => index + 1).filter((index) => ![13, 14, 22].includes(index)).flatMap((index) => {
     const suffix = String(index);
     return [
