@@ -14,7 +14,7 @@ export const metadata = buildPageMetadata({
   title: "MOTHERLand",
   description: "Music To Her. Stories, artists, and conversations centered on the women moving culture forward.",
   path: "/motherland",
-  image: "/motherland/featured.gif",
+  image: "/motherland/banner.png",
 });
 
 // MOTHERLand ticker — same surface treatment as the homepage hero ticker
@@ -32,8 +32,8 @@ export default async function MotherlandPage() {
       <StructuredData data={breadcrumbStructuredData([{ name: "Home", path: "/" }, { name: "MOTHERLand", path: "/motherland" }])} />
       <section aria-label="MOTHERLand hero" className="relative h-[calc(100svh-3.5rem)] min-h-[20rem] w-full overflow-hidden border-y-2 border-ink bg-ink">
         <Image
-          src="/motherland/featured.gif"
-          alt="Aerial view of a dense tropical forest surrounding a turquoise lake"
+          src="/motherland/banner.png"
+          alt="The Motherland RADAR banner showing a market circle and women in colorful dress"
           fill
           sizes="100vw"
           unoptimized
