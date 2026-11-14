@@ -1,123 +1,120 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { playlistGalleryItems } from "@/lib/playlist-gallery";
 import styles from "./PlaylistTunnelGallery.module.css";
 
-const TAU = Math.PI * 2;
-const SPIRAL_TURNS = 2;
-const DEPTH_RANGE = 58;
-const CARD_COUNT = playlistGalleryItems.length;
+const wrapIndex = (index: number, total: number) => (index % total + total) % total;
 
-function wrap(value: number) {
-  return ((value % 1) + 1) % 1;
+function getDistance(index: number, activeIndex: number, total: number) {
+  const forward = wrapIndex(index - activeIndex, total);
+  const backward = wrapIndex(activeIndex - index, total);
+  return forward <= backward ? forward : -backward;
 }
 
 export function PlaylistTunnelGallery() {
-  const viewportRef = useRef<HTMLDivElement>(null);
-  const targetRef = useRef(0);
-  const currentRef = useRef(0);
-  const dragRef = useRef({ active: false, lastY: 0 });
-  const [scrollPosition, setScrollPosition] = useState(0);
-  const [reducedMotion, setReducedMotion] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const dragRef = useRef({ active: false, startX: 0, lastX: 0 });
+  const wheelRef = useRef(0);
+  const lastWheelRef = useRef(0);
+  const total = playlistGalleryItems.length;
+
+  const moveBy = useCallback((amount: number) => {
+    setActiveIndex((current) => wrapIndex(current + amount, total));
+  }, [total]);
 
   useEffect(() => {
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReducedMotion(media.matches);
-    update();
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
-
-  useEffect(() => {
-    let frame = 0;
-    const tick = () => {
-      const next = currentRef.current + (targetRef.current - currentRef.current) * (reducedMotion ? 1 : 0.085);
-      currentRef.current = next;
-      setScrollPosition(next);
-      if (Math.abs(targetRef.current - next) > 0.0005) frame = requestAnimationFrame(tick);
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "ArrowLeft") moveBy(-1);
+      if (event.key === "ArrowRight") moveBy(1);
     };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [reducedMotion]);
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [moveBy]);
 
-  const move = (amount: number) => {
-    targetRef.current += amount;
-    if (reducedMotion) {
-      currentRef.current = targetRef.current;
-      setScrollPosition(targetRef.current);
+  const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
+    const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+    if (Math.abs(delta) < 1) return;
+    event.preventDefault();
+    wheelRef.current += delta;
+    const now = Date.now();
+    if (Math.abs(wheelRef.current) > 45 && now - lastWheelRef.current > 260) {
+      moveBy(wheelRef.current > 0 ? 1 : -1);
+      wheelRef.current = 0;
+      lastWheelRef.current = now;
     }
   };
 
-  const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    move(event.deltaY * 0.0018);
-  };
-
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (event.pointerType === "touch") return;
-    dragRef.current = { active: true, lastY: event.clientY };
+    dragRef.current = { active: true, startX: event.clientX, lastX: event.clientX };
     event.currentTarget.setPointerCapture(event.pointerId);
   };
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!dragRef.current.active) return;
-    move((dragRef.current.lastY - event.clientY) * 0.0035);
-    dragRef.current.lastY = event.clientY;
+    dragRef.current.lastX = event.clientX;
   };
 
   const stopDragging = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current.active) return;
+    const distance = dragRef.current.lastX - dragRef.current.startX;
     dragRef.current.active = false;
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    if (Math.abs(distance) > 36) moveBy(distance < 0 ? 1 : -1);
   };
 
-  const cards = useMemo(
-    () => playlistGalleryItems.map((item, index) => {
-      const depth = wrap(index / CARD_COUNT + scrollPosition);
-      const angle = index / CARD_COUNT * TAU + scrollPosition * TAU * SPIRAL_TURNS;
-      const ring = 8 + depth * 58;
-      const x = Math.cos(angle) * ring;
-      const y = Math.sin(angle) * ring * 0.58;
-      const z = (0.5 - depth) * DEPTH_RANGE;
-      const scale = 0.58 + depth * 0.92;
-      const opacity = depth < 0.06 ? depth / 0.06 : depth > 0.93 ? (1 - depth) / 0.07 : 1;
-      return {
-        ...item,
-        style: {
-          "--x": `${x}%`,
-          "--y": `${y}%`,
-          "--z": `${z}rem`,
-          "--scale": scale,
-          "--opacity": Math.max(0, Math.min(1, opacity)),
-          "--rotate": `${angle * 180 / Math.PI + 90}deg`,
-        } as React.CSSProperties,
-      };
-    }),
-    [scrollPosition],
-  );
+  const slides = useMemo(() => playlistGalleryItems.map((item, index) => ({
+    ...item,
+    distance: getDistance(index, activeIndex, total),
+  })), [activeIndex, total]);
 
   return (
-    <section className={styles.gallery} aria-label="RADARMusic playlist covers">
+    <section className={styles.gallery} aria-labelledby="playlist-gallery-title">
+      <div className={styles.intro}>
+        <div>
+          <p className={styles.eyebrow}>RADARMusic / Playlists</p>
+          <h1 id="playlist-gallery-title">Playlist archive</h1>
+        </div>
+        <p className={styles.instructions}>Swipe, scroll, or use the arrow keys to move through the stack.</p>
+      </div>
       <div
-        ref={viewportRef}
-        className={styles.viewport}
+        className={styles.slider}
         onWheel={handleWheel}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={stopDragging}
         onPointerCancel={stopDragging}
-        onPointerLeave={stopDragging}
-        role="application"
-        aria-label="Interactive playlist cover tunnel"
+        role="region"
+        aria-label="RADARMusic playlist cover slider"
       >
-        <div className={styles.cards}>
-          {cards.map((item) => (
-            <figure key={`${item.category}-${item.src}`} className={styles.card} style={item.style}>
-              <Image src={item.src} alt="" fill sizes="(max-width: 700px) 34vw, 240px" priority={false} />
-            </figure>
-          ))}
+        <div className={styles.track}>
+          {slides.map((item, index) => {
+            const distance = item.distance;
+            const visible = Math.abs(distance) <= 3;
+            return (
+              <a
+                key={`${item.category}-${item.src}`}
+                href="#"
+                className={`${styles.slide} ${visible ? styles[`distance${distance}`] : styles.hidden}`}
+                aria-label={`${item.label} link placeholder`}
+                onClick={(event) => {
+                  event.preventDefault();
+                  if (distance !== 0) moveBy(distance);
+                }}
+              >
+                <Image src={item.src} alt={item.label} fill sizes="(max-width: 700px) 62vw, 30vw" priority={index < 3} />
+              </a>
+            );
+          })}
         </div>
+        <button type="button" className={`${styles.control} ${styles.previous}`} onClick={() => moveBy(-1)} aria-label="Previous playlist">←</button>
+        <button type="button" className={`${styles.control} ${styles.next}`} onClick={() => moveBy(1)} aria-label="Next playlist">→</button>
+      </div>
+      <div className={styles.meta} aria-live="polite">
+        <span>{String(activeIndex + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}</span>
+        <span>{playlistGalleryItems[activeIndex]?.label}</span>
+        <span>Link placeholder</span>
       </div>
     </section>
   );
