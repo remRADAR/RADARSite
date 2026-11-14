@@ -4,8 +4,8 @@ import { PlaylistTunnelGallery } from "@/components/marketing/PlaylistTunnelGall
 import { buildPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Playlists",
-  description: "Enter the RADARMusic playlist tunnel: an immersive archive of covers moving through the signal.",
+  title: "RADARPlaylists",
+  description: "RADARPlaylists — playlist covers from RADARMusic.",
   path: "/radarmusic/artists",
 });
 
@@ -13,13 +13,13 @@ export default function PlaylistsPage() {
   return (
     <>
       <ArchiveStructuredData
-        name="RADARMusic Playlists"
-        description="An immersive RADARMusic playlist-cover archive moving through the signal."
+        name="RADARPlaylists"
+        description="RADARPlaylists — playlist covers from RADARMusic."
         path="/radarmusic/artists"
         breadcrumbs={[
           { name: "Home", path: "/" },
           { name: "RADARMusic", path: "/radarmusic" },
-          { name: "Playlists", path: "/radarmusic/artists" },
+          { name: "RADARPlaylists", path: "/radarmusic/artists" },
         ]}
       />
       <PlaylistTunnelGallery />
