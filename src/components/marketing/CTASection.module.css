@@ -33,14 +33,36 @@
 
 .communityLink {
   display: block;
-  height: clamp(8rem, 18vw, 12rem);
-  width: clamp(8rem, 18vw, 12rem);
-  transition: transform 180ms ease;
+  height: clamp(10rem, 20vw, 14rem);
+  isolation: isolate;
+  position: relative;
+  width: clamp(10rem, 20vw, 14rem);
+  transition: transform 260ms cubic-bezier(.22, 1, .36, 1), filter 260ms ease;
+}
+
+.communityLink::before {
+  background: radial-gradient(circle, rgb(255 239 139 / 0.88) 0%, rgb(255 196 55 / 0.36) 28%, transparent 68%);
+  border-radius: 50%;
+  content: "";
+  inset: 17%;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  transform: scale(0.55);
+  transition: opacity 260ms ease, transform 420ms cubic-bezier(.22, 1, .36, 1);
+  z-index: -1;
 }
 
 .communityLink:hover,
 .communityLink:focus-visible {
-  transform: translateY(-0.35rem) rotate(-2deg);
+  filter: drop-shadow(0 0 0.5rem rgb(255 220 95 / 0.72));
+  transform: translateY(-0.35rem) rotate(-2deg) scale(1.04);
+}
+
+.communityLink:hover::before,
+.communityLink:focus-visible::before {
+  opacity: 1;
+  transform: scale(1.12);
 }
 
 .communityImage {
@@ -85,5 +107,12 @@
 
   .contact {
     margin-top: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .communityLink,
+  .communityLink::before {
+    transition: none;
   }
 }
