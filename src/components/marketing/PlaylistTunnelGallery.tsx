@@ -126,7 +126,7 @@ export function PlaylistTunnelGallery() {
           ))}
         </div>
         <div className={styles.centerMark} aria-hidden="true">∞</div>
-        <p className={styles.coordinates} aria-hidden="true">44 covers / endless rotation</p>
+        <p className={styles.coordinates} aria-hidden="true">{CARD_COUNT} covers / endless rotation</p>
       </div>
       <p className={styles.fallback}>Playlist cover archive — {playlistGalleryItems.length} covers. Use the pointer, wheel, or touch gesture to explore.</p>
     </section>
