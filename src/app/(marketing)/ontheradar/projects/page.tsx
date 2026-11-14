@@ -25,8 +25,8 @@ const brandProjects: BrandProject[] = [
     title: "THE MOTHERLand",
     eyebrow: "RADAR project / 01",
     description: "Music To Her. Stories, artists, and conversations centered on the women moving culture forward.",
-    image: "/motherland/featured.gif",
-    alt: "Aerial view of a dense tropical forest surrounding a turquoise lake",
+    image: "/motherland/banner.png",
+    alt: "The Motherland RADAR banner showing a market circle and women in colorful dress",
     href: "/motherland",
     status: "Live archive",
   },
@@ -42,7 +42,7 @@ const brandProjects: BrandProject[] = [
 
 function ProjectVisual({ project }: { project: BrandProject }) {
   return (
-    <div className="relative aspect-[4/3] overflow-hidden border-b-2 border-ink bg-ink">
+    <div className="relative aspect-[16/9] overflow-hidden border-b-2 border-ink bg-ink">
       <Image
         src={project.image}
         alt={project.alt}
