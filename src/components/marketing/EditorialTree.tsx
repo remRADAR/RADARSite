@@ -168,15 +168,15 @@ export function EditorialTree({ posts }: EditorialTreeProps) {
   return (
     <section className="bg-paper">
       {/* Section header with ticker */}
-      <div className="brut-border-b bg-paper text-ink">
-          <Link href="/stayaktiv" aria-label="OMAJIVERSE — 10 December, Liquid Café Abuja. View stayAKTiV events." className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flare">
+      <div className="brut-border-b bg-paper text-ink" style={{ borderColor: "#a8e51f" }}>
+          <Link href="/omajiverse" aria-label="OMAJIVERSE — 10 December, Liquid Café Abuja. View the event page." className="block text-[#a8e51f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a8e51f]">
           <Marquee durationSeconds={30} reverse className="py-3">
             <span className="mx-5 inline-flex shrink-0 items-center gap-4 whitespace-nowrap md:mx-8 md:gap-6">
               <span className="inline-flex shrink-0 items-center px-2 py-1">
                 <Image src="/stayaktiv/tickers/omaji-verse-2.png" alt="" width={320} height={64} className="h-8 w-auto object-contain md:h-11" />
               </span>
               <span className="font-mono text-sm font-bold uppercase tracking-[0.14em] md:text-base md:tracking-[0.2em]">
-                10TH DECEMBER <span className="mx-2 text-flare md:mx-4" aria-hidden>|</span> LIQUID CAFÉ, ABUJA <span className="mx-2 text-flare md:mx-4" aria-hidden>|</span> 6PM PROMPT
+                10TH DECEMBER <span className="mx-2 text-[#a8e51f] md:mx-4" aria-hidden>|</span> LIQUID CAFÉ, ABUJA <span className="mx-2 text-[#a8e51f] md:mx-4" aria-hidden>|</span> 6PM PROMPT
               </span>
             </span>
           </Marquee>
