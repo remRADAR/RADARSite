@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import styles from "./RadarExplore.module.css";
 
@@ -20,8 +21,8 @@ const points: ExplorePoint[] = [
     label: "THE INSTITUTION",
     title: "FOUNDER-LED. AFRICAN-FOUNDED. GLOBAL OUTLOOK.",
     body: "REM is a music and entertainment management institution built around artists, culture, and the work that moves between them.",
-    x: 49,
-    y: 39,
+    x: 42,
+    y: 66,
   },
   {
     id: "philosophy",
@@ -29,8 +30,8 @@ const points: ExplorePoint[] = [
     label: "THE PHILOSOPHY",
     title: "PROTECT THE MUSIC.",
     body: "Protect the Artists. Protect the Fans. Music is life itself—so the people around it matter just as much as the record.",
-    x: 21,
-    y: 32,
+    x: 17,
+    y: 24,
   },
   {
     id: "journey",
@@ -39,7 +40,7 @@ const points: ExplorePoint[] = [
     title: "FROM SIGNAL TO MOVEMENT.",
     body: "REM connects identity, story, audience, and long-term support without losing sight of the human work underneath.",
     x: 73,
-    y: 49,
+    y: 58,
   },
   {
     id: "zumzy",
@@ -47,8 +48,8 @@ const points: ExplorePoint[] = [
     label: "ZUMZY BROWN",
     title: "A SIGNAL IN THE RIGHT-HAND CORNER.",
     body: "A dedicated discovery point within the RADAR world. More verified story and media can be added here as the archive develops.",
-    x: 88,
-    y: 28,
+    x: 87,
+    y: 23,
   },
   {
     id: "radarcharts",
@@ -56,8 +57,8 @@ const points: ExplorePoint[] = [
     label: "RADARCHARTS",
     title: "THE FLAGSHIP SIGNAL.",
     body: "RADARCharts by REM brings emerging music, artist development, documentation, storytelling, and audience-building into one visible world.",
-    x: 51,
-    y: 36,
+    x: 57,
+    y: 38,
   },
 ];
 
@@ -149,7 +150,10 @@ export function RadarExplore() {
       </div>
 
       <div className={styles.footerBar}>
-        <p>RADARCharts by REM <span aria-hidden="true">/</span> Protect the Music</p>
+        <div className={styles.footerLeft}>
+          <Link href="/about" className={styles.cornerLink}>About REM <span aria-hidden="true">↗</span></Link>
+          <p>RADARCharts by REM <span aria-hidden="true">/</span> Protect the Music</p>
+        </div>
         <p>{activePoint ? `Signal ${activePoint.number} active` : "05 locations / 01 image"}</p>
       </div>
     </section>

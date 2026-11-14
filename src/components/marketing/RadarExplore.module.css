@@ -22,6 +22,27 @@
   text-transform: uppercase;
 }
 
+.footerLeft {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.cornerLink {
+  background: var(--explore-accent);
+  color: #101010;
+  padding: 0.55rem 0.7rem;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.cornerLink:hover,
+.cornerLink:focus-visible {
+  background: var(--explore-ink);
+  color: #101010;
+}
+
 .topbar {
   border-bottom: 1px solid var(--explore-line);
   padding-bottom: 0.85rem;
@@ -298,6 +319,12 @@
     align-items: flex-start;
     flex-direction: column;
     gap: 0.55rem;
+  }
+
+  .footerLeft {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.7rem;
   }
 
   .headingBlock {
