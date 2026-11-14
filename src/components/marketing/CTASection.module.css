@@ -26,7 +26,28 @@
 
 .contact {
   grid-area: contact;
+  align-self: end;
+  justify-self: start;
   margin-top: clamp(2rem, 4vw, 3.5rem);
+}
+
+.communityLink {
+  display: block;
+  height: clamp(8rem, 18vw, 12rem);
+  width: clamp(8rem, 18vw, 12rem);
+  transition: transform 180ms ease;
+}
+
+.communityLink:hover,
+.communityLink:focus-visible {
+  transform: translateY(-0.35rem) rotate(-2deg);
+}
+
+.communityImage {
+  display: block;
+  height: 100%;
+  object-fit: contain;
+  width: 100%;
 }
 
 .globeStage {

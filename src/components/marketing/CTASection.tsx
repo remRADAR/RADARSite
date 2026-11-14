@@ -1,6 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
-import { UsersRound } from "lucide-react";
+import Image from "next/image";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useSiteConfig } from "@/lib/site-config-context";
@@ -55,9 +55,15 @@ export function CTASection() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Join the RADAR community"
-              className="inline-flex h-16 w-16 items-center justify-center brut-border border-paper bg-flare text-flare-foreground transition-transform hover:-translate-y-1"
+              className={styles.communityLink}
             >
-              <UsersRound aria-hidden size={28} strokeWidth={2.5} />
+              <Image
+                src="/images/community/join-community.png"
+                alt="Join the RADAR community"
+                width={1024}
+                height={1024}
+                className={styles.communityImage}
+              />
             </a>
           </Magnetic>
         </div>
