@@ -73,10 +73,9 @@ export function PlaylistTunnelGallery() {
     <section className={styles.gallery} aria-labelledby="playlist-gallery-title">
       <div className={styles.intro}>
         <div>
-          <p className={styles.eyebrow}>RADARMusic / Playlists</p>
-          <h1 id="playlist-gallery-title">Playlist archive</h1>
+          <p className={styles.eyebrow}>RADARMusic / RADARPlaylists</p>
+          <h1 id="playlist-gallery-title">RADARPlaylists</h1>
         </div>
-        <p className={styles.instructions}>Swipe, scroll, or use the arrow keys to move through the stack.</p>
       </div>
       <div
         className={styles.slider}
@@ -89,7 +88,7 @@ export function PlaylistTunnelGallery() {
         aria-label="RADARMusic playlist cover slider"
       >
         <div className={styles.track}>
-          {slides.map((item, index) => {
+          {slides.map((item) => {
             const distance = item.distance;
             const visible = Math.abs(distance) <= 3;
             return (
@@ -103,7 +102,14 @@ export function PlaylistTunnelGallery() {
                   if (distance !== 0) moveBy(distance);
                 }}
               >
-                <Image src={item.src} alt={item.label} fill sizes="(max-width: 700px) 62vw, 30vw" priority={index < 3} />
+                <Image
+                  src={item.src}
+                  alt={item.label}
+                  fill
+                  sizes="(max-width: 700px) 62vw, 30vw"
+                  priority={visible}
+                  fetchPriority={distance === 0 ? "high" : visible ? "auto" : "low"}
+                />
               </a>
             );
           })}
