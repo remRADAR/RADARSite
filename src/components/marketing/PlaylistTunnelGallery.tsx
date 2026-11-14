@@ -76,7 +76,7 @@ export function PlaylistTunnelGallery() {
     () => playlistGalleryItems.map((item, index) => {
       const depth = wrap(index / CARD_COUNT + scrollPosition);
       const angle = index / CARD_COUNT * TAU + scrollPosition * TAU * SPIRAL_TURNS;
-      const ring = 142 + depth * 168;
+      const ring = 8 + depth * 58;
       const x = Math.cos(angle) * ring;
       const y = Math.sin(angle) * ring * 0.58;
       const z = (0.5 - depth) * DEPTH_RANGE;
@@ -98,12 +98,7 @@ export function PlaylistTunnelGallery() {
   );
 
   return (
-    <section className={styles.gallery} aria-labelledby="playlist-gallery-title">
-      <div className={styles.header}>
-        <p className={styles.kicker}>RADARMusic / Infinity</p>
-        <h1 id="playlist-gallery-title">The playlist<br /><span>tunnel.</span></h1>
-        <p className={styles.instruction}>Drag or scroll to move through the archive.</p>
-      </div>
+    <section className={styles.gallery} aria-label="RADARMusic playlist covers">
       <div
         ref={viewportRef}
         className={styles.viewport}
@@ -116,19 +111,14 @@ export function PlaylistTunnelGallery() {
         role="application"
         aria-label="Interactive playlist cover tunnel"
       >
-        <div className={styles.tunnel} aria-hidden="true" />
         <div className={styles.cards}>
           {cards.map((item) => (
             <figure key={`${item.category}-${item.src}`} className={styles.card} style={item.style}>
               <Image src={item.src} alt="" fill sizes="(max-width: 700px) 34vw, 240px" priority={false} />
-              <figcaption>{item.label}</figcaption>
             </figure>
           ))}
         </div>
-        <div className={styles.centerMark} aria-hidden="true">∞</div>
-        <p className={styles.coordinates} aria-hidden="true">{CARD_COUNT} covers / endless rotation</p>
       </div>
-      <p className={styles.fallback}>Playlist cover archive — {playlistGalleryItems.length} covers. Use the pointer, wheel, or touch gesture to explore.</p>
     </section>
   );
 }
