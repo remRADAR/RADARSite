@@ -4,9 +4,13 @@
   --line: rgba(17, 18, 20, 0.16);
   background: #f4f4ef;
   color: var(--ink);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100svh;
   min-height: 100svh;
   overflow: hidden;
-  padding: 5.75rem 1rem 1rem;
+  padding: 1rem;
 }
 
 .header {
@@ -14,7 +18,7 @@
   display: flex;
   gap: 2rem;
   justify-content: space-between;
-  margin: 0 auto 1rem;
+  margin: 0 auto 0.8rem;
   max-width: 1440px;
   position: relative;
   z-index: 2;
@@ -60,8 +64,9 @@
   background: radial-gradient(circle at center, rgba(255, 255, 255, 0.86), transparent 30%), #e6e6e0;
   border-block: 1px solid var(--line);
   cursor: grab;
-  height: min(72svh, 760px);
-  min-height: 34rem;
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
   overflow: hidden;
   perspective: 900px;
   position: relative;
@@ -171,13 +176,13 @@
 
 .fallback {
   color: var(--muted);
-  margin: 0.85rem auto 0;
+  margin: 0.7rem auto 0;
   max-width: 1440px;
 }
 
 @media (max-width: 700px) {
   .gallery {
-    padding: 4.8rem 0.75rem 0.75rem;
+    padding: 0.75rem;
   }
 
   .header {
@@ -196,8 +201,7 @@
   }
 
   .viewport {
-    height: 68svh;
-    min-height: 30rem;
+    min-height: 0;
   }
 
   .card {
