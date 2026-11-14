@@ -84,7 +84,7 @@
 }
 
 .heading {
-  font-family: var(--font-display), Arial, sans-serif;
+  font-family: var(--font-display), sans-serif;
   font-size: clamp(3.6rem, 11vw, 10rem);
   letter-spacing: -0.08em;
   line-height: 0.78;
@@ -253,7 +253,7 @@
 }
 
 .reveal h2 {
-  font-family: var(--font-display), Arial, sans-serif;
+  font-family: var(--font-display), sans-serif;
   font-size: clamp(2rem, 4vw, 4.5rem);
   letter-spacing: -0.06em;
   line-height: 0.85;

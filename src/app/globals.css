@@ -168,6 +168,7 @@ html {
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-grotesk), sans-serif;
     font-synthesis-weight: none;
     text-align: left;
     writing-mode: horizontal-tb;
@@ -527,7 +528,7 @@ html {
   }
 }
 
-.editorial-body { overflow-wrap: anywhere; font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif; font-size: clamp(1.05rem, 1.7vw, 1.35rem); line-height: 1.55; }
+.editorial-body { overflow-wrap: anywhere; font-family: var(--font-display), sans-serif; font-size: clamp(1.05rem, 1.7vw, 1.35rem); line-height: 1.55; }
 .editorial-body h2, .editorial-body h3, .editorial-body h4 { margin: 2.2rem 0 .8rem; font-weight: 900; line-height: .98; text-transform: uppercase; }
 .editorial-body h2 { font-size: clamp(2rem, 5vw, 4rem); }
 .editorial-body h3 { font-size: clamp(1.5rem, 3vw, 2.5rem); }
@@ -542,7 +543,7 @@ html {
 .editorial-body figure:hover .editorial-media { transform: scale(1.035); filter: saturate(1) contrast(1); }
 .editorial-body figure { width: 100%; max-width: 100%; overflow: hidden; }
 .editorial-body figure img { width: 100%; }
-.editorial-body figcaption { margin-top: .5rem; font-family: ui-monospace, monospace; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; opacity: .7; }
+.editorial-body figcaption { margin-top: .5rem; font-family: var(--font-mono), monospace; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; opacity: .7; }
 .editorial-body .editorial-embed { position: relative; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; margin: 2rem 0; overflow: hidden; background: color-mix(in srgb, currentColor 8%, transparent); }
 /* Spotify players keep their intrinsic height: 152px compact tracks vs the
    352px large players (albums/playlists/episodes/shows). The wrapper modifier
@@ -552,11 +553,11 @@ html {
 .editorial-body .editorial-embed--spotify-large { aspect-ratio: auto; height: 352px; margin: 1.2rem 0; background: transparent; }
 .editorial-body .editorial-embed--instagram { aspect-ratio: auto; height: 700px; max-width: 540px; margin: 2rem auto; background: transparent; }
 .editorial-body .editorial-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-.editorial-body .editorial-embed.is-loading::after { content: "Loading media"; position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; font: 700 .65rem/1 ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; opacity: .55; animation: editorial-pulse 1.2s ease-in-out infinite; }
+.editorial-body .editorial-embed.is-loading::after { content: "Loading media"; position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; font: 700 .65rem/1 var(--font-mono), monospace; letter-spacing: .16em; text-transform: uppercase; opacity: .55; animation: editorial-pulse 1.2s ease-in-out infinite; }
 .editorial-body img[data-src] { min-height: 4rem; }
 .editorial-body img.is-error { min-height: 8rem; opacity: .45; background: linear-gradient(135deg, color-mix(in srgb, currentColor 14%, transparent), color-mix(in srgb, currentColor 5%, transparent)); }
-.editorial-body .editorial-embed.is-error::after { content: "Media unavailable"; position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; font: 700 .65rem/1 ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; opacity: .65; }
-.editorial-body .editorial-embed-fallback { margin: 1.2rem 0; padding: 1rem 1.25rem; border: 2px solid currentColor; font-family: ui-monospace, monospace; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.editorial-body .editorial-embed.is-error::after { content: "Media unavailable"; position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; font: 700 .65rem/1 var(--font-mono), monospace; letter-spacing: .16em; text-transform: uppercase; opacity: .65; }
+.editorial-body .editorial-embed-fallback { margin: 1.2rem 0; padding: 1rem 1.25rem; border: 2px solid currentColor; font-family: var(--font-mono), monospace; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .editorial-body .editorial-media,
 .editorial-body .editorial-embed { will-change: opacity, transform; }
 .editorial-body hr { margin: 2.5rem 0; border: 0; border-top: 2px solid currentColor; }
