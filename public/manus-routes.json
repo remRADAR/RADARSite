@@ -1,5 +1,6 @@
 {
   "routes": [
-    { "path": "/radarmusic/artists", "title": "RADARPlaylists — RADARMusic" }
+    { "path": "/playlists", "title": "RADARPlaylists — RADARCharts by REM" },
+    { "path": "/radarmusic/artists", "title": "RADARPlaylists — RADARCharts by REM" }
   ]
 }
