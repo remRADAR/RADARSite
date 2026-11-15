@@ -3,7 +3,7 @@ import { RadarPlaylistsExperience } from "@/components/marketing/RadarPlaylistsE
 
 export const metadata: Metadata = {
   title: "RADARPlaylists — RADARCharts by REM",
-  description: "RADAR music on YouTube, with curated playlists from the remRADAR Spotify profile.",
+  description: "A live RADAR Music player with playlist artwork curated by the official remRADAR Spotify profile.",
   alternates: { canonical: "/playlists" },
 };
 

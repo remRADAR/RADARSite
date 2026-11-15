@@ -6,6 +6,7 @@ import styles from "./RadarIpodPlayer.module.css";
 
 type RadarIpodPlayerProps = {
   playlist: RadarIpodPlaylist;
+  embeddedPlayerUrl?: string;
   externalUrl?: string;
   externalLabel?: string;
   playlistOptions?: RadarIpodPlaylist[];
@@ -28,6 +29,7 @@ function wrapIndex(index: number, total: number) {
 
 export function RadarIpodPlayer({
   playlist,
+  embeddedPlayerUrl,
   externalUrl,
   externalLabel = "Open playlist ↗",
   playlistOptions = [],
@@ -66,7 +68,18 @@ export function RadarIpodPlayer({
             <span>{isPlaying ? "PLAY" : playbackState === "loading" ? "LOAD" : "RADAR"}</span>
             <span aria-hidden="true">{currentTrack ? `${currentIndex + 1}/${playlist.tracks.length}` : "—/—"}</span>
           </div>
-          {currentTrack ? (
+          {embeddedPlayerUrl ? (
+            <div className={styles.embeddedPlayer}>
+              <iframe
+                title={`${playlist.title} live music player`}
+                src={embeddedPlayerUrl}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+              />
+            </div>
+          ) : currentTrack ? (
             <div className={styles.nowPlaying}>
               <div className={styles.trackArt} aria-hidden="true">
                 {playlist.artworkUrl ? <img src={playlist.artworkUrl} alt="" /> : <span>R</span>}
@@ -129,7 +142,7 @@ export function RadarIpodPlayer({
         <div id={`${titleId}-menu`} className={styles.menu} role="status">
           <span>Wheel ready</span>
           <span>{playlist.tracks.length} tracks indexed</span>
-          <span>Open the live playlist on YouTube</span>
+          <span>The live playlist is available in the display.</span>
         </div>
       )}
     </section>

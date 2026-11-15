@@ -1,24 +1,33 @@
+import Image from "next/image";
 import { RadarIpodPlayer } from "@/components/marketing/RadarIpodPlayer";
 import type { RadarIpodPlaylist } from "@/types/radar-playlists";
 import styles from "./RadarPlaylistsExperience.module.css";
 
-const youtubePlaylistUrl = "https://www.youtube.com/playlist?list=PLHAe6HfLZXbI&si=s7uVIYkASTlCTDLd";
-const youtubeEmbedUrl = "https://www.youtube.com/embed/videoseries?list=PLHAe6HfLZXbI&rel=0";
+const spotifyProfileUrl = "https://open.spotify.com/user/fjh0nofc014ci0frc7nxzts9f";
+const youtubeEmbedUrl = "https://www.youtube.com/embed/videoseries?list=PLHAe6HfLZXbI&rel=0&playsinline=1";
 const podPlaylist: RadarIpodPlaylist = {
   id: "radar-youtube-playlist",
   title: "RADAR MUSIC",
-  spotifyUrl: youtubePlaylistUrl,
+  spotifyUrl: spotifyProfileUrl,
   tracks: [],
-  ownerName: "YouTube / Live",
+  ownerName: "remRADAR on Spotify",
   metadataStatus: "ready",
 };
+
+const playlistCovers = Array.from({ length: 15 }, (_, index) => {
+  const number = index + 1;
+  return {
+    src: `/images/radarmusic/playlists/curated-${number}.webp`,
+    label: `Spotify playlist cover ${String(number).padStart(2, "0")}`,
+  };
+});
 
 export function RadarPlaylistsExperience() {
   return (
     <main className={styles.page}>
       <div className={styles.topline}>
         <span>RADAR / PLAYLISTS</span>
-        <a href={youtubePlaylistUrl} target="_blank" rel="noreferrer">Open on YouTube ↗</a>
+        <a href={spotifyProfileUrl} target="_blank" rel="noreferrer">Spotify profile ↗</a>
       </div>
 
       <section className={styles.podSection} aria-labelledby="radar-pod-title">
@@ -33,25 +42,28 @@ export function RadarPlaylistsExperience() {
         </p>
         <RadarIpodPlayer
           playlist={podPlaylist}
-          externalUrl={youtubePlaylistUrl}
-          externalLabel="Open on YouTube ↗"
+          embeddedPlayerUrl={youtubeEmbedUrl}
+          externalUrl={spotifyProfileUrl}
+          externalLabel="Spotify profile ↗"
         />
-        <div className={styles.youtubePod}>
-          <div className={styles.podScreen}>
-            <iframe
-              title="RADAR Music YouTube playlist"
-              src={youtubeEmbedUrl}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="strict-origin-when-cross-origin"
-            />
+
+        <section className={styles.coverSection} aria-label="Spotify playlist cover artwork">
+          <p className={styles.coverLabel}>SPOTIFY / PLAYLIST COVERS</p>
+          <div className={styles.coverViewport}>
+            <div className={styles.coverTrack}>
+              {playlistCovers.map((cover) => (
+                <div className={styles.coverCell} key={cover.src}>
+                  <Image src={cover.src} alt={cover.label} width={60} height={60} sizes="60px" draggable={false} />
+                </div>
+              ))}
+              {playlistCovers.map((cover, index) => (
+                <div className={styles.coverCell} key={`repeat-${index}`} aria-hidden="true">
+                  <Image src={cover.src} alt="" width={60} height={60} sizes="60px" draggable={false} />
+                </div>
+              ))}
+            </div>
           </div>
-          <div className={styles.podLabel}>
-            <span>RADARPLAYLISTS</span>
-            <span>YOUTUBE / LIVE</span>
-          </div>
-        </div>
+        </section>
       </section>
     </main>
   );
