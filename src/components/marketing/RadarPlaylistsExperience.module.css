@@ -100,6 +100,13 @@
   padding: clamp(.65rem, 1.5vw, 1.2rem);
 }
 
+.youtubePod {
+  background: var(--page-ink);
+  box-shadow: 12px 12px 0 var(--page-flare);
+  margin-top: clamp(2rem, 5vw, 4rem);
+  padding: clamp(.65rem, 1.5vw, 1.2rem);
+}
+
 .podScreen {
   aspect-ratio: 16 / 8;
   background: #101010;
@@ -215,7 +222,8 @@
     display: none;
   }
 
-  .pod {
+  .pod,
+  .youtubePod {
     box-shadow: 7px 7px 0 var(--page-flare);
   }
 

@@ -1,7 +1,17 @@
+import { RadarIpodPlayer } from "@/components/marketing/RadarIpodPlayer";
+import type { RadarIpodPlaylist } from "@/types/radar-playlists";
 import styles from "./RadarPlaylistsExperience.module.css";
 
 const youtubePlaylistUrl = "https://www.youtube.com/playlist?list=PLHAe6HfLZXbI&si=s7uVIYkASTlCTDLd";
 const youtubeEmbedUrl = "https://www.youtube.com/embed/videoseries?list=PLHAe6HfLZXbI&rel=0";
+const podPlaylist: RadarIpodPlaylist = {
+  id: "radar-youtube-playlist",
+  title: "RADAR MUSIC",
+  spotifyUrl: youtubePlaylistUrl,
+  tracks: [],
+  ownerName: "YouTube / Live",
+  metadataStatus: "ready",
+};
 
 export function RadarPlaylistsExperience() {
   return (
@@ -21,7 +31,12 @@ export function RadarPlaylistsExperience() {
         <p className={styles.intro}>
           A living selection from the RADAR Music signal — new voices, essential records, and the songs moving culture forward.
         </p>
-        <div className={styles.pod}>
+        <RadarIpodPlayer
+          playlist={podPlaylist}
+          externalUrl={youtubePlaylistUrl}
+          externalLabel="Open on YouTube ↗"
+        />
+        <div className={styles.youtubePod}>
           <div className={styles.podScreen}>
             <iframe
               title="RADAR Music YouTube playlist"

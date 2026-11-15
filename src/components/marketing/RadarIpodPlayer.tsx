@@ -29,7 +29,7 @@ function wrapIndex(index: number, total: number) {
 export function RadarIpodPlayer({
   playlist,
   externalUrl,
-  externalLabel = "Open in Spotify ↗",
+  externalLabel = "Open playlist ↗",
   playlistOptions = [],
   onPlaylistChange,
   trackIndex = 0,
@@ -129,7 +129,7 @@ export function RadarIpodPlayer({
         <div id={`${titleId}-menu`} className={styles.menu} role="status">
           <span>Wheel ready</span>
           <span>{playlist.tracks.length} tracks indexed</span>
-          <span>Official Spotify player connects in Phase 3</span>
+          <span>Open the live playlist on YouTube</span>
         </div>
       )}
     </section>
