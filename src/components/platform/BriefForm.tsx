@@ -31,6 +31,7 @@ export function BriefForm() {
   const [timeline, setTimeline] = useState("");
   const [details, setDetails] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const canAdvance = () => {
     if (step === 0) return title.trim().length > 0 && projectType.length > 0;
@@ -52,13 +53,28 @@ export function BriefForm() {
     setStep((s) => Math.max(s - 1, 0));
   };
 
-  const submit = () => {
+  const submit = async () => {
     if (details.trim().length === 0) {
       setError("Add a short project description before submitting.");
       return;
     }
-    addBrief({ title, projectType, budgetRange, timeline, details });
-    router.push("/briefs");
+    setSubmitting(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, projectType, budgetRange, timeline, details }),
+      });
+      const payload = await response.json().catch(() => ({})) as { error?: string };
+      if (!response.ok) throw new Error(payload.error || "Unable to submit your brief.");
+      addBrief({ title, projectType, budgetRange, timeline, details });
+      router.push("/briefs");
+    } catch (submissionError) {
+      setError(submissionError instanceof Error ? submissionError.message : "Unable to submit your brief.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -188,9 +204,10 @@ export function BriefForm() {
             <Button
               type="button"
               onClick={submit}
+              disabled={submitting}
               className="h-11 brut-border bg-flare px-6 font-mono text-xs font-bold uppercase tracking-widest text-flare-foreground hover:bg-ink hover:text-paper"
             >
-              Submit brief
+              {submitting ? "Sending…" : "Submit brief"}
             </Button>
           )}
         </div>
