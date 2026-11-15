@@ -1,6 +1,6 @@
 export const SITE_OVERRIDES_KEY = "radarcharts-site-overrides";
-const RADAR_YOUTUBE_PLAYLIST_ID = "PLHAe6HfLZXbI";
-const LEGACY_RADAR_YOUTUBE_PLAYLIST_ID = "PLZ_5O41VO5Mk";
+const RADAR_MUSIC_YOUTUBE_PLAYLIST_ID = "PLHAe6HfLZXbI";
+const TOP_TEN_CHARTS_YOUTUBE_PLAYLIST_ID = "PLZ_5O41VO5Mk";
 
 export type SocialLink = { label: string; href: string; enabled: boolean };
 export type MotherlandBanner = { text: string; link: string; startDate: string; endDate: string; visible: boolean };
@@ -62,7 +62,7 @@ export const defaultSiteOverrides: SiteOverrides = {
   seoTitle: "RADARCharts by REM", seoDescription: "RADARCharts by REM — protecting the music as remRADAR. Discover Nigerian and African music, artists, releases, stories, and culture.", socialImage: "", canonicalOverride: "", socialTitle: "RADARCharts by REM", socialDescription: "Protecting the music as remRADAR — Nigerian and African music discovery, artists, releases, stories, and culture.", siteName: "RADARCharts by REM", xHandle: "@radarcharts", socialAccounts: {},
   socialLinks: [
     { label: "Instagram", href: "https://www.instagram.com/remradar/", enabled: true }, { label: "X", href: "https://x.com/RADARCharts", enabled: true }, { label: "Facebook", href: "https://www.facebook.com/radarcharts/", enabled: true }, { label: "Threads", href: "https://www.threads.com/@remradar", enabled: true }, { label: "LinkedIn", href: "https://www.linkedin.com/company/radarcharts/", enabled: true }, { label: "YouTube", href: "https://www.youtube.com/@remradar", enabled: true }, { label: "TikTok", href: "https://www.tiktok.com/@radarcharts", enabled: true },
-  ], radarMeUrl: "https://radarme.app", playlistId: RADAR_YOUTUBE_PLAYLIST_ID, playlistLabel: "RADAR Music", playlistEnabled: true,
+  ], radarMeUrl: "https://radarme.app", playlistId: TOP_TEN_CHARTS_YOUTUBE_PLAYLIST_ID, playlistLabel: "Top 10 Charts", playlistEnabled: true,
   geoSignature: "14.7167°N / 17.4677°W", motherlandBanner: defaultMotherlandBanner, ecosystemNav: defaultEcosystemNav, caseStudies: [], processSteps: [], testimonials: [], footerNav: [],
   homepageVideo: { videoId: "", title: "RADARCharts homepage video", caption: "", lazyLoad: true, visible: false }, youtubeFeed: { enabled: false, channelId: "", maxItems: 6, filterKeywords: [] }, contactCTA: { headline: ["Make", "some", "noise."], subhead: "", email: "hello@radarcharts.net", visible: true },
 };
@@ -78,7 +78,9 @@ function testimonials(value: unknown) { return Array.isArray(value) ? value.slic
 
 export function normalizeSiteOverrides(input: unknown): SiteOverrides {
   const value = input && typeof input === "object" ? input as Partial<SiteOverrides> : {};
-  const requestedPlaylistId = value.playlistId === LEGACY_RADAR_YOUTUBE_PLAYLIST_ID ? RADAR_YOUTUBE_PLAYLIST_ID : value.playlistId;
+  // The floating player is reserved for the Top 10 chart. Migrate the previous
+  // Radar Music default so an existing local override cannot keep playing it.
+  const requestedPlaylistId = value.playlistId === RADAR_MUSIC_YOUTUBE_PLAYLIST_ID ? TOP_TEN_CHARTS_YOUTUBE_PLAYLIST_ID : value.playlistId;
   const media: Record<string, string> = {};
   if (value.media && typeof value.media === "object" && !Array.isArray(value.media)) for (const [key, item] of Object.entries(value.media).slice(0, 100)) { const clean = url(item, ""); if (clean) media[key.trim().slice(0, 120)] = clean; }
   const cta = value.contactCTA && typeof value.contactCTA === "object" ? value.contactCTA as Partial<ContactCTA> : {};

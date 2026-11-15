@@ -2,7 +2,11 @@
   --page-ink: var(--ink, #050505);
   --page-paper: var(--paper, #f7f7f2);
   --page-flare: var(--flare, #b7ff00);
-  background: var(--page-paper);
+  background-color: var(--page-paper);
+  background-image: linear-gradient(rgba(247, 247, 242, .94), rgba(247, 247, 242, .97)), url("/images/radarmusic/playlists/curated-1.webp");
+  background-position: center top;
+  background-size: cover;
+  background-attachment: fixed;
   color: var(--page-ink);
   display: flex;
   flex-direction: column;
@@ -84,6 +88,12 @@
   max-width: 12ch;
 }
 
+.intro {
+  font: 500 clamp(1rem, 1.6vw, 1.25rem)/1.45 var(--font-sans), sans-serif;
+  margin: 0 0 clamp(1.5rem, 3vw, 2.5rem);
+  max-width: 38rem;
+}
+
 .pod {
   background: var(--page-ink);
   box-shadow: 12px 12px 0 var(--page-flare);
@@ -158,6 +168,11 @@
 }
 
 @media (max-width: 760px) {
+  .page {
+    background-image: linear-gradient(rgba(247, 247, 242, .93), rgba(247, 247, 242, .98)), url("/images/radarmusic/playlists/curated-10.webp");
+    background-attachment: scroll;
+  }
+
   .podHeader,
   .sectionHeader {
     align-items: flex-start;
