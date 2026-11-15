@@ -6,6 +6,8 @@ import styles from "./RadarIpodPlayer.module.css";
 
 type RadarIpodPlayerProps = {
   playlist: RadarIpodPlaylist;
+  externalUrl?: string;
+  externalLabel?: string;
   playlistOptions?: RadarIpodPlaylist[];
   onPlaylistChange?: (id: string) => void;
   trackIndex?: number;
@@ -26,6 +28,8 @@ function wrapIndex(index: number, total: number) {
 
 export function RadarIpodPlayer({
   playlist,
+  externalUrl,
+  externalLabel = "Open in Spotify ↗",
   playlistOptions = [],
   onPlaylistChange,
   trackIndex = 0,
@@ -119,7 +123,7 @@ export function RadarIpodPlayer({
           <h2 id={titleId}>{playlist.title}</h2>
           <p>{playlist.ownerName ? `Curated by ${playlist.ownerName}` : "Curated by remRADAR"}</p>
         </div>
-        <a href={playlist.spotifyUrl} target="_blank" rel="noreferrer">Open in Spotify ↗</a>
+        <a href={externalUrl || playlist.spotifyUrl} target="_blank" rel="noreferrer">{externalLabel}</a>
       </div>
       {menuOpen && (
         <div id={`${titleId}-menu`} className={styles.menu} role="status">

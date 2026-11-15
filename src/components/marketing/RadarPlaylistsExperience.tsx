@@ -1,8 +1,18 @@
+import { RadarIpodPlayer } from "@/components/marketing/RadarIpodPlayer";
+import type { RadarIpodPlaylist } from "@/types/radar-playlists";
 import styles from "./RadarPlaylistsExperience.module.css";
 
 const youtubePlaylistUrl = "https://www.youtube.com/playlist?list=PLHAe6HfLZXbI&si=j3upDwyzEGo6efS4";
-const youtubeEmbedUrl = "https://www.youtube.com/embed/videoseries?list=PLHAe6HfLZXbI&rel=0";
 const spotifyProfileUrl = "https://open.spotify.com/user/fjh0nofc014ci0frc7nxzts9f";
+
+const podPlaylist: RadarIpodPlaylist = {
+  id: "radar-youtube-playlist",
+  title: "RADAR MUSIC",
+  spotifyUrl: youtubePlaylistUrl,
+  tracks: [],
+  ownerName: "YouTube / Live",
+  metadataStatus: "ready",
+};
 
 const spotifyPlaylists = [
   { id: "374xyfbRkF5RbLeqamNpWg", title: "mashupRADAR" },
@@ -18,40 +28,17 @@ export function RadarPlaylistsExperience() {
         <a href={spotifyProfileUrl} target="_blank" rel="noreferrer">Spotify profile ↗</a>
       </div>
 
-      <section className={styles.podSection} aria-labelledby="radar-pod-title">
-        <div className={styles.podHeader}>
-          <div>
-            <p className={styles.eyebrow}>RADAR MUSIC / OFFICIAL PLAYLIST</p>
-            <h1 id="radar-pod-title">RADAR sound, on repeat.</h1>
-          </div>
-          <a className={styles.textLink} href={youtubePlaylistUrl} target="_blank" rel="noreferrer">
-            Open on YouTube ↗
-          </a>
-        </div>
-        <div className={styles.pod}>
-          <div className={styles.podScreen}>
-            <iframe
-              title="RADAR music playlist on YouTube"
-              src={youtubeEmbedUrl}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="strict-origin-when-cross-origin"
-            />
-          </div>
-          <div className={styles.podLabel}>
-            <span>RADARPLAYLISTS</span>
-            <span>YOUTUBE / LIVE</span>
-          </div>
-        </div>
+      <section className={styles.podSection} aria-label="RADAR YouTube playlist pod">
+        <RadarIpodPlayer
+          playlist={podPlaylist}
+          externalUrl={youtubePlaylistUrl}
+          externalLabel="Open on YouTube ↗"
+        />
       </section>
 
       <section className={styles.spotifySection} aria-labelledby="spotify-playlists-title">
         <div className={styles.sectionHeader}>
-          <div>
-            <p className={styles.eyebrow}>CURATED BY remRADAR</p>
-            <h2 id="spotify-playlists-title">More from the profile</h2>
-          </div>
+          <h2 id="spotify-playlists-title">More from the profile</h2>
           <a className={styles.textLink} href={spotifyProfileUrl} target="_blank" rel="noreferrer">
             See all playlists ↗
           </a>
@@ -80,11 +67,6 @@ export function RadarPlaylistsExperience() {
           ))}
         </div>
       </section>
-
-      <div className={styles.bottomline}>
-        <span>RADAR MUSIC / REM</span>
-        <span>PLAY IT LOUD</span>
-      </div>
     </main>
   );
 }
