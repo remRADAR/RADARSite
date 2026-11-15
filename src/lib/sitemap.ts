@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { readPublicContent } from "@/lib/content-server";
+import { readContent } from "@/lib/content-server";
 import { absoluteUrl } from "@/lib/seo";
 import { caseStudies } from "@/lib/case-studies";
 import { articleCategories, categorySlug, pageCount } from "@/lib/article-taxonomy";
@@ -16,7 +16,7 @@ export const SITEMAP_EXCLUDED_ARTICLE_SLUGS = new Set([
 ]);
 
 export async function generateSitemap(): Promise<MetadataRoute.Sitemap> {
-  const content = await readPublicContent();
+  const content = await readContent();
   const { articles, artists, events, magazine, radarProjects, releases } = content;
   const tracks = getTrackStories(content);
   const routes = ["/", "/radarmusic", "/radarmusic/artists", "/radarmusic/releases", "/radarmusic/tracks", "/ontheradar", "/ontheradar/articles", "/ontheradar/magazine", "/ontheradar/projects", "/stayaktiv", "/omajiverse", "/work", "/about", "/remradar", "/about/ecosystem", "/motherland", "/privacy", "/terms"];
