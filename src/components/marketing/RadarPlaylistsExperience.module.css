@@ -97,15 +97,17 @@
 }
 
 .coverViewport {
-  mask-image: linear-gradient(to right, transparent, #000 3%, #000 97%, transparent);
+  contain: layout paint;
   overflow: hidden;
 }
 
 .coverTrack {
-  animation: playlistCoversScroll 38s linear infinite;
+  animation: playlistCoversScroll 52s linear infinite;
   display: flex;
   gap: .55rem;
+  transform: translate3d(0, 0, 0);
   width: max-content;
+  will-change: transform;
 }
 
 .coverSection:hover .coverTrack,
@@ -129,7 +131,7 @@
 
 @keyframes playlistCoversScroll {
   to {
-    transform: translateX(-50%);
+    transform: translate3d(-50%, 0, 0);
   }
 }
 
@@ -140,6 +142,10 @@
       color-mix(in srgb, var(--page-paper) 97%, transparent)
     ), url("/images/radarmusic/playlists/curated-10.webp");
     background-attachment: scroll;
+  }
+
+  .coverTrack {
+    animation-duration: 64s;
   }
 
   .podHeader {
@@ -177,5 +183,6 @@
 
   .coverTrack {
     animation: none;
+    will-change: auto;
   }
 }
