@@ -46,7 +46,7 @@ export function buildArticleLibrary(records: CmsRecord[], params: URLSearchParam
   const total = filtered.length;
   return { items: filtered.slice((page - 1) * pageSize, page * pageSize).map(summary), pagination: { page, pageSize, total, pageCount: Math.max(1, Math.ceil(total / pageSize)) }, taxonomy: { editorialTypes: EDITORIAL_TYPES, magazineSubtypes: MAGAZINE_SUBTYPES, projectSections: ["Motherland"] } };
 }
-function defaultArticle(): CmsRecord { return { id: `studio-${randomUUID()}`, sourceProvider: "radarsite", slug: "", title: "", excerpt: "", subtitle: "", body: "", bodyHtml: "<p></p>", status: "draft", editorialType: "Press", magazineSubtype: "", projectSection: "", section: "radar-articles", categories: ["RADARArticles"], tags: [], tagsApproved: [], tagsSuggested: [], featuredImage: "", imageUrl: "", featuredImageAlt: "", featuredImageCaption: "", metaTitle: "", metaDescription: "", canonicalUrl: "", socialImage: "", noindex: false, focusTopic: "", sourceExcerpt: "", sourceExcerptSurface: "", sourceArtistId: "", sourceArtistName: "", sourceSongId: "", sourceSongName: "", sourceReleaseId: "", sourceReleaseName: "", date: new Date().toISOString().slice(0, 10), author: "RADARCharts by REM" }; }
+function defaultArticle(): CmsRecord { return { id: `studio-${randomUUID()}`, sourceProvider: "radarsite", slug: "", title: "", excerpt: "", subtitle: "", body: "", bodyHtml: "<p></p>", status: "draft", editorialType: "Press", magazineSubtype: "", projectSection: "", section: "radar-articles", categories: ["RADARArticles"], tags: [], tagsApproved: [], tagsSuggested: [], featuredImage: "", imageUrl: "", featuredImageAlt: "", featuredImageCaption: "", metaTitle: "", metaDescription: "", canonicalUrl: "", socialImage: "", noindex: false, focusTopic: "", sourceExcerpt: "", sourceExcerptSurface: "", sourceArtistId: "", sourceArtistName: "", sourceSongId: "", sourceSongName: "", sourceReleaseId: "", sourceReleaseName: "", trackStorySlugs: [], date: new Date().toISOString().slice(0, 10), author: "RADARCharts by REM" }; }
 export function normalizeArticleInput(input: Record<string, unknown>, existing?: CmsRecord): CmsRecord {
   const base = existing || defaultArticle();
   const has = (key: string) => Object.prototype.hasOwnProperty.call(input, key);
@@ -68,6 +68,7 @@ export function normalizeArticleInput(input: Record<string, unknown>, existing?:
   const excerpt = value("excerpt", text(base.excerpt || base.subtitle || base.description), 5000);
   const tags = list("tags", array(base.tags), 30);
   const tagsApproved = list("tagsApproved", array(base.tagsApproved), 30);
+  const trackStorySlugs = list("trackStorySlugs", array(base.trackStorySlugs), 50);
   const categories = list("categories", array(base.categories), 20);
   const featuredImage = value("featuredImage", text(base.featuredImage || base.imageUrl), 2000);
   const date = value("date", text(base.date || base.publishedAt), 100);
@@ -96,6 +97,7 @@ export function normalizeArticleInput(input: Record<string, unknown>, existing?:
     categories,
     tags,
     tagsApproved,
+    trackStorySlugs,
     tagsSuggested: suggestArticleTags({ title, excerpt, body: stripHtml(bodyHtml), bodyHtml, tags, categories, editorialType, projectSection }),
     featuredImage,
     imageUrl: featuredImage,

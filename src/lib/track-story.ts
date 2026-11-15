@@ -57,5 +57,11 @@ export function normalizeTrackStory(input: unknown): TrackStory {
 
 export function getAllTrackStories(content: ContentCollections): TrackStory[] { return (content.tracks || []).flatMap((record) => { try { return [normalizeTrackStory(record)]; } catch { return []; } }); }
 export function getTrackStories(content: ContentCollections): TrackStory[] { return getAllTrackStories(content).filter((item) => item.status === "published"); }
+export function getTrackStoriesForArticle(content: ContentCollections, articleSlug: string): TrackStory[] {
+  const article = content.articles.find((item) => item.slug === articleSlug);
+  const attachedValue = article && typeof article === "object" ? (article as unknown as { trackStorySlugs?: unknown }).trackStorySlugs : undefined;
+  const attached = Array.isArray(attachedValue) ? attachedValue.filter((value: unknown): value is string => typeof value === "string") : [];
+  return getTrackStories(content).filter((track) => attached.includes(track.slug) || track.relatedArticleSlugs?.includes(articleSlug)).sort((a, b) => attached.indexOf(a.slug) - attached.indexOf(b.slug));
+}
 export function trackPath(track: Pick<TrackStory, "slug">) { return `/radarmusic/tracks/${encodeURIComponent(track.slug)}`; }
 export function musicRecordingStructuredData(track: TrackStory, canonicalUrl: string) { return { "@context": "https://schema.org", "@type": "MusicRecording", "@id": `${canonicalUrl}#recording`, name: track.title, url: canonicalUrl, byArtist: { "@type": "MusicGroup", name: track.artistName, ...(track.artistSlug ? { url: `/radarmusic/artists/${track.artistSlug}` } : {}) }, ...(track.releaseTitle ? { inAlbum: { "@type": "MusicAlbum", name: track.releaseTitle, ...(track.releaseSlug ? { url: `/radarmusic/releases/${track.releaseSlug}` } : {}) } } : {}), sameAs: track.sourceUrls, description: track.description || track.background }; }
