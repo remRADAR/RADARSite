@@ -1,6 +1,6 @@
 import { devices, expect, test } from "@playwright/test";
 
-const portraitPath = "/images/founder/cza-of-rem.webp";
+const portraitPath = "/images/founder/cza-of-rem-wide.png";
 
 async function expectFounderProfile(page: import("@playwright/test").Page) {
   await page.goto("/remradar");
@@ -32,7 +32,7 @@ test("restores the REM story, founder highlight, and supplied local portrait", a
 
   const portrait = await page.request.get(portraitPath);
   expect(portrait.ok()).toBeTruthy();
-  expect(portrait.headers()["content-type"]).toContain("image/webp");
+  expect(portrait.headers()["content-type"]).toContain("image/png");
   const pass = await expectFounderProfile(page);
   await expect(page.getByRole("link", { name: /Explore the ecosystem/ })).toHaveAttribute(
     "href",
@@ -146,4 +146,16 @@ test("renders RADAR Explore, the founder frame, and the ecosystem tab on About",
   await expect(page.getByRole("dialog", { name: /Tarzaa Gerald Caesar/ })).toBeVisible();
   await page.getByRole("button", { name: /Close founder highlight/ }).click();
   await expect(aboutPass).toBeFocused();
+});
+
+test("does not open the founder highlight from the surrounding stage", async ({ page }) => {
+  await page.goto("/about");
+  const aboutPass = page.locator('[data-lanyard-stage="true"]').last();
+  await expect(aboutPass).toBeVisible();
+  const bounds = await aboutPass.boundingBox();
+  expect(bounds).not.toBeNull();
+  if (!bounds) return;
+
+  await page.mouse.click(bounds.x + 8, bounds.y + 8);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
 });

@@ -24,7 +24,7 @@ function usePrefersReducedMotion() {
   }, []);
   return reduced;
 }
-const FONT = '"IBM Plex Sans", "Helvetica Neue", Helvetica, Arial, sans-serif';
+const FONT = '"Archivo", sans-serif';
 const SWING_STRENGTH = 1;
 const PAPER = "#131417";
 const INK = "#F2F1EC";
@@ -1472,6 +1472,7 @@ function updateWebbing(
   const flatRef = useRef(null);
   const rootRef = useRef(null);
   const engineRef = useRef(null);
+  const clickEligibleRef = useRef(false);
   const freezeRef = useRef(freeze);
   freezeRef.current = freeze;
   const staticRef = useRef(isStatic);
@@ -2354,11 +2355,13 @@ function updateWebbing(
           pointer.y = -((event.clientY - rect.top) / h) * 2 + 1;
         }
         function onDown(event) {
+          clickEligibleRef.current = false;
           if (freezeRef.current) return;
           pointerNdc(event);
           raycaster.setFromCamera(pointer, camera);
           const hits = raycaster.intersectObject(cardMesh, true);
           if (hits.length === 0) return;
+          clickEligibleRef.current = true;
           event.preventDefault();
           renderer.domElement.setPointerCapture(event.pointerId);
           grabState.down = true;
@@ -2381,6 +2384,7 @@ function updateWebbing(
         function onMove(event) {
           if (!grabState.down || event.pointerId !== grabState.pointerId)
             return;
+          clickEligibleRef.current = false;
           pointerNdc(event);
           raycaster.setFromCamera(pointer, camera);
           const hit = raycaster.ray.intersectPlane(dragPlane, planeHit);
@@ -2879,7 +2883,15 @@ function updateWebbing(
     role: "group",
     "aria-label": `Interactive founder pass for ${attendeeName}.`,
     "aria-describedby": "founder-portrait-description",
-    onClick: typeof props.onClick === "function" ? props.onClick : undefined,
+    onClick:
+      typeof props.onClick === "function"
+        ? (event) => {
+            if (clickEligibleRef.current) {
+              clickEligibleRef.current = false;
+              props.onClick(event);
+            }
+          }
+        : undefined,
     onKeyDown: (event) => {
       if (
         ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)

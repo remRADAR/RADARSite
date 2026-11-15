@@ -7,7 +7,7 @@ type FounderLanyardProps = {
   onActivate?: () => void;
 };
 
-const portrait = { src: "/images/founder/cza-of-rem.webp" };
+const portrait = { src: "/images/founder/cza-of-rem-wide.png" };
 
 export function FounderLanyard({ onActivate }: FounderLanyardProps) {
   return (

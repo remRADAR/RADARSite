@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -12,32 +11,15 @@ import {
   parseSiteOverrides,
   subscribeToSiteOverrides,
 } from "@/lib/site-overrides";
-import { Marquee } from "@/components/motion/Marquee";
 import { useSiteConfig } from "@/lib/site-config-context";
 import { HeroScene } from "@/components/three/HeroScene";
 import { SceneGate } from "@/components/three/SceneGate";
 import { HeroCinematic } from "@/components/marketing/HeroCinematic";
+import { BrandTicker } from "@/components/marketing/BrandTicker";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const ACTIVE_HERO_SLIDES = getActiveHeroSlides();
-const BRAND_TICKER_LOGOS = [
-  { src: "/brand-ticker/brand-01.webp", alt: "RADARCharts", monochrome: true },
-  { src: "/brand-ticker/brand-02.webp", alt: "remRADAR" },
-  { src: "/brand-ticker/brand-03.webp", alt: "Brand emblem" },
-  { src: "/brand-ticker/brand-04.webp", alt: "Talk to Us", monochrome: true },
-  { src: "/brand-ticker/brand-05.webp", alt: "Top 100 Abuja Playlist" },
-  { src: "/brand-ticker/brand-06.webp", alt: "Xcape brand mark" },
-  { src: "/brand-ticker/brand-07.webp", alt: "Flame emblem" },
-  { src: "/brand-ticker/brand-08.webp", alt: "XCAPE" },
-  { src: "/brand-ticker/brand-09.webp", alt: "Top 100 Abuja Playlist" },
-  { src: "/brand-ticker/brand-10.webp", alt: "Omaji Verse 2.0" },
-  { src: "/brand-ticker/brand-11.webp", alt: "RADAR Legacies", monochrome: true },
-  { src: "/brand-ticker/brand-12.webp", alt: "XCAPE Plan", monochrome: true },
-  { src: "/brand-ticker/brand-13.webp", alt: "Creative Culture", monochrome: true },
-  { src: "/brand-ticker/brand-14.webp", alt: "AfroCamp", monochrome: true },
-];
-
 export function Hero() {
   const { config } = useSiteConfig();
   const rootRef = useRef<HTMLElement>(null);
@@ -122,15 +104,7 @@ export function Hero() {
         <p data-hero-meta className="hero-readable-support mt-6 max-w-[34rem] font-mono text-[11px] font-bold uppercase leading-[1.45] tracking-[0.12em] !text-[#f7f7f2] md:text-xs">{subheadline}</p>
       </div>
 
-      <div role="group" aria-label="remRADAR brand and partner logos" className="relative z-10 bg-transparent py-3 sm:py-4">
-        <Marquee durationSeconds={14} repeat={1}>
-          {BRAND_TICKER_LOGOS.map((logo) => (
-            <span key={logo.src} className="flex shrink-0 items-center px-2.5 md:px-4">
-              <Image src={logo.src} alt={logo.alt} width={800} height={148} unoptimized loading="eager" className={`h-8 w-auto object-contain sm:h-9 md:h-10${logo.monochrome ? " ticker-logo-monochrome" : ""}`} />
-            </span>
-          ))}
-        </Marquee>
-      </div>
+      <BrandTicker />
     </section>
   );
 }

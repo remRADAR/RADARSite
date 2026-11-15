@@ -214,7 +214,7 @@
   align-items: center;
   gap: 0.35rem;
   color: var(--ink);
-  font-family: var(--font-display, Impact, sans-serif);
+  font-family: var(--font-display, var(--font-grotesk, sans-serif));
   font-size: clamp(2.35rem, 5.8vw, 6rem);
   font-weight: 900;
   letter-spacing: -0.065em;

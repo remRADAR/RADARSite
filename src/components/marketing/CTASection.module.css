@@ -34,11 +34,11 @@
 
 .communityLink {
   display: block;
-  height: clamp(12rem, 24vw, 16rem);
+  height: clamp(13rem, 26vw, 18rem);
   isolation: isolate;
   overflow: hidden;
   position: relative;
-  width: clamp(12rem, 24vw, 16rem);
+  width: clamp(13rem, 26vw, 18rem);
   transition: transform 260ms cubic-bezier(.22, 1, .36, 1), filter 260ms ease;
 }
 
@@ -69,13 +69,13 @@
 
 .communityImage {
   display: block;
-  height: 235%;
-  left: -20%;
+  height: 190%;
+  left: -8%;
   object-fit: contain;
   position: absolute;
   bottom: 0;
   max-width: none;
-  width: 235%;
+  width: 190%;
 }
 
 .globeStage {
