@@ -7,6 +7,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100svh;
+  overflow-x: clip;
   padding: clamp(1rem, 2.8vw, 2.25rem);
 }
 
@@ -172,13 +173,24 @@
   .playlistRail {
     display: flex;
     overflow-x: auto;
-    padding-bottom: .75rem;
-    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    padding: 0 max(.25rem, env(safe-area-inset-right)) .9rem max(.25rem, env(safe-area-inset-left));
+    scroll-behavior: smooth;
+    scroll-padding-inline: max(.25rem, env(safe-area-inset-left));
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+  }
+
+  .playlistRail::-webkit-scrollbar {
+    display: none;
   }
 
   .playlistCard {
-    flex: 0 0 min(82vw, 340px);
+    flex: 0 0 min(calc(100vw - 2.5rem), 360px);
     scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
 }
 
