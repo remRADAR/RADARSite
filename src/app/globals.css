@@ -148,8 +148,16 @@ html {
   transition: filter var(--theme-transition);
 }
 
+.ticker-logo-on-paper {
+  filter: none;
+}
+
 .theme-light .ticker-logo-monochrome {
   filter: none;
+}
+
+.theme-light .ticker-logo-on-paper {
+  filter: invert(1);
 }
 
 @layer base {

@@ -20,14 +20,17 @@ const BRAND_TICKER_LOGOS = [
 
 type BrandTickerProps = {
   className?: string;
+  surface?: "ink" | "paper";
 };
 
-export function BrandTicker({ className = "" }: BrandTickerProps) {
+export function BrandTicker({ className = "", surface = "ink" }: BrandTickerProps) {
+  const onPaper = surface === "paper";
+
   return (
     <div
       role="group"
       aria-label="remRADAR brand and partner logos"
-      className={`relative z-10 overflow-hidden bg-ink py-3 text-paper sm:py-4 ${className}`}
+      className={`relative z-10 overflow-hidden ${onPaper ? "bg-paper text-ink" : "bg-ink text-paper"} py-3 sm:py-4 ${className}`}
     >
       <Marquee durationSeconds={14} repeat={1}>
         {BRAND_TICKER_LOGOS.map((logo) => (
@@ -39,7 +42,7 @@ export function BrandTicker({ className = "" }: BrandTickerProps) {
               height={148}
               unoptimized
               loading="eager"
-              className={`h-8 w-auto object-contain sm:h-9 md:h-10${logo.monochrome ? " ticker-logo-monochrome" : ""}`}
+              className={`h-8 w-auto object-contain sm:h-9 md:h-10${logo.monochrome ? ` ticker-logo-monochrome${onPaper ? " ticker-logo-on-paper" : ""}` : ""}`}
             />
           </span>
         ))}
