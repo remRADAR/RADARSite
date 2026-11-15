@@ -15,7 +15,7 @@ export const SITEMAP_EXCLUDED_ARTICLE_SLUGS = new Set([
   "young-beejay-and-davetheoracle-unite-on-designer",
 ]);
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+export async function generateSitemap(): Promise<MetadataRoute.Sitemap> {
   const content = await readPublicContent();
   const { articles, artists, events, magazine, radarProjects, releases } = content;
   const tracks = getTrackStories(content);
