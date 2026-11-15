@@ -4,6 +4,7 @@ import "./globals.css";
 import { LiveSiteOverrides } from "@/components/LiveSiteOverrides";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
+import { MetricoolTracker } from "@/components/MetricoolTracker";
 import { StructuredData, organizationStructuredData, websiteStructuredDataGraph } from "@/components/StructuredData";
 import { DEFAULT_SOCIAL_IMAGE, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/seo";
 
@@ -60,6 +61,7 @@ export default function RootLayout({
         <LiveSiteOverrides />
         <ServiceWorkerRegistration />
         <GoogleAnalytics />
+        <MetricoolTracker />
         {children}
       </body>
     </html>

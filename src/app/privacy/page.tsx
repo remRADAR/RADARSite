@@ -44,7 +44,7 @@ export default function PrivacyPage() {
 
             <section>
               <h2 className="display text-2xl">4. Services we rely on</h2>
-              <p className="mt-3">We use carefully selected providers to run the site. Depending on configuration, these may include: hosting and delivery (Vercel), database services (Neon Postgres), media storage and delivery (Cloudflare R2 and Cloudflare&rsquo;s network), error monitoring (Sentry), analytics (Google Analytics, where enabled), imagery (Unsplash), interactive 3D scenes (Spline), and publishing integrations (Notion, server-side only). These providers process data on our behalf or under their own policies. Where Google Analytics is enabled, Google may process data (including, for users in the EEA/UK, data associated with consent) under its own terms. We encourage you to review the policies of these services.</p>
+              <p className="mt-3">We use carefully selected providers to run the site. Depending on configuration, these may include: hosting and delivery (Vercel), database services (Neon Postgres), media storage and delivery (Cloudflare R2 and Cloudflare&rsquo;s network), error monitoring (Sentry), analytics (Google Analytics, where enabled, and Metricool), imagery (Unsplash), interactive 3D scenes (Spline), and publishing integrations (Notion, server-side only). These providers process data on our behalf or under their own policies. Where analytics are enabled, providers may process usage and device data under their own terms. We encourage you to review the policies of these services.</p>
             </section>
 
             <section>
