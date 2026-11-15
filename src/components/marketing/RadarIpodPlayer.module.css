@@ -1,0 +1,69 @@
+.player {
+  --ipod-ink: var(--ink);
+  --ipod-paper: var(--paper);
+  --ipod-muted: color-mix(in srgb, var(--ipod-ink) 58%, transparent);
+  --ipod-screen: #b9d7bd;
+  --ipod-screen-ink: #173320;
+  color: var(--ipod-ink);
+  display: grid;
+  gap: clamp(1rem, 3vw, 2rem);
+  justify-items: center;
+  width: 100%;
+}
+.device {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--ipod-paper) 96%, white), color-mix(in srgb, var(--ipod-ink) 8%, var(--ipod-paper)));
+  border: 1px solid color-mix(in srgb, var(--ipod-ink) 20%, transparent);
+  border-radius: 1.45rem;
+  box-shadow: 0 1rem 0 color-mix(in srgb, var(--ipod-ink) 14%, transparent), 0 2rem 4rem color-mix(in srgb, var(--ipod-ink) 22%, transparent);
+  display: grid;
+  gap: 1.1rem;
+  max-width: 26rem;
+  overflow: hidden;
+  padding: clamp(1rem, 3vw, 1.35rem);
+  position: relative;
+  width: min(100%, 26rem);
+}
+.deviceHighlight { background: linear-gradient(135deg, color-mix(in srgb, white 40%, transparent), transparent 48%); inset: 0 0 46%; pointer-events: none; position: absolute; }
+.lcd { background: var(--ipod-screen); border: 2px solid color-mix(in srgb, var(--ipod-screen-ink) 55%, transparent); box-shadow: inset 0 0 1.5rem rgba(0, 0, 0, .16); color: var(--ipod-screen-ink); display: grid; grid-template-rows: auto 1fr auto; min-height: 17rem; overflow: hidden; position: relative; }
+.lcd::after { background: repeating-linear-gradient(0deg, rgba(0, 0, 0, .055) 0, rgba(0, 0, 0, .055) 1px, transparent 1px, transparent 3px); content: ""; inset: 0; pointer-events: none; position: absolute; }
+.lcdHeader, .lcdFooter { border-bottom: 1px solid color-mix(in srgb, var(--ipod-screen-ink) 45%, transparent); display: flex; font: 700 .58rem/1 var(--font-mono), monospace; justify-content: space-between; letter-spacing: .12em; padding: .55rem .7rem; position: relative; text-transform: uppercase; z-index: 1; }
+.lcdFooter { border-bottom: 0; border-top: 1px solid color-mix(in srgb, var(--ipod-screen-ink) 45%, transparent); }
+.nowPlaying, .emptyState { align-content: center; display: grid; gap: .35rem; justify-items: center; padding: 1rem; position: relative; text-align: center; z-index: 1; }
+.trackArt { aspect-ratio: 1; background: var(--ipod-screen-ink); color: var(--ipod-screen); display: grid; max-width: 8rem; overflow: hidden; place-items: center; width: 42%; }
+.trackArt img { height: 100%; object-fit: cover; width: 100%; }
+.trackArt span, .bootMark { font: 700 clamp(2rem, 8vw, 4rem)/1 var(--font-display), sans-serif; }
+.trackTitle { font: 700 1.05rem/1.05 var(--font-display), sans-serif; margin: .35rem 0 0; max-width: 18ch; }
+.trackArtist, .playlistName { font: 700 .62rem/1.3 var(--font-mono), monospace; letter-spacing: .08em; margin: 0; max-width: 28ch; text-transform: uppercase; }
+.playlistName { margin-top: .25rem; opacity: .7; }
+.emptyState p { font: 700 .72rem/1.2 var(--font-mono), monospace; letter-spacing: .1em; margin: 0; text-transform: uppercase; }
+.emptyState small { font: 700 .58rem/1.2 var(--font-mono), monospace; letter-spacing: .1em; opacity: .68; text-transform: uppercase; }
+.coverMark { aspect-ratio: 1; background: var(--ipod-screen-ink); color: var(--ipod-screen); display: grid; max-width: 8rem; overflow: hidden; place-items: center; width: 42%; }
+.coverMark img { height: 100%; object-fit: cover; width: 100%; }
+.coverMark span { font: 700 clamp(2rem, 8vw, 4rem)/1 var(--font-display), sans-serif; }
+.wheel { aspect-ratio: 1; background: conic-gradient(from 20deg, #e8e8e8, #c7c7c7, #f4f4f4, #b9b9b9, #e8e8e8); border: 1px solid rgba(0, 0, 0, .12); border-radius: 50%; box-shadow: inset 0 .4rem 1rem rgba(255, 255, 255, .65), inset 0 -.4rem 1rem rgba(0, 0, 0, .1); margin: 0 auto; max-width: 14rem; position: relative; width: 72%; }
+.wheelButton, .centerButton { background: transparent; border: 0; color: #4f4f4f; cursor: pointer; font: 700 .62rem/1 var(--font-mono), monospace; position: absolute; text-transform: uppercase; }
+.wheelButton:focus-visible, .centerButton:focus-visible, .inlineControl:focus-visible, .caption a:focus-visible { outline: 2px solid var(--flare); outline-offset: 3px; }
+.menuButton { left: 50%; top: 12%; transform: translateX(-50%); }
+.previousButton { left: 12%; top: 50%; transform: translateY(-50%); }
+.nextButton { right: 12%; top: 50%; transform: translateY(-50%); }
+.playButton { bottom: 12%; left: 50%; transform: translateX(-50%); }
+.centerButton { background: linear-gradient(145deg, #fafafa, #d6d6d6); border-radius: 50%; box-shadow: 0 .15rem .35rem rgba(0, 0, 0, .18); height: 36%; left: 32%; top: 32%; width: 36%; }
+.centerButton span { border-bottom: 1px solid rgba(0, 0, 0, .16); border-radius: 50%; display: block; height: 45%; left: 10%; position: absolute; top: 8%; width: 80%; }
+.statusRow { display: flex; gap: .5rem; justify-content: center; position: relative; }
+.playlistSelector { align-items: center; display: flex; gap: .5rem; justify-content: center; min-height: 3.5rem; overflow-x: auto; padding: .15rem .2rem; position: relative; scrollbar-width: thin; }
+.coverButton { background: transparent; border: 1px solid color-mix(in srgb, var(--ipod-ink) 20%, transparent); cursor: pointer; flex: 0 0 auto; padding: .18rem; transition: border-color .2s ease, transform .2s ease; }
+.coverButton span { align-items: center; background: var(--ipod-screen); color: var(--ipod-screen-ink); display: grid; height: 2.45rem; overflow: hidden; place-items: center; width: 2.45rem; }
+.coverButton img { height: 100%; object-fit: cover; width: 100%; }
+.coverButton b { font: 700 1.25rem/1 var(--font-display), sans-serif; }
+.coverButton:hover, .coverButtonActive { border-color: var(--flare); transform: translateY(-2px); }
+.coverButtonActive { box-shadow: 0 3px 0 var(--flare); }
+.inlineControl { background: transparent; border: 1px solid color-mix(in srgb, var(--ipod-ink) 24%, transparent); color: var(--ipod-muted); cursor: pointer; font: 700 .58rem/1 var(--font-mono), monospace; letter-spacing: .08em; padding: .45rem .55rem; text-transform: uppercase; }
+.inlineControl[aria-pressed="true"] { background: var(--flare); border-color: var(--flare); color: var(--flare-foreground); }
+.caption { align-items: end; display: flex; gap: 1.5rem; justify-content: space-between; max-width: 42rem; width: min(100%, 42rem); }
+.caption h2 { font: 700 clamp(1.4rem, 4vw, 2.4rem)/.95 var(--font-display), sans-serif; letter-spacing: -.05em; margin: .35rem 0; }
+.caption p { color: var(--ipod-muted); font: 700 .65rem/1.35 var(--font-mono), monospace; letter-spacing: .08em; margin: 0; text-transform: uppercase; }
+.eyebrow { color: var(--flare) !important; }
+.caption a { color: var(--ipod-ink); font: 700 .65rem/1.2 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; }
+.menu { border: 1px solid color-mix(in srgb, var(--ipod-ink) 20%, transparent); display: flex; flex-wrap: wrap; font: 700 .62rem/1.2 var(--font-mono), monospace; gap: .7rem 1rem; justify-content: center; padding: .65rem .8rem; text-transform: uppercase; width: min(100%, 42rem); }
+@media (max-width: 520px) { .caption { align-items: start; flex-direction: column; gap: .8rem; } .device { border-radius: 1.1rem; } }
+@media (prefers-reduced-motion: reduce) { .device, .wheelButton, .centerButton, .inlineControl, .caption a { transition: none; } }

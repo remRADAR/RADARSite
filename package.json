@@ -42,7 +42,9 @@
     "dev:vinext": "vite dev --port 3001",
     "build:vinext": "vite build",
     "start:vinext": "vite preview",
-    "deploy:vinext": "vinext-cloudflare deploy"
+    "deploy:vinext": "vinext-cloudflare deploy",
+    "radar-playlists:contract-test": "tsx scripts/radar-playlists-contract-test.ts",
+    "radar-playlists:store-contract-test": "tsx scripts/radar-playlists-store-contract-test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1135.0",
