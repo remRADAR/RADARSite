@@ -318,6 +318,12 @@ async function readContentUncached({ fallbackToSnapshot = false }: ReadContentOp
       logContentReadError(error, "Cloudflare public content read failed; trying direct Notion or the existing CMS source");
     }
   }
+  // The Cloudflare snapshot is the durable public read model. Once it exists,
+  // serve it directly instead of re-running the expensive full Notion traversal
+  // for every cache miss/page request. Notion publishing already persists its
+  // merged result into this snapshot; direct reads remain a bootstrap fallback
+  // when the snapshot has not been created yet.
+  if (cloudflareContent) return cloudflareContent;
   if (notionDirectReadEnabled()) {
     try {
       const direct = await readDirectNotionContent(cloudflareContent || mergedSnapshot, cloudflareRelationships);
@@ -326,7 +332,6 @@ async function readContentUncached({ fallbackToSnapshot = false }: ReadContentOp
       logContentReadError(error, "Direct Notion public read failed; trying the existing CMS source");
     }
   }
-  if (cloudflareContent) return cloudflareContent;
   if (!hasContentDatabase()) return mergedSnapshot;
   try {
     await ensureContentTable();
