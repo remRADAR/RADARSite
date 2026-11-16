@@ -354,15 +354,13 @@ export async function readPublicContent() {
     const encoded = await readCachedPublicContent();
     return normalizeContent(JSON.parse(gunzipSync(Buffer.from(encoded, "base64")).toString("utf8")));
   } catch (error) {
-    // Vinext's Cloudflare Worker runtime does not expose Next's incrementalCache
-    // context. Keep public pages available by reading the durable content store
-    // directly when that adapter is unavailable, while preserving the tagged
-    // cache path on runtimes that support it.
-    if (error instanceof Error && /incrementalCache|unstable_cache/i.test(error.message)) {
-      logContentReadError(error, "Public content cache unavailable; using direct content read");
-      return readContentUncached({ fallbackToSnapshot: true });
-    }
-    throw error;
+    // Vinext's Cloudflare Worker runtime may reject Next's incremental cache
+    // with runtime-specific messages. The cache is an optimization, never a
+    // prerequisite for serving the public site: fall back for any cache/read
+    // failure and let readContentUncached preserve the durable-store/snapshot
+    // fallback chain.
+    logContentReadError(error, "Public content cache unavailable; using direct content read");
+    return readContentUncached({ fallbackToSnapshot: true });
   }
 }
 
