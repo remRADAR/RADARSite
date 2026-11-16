@@ -114,6 +114,15 @@ export function RadarIpodPlayer({
     onShuffleToggle?.();
   };
 
+  const handlePlaySelectedPlaylist = () => {
+    if (isEmbedded) {
+      setEmbeddedPlaying(true);
+      sendYoutubeCommand("playVideo");
+      return;
+    }
+    onTrackChange?.(currentIndex);
+  };
+
   return (
     <section className={styles.player} aria-labelledby={titleId}>
       <div className={styles.device}>
@@ -179,7 +188,7 @@ export function RadarIpodPlayer({
           <button type="button" className={`${styles.wheelButton} ${styles.previousButton}`} onClick={() => moveTrack(-1)} aria-label="Previous track">‹</button>
           <button type="button" className={`${styles.wheelButton} ${styles.nextButton}`} onClick={() => moveTrack(1)} aria-label="Next track">›</button>
           <button type="button" className={`${styles.wheelButton} ${styles.playButton}`} onClick={handlePlaybackToggle} aria-label={isPlaying ? "Pause playback" : "Play playback"} disabled={!isEmbedded && (!onPlaybackToggle || !currentTrack)}>{isPlaying ? "Ⅱ" : "▶"}</button>
-          <button type="button" className={styles.centerButton} onClick={() => isEmbedded ? sendYoutubeCommand("playVideo") : onTrackChange?.(currentIndex)} aria-label={isEmbedded ? "Play selected playlist" : "Select current track"} disabled={!isEmbedded && !currentTrack}><span aria-hidden="true" /></button>
+          <button type="button" className={styles.centerButton} onClick={handlePlaySelectedPlaylist} aria-label={isEmbedded ? "Play selected playlist" : "Select current track"} disabled={!isEmbedded && !currentTrack}><span aria-hidden="true" /></button>
         </div>
         <div className={styles.statusRow}>
           <button type="button" className={styles.inlineControl} onClick={handleShuffleToggle} aria-pressed={activeShuffle}>Shuffle {activeShuffle ? "on" : "off"}</button>
