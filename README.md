@@ -4,11 +4,11 @@ This repository contains the RADARSite web experience — a Next.js (App Router)
 
 ## Getting started
 
-```bash```
+```bash
 npm install
 cp .env.local.example .env.local   # then fill in values
 npm run dev
-``````
+```
 
 Requires Node 20+.
 
