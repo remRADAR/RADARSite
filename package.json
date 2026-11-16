@@ -36,6 +36,8 @@
     "cms:workflow-contract-test": "tsx scripts/cms-article-workflow-contract-test.ts",
     "notion:contract-test": "tsx scripts/notion-publish-contract-test.ts",
     "cloudflare-content:contract-test": "tsx scripts/cloudflare-content-store-contract-test.ts",
+    "test:content-cache-fallback": "tsx scripts/public-content-cache-fallback-contract-test.ts",
+    "test:sw-retirement": "tsx scripts/service-worker-retirement-contract-test.ts",
     "test:csp": "tsx scripts/csp-contract-test.ts",
     "hero:process": "tsx scripts/hero-image-process.ts",
     "hero:contract-test": "tsx scripts/hero-image-contract-test.ts",
