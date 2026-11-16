@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { gunzipSync, gzipSync } from "node:zlib";
 import type { Artist, Article, Event, MagazineStory, RadarProject, Release } from "@/lib/ia-content";
 import type { TrackStory } from "@/lib/track-story";
@@ -341,77 +342,26 @@ async function readContentUncached({ fallbackToSnapshot = false }: ReadContentOp
 }
 
 export async function readContent(options?: ReadContentOptions) { return readContentUncached(options); }
-// The public content cache is created lazily and defensively. Vinext's
-// Cloudflare Worker runtime may not export `unstable_cache` from `next/cache`
-// at all, in which case a module-level static import would fail the whole
-// module and every route that reads published content. The adapter is resolved
-// lazily, type-checked, and any failure (missing export, missing
-// incrementalCache context, decode error, transient cache error) degrades to
-// the durable direct read with diagnostic logging.
-export type PublicContentCacheReader = () => Promise<string>;
-
-export function createPublicContentCacheReader(
-  createCachedRead: () => PublicContentCacheReader | null | undefined,
-): PublicContentCacheReader | null {
-  try {
-    const reader = createCachedRead();
-    return typeof reader === "function" ? reader : null;
-  } catch (error) {
-    logContentReadError(error, "Public content cache adapter unavailable; public reads will bypass the cache");
-    return null;
-  }
-}
-
-let publicContentCacheReader: PublicContentCacheReader | null | undefined;
-
-async function getPublicContentCacheReader(): Promise<PublicContentCacheReader | null> {
-  if (publicContentCacheReader !== undefined) return publicContentCacheReader;
-  try {
-    const nextCache = (await import("next/cache")) as { unstable_cache?: unknown };
-    if (typeof nextCache?.unstable_cache !== "function") {
-      console.error("[content-server] next/cache did not provide unstable_cache; public content reads bypass the cache");
-      publicContentCacheReader = null;
-      return publicContentCacheReader;
-    }
-    const unstable_cache = nextCache.unstable_cache as (
-      fn: () => Promise<string>,
-      keys: string[],
-      options: { revalidate: number; tags: string[] },
-    ) => PublicContentCacheReader;
-    publicContentCacheReader = createPublicContentCacheReader(() =>
-      unstable_cache(
-        async () => {
-          const content = await readContentUncached({ fallbackToSnapshot: true });
-          return gzipSync(JSON.stringify(content)).toString("base64");
-        },
-        ["radarsite-public-content-v3"],
-        { revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS, tags: [PUBLIC_CONTENT_CACHE_TAG] },
-      ),
-    );
-  } catch (error) {
-    logContentReadError(error, "Public content cache adapter unavailable; public reads will bypass the cache");
-    publicContentCacheReader = null;
-  }
-  return publicContentCacheReader;
-}
-
+const readCachedPublicContent = unstable_cache(async () => {
+  const content = await readContentUncached({ fallbackToSnapshot: true });
+  return gzipSync(JSON.stringify(content)).toString("base64");
+}, ["radarsite-public-content-v3"], { revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS, tags: [PUBLIC_CONTENT_CACHE_TAG] });
 export async function readPublicContent() {
   // Static builds always use the committed snapshot. Avoid invoking the runtime
   // cache, gzip, and JSON round-trip once per prerendered page and metadata pass.
   if (isProductionBuild() && !notionDirectReadEnabled()) return mergedSnapshot;
-  const cachedRead = await getPublicContentCacheReader();
-  if (cachedRead) {
-    try {
-      const encoded = await cachedRead();
-      return normalizeContent(JSON.parse(gunzipSync(Buffer.from(encoded, "base64")).toString("utf8")));
-    } catch (error) {
-      // The cache is an optimization, never a prerequisite for serving the
-      // public site. Fall back for any cache/read failure and let
-      // readContentUncached preserve the durable-store/snapshot fallback chain.
-      logContentReadError(error, "Public content cache read failed; using direct content read");
-    }
+  try {
+    const encoded = await readCachedPublicContent();
+    return normalizeContent(JSON.parse(gunzipSync(Buffer.from(encoded, "base64")).toString("utf8")));
+  } catch (error) {
+    // Vinext's Cloudflare Worker runtime may reject Next's incremental cache
+    // with runtime-specific messages. The cache is an optimization, never a
+    // prerequisite for serving the public site: fall back for any cache/read
+    // failure and let readContentUncached preserve the durable-store/snapshot
+    // fallback chain.
+    logContentReadError(error, "Public content cache unavailable; using direct content read");
+    return readContentUncached({ fallbackToSnapshot: true });
   }
-  return readContentUncached({ fallbackToSnapshot: true });
 }
 
 export async function readPublishedContent(): Promise<ContentCollections> {

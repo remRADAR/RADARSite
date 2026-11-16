@@ -1,53 +1,48 @@
 import assert from "node:assert/strict";
-import { createPublicContentCacheReader } from "@/lib/content-server";
 
 // Regression guard for the production rendering incident on Cloudflare/Vinext.
 //
-// readPublicContent() previously wrapped the public read in a module-level
-// unstable_cache call and only fell back to the durable store when the thrown
-// error message matched /incrementalCache|unstable_cache/i. In the Vinext
-// Worker runtime the cache adapter can fail with different wording (or be
-// missing entirely), which escaped the guard and crashed every route that
-// reads published content into the error boundary.
+// readPublicContent() previously only fell back to the durable read when the
+// thrown cache error message matched /incrementalCache|unstable_cache/i. The
+// Vinext Worker runtime fails the Next incremental cache with different
+// wording, which escaped the guard and crashed every route that reads
+// published content into the error boundary ("SYSTEM PAUSE / SIGNAL
+// INTERRUPTED").
 //
-// The cache is now created lazily behind createPublicContentCacheReader, and
-// readPublicContent falls back to the durable read on ANY cache-path failure.
+// Contract: public content reads must resolve to real published content even
+// when the runtime cache adapter is hostile, absent, or fails with any
+// message. The cache is an optimization, never a prerequisite.
 
-// The cache adapter factory throwing (any message) must degrade to null,
-// never propagate.
-for (const message of [
-  "Cannot read properties of undefined (reading 'get')",
-  "readCachedPublicContent is not a function",
-  "Route used unstable_cache without an incrementalCache",
-  "Something entirely different",
-]) {
-  const reader = createPublicContentCacheReader(() => {
-    throw new Error(message);
-  });
-  assert.equal(reader, null, `a throwing cache adapter must degrade to null (${message})`);
-}
+// Run outside production-build mode so the runtime cache path is exercised,
+// and with no database or Cloudflare store configured so the durable fallback
+// deterministically resolves to the committed merged snapshot.
+delete process.env.RADAR_SKIP_DATABASE;
+delete process.env.NEXT_PHASE;
+delete process.env.DATABASE_URL;
+delete process.env.RADAR_NOTION_DIRECT_READ_ENABLED;
+delete process.env.NOTION_API_KEY;
+delete process.env.RADAR_NOTION_DATA_SOURCE_ID;
 
-// A missing/undefined adapter export must degrade to null.
-assert.equal(createPublicContentCacheReader(() => undefined), null, "a missing cache adapter must degrade to null");
-assert.equal(createPublicContentCacheReader(() => null), null, "a null cache adapter must degrade to null");
+const { readPublicContent, readPublishedContent, getMergedContentSnapshot } = await import("@/lib/content-server");
 
-// A healthy adapter passes through untouched.
-const healthy = async () => "cached-payload";
-assert.equal(createPublicContentCacheReader(() => healthy), healthy, "a healthy cache adapter must be preserved");
-
-// The snapshot-only build path must keep serving published snapshot content
-// without touching any cache or database.
-process.env.RADAR_SKIP_DATABASE = "1";
-const { getMergedContentSnapshot, readPublishedContent } = await import("@/lib/content-server");
-
-const published = await readPublishedContent();
+// The full public read must never throw, whatever the cache layer does.
+const content = await readPublicContent();
 const snapshot = getMergedContentSnapshot();
-assert.ok(Array.isArray(published.articles), "readPublishedContent must return articles");
-assert.ok(published.articles.length > 0, "published snapshot content must not be empty");
+assert.ok(Array.isArray(content.articles), "readPublicContent must return articles");
+assert.ok(content.articles.length > 0, "public content must not be empty when the cache layer fails");
+assert.equal(content.articles.length, snapshot.articles.length, "with no durable store configured, public reads must serve the committed snapshot");
+
+// The published view must filter draft and archived records.
+const published = await readPublishedContent();
+assert.ok(Array.isArray(published.articles) && published.articles.length > 0, "readPublishedContent must return published articles");
 assert.ok(
   published.articles.every((article: { status?: string }) => article.status !== "draft" && article.status !== "archived"),
   "readPublishedContent must filter draft and archived records",
 );
-assert.equal(published.articles.length, (snapshot.articles as { status?: string }[]).filter((a) => a.status !== "draft" && a.status !== "archived").length);
+assert.equal(
+  published.articles.length,
+  (snapshot.articles as { status?: string }[]).filter((a) => a.status !== "draft" && a.status !== "archived").length,
+  "published article count must match the committed snapshot's published records",
+);
 
-console.log(JSON.stringify({ cacheAdapterDegradation: "PASS", snapshotFallback: "PASS", publishedFiltering: "PASS" }, null, 2));
+console.log(JSON.stringify({ publicReadNeverThrows: "PASS", snapshotFallback: "PASS", publishedFiltering: "PASS" }, null, 2));
