@@ -9,6 +9,8 @@ import { buildPageMetadata } from "@/lib/seo";
 import { ArticleSourceExcerpt } from "@/components/marketing/ArticleSourceExcerpt";
 import { buildArticleSourceExcerpt } from "@/lib/source-excerpt";
 import { articleSocialCardUrl } from "@/lib/social-card";
+import { MagazineArticleView } from "@/components/marketing/MagazineArticleView";
+import { deriveEditorialTaxonomy } from "@/lib/cms-taxonomy";
 export const revalidate = 3600;
 // Unknown editorial slugs must be real 404s, not successful static shells with noindex metadata.
 // New approved CMS slugs are resolved on demand after publishing invalidates the path.
@@ -32,4 +34,8 @@ export async function generateMetadata({ params }: { params: Promise<{ article: 
   const image = articleSocialCardUrl(record.slug || article);
   return buildPageMetadata({ title: record.metaTitle || record.title || "Article", description: record.metaDescription || record.excerpt, path: canonical, image, type: "article", indexable: record.noindex !== true, publishedTime: record.publishedAt || record.date, modifiedTime: typeof record.sourceModifiedAt === "string" ? record.sourceModifiedAt : typeof record.updatedAt === "string" ? record.updatedAt : undefined, authors: record.author ? [record.author] : undefined });
 }
-export default async function ArticleDetail({ params }: { params: Promise<{ article: string }> }) { const { article } = await params; const { articles } = await readPublishedContent(); const item = findBySlug(articles, article); if (!item) notFound(); const record = normalizeEditorialRecord(item); const schema = buildArticleJsonLd(record); const excerpt = buildArticleSourceExcerpt(record); return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(schema) }} /><IaDetail item={item} kind="article" backPath="/ontheradar/articles" />{excerpt ? <div className="px-5 pb-16 md:px-10"><div className="mx-auto max-w-4xl"><ArticleSourceExcerpt excerpt={excerpt} /></div></div> : null}</>; }
+export default async function ArticleDetail({ params }: { params: Promise<{ article: string }> }) { const { article } = await params; const { articles } = await readPublishedContent(); const item = findBySlug(articles, article); if (!item) notFound(); const record = normalizeEditorialRecord(item); const schema = buildArticleJsonLd(record); const excerpt = buildArticleSourceExcerpt(record); // Magazine articles are read as a flipbook issue; every other editorial type
+  // keeps the existing long-form article layout.
+  const isMagazine = deriveEditorialTaxonomy(record).editorialType === "Magazine";
+  if (isMagazine) return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(schema) }} /><MagazineArticleView record={record} backPath="/ontheradar/magazine" /></>;
+  return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(schema) }} /><IaDetail item={item} kind="article" backPath="/ontheradar/articles" />{excerpt ? <div className="px-5 pb-16 md:px-10"><div className="mx-auto max-w-4xl"><ArticleSourceExcerpt excerpt={excerpt} /></div></div> : null}</>; }

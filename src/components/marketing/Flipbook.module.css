@@ -1,0 +1,959 @@
+/*
+  RADARCharts flipbook.
+  Editorial brutalist: black field, white signal, hard 90 degree corners.
+  Mechanics follow the reference interactive magazine: a fixed-size book of
+  leaves rotated in 3D, one DOM subtree per page, so page content (including
+  images) can never leave the page it was packed into.
+*/
+
+.root {
+  --flip: 950ms;
+  --ease: cubic-bezier(0.32, 0.05, 0.24, 1);
+  --pw: 520px;
+  --ph: 727px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100svh;
+  min-height: 34rem;
+  overflow: hidden;
+  background: radial-gradient(120% 90% at 50% -10%, #1b1b1b 0%, #0c0c0c 45%, #050505 100%);
+  color: var(--ink);
+}
+
+/* ---------- chrome ---------- */
+.chrome {
+  flex: 0 0 auto;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.875rem;
+  padding: 0.875rem 1.25rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #a4a4a0;
+}
+
+.chromeBottom {
+  padding-top: 0.625rem;
+  padding-bottom: max(0.875rem, env(safe-area-inset-bottom));
+}
+
+.brand {
+  color: #f7f7f2;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  white-space: nowrap;
+}
+
+.brand em {
+  font-style: normal;
+  margin-left: 0.625rem;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  color: #8d8d88;
+}
+
+.counter {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.14em;
+  color: #f7f7f2;
+  font-size: 0.6875rem;
+  white-space: nowrap;
+}
+
+.counter b {
+  font-weight: 700;
+}
+
+.counter s {
+  text-decoration: none;
+  margin: 0 0.375rem;
+  color: #7e7e79;
+}
+
+.progress {
+  position: relative;
+  flex: 1 1 auto;
+  max-width: 14rem;
+  height: 2px;
+  background: #3a3a3c;
+  overflow: hidden;
+}
+
+.progressFill {
+  position: absolute;
+  inset: 0 100% 0 0;
+  background: #f7f7f2;
+  transition: right 0.6s var(--ease);
+}
+
+.navbtns {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navbtns button {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  width: 2.125rem;
+  height: 1.875rem;
+  padding: 0;
+  border: 1px solid #4a4a4d;
+  background: transparent;
+  color: #f7f7f2;
+  font-size: 0.8125rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, opacity 0.2s;
+}
+
+.navbtns button:hover {
+  background: #2c2d2f;
+  border-color: #6a6a6d;
+}
+
+.navbtns button:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
+.hint {
+  margin: 0 auto 0 1rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.5625rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8f8f89;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 0.6s;
+}
+
+.hintGone {
+  opacity: 0;
+}
+
+.footLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.5625rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8f8f89;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- stage / book ---------- */
+.stage {
+  position: relative;
+  flex: 1 1 auto;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  perspective: 2800px;
+}
+
+.stage::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: max(0.375rem, 2vh);
+  transform: translateX(-50%);
+  width: calc(var(--pw) * 1.9);
+  max-width: 92vw;
+  height: 1.625rem;
+  background: radial-gradient(50% 100% at 50% 0%, rgba(0, 0, 0, 0.55), transparent 72%);
+  filter: blur(3px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.book {
+  position: relative;
+  z-index: 1;
+  width: calc(var(--pw) * 2);
+  height: var(--ph);
+  perspective: 2400px;
+  transform-style: preserve-3d;
+  box-shadow: 0 30px 62px -14px rgba(0, 0, 0, 0.68), 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: width 0.35s var(--ease), height 0.35s var(--ease), transform 0.62s var(--ease);
+}
+
+.book.single {
+  width: var(--pw);
+}
+
+/* A closed book is a single cover, so it sits centred rather than on the right half. */
+.book.closedStart {
+  transform: translateX(calc(var(--pw) * -0.5));
+}
+
+.book.closedEnd {
+  transform: translateX(calc(var(--pw) * 0.5));
+}
+
+.book.single.closedStart,
+.book.single.closedEnd {
+  transform: none;
+}
+
+.book.closedStart .spine,
+.book.closedEnd .spine {
+  opacity: 0;
+}
+
+.spine {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(var(--pw) * 0.17);
+  height: var(--ph);
+  z-index: 9000;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.17) 34%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.17) 66%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  transition: opacity 0.4s;
+}
+
+/* ---------- leaves ---------- */
+.leaf {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform var(--flip) var(--ease);
+  will-change: transform;
+}
+
+.book.single .leaf {
+  left: 0;
+  width: 100%;
+}
+
+.leaf.flipped {
+  transform: rotateY(-180deg);
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: var(--paper);
+}
+
+.faceBack {
+  transform: rotateY(180deg);
+}
+
+.face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.48s linear;
+}
+
+.faceFront::after {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0) 62%);
+}
+
+.faceBack::after {
+  background: linear-gradient(270deg, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0) 62%);
+}
+
+.leaf.turning .face::after {
+  opacity: 1;
+}
+
+/* ---------- the sheet ---------- */
+.sheet {
+  --pad: clamp(1.25rem, 3.4vw, 2.75rem);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: var(--pad);
+  overflow: hidden;
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(130% 100% at 8% 4%, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 55%),
+    linear-gradient(112deg, #0a0a0a 0%, #070707 48%, #050505 100%);
+}
+
+.book.single .sheet {
+  --pad: clamp(1.125rem, 5vw, 2rem);
+}
+
+.sheetInner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* Inner gutter shading, so a spread reads as one bound object. */
+.sheet.verso {
+  padding-right: calc(var(--pad) * 1.22);
+}
+
+.sheet.recto {
+  padding-left: calc(var(--pad) * 1.22);
+}
+
+.sheet.verso::before,
+.sheet.recto::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2.375rem;
+  pointer-events: none;
+}
+
+.sheet.verso::before {
+  right: 0;
+  background: linear-gradient(270deg, rgba(0, 0, 0, 0.5), transparent);
+}
+
+.sheet.recto::before {
+  left: 0;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.5), transparent);
+}
+
+/* ---------- editorial type ---------- */
+.eyebrow {
+  margin: 0 0 0.875rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.59375rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.runhead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.625rem;
+  margin-bottom: 1.125rem;
+  padding-bottom: 0.5625rem;
+  border-bottom: 1px solid rgba(247, 247, 242, 0.28);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.5625rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #a4a4a0;
+}
+
+.runhead span:last-child {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.body {
+  font-family: var(--font-display), sans-serif;
+  color: #e6e6e1;
+}
+
+.body :global(h2),
+.body :global(h3),
+.body :global(h4) {
+  margin: 0 0 0.6rem;
+  font-weight: 900;
+  line-height: 0.98;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.body :global(h2) {
+  font-size: clamp(1.5rem, 2.6vw, 2.4rem);
+}
+
+.body :global(h3) {
+  font-size: clamp(1.2rem, 2vw, 1.75rem);
+}
+
+.body :global(p) {
+  margin: 0 0 0.85em;
+  font-size: clamp(0.78rem, 1.05vw, 0.95rem);
+  line-height: 1.62;
+  hyphens: auto;
+}
+
+.body :global(p:first-of-type) {
+  font-size: clamp(0.85rem, 1.15vw, 1.05rem);
+  color: var(--ink);
+}
+
+.body :global(ul),
+.body :global(ol) {
+  margin: 0 0 0.9em;
+  padding-left: 1.1rem;
+  font-size: clamp(0.78rem, 1.05vw, 0.95rem);
+  line-height: 1.55;
+}
+
+.body :global(ul) {
+  list-style: disc;
+}
+
+.body :global(ol) {
+  list-style: decimal;
+}
+
+.body :global(li) {
+  margin-bottom: 0.4em;
+}
+
+.body :global(a) {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.body :global(blockquote) {
+  margin: 0 0 0.9em;
+  padding: 0.4rem 0 0.4rem 0.9rem;
+  border-left: 3px solid var(--ink);
+  font-size: 1.05em;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.body :global(hr) {
+  margin: 1.1rem 0;
+  border: 0;
+  border-top: 1px solid rgba(247, 247, 242, 0.3);
+}
+
+/* Inline media stays inside its own page and is never cropped. */
+.body :global(figure) {
+  margin: 0 0 0.9rem;
+  width: 100%;
+  overflow: hidden;
+}
+
+.body :global(img) {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: 38svh;
+  margin-inline: auto;
+  object-fit: contain;
+  background: rgba(247, 247, 242, 0.06);
+}
+
+.body :global(figcaption) {
+  margin-top: 0.4rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.5625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a4a4a0;
+}
+
+.body :global(.editorial-embed) {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin: 0 0 0.9rem;
+  overflow: hidden;
+  background: rgba(247, 247, 242, 0.08);
+}
+
+.body :global(.editorial-embed--spotify-track) {
+  aspect-ratio: auto;
+  height: 152px;
+}
+
+.body :global(.editorial-embed--spotify-large) {
+  aspect-ratio: auto;
+  height: 352px;
+}
+
+.body :global(.editorial-embed--instagram) {
+  aspect-ratio: auto;
+  height: 700px;
+  max-width: 540px;
+  margin-inline: auto;
+}
+
+.body :global(.editorial-embed iframe) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.body :global(.editorial-embed-fallback) {
+  margin: 0 0 0.9rem;
+  padding: 0.75rem 0.9rem;
+  border: 2px solid var(--ink);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.spacer {
+  flex: 1 1 auto;
+  min-height: 0.5rem;
+}
+
+.folio {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(247, 247, 242, 0.22);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.5625rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #a4a4a0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- front cover ---------- */
+.coverSheet {
+  padding: 0;
+  background: #050505;
+}
+
+.coverArt {
+  position: absolute;
+  inset: 0;
+}
+
+/* The cover image fills the front cover of the magazine. */
+.coverArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+  display: block;
+}
+
+.coverArt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(5, 5, 5, 0.72) 0%,
+    rgba(5, 5, 5, 0.18) 34%,
+    rgba(5, 5, 5, 0.42) 62%,
+    rgba(5, 5, 5, 0.92) 100%
+  );
+}
+
+.coverInner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: calc(var(--pad) * 0.92);
+  color: var(--ink);
+}
+
+.coverTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.625rem;
+  border-bottom: 1px solid var(--ink);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.5625rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #d8d8d3;
+}
+
+.coverTop b {
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: 0.3em;
+}
+
+.coverTitle {
+  margin: calc(var(--pad) * 0.5) 0 0;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 900;
+  font-size: clamp(1.6rem, 3.4vw, 3rem);
+  line-height: 0.94;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.coverSub {
+  margin: 0.625rem 0 0;
+  max-width: 30ch;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.625rem;
+  line-height: 1.5;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #cfcfca;
+}
+
+.coverFoot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: auto;
+  padding-top: 0.625rem;
+  border-top: 1px solid var(--ink);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.53125rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #cfcfca;
+  line-height: 1.8;
+}
+
+.coverFoot em {
+  font-style: normal;
+  color: #8f8f89;
+}
+
+.coverMark {
+  text-align: right;
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: 0.3em;
+}
+
+/* ---------- plate (full-bleed image page) ---------- */
+.plateSheet {
+  padding: 0;
+  background: #050505;
+}
+
+.plateFigure {
+  position: absolute;
+  inset: 0;
+}
+
+.plateFigure img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.plateFigure::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(5, 5, 5, 0.34) 0%,
+    rgba(5, 5, 5, 0) 32%,
+    rgba(5, 5, 5, 0) 58%,
+    rgba(5, 5, 5, 0.72) 100%
+  );
+}
+
+.plateCaption {
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: calc(var(--pad) * 0.78);
+  z-index: 1;
+  color: var(--ink);
+}
+
+.plateCaption span {
+  display: block;
+  margin-bottom: 0.3125rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.53125rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(247, 247, 242, 0.72);
+}
+
+.plateCaption p {
+  margin: 0;
+  max-width: 26ch;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(0.9rem, 1.5vw, 1.25rem);
+  line-height: 1.2;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+/* ---------- contents ---------- */
+.contentsHead {
+  margin: 0 0 1rem;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 900;
+  font-size: clamp(1.3rem, 2.4vw, 2rem);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.contentsList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.contentsList li {
+  margin: 0;
+}
+
+.contentsButton {
+  display: flex;
+  align-items: baseline;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0.75rem 0;
+  border: 0;
+  border-bottom: 1px solid rgba(247, 247, 242, 0.24);
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s, padding-left 0.25s;
+}
+
+.contentsButton:hover {
+  padding-left: 0.3125rem;
+  color: #ffffff;
+}
+
+.contentsNum {
+  min-width: 1.5rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.59375rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #a4a4a0;
+}
+
+.contentsTitle {
+  flex: 1 1 auto;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(0.8rem, 1.2vw, 1.05rem);
+  font-weight: 800;
+  line-height: 1.24;
+  text-transform: uppercase;
+}
+
+.contentsPage {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  color: #a4a4a0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- back cover ---------- */
+.backSheet {
+  padding: 0;
+  background: linear-gradient(200deg, #141414 0%, #050505 100%);
+}
+
+.backInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.125rem;
+  height: 100%;
+  padding: calc(var(--pad) * 1.1);
+  text-align: center;
+}
+
+.backMark {
+  display: grid;
+  place-items: center;
+  width: 3.375rem;
+  height: 3.375rem;
+  border: 1px solid rgba(247, 247, 242, 0.42);
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--ink);
+}
+
+.backWord {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.backRule {
+  width: 2.75rem;
+  height: 1px;
+  background: rgba(247, 247, 242, 0.3);
+}
+
+.backLine {
+  max-width: 26ch;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.625rem;
+  line-height: 1.6;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a4a4a0;
+}
+
+.backLink {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* ---------- edge click zones ---------- */
+.edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 28;
+  display: flex;
+  align-items: center;
+  width: min(13%, 5.25rem);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s, background 0.3s;
+}
+
+.edgeL {
+  left: 0;
+  justify-content: flex-start;
+  padding-left: 0.875rem;
+}
+
+.edgeR {
+  right: 0;
+  justify-content: flex-end;
+  padding-right: 0.875rem;
+}
+
+.edge:hover {
+  opacity: 1;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.16), transparent);
+}
+
+.edgeR:hover {
+  background: linear-gradient(270deg, rgba(0, 0, 0, 0.16), transparent);
+}
+
+.stage:hover .edge {
+  opacity: 0.34;
+}
+
+.edge:disabled {
+  display: none;
+}
+
+/* ---------- endcap (back cover held flat behind the stack in single mode) ---------- */
+.endcap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.55s linear;
+}
+
+.endcapShow {
+  opacity: 1;
+}
+
+.book:not(.single) .endcap {
+  display: none;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 820px) {
+  .chrome {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.5625rem;
+    letter-spacing: 0.16em;
+  }
+
+  .brand em {
+    display: none;
+  }
+
+  .progress {
+    max-width: none;
+  }
+
+  .hint {
+    display: none;
+  }
+
+  .stage::after {
+    width: 88vw;
+  }
+}
+
+@media (max-width: 560px) {
+  .navbtns button {
+    width: 2rem;
+    height: 1.75rem;
+  }
+
+  .counter {
+    font-size: 0.625rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .leaf {
+    transition-duration: 0.001ms;
+  }
+
+  .progressFill {
+    transition: none;
+  }
+}
