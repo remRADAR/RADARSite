@@ -350,8 +350,20 @@ export async function readPublicContent() {
   // Static builds always use the committed snapshot. Avoid invoking the runtime
   // cache, gzip, and JSON round-trip once per prerendered page and metadata pass.
   if (isProductionBuild() && !notionDirectReadEnabled()) return mergedSnapshot;
-  const encoded = await readCachedPublicContent();
-  return normalizeContent(JSON.parse(gunzipSync(Buffer.from(encoded, "base64")).toString("utf8")));
+  try {
+    const encoded = await readCachedPublicContent();
+    return normalizeContent(JSON.parse(gunzipSync(Buffer.from(encoded, "base64")).toString("utf8")));
+  } catch (error) {
+    // Vinext's Cloudflare Worker runtime does not expose Next's incrementalCache
+    // context. Keep public pages available by reading the durable content store
+    // directly when that adapter is unavailable, while preserving the tagged
+    // cache path on runtimes that support it.
+    if (error instanceof Error && /incrementalCache|unstable_cache/i.test(error.message)) {
+      logContentReadError(error, "Public content cache unavailable; using direct content read");
+      return readContentUncached({ fallbackToSnapshot: true });
+    }
+    throw error;
+  }
 }
 
 export async function readPublishedContent(): Promise<ContentCollections> {
