@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useState } from "react";
+import { useCallback, useId, useMemo, useRef, useState } from "react";
 import type { RadarIpodPlaylist, RadarPlaybackState, RadarRepeatMode } from "@/types/radar-playlists";
 import styles from "./RadarIpodPlayer.module.css";
 
@@ -27,6 +27,20 @@ function wrapIndex(index: number, total: number) {
   return total === 0 ? 0 : (index % total + total) % total;
 }
 
+function prepareEmbeddedPlayerUrl(input?: string) {
+  if (!input) return undefined;
+  try {
+    const url = new URL(input);
+    if (!["www.youtube.com", "youtube.com", "www.youtube-nocookie.com", "youtube-nocookie.com"].includes(url.hostname)) return input;
+    url.searchParams.set("enablejsapi", "1");
+    url.searchParams.set("playsinline", "1");
+    url.searchParams.set("rel", "0");
+    return url.toString();
+  } catch {
+    return input;
+  }
+}
+
 export function RadarIpodPlayer({
   playlist,
   embeddedPlayerUrl,
@@ -44,19 +58,60 @@ export function RadarIpodPlayer({
   onRepeatChange,
 }: RadarIpodPlayerProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [embeddedPlaying, setEmbeddedPlaying] = useState(false);
+  const [embeddedShuffle, setEmbeddedShuffle] = useState(shuffle);
+  const [embeddedRepeat, setEmbeddedRepeat] = useState<RadarRepeatMode>(repeat);
+  const frameRef = useRef<HTMLIFrameElement>(null);
   const titleId = useId();
   const currentIndex = wrapIndex(trackIndex, playlist.tracks.length);
   const currentTrack = playlist.tracks[currentIndex];
-  const isPlaying = playbackState === "playing";
+  const playerUrl = useMemo(() => prepareEmbeddedPlayerUrl(embeddedPlayerUrl), [embeddedPlayerUrl]);
+  const isEmbedded = Boolean(playerUrl);
+  const isPlaying = isEmbedded ? embeddedPlaying : playbackState === "playing";
+  const activeShuffle = isEmbedded ? embeddedShuffle : shuffle;
+  const activeRepeat = isEmbedded ? embeddedRepeat : repeat;
+
+  const sendYoutubeCommand = useCallback((func: string, args: unknown[] = []) => {
+    if (!frameRef.current?.contentWindow || !playerUrl) return;
+    const targetOrigin = new URL(playerUrl).origin;
+    frameRef.current.contentWindow.postMessage(JSON.stringify({ event: "command", func, args }), targetOrigin);
+  }, [playerUrl]);
 
   const moveTrack = useCallback((amount: number) => {
+    if (isEmbedded) {
+      sendYoutubeCommand(amount < 0 ? "previousVideo" : "nextVideo");
+      return;
+    }
     if (playlist.tracks.length === 0) return;
     onTrackChange?.(wrapIndex(currentIndex + amount, playlist.tracks.length));
-  }, [currentIndex, onTrackChange, playlist.tracks.length]);
+  }, [currentIndex, isEmbedded, onTrackChange, playlist.tracks.length, sendYoutubeCommand]);
 
   const cycleRepeat = () => {
-    const next = repeatOrder[(repeatOrder.indexOf(repeat) + 1) % repeatOrder.length];
+    const currentRepeat = isEmbedded ? embeddedRepeat : repeat;
+    const next = repeatOrder[(repeatOrder.indexOf(currentRepeat) + 1) % repeatOrder.length];
+    if (isEmbedded) {
+      setEmbeddedRepeat(next);
+      sendYoutubeCommand("setLoop", [next !== "off"]);
+    }
     onRepeatChange?.(next);
+  };
+
+  const handlePlaybackToggle = () => {
+    if (isEmbedded) {
+      const nextPlaying = !embeddedPlaying;
+      sendYoutubeCommand(nextPlaying ? "playVideo" : "pauseVideo");
+      setEmbeddedPlaying(nextPlaying);
+    }
+    onPlaybackToggle?.();
+  };
+
+  const handleShuffleToggle = () => {
+    const nextShuffle = !(isEmbedded ? embeddedShuffle : shuffle);
+    if (isEmbedded) {
+      setEmbeddedShuffle(nextShuffle);
+      sendYoutubeCommand("setShuffle", [nextShuffle]);
+    }
+    onShuffleToggle?.();
   };
 
   return (
@@ -68,11 +123,12 @@ export function RadarIpodPlayer({
             <span>{isPlaying ? "PLAY" : playbackState === "loading" ? "LOAD" : "RADAR"}</span>
             <span aria-hidden="true">{currentTrack ? `${currentIndex + 1}/${playlist.tracks.length}` : "—/—"}</span>
           </div>
-          {embeddedPlayerUrl ? (
+          {playerUrl ? (
             <div className={styles.embeddedPlayer}>
               <iframe
+                ref={frameRef}
                 title={`${playlist.title} live music player`}
-                src={embeddedPlayerUrl}
+                src={playerUrl}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
                 loading="lazy"
@@ -122,12 +178,12 @@ export function RadarIpodPlayer({
           <button type="button" className={`${styles.wheelButton} ${styles.menuButton}`} onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen} aria-controls={`${titleId}-menu`}>Menu</button>
           <button type="button" className={`${styles.wheelButton} ${styles.previousButton}`} onClick={() => moveTrack(-1)} aria-label="Previous track">‹</button>
           <button type="button" className={`${styles.wheelButton} ${styles.nextButton}`} onClick={() => moveTrack(1)} aria-label="Next track">›</button>
-          <button type="button" className={`${styles.wheelButton} ${styles.playButton}`} onClick={onPlaybackToggle} aria-label={isPlaying ? "Pause playback" : "Play playback"} disabled={!onPlaybackToggle || !currentTrack}>{isPlaying ? "Ⅱ" : "▶"}</button>
-          <button type="button" className={styles.centerButton} onClick={() => onTrackChange?.(currentIndex)} aria-label="Select current track" disabled={!currentTrack}><span aria-hidden="true" /></button>
+          <button type="button" className={`${styles.wheelButton} ${styles.playButton}`} onClick={handlePlaybackToggle} aria-label={isPlaying ? "Pause playback" : "Play playback"} disabled={!isEmbedded && (!onPlaybackToggle || !currentTrack)}>{isPlaying ? "Ⅱ" : "▶"}</button>
+          <button type="button" className={styles.centerButton} onClick={() => isEmbedded ? sendYoutubeCommand("playVideo") : onTrackChange?.(currentIndex)} aria-label={isEmbedded ? "Play selected playlist" : "Select current track"} disabled={!isEmbedded && !currentTrack}><span aria-hidden="true" /></button>
         </div>
         <div className={styles.statusRow}>
-          <button type="button" className={styles.inlineControl} onClick={onShuffleToggle} aria-pressed={shuffle}>Shuffle {shuffle ? "on" : "off"}</button>
-          <button type="button" className={styles.inlineControl} onClick={cycleRepeat}>Repeat {repeat}</button>
+          <button type="button" className={styles.inlineControl} onClick={handleShuffleToggle} aria-pressed={activeShuffle}>Shuffle {activeShuffle ? "on" : "off"}</button>
+          <button type="button" className={styles.inlineControl} onClick={cycleRepeat}>Repeat {activeRepeat}</button>
         </div>
       </div>
       <div className={styles.caption}>

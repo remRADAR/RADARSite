@@ -38,21 +38,32 @@ const routes = [...new Set([
   ...articleRoutes,
 ])];
 
-const concurrency = Number(process.env.CONCURRENCY || 16);
+// Keep this probe below the Worker/origin concurrency cliff. A broad burst of
+// uncached article renders can create false 503 failures and needlessly consume
+// the same production resources we are trying to monitor.
+const concurrency = Number(process.env.CONCURRENCY || 6);
 const timeoutMs = Number(process.env.TIMEOUT_MS || 30_000);
+const retryCount = Number(process.env.RETRY_COUNT || 2);
+const retryDelayMs = Number(process.env.RETRY_DELAY_MS || 1_500);
 const headers = { "user-agent": "RADAR-live-route-verifier/1.0", accept: "text/html,application/xhtml+xml" };
 
 async function check(path) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetch(`${baseURL}${path}`, { headers, redirect: "manual", signal: controller.signal });
-    return { path, status: response.status, bytes: Number(response.headers.get("content-length") || 0), location: response.headers.get("location") || "" };
-  } catch (error) {
-    return { path, status: "ERROR", error: error instanceof Error ? error.message : String(error) };
-  } finally {
-    clearTimeout(timer);
+  let lastResult;
+  for (let attempt = 0; attempt <= retryCount; attempt += 1) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(`${baseURL}${path}`, { headers, redirect: "manual", signal: controller.signal });
+      lastResult = { path, status: response.status, bytes: Number(response.headers.get("content-length") || 0), location: response.headers.get("location") || "", attempt: attempt + 1 };
+      if (response.status < 500 && response.status !== 429) return lastResult;
+    } catch (error) {
+      lastResult = { path, status: "ERROR", error: error instanceof Error ? error.message : String(error), attempt: attempt + 1 };
+    } finally {
+      clearTimeout(timer);
+    }
+    if (attempt < retryCount) await new Promise((resolve) => setTimeout(resolve, retryDelayMs * (attempt + 1)));
   }
+  return lastResult;
 }
 
 const started = Date.now();

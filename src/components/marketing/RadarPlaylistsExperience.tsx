@@ -4,7 +4,7 @@ import type { RadarIpodPlaylist } from "@/types/radar-playlists";
 import styles from "./RadarPlaylistsExperience.module.css";
 
 const spotifyProfileUrl = "https://open.spotify.com/user/fjh0nofc014ci0frc7nxzts9f";
-const youtubeEmbedUrl = "https://www.youtube.com/embed/videoseries?list=PLHAe6HfLZXbI&rel=0&playsinline=1";
+const youtubeEmbedUrl = "https://www.youtube.com/embed/videoseries?list=PLHAe6HfLZXbI&rel=0&playsinline=1&enablejsapi=1";
 const podPlaylist: RadarIpodPlaylist = {
   id: "radar-youtube-playlist",
   title: "RADAR MUSIC",
