@@ -342,12 +342,12 @@ async function readContentUncached({ fallbackToSnapshot = false }: ReadContentOp
 
 export async function readContent(options?: ReadContentOptions) { return readContentUncached(options); }
 // The public content cache is created lazily and defensively. Vinext's
-// Cloudflare Worker runtime does not provide Next's incrementalCache context,
-// and its `next/cache` module may not export `unstable_cache` at all. A
-// module-level import or a message-matching fallback previously let any
-// unexpectedly-worded cache failure crash the whole route into the error
-// boundary (the "SYSTEM PAUSE / SIGNAL INTERRUPTED" production incident).
-// Every failure in the cache path now degrades to a direct durable read.
+// Cloudflare Worker runtime may not export `unstable_cache` from `next/cache`
+// at all, in which case a module-level static import would fail the whole
+// module and every route that reads published content. The adapter is resolved
+// lazily, type-checked, and any failure (missing export, missing
+// incrementalCache context, decode error, transient cache error) degrades to
+// the durable direct read with diagnostic logging.
 export type PublicContentCacheReader = () => Promise<string>;
 
 export function createPublicContentCacheReader(
@@ -405,9 +405,9 @@ export async function readPublicContent() {
       const encoded = await cachedRead();
       return normalizeContent(JSON.parse(gunzipSync(Buffer.from(encoded, "base64")).toString("utf8")));
     } catch (error) {
-      // Any cache-path failure (missing incrementalCache context, missing
-      // export, decode error, transient cache error) must never take public
-      // pages down. Log with diagnostic context and read the durable store.
+      // The cache is an optimization, never a prerequisite for serving the
+      // public site. Fall back for any cache/read failure and let
+      // readContentUncached preserve the durable-store/snapshot fallback chain.
       logContentReadError(error, "Public content cache read failed; using direct content read");
     }
   }
