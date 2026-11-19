@@ -109,11 +109,27 @@ function spotifyEmbeds(source: string) {
     .replace(/(?<![\w/="'])https:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}(?:-[A-Z]{2})?\/)?(track|album|playlist|episode|show)\/([A-Za-z0-9]+)(?:\?[^\s<]*)?/gi, (_, type: string, id: string) => embed(type, id));
 }
 
+function removeHtmlComments(source: string) {
+  let result = "";
+  let cursor = 0;
+  while (cursor < source.length) {
+    const start = source.indexOf("<!--", cursor);
+    if (start === -1) {
+      result += source.slice(cursor);
+      break;
+    }
+    result += source.slice(cursor, start);
+    const end = source.indexOf("-->", start + 4);
+    if (end === -1) break;
+    cursor = end + 3;
+  }
+  return result;
+}
+
 /** Converts known WordPress HTML into the deliberately small, safe editorial subset. */
 export function sanitizeEditorialHtml(input: unknown) {
   const source = instagramEmbeds(spotifyEmbeds(socialFallbacks(typeof input === "string" ? input.slice(0, MAX_HTML) : "")));
-  return source
-    .replace(/<!--[\s\S]*?-->/g, "")
+  return removeHtmlComments(source)
     .replace(/<\/?(script|style|object|embed|form|svg|math|link|meta|noscript)[^>]*>/gi, "")
     .replace(/<([a-z0-9-]+)([^>]*)>/gi, (_, tag: string, attrs: string) => {
       const name = tag.toLowerCase();

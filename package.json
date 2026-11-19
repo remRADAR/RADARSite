@@ -25,6 +25,7 @@
     "postgres:adapter-contract-test": "tsx scripts/postgres-adapter-contract-test.ts",
     "test:e2e": "playwright test",
     "test:editorial-archives": "tsx scripts/editorial-archives-contract-test.ts",
+    "test:editorial-migration": "tsx scripts/editorial-migration-contract-test.ts",
     "test:editorial-feed": "tsx scripts/editorial-tree-contract-test.ts",
     "test:track-story": "tsx scripts/track-story-contract-test.ts",
     "test:e2e:ui": "playwright test --ui",
