@@ -1,3 +1,17 @@
+# Installable web app and TV navigation
+
+## Make the official site installable as a live web app
+
+- Keep `https://radarcharts.net` as the canonical live origin and load installed shortcuts from the same origin.
+- Make the manifest explicitly standalone with a stable app identity, safe orientation, icons, and useful launcher shortcuts.
+- Keep the service worker network-fresh so deployed site and editorial updates are visible instead of serving stale application caches.
+
+## Improve remote and keyboard navigation
+
+- Add progressive spatial navigation for D-pad arrows and keyboard arrows across visible links, buttons, form controls, and focusable elements.
+- Activate the focused control with Select/Enter/Space while preserving ordinary touch and mouse behavior.
+- Retain accessible focus styles and reduced-motion behavior.
+
 # About Page Delivery
 
 ## Build the second About frame: branded founder pass

@@ -5,6 +5,7 @@ import { LiveSiteOverrides } from "@/components/LiveSiteOverrides";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { MetricoolTracker } from "@/components/MetricoolTracker";
+import { TVNavigation } from "@/components/TVNavigation";
 import { StructuredData, organizationStructuredData, websiteStructuredDataGraph } from "@/components/StructuredData";
 import { DEFAULT_SOCIAL_IMAGE, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/seo";
 
@@ -24,6 +25,14 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
   description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  appleWebApp: {
+    capable: true,
+    title: SITE_NAME,
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: { telephone: false },
+  themeColor: "#050505",
   verification: {
     ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } : {}),
     other: {
@@ -60,6 +69,7 @@ export default function RootLayout({
         <StructuredData data={websiteStructuredDataGraph} />
         <LiveSiteOverrides />
         <ServiceWorkerRegistration />
+        <TVNavigation />
         <GoogleAnalytics />
         <MetricoolTracker />
         {children}

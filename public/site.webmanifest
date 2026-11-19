@@ -1,12 +1,35 @@
 {
-  "name": "remRADAR",
+  "id": "/",
+  "name": "remRADAR — RADARCharts by REM",
   "short_name": "remRADAR",
-  "start_url": "/",
+  "description": "RADARCharts by REM — music, artists, releases, stories, and projects moving culture forward.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
   "background_color": "#050505",
   "theme_color": "#050505",
+  "lang": "en",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "categories": ["music", "entertainment", "lifestyle"],
   "icons": [
-    { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "RADARMusic",
+      "short_name": "RADARMusic",
+      "url": "/radarmusic?source=shortcut",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "On The Radar",
+      "short_name": "On The Radar",
+      "url": "/ontheradar?source=shortcut",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    }
   ]
 }

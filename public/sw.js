@@ -1,6 +1,6 @@
-// RADARCharts does not cache application or build assets in production.
-// This worker remains only to clean up older installations that cached stale
-// Vinext chunks and could make a healthy server response fail during hydration.
+// Keep the installed web app network-fresh. The worker deliberately does not
+// intercept fetches, so HTML, route data, build assets, and editorial updates
+// always come from the official RADARCharts origin.
 self.addEventListener("install", () => {
   self.skipWaiting();
 });
@@ -11,6 +11,5 @@ self.addEventListener("activate", (event) => {
       .keys()
       .then((keys) => Promise.all(keys.filter((key) => key.startsWith("radar-cache-")).map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
-      .then(() => self.registration.unregister())
   );
 });
