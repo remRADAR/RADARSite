@@ -21,7 +21,7 @@ jobs:
       BASE_URL: https://radarcharts.net
     steps:
       - name: Check out the monitoring script
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
