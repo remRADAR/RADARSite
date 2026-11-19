@@ -11,6 +11,15 @@ export function ServiceWorkerRegistration() {
     const register = async () => {
       try {
         registration = await navigator.serviceWorker.register("/sw.js", { updateViaCache: "none" });
+        registration.addEventListener("updatefound", () => {
+          const worker = registration?.installing;
+          if (!worker) return;
+          worker.addEventListener("statechange", () => {
+            if (worker.state === "installed" && navigator.serviceWorker.controller) {
+              window.dispatchEvent(new Event("radar:sw-update"));
+            }
+          });
+        });
         await registration.update();
         interval = window.setInterval(() => void registration?.update(), 5 * 60 * 1000);
       } catch {

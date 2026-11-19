@@ -37,3 +37,26 @@ Turn `/about` into a clean two-frame experience. Frame one is the existing RADAR
 - `src/components/marketing/KernLanyardPass.jsx`: reusable pass interaction and optional activation callback.
 - `src/app/(marketing)/about/ecosystem/page.tsx`: concise ecosystem destination.
 - `public/images/about/`: supplied Explore image and future founder replacement asset.
+
+
+# Cross-platform web app hardening
+
+## Goal
+
+Keep RADARCharts as one canonical Next.js web app that installs cleanly to an iOS Home Screen and Android launcher, remains network-fresh while offering a useful offline fallback, and behaves predictably with Android TV D-pad remotes. CMS/content freshness is the sync contract; no consumer accounts or user-state synchronization are introduced.
+
+## Implementation
+
+- Keep the existing same-origin PWA manifest and add an offline route plus a versioned service-worker strategy: cache the offline shell and app assets, use network-first navigation, and never cache API responses or stale editorial HTML as a substitute for the live origin.
+- Add a small lifecycle surface for install/update actions. Android browsers may expose an install prompt; iOS receives concise Home Screen guidance; installed apps receive a safe update action when a new worker is waiting.
+- Keep TV navigation progressive rather than replacing native touch/mouse behavior. Improve focus recovery, skip editable controls during arrow traversal, accept common remote activation keys, expose Android-TV detection as a root mode, and strengthen TV-sized focus visibility.
+- Do not add Capacitor/TWA/native Android code in this phase: the selected scope is a web app/PWA with CMS freshness, and the repository has no native API requirement or consumer identity model.
+
+## Project structure
+
+- `public/sw.js`: versioned asset/offline strategy and network-first navigation.
+- `src/components/PwaLifecycle.tsx`: install/update/offline lifecycle UI.
+- `src/components/ServiceWorkerRegistration.tsx`: worker registration and update events.
+- `src/components/TVNavigation.tsx`: progressive D-pad and keyboard focus behavior.
+- `src/app/offline/page.tsx`: same-origin offline fallback route.
+- `src/app/globals.css`: TV-mode focus and minimum target styling.

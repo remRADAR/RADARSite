@@ -608,3 +608,29 @@ html {
   .editorial-body .editorial-embed { animation: none !important; }
   .editorial-body .editorial-embed.is-loading::after { animation: none; }
 }
+
+
+/* Android TV / 10-foot mode: keep the web surface usable with a D-pad. */
+html[data-tv-mode="true"] :focus-visible {
+  outline: 4px solid var(--flare);
+  outline-offset: 6px;
+}
+
+html[data-tv-mode="true"] a,
+html[data-tv-mode="true"] button,
+html[data-tv-mode="true"] input,
+html[data-tv-mode="true"] select,
+html[data-tv-mode="true"] textarea,
+html[data-tv-mode="true"] [role="button"] {
+  min-height: 44px;
+}
+
+html[data-tv-mode="true"] body {
+  font-size: 1.08rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-tv-mode="true"] * {
+    scroll-behavior: auto !important;
+  }
+}

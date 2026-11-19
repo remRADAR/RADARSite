@@ -42,3 +42,22 @@
 - Verify the About route and founder activation behavior in the local preview.
 - Commit and push the completed About and ecosystem changes to `origin/main`.
 - Deploy the updated `main` build to the `radarsite-staging` Cloudflare Worker and smoke-test the staging route.
+
+
+# Cross-platform web app hardening — current scope
+
+## Deliver a resilient iOS/Android installable web app
+
+- Keep `https://radarcharts.net` as the canonical origin and preserve the existing standalone manifest, icons, shortcuts, and Apple Home Screen metadata.
+- Add an offline route and a versioned service-worker policy that caches only the offline shell and safe static assets, uses network-first navigation, and never serves stale API/editorial data as if it were current.
+- Provide a small install/update surface: Android install prompt when supported, concise iOS Home Screen guidance, and a safe reload action when a new service worker is waiting.
+
+## Make Android TV remote navigation predictable
+
+- Preserve touch and mouse behavior while improving arrow-key/D-pad focus recovery, editable-control handling, activation keys, Android-TV mode detection, and high-visibility focus targets.
+- Keep CMS/content freshness as the only sync contract in this phase; do not add consumer accounts or cross-device user-state synchronization.
+
+## Validate and deliver
+
+- Run source checks, lint, typecheck, production build, and focused PWA/TV contract checks.
+- Commit the completed hardening changes on a review branch and push that branch to the connected GitHub repository without changing production `main`.

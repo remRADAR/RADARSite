@@ -3,6 +3,7 @@ import { Archivo, Space_Mono } from "next/font/google";
 import "./globals.css";
 import { LiveSiteOverrides } from "@/components/LiveSiteOverrides";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
+import { PwaLifecycle } from "@/components/PwaLifecycle";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { MetricoolTracker } from "@/components/MetricoolTracker";
 import { TVNavigation } from "@/components/TVNavigation";
@@ -69,6 +70,7 @@ export default function RootLayout({
         <StructuredData data={websiteStructuredDataGraph} />
         <LiveSiteOverrides />
         <ServiceWorkerRegistration />
+        <PwaLifecycle />
         <TVNavigation />
         <GoogleAnalytics />
         <MetricoolTracker />
