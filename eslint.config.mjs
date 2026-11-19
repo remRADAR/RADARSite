@@ -19,6 +19,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "test-results/**",
     "playwright-report/**",
+    "android/app/src/main/assets/public/**",
   ]),
 ]);
 

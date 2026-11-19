@@ -22,7 +22,7 @@ export function PwaLifecycle() {
   const [iosHelp, setIosHelp] = useState(false);
 
   useEffect(() => {
-    if (isStandalone()) return;
+    const standalone = isStandalone();
     let iosHelpTimer: number | undefined;
 
     const onBeforeInstallPrompt = (event: Event) => {
@@ -32,11 +32,13 @@ export function PwaLifecycle() {
     const onAppInstalled = () => setInstallPrompt(null);
     const onServiceWorkerUpdate = () => setUpdateReady(true);
 
-    window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);
-    window.addEventListener("appinstalled", onAppInstalled);
+    if (!standalone) {
+      window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);
+      window.addEventListener("appinstalled", onAppInstalled);
+    }
     window.addEventListener("radar:sw-update", onServiceWorkerUpdate);
 
-    if (isIos()) {
+    if (!standalone && isIos()) {
       const dismissed = window.sessionStorage.getItem("radar-ios-install-help");
       if (!dismissed) iosHelpTimer = window.setTimeout(() => setIosHelp(true), 0);
     }
@@ -61,6 +63,20 @@ export function PwaLifecycle() {
     setIosHelp(false);
   };
 
+  const refresh = async () => {
+    const registration = await navigator.serviceWorker.getRegistration("/");
+    if (!registration?.waiting) {
+      window.location.reload();
+      return;
+    }
+    const onControllerChange = () => {
+      navigator.serviceWorker.removeEventListener("controllerchange", onControllerChange);
+      window.location.reload();
+    };
+    navigator.serviceWorker.addEventListener("controllerchange", onControllerChange, { once: true });
+    registration.waiting.postMessage({ type: "SKIP_WAITING" });
+  };
+
   if (!installPrompt && !iosHelp && !updateReady) return null;
 
   return (
@@ -68,7 +84,7 @@ export function PwaLifecycle() {
       {updateReady ? (
         <div className="flex items-center justify-between gap-4">
           <p className="font-mono text-xs font-bold uppercase tracking-[0.12em]">A fresh RADAR build is ready.</p>
-          <button type="button" onClick={() => window.location.reload()} className="min-h-11 shrink-0 border-2 border-ink px-3 font-mono text-[11px] font-bold uppercase tracking-wider hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-flare">Refresh</button>
+          <button type="button" onClick={() => void refresh()} className="min-h-11 shrink-0 border-2 border-ink px-3 font-mono text-[11px] font-bold uppercase tracking-wider hover:bg-ink hover:text-paper focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-flare">Refresh</button>
         </div>
       ) : iosHelp ? (
         <div>

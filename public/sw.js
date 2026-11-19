@@ -1,9 +1,19 @@
-const CACHE_VERSION = "radar-cache-v2";
+const CACHE_VERSION = "radar-cache-v3";
 const CORE_ASSETS = [
+  "/",
   "/offline",
+  "/site.webmanifest",
   "/android-chrome-192x192.png",
   "/android-chrome-512x512.png",
   "/apple-touch-icon.png",
+];
+const PRIVATE_PREFIXES = [
+  "/admin",
+  "/api/",
+  "/briefs",
+  "/dashboard",
+  "/login",
+  "/projects",
 ];
 
 self.addEventListener("install", (event) => {
@@ -17,7 +27,11 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((key) => key.startsWith("radar-cache-") && key !== CACHE_VERSION).map((key) => caches.delete(key))))
+      .then((keys) => Promise.all(
+        keys
+          .filter((key) => key.startsWith("radar-cache-") && key !== CACHE_VERSION)
+          .map((key) => caches.delete(key)),
+      ))
       .then(() => self.clients.claim()),
   );
 });
@@ -25,6 +39,10 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("message", (event) => {
   if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
 });
+
+function isPrivatePath(pathname) {
+  return PRIVATE_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
 
 function isStaticAsset(url) {
   return url.origin === self.location.origin && (
@@ -35,38 +53,46 @@ function isStaticAsset(url) {
   );
 }
 
+function canCacheResponse(response) {
+  if (!response || !response.ok || response.type !== "basic") return false;
+  const cacheControl = response.headers.get("cache-control") || "";
+  return !/(?:private|no-store|no-cache)/i.test(cacheControl) && !response.headers.has("set-cookie");
+}
+
 async function networkFirst(request) {
   const cache = await caches.open(CACHE_VERSION);
   try {
     const response = await fetch(request);
-    if (response.ok && response.type === "basic") await cache.put(request, response.clone());
+    if (canCacheResponse(response)) await cache.put(request, response.clone());
     return response;
   } catch {
     return (await cache.match(request)) || (await cache.match("/offline"));
   }
 }
 
-async function cacheFirst(request) {
+async function cacheFirst(request, event) {
   const cache = await caches.open(CACHE_VERSION);
   const cached = await cache.match(request);
   if (cached) {
-    eventWaitUntil(cache, request);
+    event.waitUntil(refreshAsset(cache, request));
     return cached;
   }
   try {
     const response = await fetch(request);
-    if (response.ok && response.type === "basic") await cache.put(request, response.clone());
+    if (canCacheResponse(response)) await cache.put(request, response.clone());
     return response;
   } catch {
     return Response.error();
   }
 }
 
-function eventWaitUntil(cache, request) {
-  fetch(request).then((response) => {
-    if (response.ok && response.type === "basic") return cache.put(request, response.clone());
-    return undefined;
-  }).catch(() => undefined);
+async function refreshAsset(cache, request) {
+  try {
+    const response = await fetch(request);
+    if (canCacheResponse(response)) await cache.put(request, response.clone());
+  } catch {
+    // Keep the last known-good asset for offline launches.
+  }
 }
 
 self.addEventListener("fetch", (event) => {
@@ -74,9 +100,12 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+
   if (request.mode === "navigate") {
+    if (isPrivatePath(url.pathname)) return;
     event.respondWith(networkFirst(request));
     return;
   }
-  if (isStaticAsset(url)) event.respondWith(cacheFirst(request));
+
+  if (isStaticAsset(url)) event.respondWith(cacheFirst(request, event));
 });
