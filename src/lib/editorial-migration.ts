@@ -156,8 +156,10 @@ export function sanitizeEditorialHtml(input: unknown) {
     .trim();
 }
 
-function text(value: unknown) {
-  return typeof value === "string" ? decodeEntities(value).replace(/<[^>]+>/g, "").trim().slice(0, 5000) : "";
+export function text(value: unknown) {
+  return typeof value === "string"
+    ? decodeEntities(value).replace(/<[^>]*>/g, "").replace(/[<>]/g, "").trim().slice(0, 5000)
+    : "";
 }
 
 function field(value: unknown) {

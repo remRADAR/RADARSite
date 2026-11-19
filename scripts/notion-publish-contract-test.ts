@@ -12,6 +12,7 @@ import type { ContentMediaRelationship } from "@/lib/media-relationships";
 import { NextRequest } from "next/server";
 import { POST as notionPublishPost } from "@/app/api/integrations/notion/publish/route";
 import { notionPublishRuntime } from "@/lib/notion-publish-runtime";
+import { text } from "@/lib/editorial-migration";
 
 const PAGE_ID = "3c7c6e7f-8f2a-4d56-9d1a-8f348f12c601";
 const DATA_SOURCE_ID = "8a6db547-6147-4f8a-85d2-d4fd6b7b3b75";
@@ -187,6 +188,7 @@ await assert.rejects(() => renderNotionBlockTree([{ id: "unsupported-only", type
 const rawMarkup: NotionBlock = { id: "block-raw-markup", type: "paragraph", paragraph: { rich_text: text("<script>alert(1)</script>") } };
 const escapedMarkup = await renderNotionBlockTree([rawMarkup], async () => [], async () => "");
 assert.ok(!escapedMarkup.html.includes("<script>"));
+assert.equal(text("<scr<script>ipt>alert(1)</script>"), "ipt>alert(1)");
 
 const r2Base = {
   artists: [], releases: [],
