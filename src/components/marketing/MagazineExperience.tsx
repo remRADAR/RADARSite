@@ -114,24 +114,37 @@ function sanitizeMagazineHtml(input: string) {
 function splitIntoPages(html: string) {
   const safe = sanitizeMagazineHtml(html);
   const blocks = safe.split(/(?=<(?:h[1-6]|p|figure|blockquote|ul|ol|hr)\b)/i).map((part) => part.trim()).filter(Boolean);
-  const editorialUnits: string[] = [];
   const questionUnit = (value: string) => /^<p>\s*(?:[•●▪▸→-]\s*)?<strong\b/i.test(value) || /(?:^|>)\s*(?:[•●▪▸→-])\s*<strong\b/i.test(value);
-  for (let index = 0; index < blocks.length; index += 1) {
-    const block = blocks[index];
-    const next = blocks[index + 1];
-    if (questionUnit(block) && next && !/^<h[1-6]\b/i.test(next)) {
-      editorialUnits.push(`${block}\n${next}`);
-      index += 1;
-    } else {
-      editorialUnits.push(block);
-    }
+  const isImageUnit = (value: string) => /^<figure\b/i.test(value) || /<img\b/i.test(value);
+  const biography: string[] = [];
+  const questionPages: string[] = [];
+  let index = 0;
+  while (index < blocks.length && !questionUnit(blocks[index])) {
+    biography.push(blocks[index]);
+    index += 1;
   }
-  const firstQuestion = editorialUnits.findIndex(questionUnit);
-  const biography = firstQuestion > 0 ? editorialUnits.slice(0, firstQuestion) : [];
-  const questions = firstQuestion >= 0 ? editorialUnits.slice(firstQuestion) : editorialUnits;
+  while (index < blocks.length) {
+    const question = blocks[index];
+    if (!questionUnit(question)) {
+      biography.push(question);
+      index += 1;
+      continue;
+    }
+    const parts = [question];
+    index += 1;
+    if (index < blocks.length && !questionUnit(blocks[index]) && !/^<h[1-6]\b/i.test(blocks[index])) {
+      parts.push(blocks[index]);
+      index += 1;
+    }
+    if (index < blocks.length && isImageUnit(blocks[index])) {
+      parts.push(blocks[index]);
+      index += 1;
+    }
+    questionPages.push(parts.join("\n"));
+  }
   const pages: string[] = [];
   for (let index = 0; index < biography.length; index += 3) pages.push(biography.slice(index, index + 3).join("\n"));
-  for (let index = 0; index < questions.length; index += 3) pages.push(questions.slice(index, index + 3).join("\n"));
+  pages.push(...questionPages);
   return pages.length ? pages : [safe];
 }
 
