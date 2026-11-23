@@ -114,8 +114,20 @@ function sanitizeMagazineHtml(input: string) {
 function splitIntoPages(html: string) {
   const safe = sanitizeMagazineHtml(html);
   const blocks = safe.split(/(?=<(?:h[1-6]|p|figure|blockquote|ul|ol|hr)\b)/i).map((part) => part.trim()).filter(Boolean);
+  const editorialUnits: string[] = [];
+  for (let index = 0; index < blocks.length; index += 1) {
+    const block = blocks[index];
+    const isQuestion = /^<p>\s*(?:[•●▪▸→-]\s*)?<strong\b/i.test(block) || /(?:^|>)\s*(?:[•●▪▸→-])\s*<strong\b/i.test(block);
+    const next = blocks[index + 1];
+    if (isQuestion && next && !/^<h[1-6]\b/i.test(next)) {
+      editorialUnits.push(`${block}\n${next}`);
+      index += 1;
+    } else {
+      editorialUnits.push(block);
+    }
+  }
   const pages: string[] = [];
-  for (let index = 0; index < blocks.length; index += 3) pages.push(blocks.slice(index, index + 3).join("\n"));
+  for (let index = 0; index < editorialUnits.length; index += 3) pages.push(editorialUnits.slice(index, index + 3).join("\n"));
   return pages.length ? pages : [safe];
 }
 
