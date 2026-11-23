@@ -2,10 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useSyncExternalStore, type ComponentType } from "react";
+import { useSyncExternalStore, useState, type ComponentType } from "react";
 import { FaLinkedinIn } from "react-icons/fa6";
 import { SiFacebook, SiInstagram, SiThreads, SiTiktok, SiX, SiYoutube } from "react-icons/si";
-import { Link2 } from "lucide-react";
+import { ChevronDown, Link2 } from "lucide-react";
 import { Marquee } from "@/components/motion/Marquee";
 import { RADARME_URL } from "@/lib/ia-content";
 import { getSiteOverridesServerSnapshot, getSiteOverridesSnapshot, parseSiteOverrides, subscribeToSiteOverrides } from "@/lib/site-overrides";
@@ -54,6 +54,7 @@ export function SiteFooter() {
   const overrides = parseSiteOverrides(snapshot);
   const socialLinks = overrides.socialLinks.filter((link) => link.enabled);
   const nav = (overrides.footerNav.length ? overrides.footerNav.filter((item) => item.visible).sort((a, b) => a.group.localeCompare(b.group)).map((item) => ({ href: item.url, label: item.label, newTab: item.newTab })) : NAV).map((item) => item.label === "RADARMe ↗" ? { ...item, href: overrides.radarMeUrl || RADARME_URL } : item);
+  const [indexOpen, setIndexOpen] = useState(false);
 
   return (
     <footer className="on-dark bg-ink text-paper">
@@ -72,8 +73,26 @@ export function SiteFooter() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3">
         <div className="border-b-2 border-paper p-6 md:border-b-0 md:border-r-2 md:p-8">
-          <p className="font-mono text-[11px] font-bold uppercase tracking-widest text-muted-foreground">(Index)</p>
-          <nav className="mt-4 flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={() => setIndexOpen((open) => !open)}
+            aria-expanded={indexOpen}
+            aria-controls="site-footer-index"
+            className="flex w-fit items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-flare"
+          >
+            (Index)
+            <ChevronDown
+              aria-hidden
+              size={13}
+              strokeWidth={2.5}
+              className={`transition-transform duration-200 ${indexOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+          <nav
+            id="site-footer-index"
+            aria-hidden={!indexOpen}
+            className={`mt-4 flex flex-col gap-2 overflow-hidden transition-all duration-200 ${indexOpen ? "max-h-96 visible opacity-100" : "max-h-0 invisible opacity-0"}`}
+          >
             {nav.map((n) => n.href.startsWith("http") ? <a key={n.label} href={n.href} target="_blank" rel="noreferrer" className="w-fit font-mono text-sm font-bold uppercase tracking-widest transition-colors hover:text-flare">{n.label}</a> : <Link key={n.label} href={n.href} className="w-fit font-mono text-sm font-bold uppercase tracking-widest transition-colors hover:text-flare">{n.label}</Link>)}
           </nav>
         </div>
