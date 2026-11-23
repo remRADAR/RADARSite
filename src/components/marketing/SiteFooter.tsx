@@ -55,6 +55,7 @@ export function SiteFooter() {
   const socialLinks = overrides.socialLinks.filter((link) => link.enabled);
   const nav = (overrides.footerNav.length ? overrides.footerNav.filter((item) => item.visible).sort((a, b) => a.group.localeCompare(b.group)).map((item) => ({ href: item.url, label: item.label, newTab: item.newTab })) : NAV).map((item) => item.label === "RADARMe ↗" ? { ...item, href: overrides.radarMeUrl || RADARME_URL } : item);
   const [indexOpen, setIndexOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   return (
     <footer className="on-dark bg-ink text-paper">
@@ -103,8 +104,27 @@ export function SiteFooter() {
           </div>
         </div>
         <div className="p-6 md:p-8">
-          <p className="font-mono text-[11px] font-bold uppercase tracking-widest text-muted-foreground">(remRADAR)</p>
-          <p className="mt-4 font-mono text-sm uppercase leading-relaxed tracking-wide">A music ecosystem for artists, releases, stories, projects, and the people moving culture forward.</p>
+          <button
+            type="button"
+            onClick={() => setAboutOpen((open) => !open)}
+            aria-expanded={aboutOpen}
+            aria-controls="site-footer-about"
+            className="flex w-fit items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-flare"
+          >
+            (remRADAR)
+            <ChevronDown
+              aria-hidden
+              size={13}
+              strokeWidth={2.5}
+              className={`transition-transform duration-200 ${aboutOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+          <div
+            id="site-footer-about"
+            className={`overflow-hidden transition-all duration-200 ${aboutOpen ? "mt-4 max-h-40 visible opacity-100" : "mt-0 max-h-0 invisible opacity-0"}`}
+          >
+            <p className="font-mono text-sm uppercase leading-relaxed tracking-wide">A music ecosystem for artists, releases, stories, projects, and the people moving culture forward.</p>
+          </div>
         </div>
       </div>
       <div className="flex items-center justify-between border-t-2 border-paper px-6 py-4 md:px-8">
