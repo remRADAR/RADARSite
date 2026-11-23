@@ -11,6 +11,7 @@ import type { Article, MagazineStory } from "@/lib/ia-content";
 
 type MagazineItem = (Article | MagazineStory | CmsRecord) & { slug: string };
 type ArchiveTone = "flare" | "cool";
+export type MagazineRelatedItem = MagazineItem;
 
 function archiveImageUrl(record: CmsRecord) {
   const explicit = typeof record.imageUrl === "string" && record.imageUrl.trim()
@@ -95,6 +96,11 @@ export function MagazineArchiveSection({ eyebrow, title, intro, items, tone }: {
   );
 }
 
+function MagazineReadMore({ items }: { items: MagazineRelatedItem[] }) {
+  if (!items.length) return null;
+  return <section className="border-t-2 border-ink bg-paper px-4 py-16 text-ink md:px-8 md:py-24" aria-labelledby="magazine-read-more"><div className="mx-auto max-w-7xl"><div className="mb-8 flex flex-wrap items-end justify-between gap-5"><div><p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">Continue reading</p><h2 id="magazine-read-more" className="mt-3 display text-[clamp(2.8rem,7vw,7rem)] leading-[.86]">Read more<span className="text-flare">.</span></h2></div><p className="max-w-sm font-mono text-xs uppercase leading-relaxed tracking-widest text-muted-foreground">More conversations and magazine stories from the RADAR archive.</p></div><div className="grid grid-cols-1 border-2 border-ink md:grid-cols-2 lg:grid-cols-3">{items.map((item, index) => { const record = normalizeEditorialRecord(item as CmsRecord); return <Link key={item.slug} href={itemPath(item)} className={`group block border-b-2 border-ink p-5 transition-colors hover:bg-flare md:p-7 ${index % 2 !== 1 ? "md:border-r-2" : ""} ${index % 3 !== 2 ? "lg:border-r-2" : ""}`}><div className="mb-8 flex items-start justify-between gap-4 font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground group-hover:text-ink/70"><span>Magazine</span><span>0{index + 1}</span></div><h3 className="display text-[clamp(1.8rem,4vw,3.5rem)] leading-[.9]">{record.title}<span className="text-flare group-hover:text-ink">.</span></h3><p className="mt-4 line-clamp-3 font-mono text-xs uppercase leading-relaxed tracking-wide text-muted-foreground group-hover:text-ink/75">{record.excerpt || record.subtitle || "Open the next magazine story."}</p><span className="mt-7 inline-flex font-mono text-xs font-bold uppercase tracking-widest text-flare group-hover:text-ink">Open story →</span></Link>; })}</div></div></section>;
+}
+
 function sanitizeMagazineHtml(input: string) {
   const allowed = new Set(["p", "br", "h1", "h2", "h3", "h4", "h5", "h6", "strong", "em", "b", "i", "blockquote", "ul", "ol", "li", "a", "figure", "figcaption", "img", "hr"]);
   return input.slice(0, 2_000_000).replace(/<!--[\s\S]*?-->/g, "").replace(/<\/?(script|style|object|embed|form|svg|math|link|meta|noscript|iframe)[^>]*>/gi, "").replace(/<([a-z0-9-]+)([^>]*)>/gi, (_, tag: string, attrs: string) => {
@@ -155,7 +161,7 @@ function triggerPageFlipHaptic(direction: "next" | "prev") {
   navigator.vibrate(direction === "next" ? [7, 9, 7] : [5, 12, 5]);
 }
 
-export function MagazineFlipbook({ title, excerpt, bodyHtml, imageUrl, author, backPath }: { title: string; excerpt: string; bodyHtml?: string; imageUrl?: string; author?: string; backPath: string }) {
+export function MagazineFlipbook({ title, excerpt, bodyHtml, imageUrl, author, backPath, relatedItems = [] }: { title: string; excerpt: string; bodyHtml?: string; imageUrl?: string; author?: string; backPath: string; relatedItems?: MagazineRelatedItem[] }) {
   const pages = useMemo(() => splitIntoPages(bodyHtml || `<p>${excerpt}</p>`), [bodyHtml, excerpt]);
   const [isOpen, setIsOpen] = useState(false);
   const [page, setPage] = useState(-1);
@@ -197,6 +203,7 @@ export function MagazineFlipbook({ title, excerpt, bodyHtml, imageUrl, author, b
     : <div className="editorial-body magazine-page-body" dangerouslySetInnerHTML={{ __html: pages[index] || "" }} />;
 
   return (
+    <>
     <section className="magazine-reader relative min-h-[100svh] bg-ink px-2 py-3 text-paper sm:px-4 sm:py-6 md:px-8 md:py-8" aria-label={`${title} magazine reader`}>
       <style jsx global>{`@keyframes magazineFlipNext{0%{opacity:.7;transform:perspective(1800px) rotateY(-14deg) translateX(-2%);transform-origin:left center}55%{opacity:1;transform:perspective(1800px) rotateY(2deg) translateX(0)}100%{opacity:1;transform:perspective(1800px) rotateY(0) translateX(0)}}@keyframes magazineFlipPrev{0%{opacity:.7;transform:perspective(1800px) rotateY(14deg) translateX(2%);transform-origin:right center}55%{opacity:1;transform:perspective(1800px) rotateY(-2deg) translateX(0)}100%{opacity:1;transform:perspective(1800px) rotateY(0) translateX(0)}}@keyframes pageSheen{0%{opacity:0;transform:translateX(-120%)}35%{opacity:.35}100%{opacity:0;transform:translateX(220%)}}@keyframes pageSheenReverse{0%{opacity:0;transform:translateX(120%)}35%{opacity:.35}100%{opacity:0;transform:translateX(-220%)}}.magazine-reader{scroll-behavior:smooth}.magazine-page-body{height:100%;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}.magazine-page-body p,.magazine-page-body li{font-size:clamp(.78rem,1.25vw,1rem);line-height:1.58;overflow-wrap:anywhere}.magazine-page-body h1,.magazine-page-body h2,.magazine-page-body h3,.magazine-page-body h4{max-width:100%;overflow-wrap:anywhere;line-height:.92}.magazine-page-body figure{margin:0 0 1.25rem}.magazine-page-body img{display:block;max-height:34svh;width:100%;object-fit:contain;object-position:center;margin-inline:auto}.magazine-page-body a{color:var(--flare);text-decoration:underline;text-underline-offset:3px}@media (prefers-reduced-motion:reduce){.magazine-reader *{animation:none!important;scroll-behavior:auto!important;transition:none!important}}`}</style>
       <div className="mx-auto flex min-h-[calc(100svh-1.5rem)] max-w-7xl flex-col sm:min-h-[calc(100svh-3rem)]">
@@ -211,5 +218,7 @@ export function MagazineFlipbook({ title, excerpt, bodyHtml, imageUrl, author, b
         <div className="mt-3 flex items-center justify-center gap-3 px-2 font-mono text-[10px] font-bold uppercase tracking-widest text-paper/70 sm:mt-4">{isOpen ? <><span>{page === -1 ? "Cover" : `Page ${page + 1} / ${pages.length + 1}`}</span><span aria-hidden="true">·</span><span>Drag to hold / release to flip</span><button type="button" onClick={() => { setPage(-1); setFlipDirection("prev"); }} className="inline-flex items-center gap-1 text-flare hover:underline"><RotateCcw size={12} /> Reset</button></> : <span>Portrait reading mode</span>}</div>
       </div>
     </section>
+    <MagazineReadMore items={relatedItems} />
+    </>
   );
 }
