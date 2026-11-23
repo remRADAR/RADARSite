@@ -115,19 +115,23 @@ function splitIntoPages(html: string) {
   const safe = sanitizeMagazineHtml(html);
   const blocks = safe.split(/(?=<(?:h[1-6]|p|figure|blockquote|ul|ol|hr)\b)/i).map((part) => part.trim()).filter(Boolean);
   const editorialUnits: string[] = [];
+  const questionUnit = (value: string) => /^<p>\s*(?:[•●▪▸→-]\s*)?<strong\b/i.test(value) || /(?:^|>)\s*(?:[•●▪▸→-])\s*<strong\b/i.test(value);
   for (let index = 0; index < blocks.length; index += 1) {
     const block = blocks[index];
-    const isQuestion = /^<p>\s*(?:[•●▪▸→-]\s*)?<strong\b/i.test(block) || /(?:^|>)\s*(?:[•●▪▸→-])\s*<strong\b/i.test(block);
     const next = blocks[index + 1];
-    if (isQuestion && next && !/^<h[1-6]\b/i.test(next)) {
+    if (questionUnit(block) && next && !/^<h[1-6]\b/i.test(next)) {
       editorialUnits.push(`${block}\n${next}`);
       index += 1;
     } else {
       editorialUnits.push(block);
     }
   }
+  const firstQuestion = editorialUnits.findIndex(questionUnit);
+  const biography = firstQuestion > 0 ? editorialUnits.slice(0, firstQuestion) : [];
+  const questions = firstQuestion >= 0 ? editorialUnits.slice(firstQuestion) : editorialUnits;
   const pages: string[] = [];
-  for (let index = 0; index < editorialUnits.length; index += 3) pages.push(editorialUnits.slice(index, index + 3).join("\n"));
+  for (let index = 0; index < biography.length; index += 3) pages.push(biography.slice(index, index + 3).join("\n"));
+  for (let index = 0; index < questions.length; index += 3) pages.push(questions.slice(index, index + 3).join("\n"));
   return pages.length ? pages : [safe];
 }
 
@@ -176,7 +180,7 @@ export function MagazineFlipbook({ title, excerpt, bodyHtml, imageUrl, author, b
   const dragProgress = clamp(Math.abs(dragX) / stageWidth, 0, 1);
 
   const pageMarkup = (index: number) => index === -1
-    ? <div className="flex h-full flex-col gap-5"><div className="flex items-start justify-between gap-4 font-mono text-[10px] font-bold uppercase tracking-[.18em] text-ink/70"><span>RADAR / Magazine</span><span>Vol. 01</span></div>{imageUrl ? <div className="flex min-h-0 flex-1 items-center justify-center border-4 border-ink bg-black p-2"><img src={imageUrl} alt={`${title} cover`} className="max-h-[42svh] w-full object-contain" /></div> : null}<div><p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">{author || "RADARCharts by REM"}</p><h2 className="mt-3 display max-w-[8ch] text-[clamp(2.6rem,7vw,7rem)] leading-[.8]">{title}<span className="text-flare">.</span></h2><p className="mt-4 max-w-md font-mono text-xs uppercase leading-relaxed sm:text-sm">{excerpt}</p></div><div className="border-t-2 border-ink pt-4 font-mono text-[10px] font-bold uppercase tracking-widest">Cover / front matter</div></div>
+    ? <div className="flex h-full min-h-0 flex-col gap-4 overflow-hidden"><div className="flex items-start justify-between gap-4 font-mono text-[10px] font-bold uppercase tracking-[.18em] text-ink/70"><span>RADAR / Magazine</span><span>Vol. 01</span></div>{imageUrl ? <div className="flex min-h-0 flex-1 items-center justify-center bg-black p-2"><img src={imageUrl} alt={`${title} cover`} className="max-h-[28svh] w-full object-contain" /></div> : null}<div><p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">{author || "RADARCharts by REM"}</p><h2 className="mt-3 display max-w-[8ch] text-[clamp(2.2rem,5.5vw,5.4rem)] leading-[.8]">{title}<span className="text-flare">.</span></h2><p className="mt-4 line-clamp-4 max-w-md font-mono text-xs uppercase leading-relaxed sm:text-sm">{excerpt}</p></div><div className="border-t-2 border-ink pt-4 font-mono text-[10px] font-bold uppercase tracking-widest">Cover / front matter</div></div>
     : <div className="editorial-body magazine-page-body" dangerouslySetInnerHTML={{ __html: pages[index] || "" }} />;
 
   return (
