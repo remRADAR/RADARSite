@@ -1,41 +1,16 @@
 import type { Metadata } from "next";
+import { RadarPlaylistsExperience } from "@/components/marketing/RadarPlaylistsExperience";
 import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = buildPageMetadata({ title: "Releases", description: "Explore notable releases and new music surfaced by RADARCharts.", path: "/radarmusic/releases" });
+export const metadata: Metadata = buildPageMetadata({
+  title: "Releases",
+  description: "Explore notable releases and new music surfaced by RADARCharts.",
+  path: "/radarmusic/releases",
+});
 
-import { IaIndex } from "@/components/marketing/IaPages";
-import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
-import { caseStudies } from "@/lib/case-studies";
-import { readPublishedContent, type CmsRecord } from "@/lib/content-server";
-
-const RELEASE_ARTICLE_SLUGS = [
-  "telman-releases-if-not-god-a-bold-gospel-drill-anthem",
-  "tulapro-doubles-down-on-his-lifestyle-with-badboy-ii",
-  "gande-is-breaking-boundaries-with-insta-babe",
-] as const;
-
-export default async function ReleasesPage() {
-  const { articles } = await readPublishedContent();
-  const mamuzo = caseStudies.find((item) => item.slug === "mamuzo-dark-era-peak-release");
-  const selectedArticles: CmsRecord[] = RELEASE_ARTICLE_SLUGS.flatMap((slug) => {
-    const item = articles.find((article) => article.slug === slug);
-    return item ? [{ ...(item as unknown as CmsRecord), path: `/ontheradar/articles/${slug}` }] : [];
-  });
-  const items: CmsRecord[] = [
-    ...(mamuzo ? [{
-      slug: mamuzo.slug,
-      path: `/work/${mamuzo.slug}`,
-      title: mamuzo.title,
-      excerpt: mamuzo.oneLiner,
-      body: mamuzo.brief,
-      imageUrl: mamuzo.heroImageUrl,
-      section: "radar-articles",
-      editorialType: "Press" as const,
-      date: mamuzo.year,
-      author: "RADARCharts by REM",
-      status: "published" as const,
-    }] : []),
-    ...selectedArticles,
-  ];
-  return <><ArchiveStructuredData name="Releases" description="Records, worlds, and the stories that start when the track begins." path="/radarmusic/releases" breadcrumbs={[{ name: "Home", path: "/" }, { name: "RADARMusic", path: "/radarmusic" }, { name: "Releases", path: "/radarmusic/releases" }]} /><IaIndex eyebrow="(RADARMusic / Releases)" title="Releases" intro="Records, worlds, and the stories that start when the track begins." items={items} basePath="/radarmusic/releases" /></>;
+// TEMPORARY: the Releases fallback opens the shared playlist player pod while
+// the curated releases view is rebuilt. Restore the editorial index from git
+// history (revert of the moon landing commit) when the new view lands.
+export default function ReleasesPage() {
+  return <RadarPlaylistsExperience />;
 }

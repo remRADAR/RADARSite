@@ -1,0 +1,146 @@
+/* RADARMusic moon landing: illuminated moon with an orbiting dot index. */
+
+.scene {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: min(86svh, 44rem);
+  overflow: hidden;
+}
+
+.stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: min(78vw, 30rem);
+}
+
+.moonButton {
+  position: relative;
+  z-index: 2;
+  width: 64%;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 0.4s ease;
+}
+
+.moonButton:hover {
+  transform: scale(1.04);
+}
+
+.moon {
+  object-fit: contain;
+  animation: moon-breathe 6s ease-in-out infinite;
+  filter: drop-shadow(0 0 2.75rem rgb(247 216 178 / 0.35));
+}
+
+.moonButton:hover .moon {
+  filter: drop-shadow(0 0 4rem rgb(247 216 178 / 0.6));
+}
+
+.halo {
+  position: absolute;
+  inset: -22%;
+  border-radius: 9999px;
+  background: radial-gradient(closest-side, rgb(255 196 128 / 0.26), rgb(255 196 128 / 0.08) 55%, transparent 76%);
+  animation: halo-pulse 6s ease-in-out infinite;
+  opacity: 0.7;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.haloActive {
+  opacity: 1;
+}
+
+.orbit {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+
+.dot {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  transform: translate(-50%, -50%);
+  animation: dot-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.dotDot {
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 9999px;
+  background: #f7f7f2;
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 0.12), 0 0 1.4rem rgb(255 214 165 / 0.85);
+  transition: background 0.2s ease;
+}
+
+.dot:hover .dotDot {
+  background: var(--color-flare, #ff4d2e);
+}
+
+.dotLabel {
+  max-width: 9rem;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid rgb(247 242 230 / 0.35);
+  background: rgb(5 5 5 / 0.78);
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #f7f7f2;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.dot:hover .dotLabel {
+  border-color: currentColor;
+  color: var(--color-flare, #ff4d2e);
+}
+
+.hint {
+  position: absolute;
+  bottom: -3.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 1rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground, rgb(250 250 249 / 0.6));
+  white-space: nowrap;
+}
+
+@keyframes moon-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.025); }
+}
+
+@keyframes halo-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.9; }
+}
+
+@keyframes dot-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .moon,
+  .halo,
+  .dot { animation: none; }
+  .moonButton { transition: none; }
+}

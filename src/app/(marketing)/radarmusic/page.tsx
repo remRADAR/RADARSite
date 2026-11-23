@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
-import { releases } from "@/lib/ia-content";
+import { MoonLanding } from "@/components/marketing/MoonLanding";
 import { buildPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -20,25 +20,16 @@ export default function RadarMusicPage() {
         breadcrumbs={[{ name: "Home", path: "/" }, { name: "RADARMusic", path: "/radarmusic" }]}
       />
       <div className="pt-14">
-        <div className="px-4 pb-16 pt-20 md:px-8 md:pt-28">
+        <div className="px-4 pt-16 md:px-8 md:pt-20">
           <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">(01 / RADARMusic)</p>
-          <h1 className="mt-4 display text-[clamp(3rem,12vw,12rem)] leading-[.82]">The<br /><span className="text-flare">signal.</span></h1>
-          <p className="mt-8 max-w-xl font-mono text-sm uppercase leading-relaxed tracking-widest text-muted-foreground">Playlists, artists, releases, and track-centred stories with something to say.</p>
+          <p className="mt-6 max-w-xl font-mono text-sm uppercase leading-relaxed tracking-widest text-muted-foreground">Editorial playlists, releases, and track-centred stories. Tap the moon to open the signal.</p>
         </div>
-        <div className="grid border-t-2 border-ink md:grid-cols-3">
-          <Link href="/radarmusic/artists" className="group border-b-2 border-ink p-6 transition-colors hover:bg-flare md:border-r-2 md:p-10">
-            <span className="font-mono text-xs font-bold uppercase tracking-widest">Immersive gallery</span>
-            <h2 className="mt-20 display text-[clamp(2.5rem,15vw,3.75rem)]">Playlists<span className="text-flare group-hover:text-ink">.</span></h2>
-          </Link>
-          <Link href="/radarmusic/releases" className="group border-b-2 border-ink p-6 transition-colors hover:bg-flare md:border-r-2 md:p-10">
-            <span className="font-mono text-xs font-bold uppercase tracking-widest">{releases.length} releases</span>
-            <h2 className="mt-20 display text-[clamp(2.5rem,15vw,3.75rem)]">Releases<span className="text-flare group-hover:text-ink">.</span></h2>
-          </Link>
-          <Link href="/radarmusic/tracks" className="group border-b-2 border-ink p-6 transition-colors hover:bg-flare md:p-10">
-            <span className="font-mono text-xs font-bold uppercase tracking-widest">TrackStory / StorySync</span>
-            <h2 className="mt-20 display text-[clamp(2.5rem,15vw,3.75rem)]">Tracks<span className="text-flare group-hover:text-ink">.</span></h2>
-          </Link>
-        </div>
+        <MoonLanding />
+        <nav aria-label="RADARMusic quick links" className="flex flex-wrap gap-x-8 gap-y-2 border-t-2 border-ink px-4 py-6 font-mono text-xs font-bold uppercase tracking-widest md:px-8">
+          <Link href="/radarmusic/artists" className="transition-colors hover:text-flare">Editorial Playlists</Link>
+          <Link href="/radarmusic/releases" className="transition-colors hover:text-flare">Releases</Link>
+          <Link href="/radarmusic/tracks" className="transition-colors hover:text-flare">Tracks</Link>
+        </nav>
       </div>
     </>
   );
