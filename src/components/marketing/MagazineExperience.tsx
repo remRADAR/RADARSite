@@ -8,7 +8,6 @@ import { FadeIn } from "@/components/motion/FadeIn";
 import type { CmsRecord } from "@/lib/content-server";
 import { articlePath, normalizeEditorialRecord } from "@/lib/editorial-normalization";
 import type { Article, MagazineStory } from "@/lib/ia-content";
-import { sanitizeEditorialHtml } from "@/lib/editorial-migration";
 
 type MagazineItem = (Article | MagazineStory | CmsRecord) & { slug: string };
 
@@ -77,8 +76,31 @@ export function MagazineArchiveSection({ eyebrow, title, intro, items, tone }: {
   );
 }
 
+function sanitizeMagazineHtml(input: string) {
+  const allowed = new Set(["p", "br", "h1", "h2", "h3", "h4", "h5", "h6", "strong", "em", "b", "i", "blockquote", "ul", "ol", "li", "a", "figure", "figcaption", "img", "hr"]);
+  return input.slice(0, 2_000_000)
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<\/?(script|style|object|embed|form|svg|math|link|meta|noscript|iframe)[^>]*>/gi, "")
+    .replace(/<([a-z0-9-]+)([^>]*)>/gi, (_, tag: string, attrs: string) => {
+      const name = tag.toLowerCase();
+      if (!allowed.has(name)) return "";
+      if (name === "br" || name === "hr") return `<${name}>`;
+      const kept = attrs.replace(/\s+([a-zA-Z:-]+)\s*=\s*(["'])(.*?)\2/g, (_match: string, key: string, _quote: string, value: string) => {
+        const lower = key.toLowerCase();
+        if (lower.startsWith("on") || lower === "style" || lower === "class" || lower === "id" || lower === "srcset") return "";
+        if (lower === "href" || lower === "src") {
+          if (/^javascript:/i.test(value.trim())) return "";
+          if (lower === "src" && !/^https?:\/\//i.test(value.trim()) && !value.trim().startsWith("/")) return "";
+          return ` ${lower}="${value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;")}"`;
+        }
+        return ` ${lower}="${value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;")}"`;
+      });
+      return `<${name}${kept}>`;
+    });
+}
+
 function splitIntoPages(html: string) {
-  const safe = sanitizeEditorialHtml(html);
+  const safe = sanitizeMagazineHtml(html);
   const blocks = safe.split(/(?=<(?:h[1-6]|p|figure|blockquote|ul|ol|hr)\b)/i).map((part) => part.trim()).filter(Boolean);
   const pages: string[] = [];
   for (let index = 0; index < blocks.length; index += 4) pages.push(blocks.slice(index, index + 4).join("\n"));
