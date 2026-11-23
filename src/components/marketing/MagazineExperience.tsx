@@ -121,6 +121,11 @@ function splitIntoPages(html: string) {
 
 function clamp(value: number, min: number, max: number) { return Math.min(max, Math.max(min, value)); }
 
+function triggerPageFlipHaptic(direction: "next" | "prev") {
+  if (typeof navigator === "undefined" || typeof navigator.vibrate !== "function") return;
+  navigator.vibrate(direction === "next" ? [7, 9, 7] : [5, 12, 5]);
+}
+
 export function MagazineFlipbook({ title, excerpt, bodyHtml, imageUrl, author, backPath }: { title: string; excerpt: string; bodyHtml?: string; imageUrl?: string; author?: string; backPath: string }) {
   const pages = useMemo(() => splitIntoPages(bodyHtml || `<p>${excerpt}</p>`), [bodyHtml, excerpt]);
   const [isOpen, setIsOpen] = useState(false);
@@ -145,7 +150,7 @@ export function MagazineFlipbook({ title, excerpt, bodyHtml, imageUrl, author, b
     return () => observer.disconnect();
   }, []);
 
-  const goToPage = useCallback((nextPage: number, direction: "next" | "prev") => { setFlipDirection(direction); setDragX(0); setIsDragging(false); setPage(clamp(nextPage, -1, lastPage)); }, [lastPage]);
+  const goToPage = useCallback((nextPage: number, direction: "next" | "prev") => { triggerPageFlipHaptic(direction); setFlipDirection(direction); setDragX(0); setIsDragging(false); setPage(clamp(nextPage, -1, lastPage)); }, [lastPage]);
   const openIssue = () => { setIsOpen(true); setPage(-1); };
 
   useEffect(() => {
