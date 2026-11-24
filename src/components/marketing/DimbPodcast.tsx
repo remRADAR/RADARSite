@@ -88,7 +88,7 @@ export function DimbPodcast() {
       <section className={styles.section} aria-labelledby="dimb-episodes">
         <div className={styles.sectionHead}>
           <div>
-            <p className={styles.eyebrow}>DIMB / EPISODES</p>
+            <p className={styles.eyebrow}>DuMb / EPISODES</p>
             <h2 id="dimb-episodes" className={styles.title}>
               Every conversation,
               <br />
@@ -122,7 +122,7 @@ export function DimbPodcast() {
       <section className={styles.section} aria-labelledby="dimb-library">
         <div className={styles.sectionHead}>
           <div>
-            <p className={styles.eyebrow}>DIMB / TO COME</p>
+            <p className={styles.eyebrow}>DuMb / TO COME</p>
             <h2 id="dimb-library" className={styles.title}>
               Built out, waiting
               <br />
@@ -169,7 +169,7 @@ export function DimbPodcast() {
       <section className={styles.section} aria-labelledby="dimb-read">
         <div className={styles.sectionHead}>
           <div>
-            <p className={styles.eyebrow}>DIMB / READ ALONG</p>
+            <p className={styles.eyebrow}>DuMb / READ ALONG</p>
             <h2 id="dimb-read" className={styles.title}>
               The transcript
               <br />
@@ -199,7 +199,7 @@ export function DimbPodcast() {
       </section>
 
       <div className={styles.strip}>
-        <p className={styles.stripText}>DIMB / Deep in my bones</p>
+        <p className={styles.stripText}>DuMb / Deep in my bones</p>
         <div className={styles.stripActions}>
           <span className={styles.chip}>RSS soon</span>
           <span className={styles.chip}>Spotify soon</span>

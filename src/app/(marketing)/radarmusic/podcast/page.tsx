@@ -5,9 +5,9 @@ import { DimbPodcast } from "@/components/marketing/DimbPodcast";
 import { buildPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "DIMB",
+  title: "DuMb",
   description:
-    "DIMB, the RADARMusic podcast: Deep in my bones. Conversations, track stories, and the records that never left us.",
+    "DuMb, the RADARMusic podcast: Deep in my bones. Conversations, track stories, and the records that never left us.",
   path: "/radarmusic/podcast",
 });
 

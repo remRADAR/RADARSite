@@ -41,10 +41,10 @@ export function DimbLogoOpener() {
     <section
       ref={ref}
       className={styles.opener + (inView ? " " + styles.openerIn : "")}
-      aria-label="DIMB logotype"
+      aria-label="DuMb logotype"
     >
       <div className={styles.inner}>
-        <p className={styles.wordmark + cls} aria-label="DIMB">
+        <p className={styles.wordmark + cls} aria-label="DuMb">
           <span
             aria-hidden="true"
             className={styles.letter}
