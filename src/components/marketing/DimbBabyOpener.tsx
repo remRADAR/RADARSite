@@ -81,6 +81,7 @@ export function DimbBabyOpener() {
       <p className={styles.kicker}>(02 / DuMb)</p>
 
       <div className={styles.stage + phaseClass}>
+        <div aria-hidden="true" className={styles.floorShadow} />
         <div aria-hidden="true" className={styles.frame} />
         <div aria-hidden="true" className={styles.cups} />
       </div>
