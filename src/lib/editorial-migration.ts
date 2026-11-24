@@ -34,6 +34,24 @@ function escapeAttr(value: string) {
   return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+/**
+ * Collapses repeated attributes on a single tag, keeping the first occurrence.
+ * The iframe wrapper step appends `loading` and `referrerpolicy` on every pass,
+ * so a body that is sanitized more than once (Studio write, then render, then
+ * the Notion publish path) accumulated duplicates and a stray closing tag.
+ */
+function dedupeAttributes(attrs: string) {
+  const seen = new Set<string>();
+  return (attrs.match(/([a-zA-Z:-]+)(?:\s*=\s*"[^"]*")?/g) || [])
+    .filter((token) => {
+      const key = token.split("=")[0].trim().toLowerCase();
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .join(" ");
+}
+
 function safeUrl(value: string, kind: "link" | "image" | "iframe") {
   if (kind === "image" && value.startsWith("/") && !value.startsWith("//")) return value;
   try {
@@ -115,6 +133,10 @@ export function sanitizeEditorialHtml(input: unknown) {
   return source
     .replace(/<!--[\s\S]*?-->/g, "")
     .replace(/<\/?(script|style|object|embed|form|svg|math|link|meta|noscript)[^>]*>/gi, "")
+    // Closing tags for elements outside the allowlist are dropped, mirroring the
+    // opening-tag rule below. Without this a closing </div> survived while its
+    // opening tag was discarded, leaving an orphan tag that broke the layout.
+    .replace(/<\/([a-z0-9-]+)\s*>/gi, (_, tag: string) => (allowedTags.has(tag.toLowerCase()) ? `</${tag.toLowerCase()}>` : ""))
     .replace(/<([a-z0-9-]+)([^>]*)>/gi, (_, tag: string, attrs: string) => {
       const name = tag.toLowerCase();
       if (!allowedTags.has(name)) return "";
@@ -150,7 +172,11 @@ export function sanitizeEditorialHtml(input: unknown) {
       const spotify = /src=["']https:\/\/open\.spotify\.com\/embed\/(track|album|playlist|episode|show)\//i.exec(attrs);
       const instagram = /src=["']https:\/\/(?:www\.)?instagram\.com\/(?:p|reel|tv)\/[^"']+\/embed/i.test(attrs);
       const modifier = spotify ? (spotify[1].toLowerCase() === "track" ? " editorial-embed--spotify-track" : " editorial-embed--spotify-large") : instagram ? " editorial-embed--instagram" : "";
-      return `<div class="editorial-embed${modifier}"><iframe${attrs} loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`;
+      // Re-wrapping an already-wrapped iframe must not stack attributes: strip
+      // any existing loading/referrerpolicy and collapse duplicates so the
+      // function stays idempotent across repeated sanitize passes.
+      const clean = dedupeAttributes(attrs).replace(/\s*\b(loading|referrerpolicy)\s*=\s*"[^"]*"/gi, "").trim();
+      return `<div class="editorial-embed${modifier}"><iframe${clean ? ` ${clean}` : ""} loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`;
     })
     .replace(/<p>\s*<\/p>/gi, "")
     .trim();
