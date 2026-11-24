@@ -19,9 +19,9 @@ export function RadarMusicSky() {
       </div>
       <MoonLanding sky={sky} onSkyChange={setSky} />
       <nav aria-label="RADARMusic quick links" className={styles.quickLinks}>
-        <Link href="/radarmusic/artists" className={styles.quickLink}>Editorial Playlists</Link>
-        <Link href="/radarmusic/releases" className={styles.quickLink}>Curated Playlists</Link>
         <Link href="/radarmusic/podcast" className={styles.quickLink}>Podcast</Link>
+        <Link href="/radarmusic/artists" className={styles.quickLink}>Editorials</Link>
+        <Link href="/radarmusic/releases" className={styles.quickLink}>Curated</Link>
       </nav>
     </div>
   );
