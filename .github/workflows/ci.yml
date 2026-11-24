@@ -21,7 +21,7 @@ jobs:
         run: npm ci
 
       - name: Media reference contract test
-        run: npm run media-reference:contract-test
+        run: npx tsx scripts/media-reference-contract-test.ts
 
       - name: Lint
         run: npm run lint
