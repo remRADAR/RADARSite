@@ -40,18 +40,22 @@ export async function ensureReleaseLinksTable() {
 
 export async function listReleaseLinks(): Promise<ReleaseLink[]> {
   if (!databaseEnabled()) return fallbackItems();
-  await ensureReleaseLinksTable();
-  const rows = await sql()`SELECT id, slug, title, artist, release_date AS "releaseDate", cover_image AS "coverImage", source_url AS "sourceUrl", source_title AS "sourceTitle", platform_links AS "platformLinks", status, updated_at AS "updatedAt", artist_key AS "artistKey", detected_by AS "detectedBy" FROM release_links ORDER BY updated_at DESC` as unknown as ReleaseLink[];
-  return rows.length ? rows.map((row) => ({ ...row, platformLinks: uniquePlatforms(Array.isArray(row.platformLinks) ? row.platformLinks : []) })) : fallbackItems();
+  try {
+    await ensureReleaseLinksTable();
+    const rows = await sql()`SELECT id, slug, title, artist, release_date AS "releaseDate", cover_image AS "coverImage", source_url AS "sourceUrl", source_title AS "sourceTitle", platform_links AS "platformLinks", status, updated_at AS "updatedAt", artist_key AS "artistKey", detected_by AS "detectedBy" FROM release_links ORDER BY updated_at DESC` as unknown as ReleaseLink[];
+    return rows.length ? rows.map((row) => ({ ...row, platformLinks: uniquePlatforms(Array.isArray(row.platformLinks) ? row.platformLinks : []) })) : fallbackItems();
+  } catch { return fallbackItems(); }
 }
 
 export async function getReleaseLink(slug: string): Promise<ReleaseLink | null> {
   const normalized = slugify(slug);
   if (!databaseEnabled()) return fallbackItems().find((item) => item.slug === normalized) || null;
-  await ensureReleaseLinksTable();
-  const rows = await sql()`SELECT id, slug, title, artist, release_date AS "releaseDate", cover_image AS "coverImage", source_url AS "sourceUrl", source_title AS "sourceTitle", platform_links AS "platformLinks", status, updated_at AS "updatedAt", artist_key AS "artistKey", detected_by AS "detectedBy" FROM release_links WHERE slug = ${normalized} AND status = 'published' LIMIT 1` as unknown as ReleaseLink[];
-  const row = rows[0];
-  return row ? { ...row, platformLinks: uniquePlatforms(Array.isArray(row.platformLinks) ? row.platformLinks : []) } : fallbackItems().find((item) => item.slug === normalized) || null;
+  try {
+    await ensureReleaseLinksTable();
+    const rows = await sql()`SELECT id, slug, title, artist, release_date AS "releaseDate", cover_image AS "coverImage", source_url AS "sourceUrl", source_title AS "sourceTitle", platform_links AS "platformLinks", status, updated_at AS "updatedAt", artist_key AS "artistKey", detected_by AS "detectedBy" FROM release_links WHERE slug = ${normalized} AND status = 'published' LIMIT 1` as unknown as ReleaseLink[];
+    const row = rows[0];
+    return row ? { ...row, platformLinks: uniquePlatforms(Array.isArray(row.platformLinks) ? row.platformLinks : []) } : fallbackItems().find((item) => item.slug === normalized) || null;
+  } catch { return fallbackItems().find((item) => item.slug === normalized) || null; }
 }
 
 export async function upsertReleaseLink(input: ReleaseLink): Promise<ReleaseLink> {
