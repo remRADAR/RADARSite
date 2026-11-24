@@ -1,0 +1,289 @@
+/* DIMB opener: the baby on headphones, staged on warm paper.
+   The photograph is never altered - every beat is a transform on the frame or
+   a soft light effect over the ear cups. */
+
+.intro {
+  position: relative;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  min-height: 100svh;
+  padding: 5rem 1rem 4rem;
+  background: var(--paper, #f7f7f2);
+  color: var(--ink, #050505);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ---------- frame furniture ---------- */
+
+.kicker {
+  position: absolute;
+  top: 1.5rem;
+  left: 1rem;
+  z-index: 3;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgb(5 5 5 / 0.55);
+}
+
+@media (min-width: 768px) {
+  .kicker {
+    top: 2rem;
+    left: 2rem;
+  }
+}
+
+.corner {
+  position: absolute;
+  right: 1rem;
+  bottom: 1.5rem;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(5 5 5 / 0.45);
+}
+
+@media (min-width: 768px) {
+  .corner {
+    right: 2rem;
+    bottom: 2rem;
+  }
+}
+
+/* A hairline rule under the opener, tying it to the site's hard rules. */
+.rule {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 0;
+  z-index: 3;
+  height: 2px;
+  background: var(--ink, #050505);
+}
+
+@media (min-width: 768px) {
+  .rule {
+    left: 2rem;
+    right: 2rem;
+  }
+}
+
+/* ---------- the figure ---------- */
+
+.stage {
+  position: relative;
+  width: 100%;
+  max-width: min(92vw, 34rem);
+  aspect-ratio: 3 / 2;
+  transform-origin: 59% 62%;
+  animation: settle 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.stageVibe {
+  animation: settle 1.1s cubic-bezier(0.22, 1, 0.36, 1) both,
+    vibe 2.6s ease-in-out 1.1s infinite;
+}
+
+.frame {
+  position: absolute;
+  inset: 0;
+  /* the photograph, untouched */
+  background-image: url("/media/podcast-baby.jpg");
+  background-size: contain;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+}
+
+/* ---------- headphones activity ---------- */
+
+/* Sits over the ear cups. The baby's hands are already raised to the cups in
+   the photograph, so the grab beat is a squeeze of light landing on them
+   rather than a moved limb. */
+.cups {
+  position: absolute;
+  z-index: 1;
+  top: 14%;
+  left: 45%;
+  width: 28%;
+  height: 22%;
+  border-radius: 9999px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.stageGrab .cups,
+.stageWelcome .cups,
+.stageVibe .cups {
+  opacity: 1;
+}
+
+/* The grip: a ring that contracts onto the cups as the hands close. */
+.cups::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgb(5 5 5 / 0.4);
+  border-radius: 9999px;
+  opacity: 0;
+}
+
+.stageGrab .cups::before {
+  animation: grip 1s cubic-bezier(0.3, 0, 0.2, 1) forwards;
+}
+
+/* Sound arcs radiating from the cups once the audio starts. */
+.cups::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgb(5 5 5 / 0.3);
+  border-radius: 9999px;
+  opacity: 0;
+}
+
+.stageWelcome .cups::after,
+.stageVibe .cups::after {
+  animation: ring 2.4s ease-out infinite;
+}
+
+/* ---------- the welcome line ---------- */
+
+.caption {
+  position: relative;
+  z-index: 4;
+  margin: 2rem auto 0;
+  max-width: 30rem;
+  text-align: center;
+}
+
+.captionLine {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1.7;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(5 5 5 / 0.7);
+}
+
+.captionNow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--flare, #ff4d2e);
+}
+
+.pip {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: currentColor;
+  animation: pip 1.4s ease-in-out infinite;
+}
+
+/* The tap affordance, used only when the browser refuses to autoplay. */
+.play {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+  padding: 0.7rem 1.1rem;
+  border: 1px solid var(--ink, #050505);
+  background: transparent;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink, #050505);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.play:hover,
+.play:focus-visible {
+  background: var(--ink, #050505);
+  color: var(--paper, #f7f7f2);
+}
+
+.play:focus-visible {
+  outline: 2px solid var(--flare, #ff4d2e);
+  outline-offset: 3px;
+}
+
+.scrollCue {
+  position: absolute;
+  left: 50%;
+  bottom: 2.75rem;
+  z-index: 3;
+  transform: translateX(-50%);
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgb(5 5 5 / 0.4);
+}
+
+/* ---------- motion ---------- */
+
+@keyframes settle {
+  from { opacity: 0; transform: scale(0.965) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* The grip lands: the ring closes in and fades as the hands settle on the cups. */
+@keyframes grip {
+  0% { opacity: 0; transform: scale(1.3); }
+  35% { opacity: 0.7; transform: scale(1.06); }
+  100% { opacity: 0; transform: scale(1); }
+}
+
+/* A slow two-beat bob while the audio runs and the visitor scrolls. */
+@keyframes vibe {
+  0%, 100% { transform: scale(1) translateY(0) rotate(0deg); }
+  25% { transform: scale(1.012) translateY(-5px) rotate(-0.5deg); }
+  50% { transform: scale(1) translateY(0) rotate(0deg); }
+  75% { transform: scale(1.012) translateY(-5px) rotate(0.5deg); }
+}
+
+@keyframes ring {
+  0% { opacity: 0.5; transform: scale(1); }
+  70% { opacity: 0; transform: scale(1.45); }
+  100% { opacity: 0; transform: scale(1.45); }
+}
+
+@keyframes pip {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage,
+  .stageVibe {
+    animation: none;
+  }
+  .stageGrab .cups::before,
+  .stageWelcome .cups::after,
+  .stageVibe .cups::after,
+  .pip {
+    animation: none;
+  }
+}
