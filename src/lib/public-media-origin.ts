@@ -6,6 +6,12 @@ const STATIC_PUBLIC_IMAGE_ORIGINS = [
   "https://remradar.wordpress.com",
   "https://i0.wp.com",
   "https://pub-2d7f41f7140544c480801d8b90da765e.r2.dev",
+  // Spotify artwork CDNs — the RADARPlaylists pod renders playlist covers
+  // through next/image, so these hosts must be allowed for both the image
+  // optimizer and the CSP img-src directive.
+  "https://i.scdn.co",
+  "https://mosaic.scdn.co",
+  "https://image-cdn-ak.spotifycdn.com",
 ] as const;
 
 export function normalizePublicMediaOrigin(value?: string): string | undefined {

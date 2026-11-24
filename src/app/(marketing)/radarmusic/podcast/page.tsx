@@ -14,6 +14,9 @@ export const metadata: Metadata = buildPageMetadata({
 export default function PodcastPage() {
   return (
     <main>
+      {/* The page is now sitemap-listed (S-3), so it needs a single h1 for
+          heading hierarchy; the visual title is rendered by the openers. */}
+      <h1 className="sr-only">DuMb — the RADARMusic podcast</h1>
       <DimbBabyOpener />
       <DimbLogoOpener />
       <DimbPodcast />
