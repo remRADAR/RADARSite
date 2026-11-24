@@ -117,39 +117,50 @@ function sanitizeMagazineHtml(input: string) {
   });
 }
 
+const MAGAZINE_PAGE_CHARACTER_BUDGET = 2_200;
+
+function estimateMagazineBlockSize(value: string) {
+  const text = value.replace(/<[^>]+>/g, " ").replace(/&(?:amp|lt|gt|quot|#39|nbsp);/gi, "x").replace(/\s+/g, " ").trim();
+  const mediaAllowance = /<(?:figure|img)\b/i.test(value) ? 500 : 0;
+  return Math.max(text.length, mediaAllowance) + 120;
+}
+
 export function splitIntoPages(html: string) {
   const safe = sanitizeMagazineHtml(html);
   const blocks = safe.split(/(?=<(?:h[1-6]|p|figure|blockquote|ul|ol|hr)\b)/i).map((part) => part.trim()).filter(Boolean);
   const questionUnit = (value: string) => /^<p>\s*(?:[•●▪▸→-]\s*)?<strong\b/i.test(value) || /(?:^|>)\s*(?:[•●▪▸→-])\s*<strong\b/i.test(value);
-  const biography: string[] = [];
-  const questionPages: string[][] = [];
+  const pageGroups: string[][] = [];
+  let currentPage: string[] = [];
+  let currentPageSize = 0;
+  const flushPage = () => {
+    if (!currentPage.length) return;
+    pageGroups.push(currentPage);
+    currentPage = [];
+    currentPageSize = 0;
+  };
+  const addBlock = (block: string, forceNewPage = false) => {
+    const blockSize = estimateMagazineBlockSize(block);
+    if (forceNewPage) flushPage();
+    if (currentPage.length && currentPageSize + blockSize > MAGAZINE_PAGE_CHARACTER_BUDGET) flushPage();
+    currentPage.push(block);
+    currentPageSize += blockSize;
+  };
   let index = 0;
   while (index < blocks.length && !questionUnit(blocks[index])) {
-    biography.push(blocks[index]);
+    addBlock(blocks[index]);
     index += 1;
   }
 
-  // Once the interview starts, preserve source order. A question opens a new
-  // page and every following block belongs to that question until the next
-  // question. This keeps answer paragraphs, figures, and embeds together
-  // instead of sending non-question blocks back into biography.
-  let currentQuestionPage: string[] | null = null;
+  // Once the interview starts, a question always opens a new page. Answer
+  // blocks continue on the current page until the content budget is reached,
+  // then continue on a new page without repeating the question.
   while (index < blocks.length) {
     const block = blocks[index];
-    if (questionUnit(block)) {
-      currentQuestionPage = [block];
-      questionPages.push(currentQuestionPage);
-      index += 1;
-      continue;
-    }
-    if (currentQuestionPage) currentQuestionPage.push(block);
-    else biography.push(block);
+    addBlock(block, questionUnit(block));
     index += 1;
   }
-  const pages: string[] = [];
-  for (let index = 0; index < biography.length; index += 3) pages.push(biography.slice(index, index + 3).join("\n"));
-  pages.push(...questionPages.map((page) => page.join("\n")));
-  return pages.length ? pages : [safe];
+  flushPage();
+  return pageGroups.length ? pageGroups.map((page) => page.join("\n")) : [safe];
 }
 
 function clamp(value: number, min: number, max: number) { return Math.min(max, Math.max(min, value)); }
@@ -212,7 +223,7 @@ export function MagazineFlipbook({ title, excerpt, bodyHtml, imageUrl, author, b
   return (
     <>
     <section className="magazine-reader relative min-h-[100svh] bg-ink px-2 py-3 text-paper sm:px-4 sm:py-6 md:px-8 md:py-8" aria-label={`${title} magazine reader`}>
-      <style jsx global>{`@keyframes magazineFlipNext{0%{opacity:.7;transform:perspective(1800px) rotateY(-14deg) translateX(-2%);transform-origin:left center}55%{opacity:1;transform:perspective(1800px) rotateY(2deg) translateX(0)}100%{opacity:1;transform:perspective(1800px) rotateY(0) translateX(0)}}@keyframes magazineFlipPrev{0%{opacity:.7;transform:perspective(1800px) rotateY(14deg) translateX(2%);transform-origin:right center}55%{opacity:1;transform:perspective(1800px) rotateY(-2deg) translateX(0)}100%{opacity:1;transform:perspective(1800px) rotateY(0) translateX(0)}}@keyframes pageSheen{0%{opacity:0;transform:translateX(-120%)}35%{opacity:.35}100%{opacity:0;transform:translateX(220%)}}@keyframes pageSheenReverse{0%{opacity:0;transform:translateX(120%)}35%{opacity:.35}100%{opacity:0;transform:translateX(-220%)}}.magazine-reader{scroll-behavior:smooth}.magazine-page-body{height:100%;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}.magazine-page-body p,.magazine-page-body li{font-size:clamp(.78rem,1.25vw,1rem);line-height:1.58;overflow-wrap:anywhere}.magazine-page-body h1,.magazine-page-body h2,.magazine-page-body h3,.magazine-page-body h4{max-width:100%;overflow-wrap:anywhere;line-height:.92}.magazine-page-body figure{margin:0 0 1.25rem}.magazine-page-body img{display:block;max-height:34svh;width:100%;object-fit:contain;object-position:center;margin-inline:auto}.magazine-page-body a{color:var(--flare);text-decoration:underline;text-underline-offset:3px}@media (prefers-reduced-motion:reduce){.magazine-reader *{animation:none!important;scroll-behavior:auto!important;transition:none!important}}`}</style>
+      <style jsx global>{`@keyframes magazineFlipNext{0%{opacity:.7;transform:perspective(1800px) rotateY(-14deg) translateX(-2%);transform-origin:left center}55%{opacity:1;transform:perspective(1800px) rotateY(2deg) translateX(0)}100%{opacity:1;transform:perspective(1800px) rotateY(0) translateX(0)}}@keyframes magazineFlipPrev{0%{opacity:.7;transform:perspective(1800px) rotateY(14deg) translateX(2%);transform-origin:right center}55%{opacity:1;transform:perspective(1800px) rotateY(-2deg) translateX(0)}100%{opacity:1;transform:perspective(1800px) rotateY(0) translateX(0)}}@keyframes pageSheen{0%{opacity:0;transform:translateX(-120%)}35%{opacity:.35}100%{opacity:0;transform:translateX(220%)}}@keyframes pageSheenReverse{0%{opacity:0;transform:translateX(120%)}35%{opacity:.35}100%{opacity:0;transform:translateX(-220%)}}.magazine-reader{scroll-behavior:smooth}.magazine-page-body{height:100%;overflow:hidden;overscroll-behavior:contain;scrollbar-width:thin}.magazine-page-body p,.magazine-page-body li{font-size:clamp(.78rem,1.25vw,1rem);line-height:1.58;overflow-wrap:anywhere}.magazine-page-body h1,.magazine-page-body h2,.magazine-page-body h3,.magazine-page-body h4{max-width:100%;overflow-wrap:anywhere;line-height:.92}.magazine-page-body figure{margin:0 0 1.25rem}.magazine-page-body img{display:block;max-height:34svh;width:100%;object-fit:contain;object-position:center;margin-inline:auto}.magazine-page-body a{color:var(--flare);text-decoration:underline;text-underline-offset:3px}@media (prefers-reduced-motion:reduce){.magazine-reader *{animation:none!important;scroll-behavior:auto!important;transition:none!important}}`}</style>
       <div className="mx-auto flex min-h-[calc(100svh-1.5rem)] max-w-7xl flex-col sm:min-h-[calc(100svh-3rem)]">
         <div className="mb-2 flex items-center justify-between px-2 font-mono text-[10px] font-bold uppercase tracking-[.18em] text-paper/70 sm:mb-3"><Link href={backPath} className="hover:text-flare">← Magazine</Link><span className="max-w-[45%] truncate text-center">{author || "RADARCharts"}</span>{isOpen ? <button type="button" aria-label="Close issue" onClick={() => { setIsOpen(false); setPage(-1); }} className="hover:text-flare"><X size={18} /></button> : <span aria-hidden="true" className="w-[18px]" />}</div>
         <div ref={stageRef} className={`relative mx-auto flex w-full flex-1 items-center justify-center ${isOpen ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`} onClick={() => !isOpen && openIssue()} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} style={{ touchAction: isOpen ? "pan-y" : "auto" }}>

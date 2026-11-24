@@ -24,4 +24,18 @@ assert.match(pages[2], /The next chapter is already moving/);
 const pageSequence = pages.join("\n");
 assert.ok(pageSequence.indexOf("middle.webp") < pageSequence.indexOf("What comes next?"), "content must remain in source order");
 
-console.log(JSON.stringify({ questionStartsNewPage: "PASS", answerContinuation: "PASS", sourceOrder: "PASS" }, null, 2));
+const longAnswer = [
+  "<p><strong>How does the long answer continue?</strong></p>",
+  ...Array.from({ length: 8 }, (_, index) => `<p>Long answer paragraph ${index + 1}: ${"This answer is intentionally long enough to require a continuation page. ".repeat(18)}</p>`),
+  "<p><strong>What follows the long answer?</strong></p>",
+  "<p>The following answer begins after the continuation.</p>",
+].join("\n");
+const longPages = splitIntoPages(longAnswer);
+assert.ok(longPages.length >= 4, "a long answer must create at least one continuation page");
+const continuationIndex = longPages.findIndex((page) => page.includes("Long answer paragraph 2"));
+assert.ok(continuationIndex > 0, "continuation content must move to a later page");
+assert.ok(!longPages[continuationIndex].includes("How does the long answer continue?"), "continuation pages must not repeat the question");
+const followingQuestionIndex = longPages.findIndex((page) => page.includes("What follows the long answer?"));
+assert.ok(followingQuestionIndex > continuationIndex, "the following question must come after all continuation pages");
+
+console.log(JSON.stringify({ questionStartsNewPage: "PASS", answerContinuation: "PASS", longAnswerPagination: "PASS", sourceOrder: "PASS" }, null, 2));
