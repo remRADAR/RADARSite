@@ -106,7 +106,7 @@ function embedLinkFallback(attrs: string) {
 }
 
 function instagramEmbeds(source: string) {
-  return source.replace(/<embed\b[^>]*\bsrc\s*=\s*["'](https?:\/\/(?:www\.)?instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)(?:\?[^"']*)?)["'][^>]*>\s*<\/embed>/gi, (_, rawUrl: string, id: string) => {
+  return source.replace(/<embed\b[^>]*\bsrc\s*=\s*["'](https?:\/\/(?:www\.)?instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)(?:\?[^"']*)?)["'][^>]*>\s*<\/embed>/gi, (_, rawUrl: string) => {
     const url = safeUrl(decodeEntities(rawUrl), "iframe");
     if (!url) return "";
     const path = new URL(url).pathname.match(/\/(p|reel|tv)\/([A-Za-z0-9_-]+)/i);

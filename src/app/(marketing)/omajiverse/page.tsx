@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -63,13 +62,14 @@ export default function StayAktivPage() {
         <section className={styles.hero} aria-label="OMAJIVERSE hero" aria-labelledby="omajiverse-title">
           <h1 id="omajiverse-title" className="sr-only">OMAJIVERSE event</h1>
           <div className={styles.posterWrap} data-testid="floating-event-poster">
-            <img
+            <Image
               src={featuredEvent.poster}
               alt={`${featuredEvent.title} event poster`}
+              width={1080}
+              height={1350}
               sizes="(min-width: 700px) 32rem, 72vw"
               loading="eager"
               fetchPriority="high"
-              decoding="async"
               className={styles.poster}
             />
           </div>

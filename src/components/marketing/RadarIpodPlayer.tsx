@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useId, useMemo, useRef, useState } from "react";
 import type { RadarIpodPlaylist, RadarPlaybackState, RadarRepeatMode } from "@/types/radar-playlists";
 import styles from "./RadarIpodPlayer.module.css";
@@ -147,7 +148,7 @@ export function RadarIpodPlayer({
           ) : currentTrack ? (
             <div className={styles.nowPlaying}>
               <div className={styles.trackArt} aria-hidden="true">
-                {playlist.artworkUrl ? <img src={playlist.artworkUrl} alt="" /> : <span>R</span>}
+                {playlist.artworkUrl ? <Image src={playlist.artworkUrl} alt="" width={300} height={300} /> : <span>R</span>}
               </div>
               <p className={styles.trackTitle}>{currentTrack.name}</p>
               <p className={styles.trackArtist}>{currentTrack.artists.join(" / ") || "Unknown artist"}</p>
@@ -155,7 +156,7 @@ export function RadarIpodPlayer({
             </div>
           ) : (
             <div className={styles.emptyState}>
-              <div className={styles.coverMark} aria-hidden="true">{playlist.artworkUrl ? <img src={playlist.artworkUrl} alt="" /> : <span>R</span>}</div>
+              <div className={styles.coverMark} aria-hidden="true">{playlist.artworkUrl ? <Image src={playlist.artworkUrl} alt="" width={300} height={300} /> : <span>R</span>}</div>
               <p>{playlist.title}</p>
               <small>{playlist.ownerName || "remRADAR"}</small>
             </div>
@@ -177,7 +178,7 @@ export function RadarIpodPlayer({
                 aria-label={`Select ${option.title}`}
                 aria-pressed={option.id === playlist.id}
               >
-                <span>{option.artworkUrl ? <img src={option.artworkUrl} alt="" /> : <b>R</b>}</span>
+                <span>{option.artworkUrl ? <Image src={option.artworkUrl} alt="" width={120} height={120} /> : <b>R</b>}</span>
               </button>
             ))}
           </div>

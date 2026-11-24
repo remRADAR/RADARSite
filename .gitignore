@@ -48,3 +48,9 @@ screens/
 /dist/
 .vinext/
 .cloudflare/
+
+# generated social-card derivatives — rebuilt by `npm run social-cards:generate`
+# (see .github/workflows/deploy-cloudflare-staging.yml). The manifest that the
+# route imports is committed as a placeholder so the build always resolves it.
+/public/social/cards/*.webp
+/public/social/cards/manifest.json
