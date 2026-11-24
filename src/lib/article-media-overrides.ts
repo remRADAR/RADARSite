@@ -22,6 +22,8 @@ const ONE_DOUBLE_MEDIA = {
 } as const;
 const LAGOS_IN_PARIS_SLUG = "lagos-in-paris-return-with-don-t-a-celebration-of-freedom-on-the-dancefloor";
 const LAGOS_IN_PARIS_FEATURED_IMAGE = "/editorial/lagos-in-paris-dont/featured.jpg";
+const NO_STRESS_SLUG = "neomah-teams-up-with-octobersrich-on-no-stress";
+const NO_STRESS_FEATURED_IMAGE = "/editorial/neomah-teams-up-with-octobersrich-on-no-stress/featured.webp";
 
 /**
  * Reconnects verified, durable site assets to editorial records whose source
@@ -29,6 +31,16 @@ const LAGOS_IN_PARIS_FEATURED_IMAGE = "/editorial/lagos-in-paris-dont/featured.j
  * remain untouched.
  */
 export function applyArticleMediaOverrides(record: CmsRecord): CmsRecord {
+  if (record.slug === NO_STRESS_SLUG) {
+    return {
+      ...record,
+      imageUrl: NO_STRESS_FEATURED_IMAGE,
+      featuredImage: NO_STRESS_FEATURED_IMAGE,
+      socialImage: NO_STRESS_FEATURED_IMAGE,
+      featuredImageAlt: "NEOMAH and OCTOBERSRICH pose together outdoors",
+    };
+  }
+
   if (record.slug === LAGOS_IN_PARIS_SLUG) {
     return {
       ...record,

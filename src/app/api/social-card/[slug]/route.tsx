@@ -2,7 +2,6 @@
 import { ImageResponse } from "next/og";
 import { NextResponse } from "next/server";
 import { readPublishedArticleBySlug } from "@/lib/content-server";
-import { findBySlug } from "@/lib/ia-content";
 import { normalizeEditorialRecord } from "@/lib/editorial-normalization";
 import { getEffectiveImageUrl } from "@/lib/effective-image-url";
 import { publicSiteUrl } from "@/lib/public-site";
@@ -24,11 +23,9 @@ function safeImageUrl(source: string | undefined) {
 /**
  * Prefer the committed 1200x630 derivative over the article's full-size source.
  *
- * The source artwork is routinely 3000-6000px wide and up to ~1.1 MB. Handing
- * that to satori means the Worker decodes and downscales a multi-megapixel image
- * on every cold render, which is what pushed the route past the Cloudflare CPU
- * budget (error 1102 -> 503). The derivative is a ~58 KB WebP at exactly the
- * card's dimensions, so the cold render decodes almost nothing.
+ * The source artwork is routinely 3000-6000px wide. The 1200x630 JPEG derivative
+ * prevents a Worker-side multi-megapixel decode and uses an image format Satori
+ * reliably renders (the former WebP derivatives yielded artwork-free cards).
  *
  * Falls back to the full-size source when no derivative exists (a newly
  * published article, or a source image that could not be fetched), so the card
@@ -118,6 +115,6 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
         </div>
       </div>
     </div>,
-    { width: 1200, height: 630, headers: { "Cache-Control": "CARD_CACHE_CONTROL" } },
+    { width: 1200, height: 630, headers: { "Cache-Control": CARD_CACHE_CONTROL } },
   );
 }

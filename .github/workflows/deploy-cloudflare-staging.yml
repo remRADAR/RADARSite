@@ -87,7 +87,7 @@ jobs:
           node --version
           node -e "const s=require('sharp'); console.log('sharp', s.versions.vips)"
           npm run social-cards:generate
-          count=$(ls public/social/cards/*.webp 2>/dev/null | wc -l)
+          count=$(ls public/social/cards/*.jpg 2>/dev/null | wc -l)
           echo "generated $count derivatives"
           if [ "$count" -lt 1 ]; then
             echo "::error::No social-card derivatives were generated; refusing to deploy a Worker whose cards will 503."

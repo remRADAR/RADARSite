@@ -11,13 +11,14 @@
  * Worker on a cold render blows the Cloudflare CPU budget (error 1102 -> 503).
  *
  * The fix is to stop asking the Worker to do the resize. This script produces a
- * 1200x630 WebP derivative per article, committed under public/social/cards/,
- * which the route prefers over the full-size source. A 1200x630 WebP is a few
- * tens of KB, so the cold render decodes almost nothing.
+ * 1200x630 JPEG derivative per article, committed under public/social/cards/,
+ * which the route prefers over the full-size source. The JPEG format is reliably
+ * decoded by Satori; the former WebP assets were silently omitted from cards.
+ * The resize also keeps the Worker from decoding multi-megapixel originals.
  *
  * Output
  * ------
- *   public/social/cards/<slug>.webp    (1200x630, cover-cropped, quality 82)
+ *   public/social/cards/<slug>.jpg     (1200x630, cover-cropped, quality 82)
  *   public/social/cards/manifest.json  (slug -> { file, source, bytes })
  *   src/data/social-card-manifest.ts   (the same data as an ESM module)
  *
@@ -104,25 +105,25 @@ async function fetchBuffer(url, attempts = 4) {
 async function buildOne(article) {
   const slug = article.slug;
   const source = article.imageUrl || article.featuredImage;
-  const outFile = path.join(OUT_DIR, `${slug}.webp`);
+  const outFile = path.join(OUT_DIR, `${slug}.jpg`);
 
   if (!source) return { slug, status: "skipped", reason: "no image" };
   if (!FORCE && (await exists(outFile))) {
     const bytes = (await readFile(outFile)).length;
-    return { slug, status: "cached", file: `${slug}.webp`, source, bytes };
+    return { slug, status: "cached", file: `${slug}.jpg`, source, bytes };
   }
 
   const input = await fetchBuffer(source);
   const out = await sharp(input)
     .resize(CARD_W, CARD_H, { fit: "cover", position: "attention" })
-    .webp({ quality: QUALITY, effort: 4 })
+    .jpeg({ quality: QUALITY, mozjpeg: true })
     .toBuffer();
 
   await writeFile(outFile, out);
   return {
     slug,
     status: "built",
-    file: `${slug}.webp`,
+    file: `${slug}.jpg`,
     source,
     sourceBytes: input.length,
     bytes: out.length,
@@ -213,7 +214,9 @@ async function main() {
   const cards = { ...previous };
   for (const r of results) {
     if (r.status === "built" || r.status === "cached") {
-      cards[r.slug] = { file: r.file, source: r.source, bytes: r.bytes };
+      const previousEntry = previous[r.slug];
+      const source = previousEntry?.file === r.file && previousEntry.source ? previousEntry.source : r.source;
+      cards[r.slug] = { file: r.file, source, bytes: r.bytes };
     }
   }
 
@@ -228,7 +231,7 @@ async function main() {
         generatedAt: new Date().toISOString(),
         width: CARD_W,
         height: CARD_H,
-        format: "webp",
+        format: "jpeg",
         count: Object.keys(cards).length,
         cards,
       },
