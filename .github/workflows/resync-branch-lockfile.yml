@@ -1,0 +1,53 @@
+name: Resync branch lockfile
+
+# One-off helper for feature/storage-adapter-storj.
+#
+# The branch pins typescript to ^6.0.3 in package.json, but package-lock.json
+# is 525 KB - too large to write through the contents API - so the regenerated
+# lockfile is produced here and committed by the workflow instead.
+#
+# Removed once the branch is in sync; it exits immediately when package.json
+# and package-lock.json already agree.
+
+on:
+  push:
+    branches: [feature/storage-adapter-storj]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: resync-branch-lockfile
+  cancel-in-progress: false
+
+jobs:
+  resync:
+    # Skip pushes made by this workflow itself, so it can never loop.
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/storage-adapter-storj
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Regenerate lockfile
+        run: npm install --package-lock-only --no-audit --no-fund
+
+      - name: Commit if it changed
+        run: |
+          if git diff --quiet -- package-lock.json; then
+            echo "package-lock.json already in sync - nothing to do."
+            exit 0
+          fi
+          echo "lockfile was out of sync; committing the regenerated file."
+          node -e "const l=require('./package-lock.json');for(const k of ['typescript','react','react-dom','@react-three/fiber']){const p=l.packages['node_modules/'+k];console.log(k,p&&p.version)}"
+          git config user.name "lockfile-sync-bot"
+          git config user.email "lockfile-sync-bot@users.noreply.github.com"
+          git add package-lock.json
+          git commit -m "chore(deps): resync package-lock.json for typescript ^6.0.3"
+          git push origin HEAD:feature/storage-adapter-storj
