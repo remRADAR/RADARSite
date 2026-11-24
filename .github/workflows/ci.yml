@@ -49,6 +49,9 @@ jobs:
       - name: Media reference contract test
         run: npx tsx scripts/media-reference-contract-test.ts
 
+      - name: Editorial sanitizer idempotency contract test
+        run: npm run test:editorial-sanitizer
+
       - name: Lint
         run: npm run lint
 

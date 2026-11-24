@@ -39,6 +39,7 @@
     "notion:contract-test": "tsx scripts/notion-publish-contract-test.ts",
     "cloudflare-content:contract-test": "tsx scripts/cloudflare-content-store-contract-test.ts",
     "test:csp": "tsx scripts/csp-contract-test.ts",
+    "test:editorial-sanitizer": "tsx scripts/editorial-sanitizer-idempotency-contract-test.ts",
     "hero:process": "tsx scripts/hero-image-process.ts",
     "social-cards:generate": "node scripts/generate-social-card-derivatives.mjs",
     "hero:contract-test": "tsx scripts/hero-image-contract-test.ts",
