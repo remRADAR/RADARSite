@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { readPublishedContent } from "@/lib/content-server";
 import { MediaFrame } from "@/components/MediaFrame";
 import { buildPageMetadata } from "@/lib/seo";
+import { getReleaseLink } from "@/lib/release-links";
+import { ReleaseLinkPanel } from "@/components/marketing/ReleaseLinkPanel";
 
 export const revalidate = 3600;
 
@@ -15,7 +17,14 @@ async function getPage(params: Props["params"]) {
   return pages.find((page) => page.path === path || page.slug === cmsPath.at(-1));
 }
 
+async function getRelease(params: Props["params"]) {
+  const { cmsPath } = await params;
+  return cmsPath.length === 1 ? getReleaseLink(cmsPath[0]) : null;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const release = await getRelease(params);
+  if (release) return buildPageMetadata({ title: `${release.title} — ${release.artist}`, description: `Pre-save and streaming links for ${release.title} by ${release.artist}, presented by RADARMusic.`, path: `/${release.slug}`, image: release.coverImage });
   const page = await getPage(params);
   if (!page) return { title: "Page not found", robots: { index: false, follow: false } };
   const { cmsPath } = await params;
@@ -24,6 +33,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CmsPage({ params }: Props) {
+  const release = await getRelease(params);
+  if (release) return <ReleaseLinkPanel release={release} />;
   const page = await getPage(params);
   if (!page) notFound();
   const taxonomy = [...(page.tags || []), ...(page.categories || [])].join(" / ");

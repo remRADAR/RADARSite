@@ -1,0 +1,21 @@
+[
+  {
+    "id": "omolops-400",
+    "slug": "omolops",
+    "title": "Omolops",
+    "artist": "Mamuzo",
+    "releaseDate": "2026-11-27",
+    "coverImage": "/releases/omolops-cover.jpeg",
+    "sourceUrl": "https://paradoxrecords.ampsuite.com/releases/links?id=400",
+    "sourceTitle": "Omolops - Mamuzo",
+    "platformLinks": [
+      {
+        "name": "Spotify",
+        "tone": "spotify",
+        "href": "https://paradoxrecords.ampsuite.com/releases/link-redirect?release_id=400&store_id=6"
+      }
+    ],
+    "status": "published",
+    "updatedAt": "2026-11-24T00:00:00.000Z"
+  }
+]

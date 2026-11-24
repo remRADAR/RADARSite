@@ -1,0 +1,12 @@
+name = "radarmusic-release-detector"
+main = "src/index.ts"
+compatibility_date = "2026-09-24"
+previews = {}
+
+[triggers]
+crons = ["0 */6 * * *"]
+
+[vars]
+RADAR_RELEASE_DETECTOR_URL = "https://radarcharts.net/api/release-detector"
+# Set the secret before deployment:
+# wrangler secret put RADAR_RELEASE_DETECTOR_TOKEN

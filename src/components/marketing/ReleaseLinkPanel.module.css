@@ -14,7 +14,7 @@
   position: fixed;
   inset: -10%;
   z-index: -2;
-  background: linear-gradient(rgba(9, 5, 15, .62), rgba(9, 5, 15, .88)), url("/releases/omolops-cover.jpeg") center / cover;
+  background: linear-gradient(rgba(9, 5, 15, .62), rgba(9, 5, 15, .88)), var(--release-art) center / cover;
   filter: blur(30px) saturate(1.45);
   opacity: .72;
   transform: scale(1.08);
@@ -59,6 +59,7 @@
 .countdownValue { font: 500 clamp(1.5rem, 6vw, 3.4rem)/.8 var(--font-mono), monospace; letter-spacing: -.1em; text-align: center; }
 .countdownLabels { position: absolute; right: .65rem; bottom: .43rem; left: .65rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: .2rem; color: rgba(247, 242, 255, .5); font: 700 .42rem/1 var(--font-mono), monospace; letter-spacing: .12em; text-align: center; }
 .titleRail { display: flex; align-items: center; gap: clamp(.55rem, 2vw, 1rem); overflow: hidden; padding: .95rem .8rem; background: var(--accent); color: #13051b; font: 800 clamp(.76rem, 2.2vw, 1.16rem)/1 var(--font-grotesk), sans-serif; letter-spacing: .02em; white-space: nowrap; text-transform: uppercase; }
+.titleRail { transform: rotate(-1.15deg) scale(1.015); margin-block: -.15rem; box-shadow: 0 .25rem .9rem rgba(0, 0, 0, .18); }
 .titleRail h1 { margin: 0; font: inherit; }
 .titleRail i { display: block; width: clamp(2.1rem, 10vw, 5rem); height: 2px; flex: none; background: currentColor; }
 .titleRail b { font-size: .9em; }
