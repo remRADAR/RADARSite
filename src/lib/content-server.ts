@@ -374,6 +374,45 @@ export async function readPublishedContent(): Promise<ContentCollections> {
   function published<T>(items: T[]): T[] { return items.filter((item) => { const status = item && typeof item === "object" && "status" in item ? (item as { status?: string }).status : undefined; return status !== "draft" && status !== "archived"; }); }
   return { ...content, artists: published(content.artists), releases: published(content.releases), articles: published(content.articles), magazine: published(content.magazine), radarProjects: published(content.radarProjects), events: published(content.events), pages: published(content.pages), categories: published(content.categories), archives: published(content.archives), tracks: published(content.tracks || []) };
 }
+
+/**
+ * Look up a single published article without materialising the whole collection.
+ *
+ * `readPublishedContent` runs `normalizeContent` over every record (342 articles
+ * plus the other collections) on each call. For a route that needs exactly one
+ * article — the social card renderer — that is pure waste, and on a Worker with
+ * a hard CPU budget it is the difference between a rendered card and a 1102.
+ *
+ * The cached payload is already normalised when it is written, so reading it
+ * back and selecting one record is safe and skips the second full pass.
+ */
+export async function readPublishedArticleBySlug(slug: string): Promise<Article | null> {
+  // `Article` does not declare `status`; the collection filter in
+  // readPublishedContent reads it through a cast for the same reason.
+  const isPublished = (record: unknown): record is Article => {
+    if (!record || typeof record !== "object") return false;
+    const status = (record as { status?: string }).status;
+    return status !== "draft" && status !== "archived";
+  };
+  const fromSnapshot = (): Article | null => {
+    const found = (mergedSnapshot.articles as Article[]).find((article) => article.slug === slug);
+    return isPublished(found) ? found : null;
+  };
+
+  if (isProductionBuild() && !notionDirectReadEnabled()) return fromSnapshot();
+
+  try {
+    const encoded = await readCachedPublicContent();
+    const raw = JSON.parse(gunzipSync(Buffer.from(encoded, "base64")).toString("utf8")) as Partial<ContentCollections>;
+    const articles = Array.isArray(raw.articles) ? raw.articles : [];
+    const found = articles.find((article) => article && typeof article === "object" && (article as { slug?: string }).slug === slug) as Article | undefined;
+    return isPublished(found) ? found : null;
+  } catch (error) {
+    logContentReadError(error, "Public content cache unavailable; using committed snapshot for article lookup");
+    return fromSnapshot();
+  }
+}
+
 export async function writeContent(input: unknown) { const content = normalizeContent(input); if (Buffer.byteLength(JSON.stringify(content), "utf8") > MAX_CONTENT_BYTES) throw new Error("CMS content payload is too large"); if (usesCloudflareContentStore()) { const current = await readCloudflareContentState(); await writeCloudflareContentState(createCloudflareContentState(content, current?.state.relationships || []), current?.etag || null); return content; } await ensureContentTable(); await sql()`INSERT INTO studio_content (id, content, updated_at) VALUES (1, ${JSON.stringify(content)}::jsonb, now()) ON CONFLICT (id) DO UPDATE SET content = EXCLUDED.content, updated_at = now()`; return content; }
 export async function readContentWriteSnapshot(): Promise<{ content: ContentCollections; revision: unknown | null }> {
   if (usesCloudflareContentStore()) { const state = await readCloudflareContentState(); const seeded = state ? normalizeContent(state.state.content) : (await readDirectNotionContent()) || mergedSnapshot; return { content: seeded, revision: state ? { etag: state.etag, revision: state.state.revision } : null }; }
