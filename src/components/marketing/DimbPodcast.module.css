@@ -1,0 +1,398 @@
+/* DIMB podcast interface: episode index, player dock, and the sections that
+   will be wired to the RSS feed later. */
+
+.page {
+  background: var(--paper, #f7f7f2);
+  color: var(--ink, #050505);
+}
+
+.section {
+  padding: 4rem 1rem;
+  border-top: 2px solid var(--ink, #050505);
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: 5.5rem 2rem;
+  }
+}
+
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2.5rem;
+}
+
+@media (min-width: 768px) {
+  .sectionHead {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+}
+
+.eyebrow {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgb(5 5 5 / 0.5);
+}
+
+.title {
+  font-family: var(--font-grotesk, "Archivo", system-ui, sans-serif);
+  font-size: clamp(1.5rem, 5vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+.note {
+  max-width: 26rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.6875rem;
+  line-height: 1.75;
+  letter-spacing: 0.06em;
+  color: rgb(5 5 5 / 0.55);
+}
+
+/* ---------- episode index ---------- */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid rgb(5 5 5 / 0.25);
+}
+
+.episode {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr auto;
+  gap: 0.35rem 1rem;
+  align-items: baseline;
+  padding: 1.35rem 0;
+  border-bottom: 1px solid rgb(5 5 5 / 0.25);
+  text-align: left;
+  width: 100%;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+  transition: color 0.18s ease;
+}
+
+.episode:hover,
+.episode:focus-visible {
+  color: var(--flare, #ff4d2e);
+}
+
+.episode:focus-visible {
+  outline: 2px solid var(--flare, #ff4d2e);
+  outline-offset: 2px;
+}
+
+.epNo {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: rgb(5 5 5 / 0.45);
+}
+
+.epTitle {
+  font-family: var(--font-grotesk, "Archivo", system-ui, sans-serif);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.epMeta {
+  grid-column: 2 / 3;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(5 5 5 / 0.45);
+}
+
+.epLen {
+  grid-column: 3 / 4;
+  grid-row: 1 / 2;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: rgba(5 5 5 / 0.45);
+  white-space: nowrap;
+}
+
+/* ---------- now playing dock ---------- */
+
+.dock {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem 1rem;
+  background: var(--ink, #050505);
+  color: var(--paper, #f7f7f2);
+  border-top: 2px solid var(--ink, #050505);
+}
+
+@media (min-width: 768px) {
+  .dock {
+    padding: 1rem 2rem;
+  }
+}
+
+.dockBar {
+  position: relative;
+  flex: 1;
+  height: 2px;
+  background: rgb(247 247 242 / 0.25);
+  overflow: hidden;
+}
+
+.dockFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  background: var(--flare, #ff4d2e);
+  transition: width 0.4s linear;
+}
+
+.dockMeta {
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.dockTitle {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.dockSub {
+  display: block;
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(247 247 242 / 0.5);
+}
+
+.dockButton {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid rgb(247 247 242 / 0.4);
+  border-radius: 9999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.dockButton:hover,
+.dockButton:focus-visible {
+  background: var(--paper, #f7f7f2);
+  color: var(--ink, #050505);
+}
+
+.dockButton:focus-visible {
+  outline: 2px solid var(--flare, #ff4d2e);
+  outline-offset: 2px;
+}
+
+/* ---------- placeholder blocks ---------- */
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2.5rem;
+  min-height: 11rem;
+  padding: 1.15rem;
+  border: 1px dashed rgb(5 5 5 / 0.35);
+  background: rgb(5 5 5 / 0.02);
+}
+
+.slotTag {
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--flare, #ff4d2e);
+}
+
+.slotTitle {
+  font-family: var(--font-grotesk, "Archivo", system-ui, sans-serif);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.slotBody {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  line-height: 1.7;
+  letter-spacing: 0.08em;
+  color: rgb(5 5 5 / 0.5);
+}
+
+/* ---------- transcript + guest ---------- */
+
+.split {
+  display: grid;
+  gap: 3rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1024px) {
+  .split {
+    grid-template-columns: 1.6fr 1fr;
+    gap: 4rem;
+  }
+}
+
+.transcriptLine {
+  display: grid;
+  grid-template-columns: 3.25rem 1fr;
+  gap: 0.5rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid rgb(5 5 5 / 0.12);
+}
+
+.stamp {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: rgb(5 5 5 / 0.4);
+}
+
+.said {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+  color: rgb(5 5 5 / 0.75);
+}
+
+.guestCard {
+  padding: 1.25rem;
+  border: 1px solid var(--ink, #050505);
+}
+
+.guestName {
+  font-family: var(--font-grotesk, "Archivo", system-ui, sans-serif);
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.guestRole {
+  margin-top: 0.3rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(5 5 5 / 0.5);
+}
+
+.guestBody {
+  margin-top: 1rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  line-height: 1.8;
+  letter-spacing: 0.06em;
+  color: rgb(5 5 5 / 0.6);
+}
+
+/* ---------- subscribe strip ---------- */
+
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem 1rem;
+  border-top: 2px solid var(--ink, #050505);
+  background: var(--ink, #050505);
+  color: var(--paper, #f7f7f2);
+}
+
+@media (min-width: 768px) {
+  .strip {
+    padding: 2rem 2rem;
+  }
+}
+
+.stripText {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.stripActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  padding: 0.55rem 0.85rem;
+  border: 1px solid rgb(247 247 242 / 0.4);
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: inherit;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.chip:hover,
+.chip:focus-visible {
+  background: var(--paper, #f7f7f2);
+  color: var(--ink, #050505);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--flare, #ff4d2e);
+  outline-offset: 2px;
+}

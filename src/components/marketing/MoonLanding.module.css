@@ -265,7 +265,7 @@
   max-width: 9rem;
   padding: 0.3rem 0.65rem;
   border: 1px solid rgb(247 242 230 / 0.35);
-  background: rgb(5 5 0 / 0.78);
+  background: rgb(5 5 5 / 0.78);
   font-family: var(--font-mono, monospace);
   font-size: 10px;
   font-weight: 700;
@@ -306,7 +306,7 @@
   right: 1rem;
   display: flex;
   border: 1px solid rgb(247 242 230 / 0.35);
-  background: rgb(5 5 0 / 0.6);
+  background: rgb(5 5 5 / 0.6);
   backdrop-filter: blur(6px);
   transition: border-color 0.6s ease, background 0.6s ease;
 }
@@ -409,7 +409,7 @@
 }
 
 .sceneDay .dotLabel {
-  border-color: rgb(5 5 0 / 0.45);
+  border-color: rgb(5 5 5 / 0.45);
   background: rgb(247 247 242 / 0.92);
   color: #050505;
 }
@@ -420,20 +420,20 @@
 }
 
 .sceneDay .hint {
-  color: rgb(5 5 0 / 0.6);
+  color: rgb(5 5 5 / 0.6);
 }
 
 .sceneDay .skySwitch {
-  border-color: rgb(5 5 0 / 0.35);
+  border-color: rgb(5 5 5 / 0.35);
   background: rgb(247 247 242 / 0.7);
 }
 
 .sceneDay .skyOption {
-  color: rgb(5 5 0 / 0.6);
+  color: rgb(5 5 5 / 0.6);
 }
 
 .sceneDay .skyOption + .skyOption {
-  border-left-color: rgb(5 5 0 / 0.25);
+  border-left-color: rgb(5 5 5 / 0.25);
 }
 
 .sceneDay .skyOption:hover {
