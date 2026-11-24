@@ -1,78 +1,37 @@
-name: Resync package-lock
-
-# One-off / on-demand maintenance job.
-#
-# Why this exists: package.json was bumped (react ^19.3.1, react-dom ^19.3.1,
-# @react-three/drei ^10.7.7, @react-three/fiber ^9.6.1) without regenerating
-# package-lock.json, which still pinned react 19.2.9. react-server-dom-webpack
-# 19.3.1 requires react ^19.3.1, so `npm ci` aborted with ERESOLVE before the
-# build step ever ran. Regenerating the lock here keeps the resolution
-# deterministic and visible in a PR diff instead of silently drifting.
-on:
-  workflow_dispatch:
+name: Resync lockfile
+on: workflow_dispatch
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   resync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: "22"
 
-      - name: Regenerate lockfile from package.json
+      - name: Regenerate lockfile
         run: npm install --package-lock-only --no-audit --no-fund
 
-      - name: Show what changed
+      - name: Report
         run: |
-          if git diff --quiet -- package-lock.json; then
-            echo "::notice::package-lock.json already in sync — nothing to do."
-            exit 0
-          fi
-          git diff --stat -- package-lock.json
-          echo "--- resolved react ---"
-          node -e "const l=require('./package-lock.json');console.log('react:',l.packages['node_modules/react']?.version,'| rsdw:',l.packages['node_modules/react-server-dom-webpack']?.version)"
+          echo "react resolved:"
+          node -e "console.log(require('./package-lock.json').packages['node_modules/react'].version)"
+          echo "rsdw resolved:"
+          node -e "console.log(require('./package-lock.json').packages['node_modules/react-server-dom-webpack'].version)"
+          git diff --stat -- package-lock.json || true
 
-      - name: Commit to branch and open PR
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Commit to branch
         run: |
-          if git diff --quiet -- package-lock.json; then
-            echo "Nothing to commit."
-            exit 0
-          fi
-          git config user.name "lockfile-resync[bot]"
+          git config user.name "lockfile-resync"
           git config user.email "lockfile-resync@users.noreply.github.com"
           git checkout -B fix/lockfile-resync
           git add package-lock.json
-          git commit -m "fix(deps): regenerate package-lock.json to resolve react 19.3.1 ERESOLVE
-
-package.json requires react ^19.3.1 while the lock still pinned 19.2.9.
-react-server-dom-webpack 19.3.1 peer-requires react ^19.3.1, so npm ci
-failed with ERESOLVE and the Cloudflare deploy workflow never reached its
-build step.
-
-Regenerated with: npm install --package-lock-only"
-          git push --force-with-lease -u origin fix/lockfile-resync
-          gh pr create \
-            --base main \
-            --head fix/lockfile-resync \
-            --title "fix(deps): regenerate package-lock.json to resolve react 19.3.1 ERESOLVE" \
-            --body "Automated lockfile resync.
-
-\`npm ci\` was failing in 1s with ERESOLVE, which is why Deploy (Cloudflare production) never reached its build step:
-
-\`\`\`
-npm error While resolving: react-server-dom-webpack@19.3.1
-npm error Found: react@19.2.9
-npm error peer react@\"^19.3.1\" from react-server-dom-webpack@19.3.1
-\`\`\`
-
-This PR only touches package-lock.json. CI (\`npm ci\` + lint + typecheck + build) is the proof." \
-            || gh pr view fix/lockfile-resync --json url -q .url
+          git commit -m "fix(deps): regenerate package-lock.json to resolve react 19.3.1 ERESOLVE" || echo "no changes"
+          git push -f -u origin fix/lockfile-resync
