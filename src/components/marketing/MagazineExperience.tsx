@@ -117,40 +117,38 @@ function sanitizeMagazineHtml(input: string) {
   });
 }
 
-function splitIntoPages(html: string) {
+export function splitIntoPages(html: string) {
   const safe = sanitizeMagazineHtml(html);
   const blocks = safe.split(/(?=<(?:h[1-6]|p|figure|blockquote|ul|ol|hr)\b)/i).map((part) => part.trim()).filter(Boolean);
   const questionUnit = (value: string) => /^<p>\s*(?:[•●▪▸→-]\s*)?<strong\b/i.test(value) || /(?:^|>)\s*(?:[•●▪▸→-])\s*<strong\b/i.test(value);
-  const isImageUnit = (value: string) => /^<figure\b/i.test(value) || /<img\b/i.test(value);
   const biography: string[] = [];
-  const questionPages: string[] = [];
+  const questionPages: string[][] = [];
   let index = 0;
   while (index < blocks.length && !questionUnit(blocks[index])) {
     biography.push(blocks[index]);
     index += 1;
   }
+
+  // Once the interview starts, preserve source order. A question opens a new
+  // page and every following block belongs to that question until the next
+  // question. This keeps answer paragraphs, figures, and embeds together
+  // instead of sending non-question blocks back into biography.
+  let currentQuestionPage: string[] | null = null;
   while (index < blocks.length) {
-    const question = blocks[index];
-    if (!questionUnit(question)) {
-      biography.push(question);
+    const block = blocks[index];
+    if (questionUnit(block)) {
+      currentQuestionPage = [block];
+      questionPages.push(currentQuestionPage);
       index += 1;
       continue;
     }
-    const parts = [question];
+    if (currentQuestionPage) currentQuestionPage.push(block);
+    else biography.push(block);
     index += 1;
-    if (index < blocks.length && !questionUnit(blocks[index]) && !/^<h[1-6]\b/i.test(blocks[index])) {
-      parts.push(blocks[index]);
-      index += 1;
-    }
-    if (index < blocks.length && isImageUnit(blocks[index])) {
-      parts.push(blocks[index]);
-      index += 1;
-    }
-    questionPages.push(parts.join("\n"));
   }
   const pages: string[] = [];
   for (let index = 0; index < biography.length; index += 3) pages.push(biography.slice(index, index + 3).join("\n"));
-  pages.push(...questionPages);
+  pages.push(...questionPages.map((page) => page.join("\n")));
   return pages.length ? pages : [safe];
 }
 
