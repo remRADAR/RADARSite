@@ -72,6 +72,14 @@ export default function StayAktivArchivePage() {
             </div>
           </article>
         </section>
+        <section className={styles.releaseLinks} aria-labelledby="release-links-heading">
+          <div>
+            <p className={styles.eyebrow}>(02 / Release links)</p>
+            <h2 id="release-links-heading">Schedule the next signal<span>.</span></h2>
+            <p>One-frame pre-save and streaming rooms for RADARMusic releases.</p>
+          </div>
+          <Link href="/omolops" className={styles.releaseLink}>Open OMOLOPS <span aria-hidden="true">↗</span></Link>
+        </section>
       </main>
     </>
   );

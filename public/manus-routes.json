@@ -1,6 +1,18 @@
 {
   "routes": [
+    { "path": "/", "title": "RADARCharts by REM" },
+    { "path": "/about", "title": "About — RADARCharts by REM" },
+    { "path": "/motherland", "title": "Motherland — RADARCharts by REM" },
+    { "path": "/ontheradar", "title": "On the Radar — RADARCharts by REM" },
     { "path": "/playlists", "title": "RADARPlaylists — RADARCharts by REM" },
-    { "path": "/radarmusic/artists", "title": "RADARPlaylists — RADARCharts by REM" }
+    { "path": "/radarmusic", "title": "RADARMusic — RADARCharts by REM" },
+    { "path": "/radarmusic/artists", "title": "RADARMusic Artists — RADARCharts by REM" },
+    { "path": "/radarmusic/tracks", "title": "TrackStory — RADARCharts by REM" },
+    { "path": "/stayaktiv", "title": "stayAKTiV — RADARCharts by REM" },
+    { "path": "/omajiverse", "title": "OMAJIVERSE — RADARCharts by REM" },
+    { "path": "/omolops", "title": "Omolops — Pre-save" },
+    { "path": "/work", "title": "Work — RADARCharts by REM" },
+    { "path": "/privacy", "title": "Privacy — RADARCharts by REM" },
+    { "path": "/terms", "title": "Terms — RADARCharts by REM" }
   ]
 }
