@@ -7,6 +7,10 @@ export type MagazineSubtype = (typeof MAGAZINE_SUBTYPES)[number];
 export const PROJECT_SECTIONS = ["Motherland"] as const;
 export type ProjectSection = (typeof PROJECT_SECTIONS)[number];
 
+const PROJECT_SECTION_OVERRIDES: Record<string, ProjectSection> = {
+  "neomah-teams-up-with-octobersrich-on-no-stress": "Motherland",
+};
+
 export type EditorialTaxonomy = {
   editorialType: EditorialType | "";
   magazineSubtype: MagazineSubtype | "";
@@ -37,7 +41,7 @@ export function validateEditorialTaxonomy(input: { editorialType?: unknown; maga
 export function deriveEditorialTaxonomy(record: CmsRecord): EditorialTaxonomy {
   const explicit = text(record.editorialType);
   const explicitType = EDITORIAL_TYPES.find((value) => value === explicit);
-  const projectSection = text(record.projectSection || record.project) || (hasCategory(record, /^(motherland|motherland-radar|motherland project)$/i) ? "Motherland" : "");
+  const projectSection = PROJECT_SECTION_OVERRIDES[text(record.slug)] || text(record.projectSection || record.project) || (hasCategory(record, /^(motherland|motherland-radar|motherland project)$/i) ? "Motherland" : "");
   const subtype = text(record.magazineSubtype);
   if (explicitType) {
     const normalizedSubtype = MAGAZINE_SUBTYPES.find((value) => value.toLowerCase() === subtype.toLowerCase()) || "";

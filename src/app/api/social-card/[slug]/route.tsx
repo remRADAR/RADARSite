@@ -37,6 +37,47 @@ function cardImageUrl(slug: string, source: string | undefined) {
   return safeImageUrl(source);
 }
 
+type WorkerAssetFetcher = { fetch(request: Request): Promise<Response> };
+
+/**
+ * Satori's URL fetch for Worker-hosted static files can silently omit images.
+ * Read same-origin assets through the configured Cloudflare ASSETS binding,
+ * then pass explicit image bytes to ImageResponse instead of a URL to resolve.
+ */
+async function imageSourceForRenderer(source: string) {
+  const url = new URL(source);
+  let response: Response | undefined;
+
+  if (url.origin === new URL(publicSiteUrl()).origin) {
+    try {
+      // @ts-expect-error -- supplied by the Cloudflare Vite/Vinext runtime, not Node.js
+      const workerModule: { env: unknown } = await import("cloudflare:workers");
+      const environment = workerModule.env as { ASSETS?: WorkerAssetFetcher };
+      if (environment.ASSETS) {
+        const assetResponse = await environment.ASSETS.fetch(new Request(url));
+        if (assetResponse.ok) response = assetResponse;
+      }
+    } catch {
+      // Node.js dev/build and deployments without the binding use fetch below.
+    }
+  }
+
+  if (!response) {
+    try {
+      response = await fetch(url);
+    } catch {
+      return url.toString();
+    }
+  }
+
+  if (!response.ok) return url.toString();
+  const contentType = response.headers.get("content-type")?.split(";")[0];
+  if (!contentType?.startsWith("image/")) return url.toString();
+
+  const bytes = Buffer.from(await response.arrayBuffer());
+  return `data:${contentType};base64,${bytes.toString("base64")}`;
+}
+
 const CARD_CACHE_CONTROL = "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800";
 
 function titleSize(title: string) {
@@ -79,6 +120,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
   const excerpt = excerptSource.length > 110 ? `${excerptSource.slice(0, 109).trimEnd()}\u2026` : excerptSource;
   const imageUrl = cardImageUrl(decodedSlug, record.imageUrl || record.featuredImage);
   const logoUrl = `${publicSiteUrl()}/radar-logo.webp`;
+  const [imageSource, logoSource] = await Promise.all([
+    imageSourceForRenderer(imageUrl),
+    imageSourceForRenderer(logoUrl),
+  ]);
 
   return new ImageResponse(
     <div
@@ -93,13 +138,13 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
         overflow: "hidden",
       }}
     >
-      <img src={imageUrl} alt="" width="1200" height="630" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+      <img src={imageSource} alt="" width="1200" height="630" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
       <div style={{ position: "absolute", inset: 0, display: "flex", background: "linear-gradient(90deg, rgba(8,8,8,.96) 0%, rgba(8,8,8,.82) 46%, rgba(8,8,8,.18) 100%)" }} />
       <div style={{ position: "absolute", inset: 0, display: "flex", background: "linear-gradient(0deg, rgba(8,8,8,.92) 0%, transparent 45%)" }} />
       <div style={{ position: "relative", display: "flex", flexDirection: "column", justifyContent: "space-between", width: "100%", padding: "54px 64px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "18px" }}>
-            <img src={logoUrl} alt="RADARCharts" width="210" height="60" style={{ width: "210px", height: "60px", objectFit: "contain" }} />
+            <img src={logoSource} alt="RADARCharts" width="210" height="60" style={{ width: "210px", height: "60px", objectFit: "contain" }} />
             <div style={{ display: "flex", color: "#ff3b30", fontSize: 22, fontWeight: 700, letterSpacing: "3px" }}>ON THE RADAR</div>
           </div>
           <div style={{ display: "flex", color: "#f4f1ea", fontSize: 18, fontWeight: 700, letterSpacing: "2px" }}>RADARCHARTS.NET</div>

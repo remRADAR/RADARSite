@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import type { CmsRecord } from "@/lib/content-server";
 import { paginateRecords, recordsForEditorialType, recordsForMagazineSubtype, recordsForProject, sortEditorialRecords } from "@/lib/editorial-archives";
+import { deriveEditorialTaxonomy } from "@/lib/cms-taxonomy";
 
 const fixture: CmsRecord[] = [
   { slug: "legacy-press", title: "Legacy press", editorialType: "article", categories: ["RADARArticles"], date: "2026-01-01", sourceUrl: "https://remradar.wordpress.com/2026/01/01/legacy" },
@@ -31,6 +32,16 @@ const adminPressRecord: CmsRecord = {
   sourceProvider: "radarsite",
   status: "published",
 };
+const noStressRecord: CmsRecord = {
+  slug: "neomah-teams-up-with-octobersrich-on-no-stress",
+  title: "NEOMAH Teams Up with OCTOBERSRICH on No Stress",
+  editorialType: "article",
+  sourceProvider: "radarsite",
+  status: "published",
+  categories: ["RADARArticles"],
+};
+assert.equal(deriveEditorialTaxonomy(noStressRecord).projectSection, "Motherland", "No Stress has explicit Motherland project membership");
+assert.ok(recordsForProject([noStressRecord]).some((item) => item.slug === noStressRecord.slug), "No Stress appears in the Motherland archive");
 assert.equal(recordsForEditorialType([adminPressRecord], "Press")[0]?.slug, adminPressRecord.slug, "published admin CMS content appears in Press");
 assert.deepEqual(recordsForEditorialType(notionEditorialRecords, "Press").map((item) => item.slug), ["notion-press-newest", "notion-press-older"]);
 assert.deepEqual(recordsForEditorialType(notionEditorialRecords, "Spotlight").map((item) => item.slug), ["notion-spotlight"]);
@@ -48,4 +59,4 @@ assert.deepEqual(recordsForProject(fixture).map((item) => item.slug), ["artist-s
 assert.equal(paginateRecords(press, 1, 1).pageCount, 2);
 assert.deepEqual(paginateRecords(press, 2, 1).items.map((item) => item.slug), ["legacy-press"]);
 assert.deepEqual(sortEditorialRecords([...press]).map((item) => item.slug), ["current-press", "legacy-press"]);
-console.log(JSON.stringify({ filtering: "PASS", motherlandOverlap: "PASS", magazineSubtypes: "PASS", pagination: "PASS", notionFirstPress: "PASS", notionFirstSpotlight: "PASS", motherlandTaggedSpotlight: "PASS", currentBeforeLegacy: "PASS", draftsExcluded: "PASS" }, null, 2));
+console.log(JSON.stringify({ filtering: "PASS", motherlandOverlap: "PASS", noStressMotherland: "PASS", magazineSubtypes: "PASS", pagination: "PASS", notionFirstPress: "PASS", notionFirstSpotlight: "PASS", motherlandTaggedSpotlight: "PASS", currentBeforeLegacy: "PASS", draftsExcluded: "PASS" }, null, 2));
