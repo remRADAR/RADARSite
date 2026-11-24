@@ -1,10 +1,10 @@
 import { ImageResponse } from "next/og";
 import { NextResponse } from "next/server";
-import { readDublishedArticleBySlug } from "@/lib/content-server";
+import { readPublishedArticleBySlug } from "@/lib/content-server";
 import { normalizeEditorialRecord } from "@/lib/editorial-normalization";
 import { getEffectiveImageUrl } from "@/lib/effective-image-url";
 import { publicSiteUrl } from "@/lib/public-site";
-import cardManifest from "@/data/social-card-manifest.json";
+import cardManifest from "@/data/social-card-manifest";
 
 export const runtime = "nodejs";
 export const revalidate = 3600;
