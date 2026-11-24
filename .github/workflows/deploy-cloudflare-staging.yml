@@ -20,13 +20,33 @@ permissions:
 
 concurrency:
   group: deploy-cloudflare-production
+  # Never cancel a deploy mid-flight: a half-applied Worker upload is worse than
+  # a queued one. Superseded runs wait, then deploy the newest commit.
   cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Hard ceiling so a hung install or build fails instead of occupying the
+    # runner for GitHub's 6-hour default.
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
+
+      # Fail early and clearly when the runner is short on disk, rather than
+      # dying mid-install with an opaque ENOSPC / exit 137. Reports only -
+      # it never deletes anything.
+      - name: Disk space preflight
+        run: |
+          MIN_GB=5
+          AVAIL_KB=$(df --output=avail -k / | tail -1 | tr -d ' ')
+          AVAIL_GB=$((AVAIL_KB / 1024 / 1024))
+          echo "Available disk on /: ${AVAIL_GB} GB (minimum required: ${MIN_GB} GB)"
+          df -h /
+          if [ "$AVAIL_GB" -lt "$MIN_GB" ]; then
+            echo "::error::Insufficient disk space: ${AVAIL_GB} GB available, ${MIN_GB} GB required. Free space on the runner and re-run. No cleanup was attempted."
+            exit 1
+          fi
 
       - name: Fail fast if Cloudflare secrets are missing
         env:
