@@ -117,12 +117,35 @@ function sanitizeMagazineHtml(input: string) {
   });
 }
 
-const MAGAZINE_PAGE_CHARACTER_BUDGET = 2_200;
+// The reader is fixed to a short viewport-height page on phones. Keep this
+// conservative so text wraps comfortably at narrow widths; desktop pages may
+// contain more whitespace, but must never force mobile overflow.
+const MAGAZINE_PAGE_CHARACTER_BUDGET = 1_400;
 
 function estimateMagazineBlockSize(value: string) {
   const text = value.replace(/<[^>]+>/g, " ").replace(/&(?:amp|lt|gt|quot|#39|nbsp);/gi, "x").replace(/\s+/g, " ").trim();
   const mediaAllowance = /<(?:figure|img)\b/i.test(value) ? 500 : 0;
   return Math.max(text.length, mediaAllowance) + 120;
+}
+
+function splitOversizedAnswerBlock(block: string) {
+  const match = block.match(/^<p([^>]*)>([\s\S]*)<\/p>$/i);
+  if (!match || estimateMagazineBlockSize(block) <= MAGAZINE_PAGE_CHARACTER_BUDGET) return [block];
+  const text = match[2].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const words = text.split(" ").filter(Boolean);
+  const chunks: string[] = [];
+  let chunk = "";
+  for (const word of words) {
+    const candidate = chunk ? `${chunk} ${word}` : word;
+    if (chunk && candidate.length + 120 > MAGAZINE_PAGE_CHARACTER_BUDGET) {
+      chunks.push(chunk);
+      chunk = word;
+    } else {
+      chunk = candidate;
+    }
+  }
+  if (chunk) chunks.push(chunk);
+  return chunks.length ? chunks.map((part) => `<p${match[1]}>${part}</p>`) : [block];
 }
 
 export function splitIntoPages(html: string) {
@@ -139,6 +162,13 @@ export function splitIntoPages(html: string) {
     currentPageSize = 0;
   };
   const addBlock = (block: string, forceNewPage = false) => {
+    if (estimateMagazineBlockSize(block) > MAGAZINE_PAGE_CHARACTER_BUDGET) {
+      const parts = splitOversizedAnswerBlock(block);
+      if (parts.length > 1 || parts[0] !== block) {
+        parts.forEach((part, index) => addBlock(part, forceNewPage && index === 0));
+        return;
+      }
+    }
     const blockSize = estimateMagazineBlockSize(block);
     if (forceNewPage) flushPage();
     if (currentPage.length && currentPageSize + blockSize > MAGAZINE_PAGE_CHARACTER_BUDGET) flushPage();

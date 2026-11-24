@@ -33,4 +33,19 @@ export async function generateMetadata({ params }: { params: Promise<{ article: 
   const image = articleSocialCardUrl(record.slug || article);
   return buildPageMetadata({ title: record.metaTitle || record.title || "Article", description: record.metaDescription || record.excerpt, path: canonical, image, type: "article", indexable: record.noindex !== true, publishedTime: record.publishedAt || record.date, modifiedTime: typeof record.sourceModifiedAt === "string" ? record.sourceModifiedAt : typeof record.updatedAt === "string" ? record.updatedAt : undefined, authors: record.author ? [record.author] : undefined });
 }
-export default async function ArticleDetail({ params }: { params: Promise<{ article: string }> }) { const { article } = await params; const { articles } = await readPublishedContent(); const item = findBySlug(articles, article); if (!item) notFound(); const record = normalizeEditorialRecord(item); const schema = buildArticleJsonLd(record); const excerpt = buildArticleSourceExcerpt(record); const isMagazine = deriveEditorialTaxonomy(item).editorialType === "Magazine"; return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(schema) }} /><IaDetail item={item} kind={isMagazine ? "magazine" : "article"} backPath={isMagazine ? "/ontheradar/magazine" : "/ontheradar/articles"} />{!isMagazine && excerpt ? <div className="px-5 pb-16 md:px-10"><div className="mx-auto max-w-4xl"><ArticleSourceExcerpt excerpt={excerpt} /></div></div> : null}</>; }
+export default async function ArticleDetail({ params }: { params: Promise<{ article: string }> }) {
+  const { article } = await params;
+  const { articles, magazine } = await readPublishedContent();
+  const item = findBySlug(articles, article);
+  if (!item) notFound();
+  const record = normalizeEditorialRecord(item);
+  const schema = buildArticleJsonLd(record);
+  const excerpt = buildArticleSourceExcerpt(record);
+  const isMagazine = deriveEditorialTaxonomy(item).editorialType === "Magazine";
+  const relatedItems = isMagazine
+    ? [...magazine, ...articles.filter((candidate) => deriveEditorialTaxonomy(candidate).editorialType === "Magazine")]
+        .filter((candidate) => candidate.slug !== article)
+        .slice(0, 6)
+    : [];
+  return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(schema) }} /><IaDetail item={item} kind={isMagazine ? "magazine" : "article"} backPath={isMagazine ? "/ontheradar/magazine" : "/ontheradar/articles"} relatedItems={relatedItems} />{!isMagazine && excerpt ? <div className="px-5 pb-16 md:px-10"><div className="mx-auto max-w-4xl"><ArticleSourceExcerpt excerpt={excerpt} /></div></div> : null}</>;
+}
