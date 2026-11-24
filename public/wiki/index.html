@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="en" class="theme-dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RADARSite — Wiki Home | RADARCharts by REM</title>
+<meta name="description" content="The project handbook for developers, maintainers, and AI agents working on RADARSite — the web platform for RADARCharts by REM." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  /* ============================================================
+     RADARSite design tokens — extracted from src/app/globals.css
+     "EDITORIAL BRUTALIST SYSTEM": black field, white signal,
+     one hot flare. Hard 90° corners, 2px rules, colossal grotesk.
+     ============================================================ */
+  :root {
+    --paper: #050505;
+    --ink: #f7f7f2;
+    --flare: #ffffff;
+    --flare-foreground: #050505;
+
+    --background: var(--paper);
+    --foreground: var(--ink);
+    --card: var(--paper);
+    --card-foreground: var(--ink);
+    --primary: var(--ink);
+    --primary-foreground: var(--paper);
+    --secondary: #171717;
+    --secondary-foreground: var(--ink);
+    --muted: #171717;
+    --muted-foreground: #a4a4a0;
+    --accent: var(--flare);
+    --accent-foreground: var(--flare-foreground);
+    --border: var(--ink);
+    --input: var(--ink);
+    --ring: var(--flare);
+
+    --radius: 0px;
+    --radius-sm: 0px;
+    --radius-md: 0px;
+    --radius-lg: 0px;
+    --radius-xl: 0px;
+
+    --font-grotesk: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "Space Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-slam: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-fast: 0.3s;
+    --duration-base: 0.6s;
+    --theme-transition: 260ms cubic-bezier(0.22, 1, 0.36, 1);
+
+    --rule: 2px solid var(--ink);
+    --rule-soft: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+    --gutter: clamp(1rem, 3vw, 2.5rem);
+  }
+
+  /* Light theme — mirrors :root.theme-light in the repository. */
+  html.theme-light {
+    --paper: #f7f7f2;
+    --ink: #050505;
+    --flare: #168a3a;
+    --flare-foreground: #050505;
+    --background: var(--paper);
+    --foreground: var(--ink);
+    --card: var(--paper);
+    --card-foreground: var(--ink);
+    --primary: var(--ink);
+    --primary-foreground: var(--paper);
+    --secondary: #e7e7df;
+    --secondary-foreground: var(--ink);
+    --muted: #e7e7df;
+    --muted-foreground: #55554f;
+    --accent: var(--flare);
+    --accent-foreground: var(--flare-foreground);
+    --border: var(--ink);
+    --input: var(--ink);
+    --ring: var(--flare);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-grotesk);
+    font-size: 16px;
+    line-height: 1.6;
+    font-synthesis-weight: none;
+    overflow-x: hidden;
+    transition: background-color var(--theme-transition), color var(--theme-transition);
+  }
+
+  ::selection { background: var(--flare); color: var(--flare-foreground); }
+
+  a { color: inherit; }
+
+  :focus-visible {
+    outline: 2px solid var(--flare);
+    outline-offset: 2px;
+  }
+
+  /* ---------- utilities from the repo ---------- */
+  .display {
+    font-family: var(--font-grotesk);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 0.86;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+  .mono {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .dot-grid {
+    background-image: radial-gradient(color-mix(in srgb, var(--ink) 26%, transparent) 1px, transparent 1.4px);
+    background-size: 14px 14px;
+  }
+
+  /* ============================================================
+     HEADER — sticky, 2px rule, boxed logo cell (SiteHeader.tsx)
+     ============================================================ */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    min-height: 3.5rem;
+    border-bottom: var(--rule);
+    background: var(--paper);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0 clamp(0.75rem, 2vw, 1.5rem);
+    border-right: var(--rule);
+    text-decoration: none;
+    min-width: 0;
+  }
+
+  /* Real brand mark from the repository: /radar-logo.webp
+     (the RADARCharts by REM moon + torch mark). LogoMark renders it as a
+     contained background image, exactly as src/components/Logo.tsx does.
+     Absolute path so the mark resolves from any depth. */
+  .logo-mark {
+    position: relative;
+    display: block;
+    width: 1.85rem;
+    height: 1.85rem;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background-image: url("/radar-logo.webp");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: transform 0.3s var(--ease-slam);
+  }
+  .brand:hover .logo-mark { transform: rotate(-8deg) scale(1.06); }
+
+  .brand-text {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+    min-width: 0;
+  }
+  .brand-name {
+    font-family: var(--font-grotesk);
+    font-weight: 800;
+    font-size: 1.05rem;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .brand-tag {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    border-left: 1px solid color-mix(in srgb, var(--ink) 35%, transparent);
+    padding-left: 0.55rem;
+    white-space: nowrap;
+  }
+
+  .header-controls { display: flex; align-items: stretch; }
+
+  .header-link {
+    display: none;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0 1.1rem;
+    border-left: var(--rule);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background-color 180ms ease, color 180ms ease;
+  }
+  .header-link:hover { background: var(--ink); color: var(--paper); }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-width: 5.5rem;
+    padding: 0 0.9rem;
+    border: 0;
+    border-left: var(--rule);
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 180ms ease, color 180ms ease;
+  }
+  .theme-toggle:hover { background: var(--ink); color: var(--paper); }
+  .theme-toggle svg { width: 0.85rem; height: 0.85rem; }
+
+  /* ============================================================
+     LAYOUT
+     ============================================================ */
+  .shell {
+    display: grid;
+    grid-template-columns: 1fr;
+    max-width: 1560px;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 1024px) {
+    .shell { grid-template-columns: 17.5rem minmax(0, 1fr); }
+  }
+
+  /* ---------- sidebar / table of contents ---------- */
+  .toc {
+    border-bottom: var(--rule);
+    background: var(--paper);
+  }
+  @media (min-width: 1024px) {
+    .toc {
+      position: sticky;
+      top: 3.5rem;
+      align-self: start;
+      height: calc(100vh - 3.5rem);
+      overflow-y: auto;
+      border-bottom: 0;
+      border-right: var(--rule);
+    }
+  }
+
+  .toc-inner { padding: 1.25rem var(--gutter) 1.75rem; }
+  @media (min-width: 1024px) { .toc-inner { padding: 1.75rem 1.5rem 2.5rem; } }
+
+  .toc-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin: 0 0 1rem;
+    padding-bottom: 0.7rem;
+    border-bottom: var(--rule);
+    color: var(--ink);
+  }
+
+  .toc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0;
+  }
+  .toc-list a {
+    display: grid;
+    grid-template-columns: 1.9rem minmax(0, 1fr);
+    gap: 0.5rem;
+    align-items: baseline;
+    padding: 0.5rem 0.4rem 0.5rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+    text-decoration: none;
+    font-size: 0.86rem;
+    line-height: 1.3;
+    color: var(--muted-foreground);
+    transition: color 150ms ease, background-color 150ms ease, padding-left 150ms ease;
+  }
+  .toc-list a:hover,
+  .toc-list a:focus-visible {
+    color: var(--ink);
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+    padding-left: 0.4rem;
+  }
+  .toc-list .n {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: color-mix(in srgb, var(--ink) 45%, transparent);
+  }
+
+  .toc-note {
+    margin: 1.25rem 0 0;
+    padding: 0.85rem;
+    border: var(--rule);
+    background: var(--secondary);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    line-height: 1.7;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+  .toc-note strong { color: var(--ink); display: block; margin-bottom: 0.3rem; letter-spacing: 0.12em; }
+
+  /* mobile TOC disclosure */
+  .toc-mobile { display: block; }
+  .toc-mobile summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem var(--gutter);
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .toc-mobile summary::-webkit-details-marker { display: none; }
+  .toc-mobile summary .plus { font-size: 1rem; line-height: 1; }
+  .toc-mobile[open] summary { border-bottom: var(--rule); }
+  .toc-mobile[open] summary .plus { transform: rotate(45deg); }
+  .toc-mobile .toc-inner { padding-top: 1rem; }
+  @media (min-width: 1024px) { .toc-mobile { display: none; } }
+
+  .toc-desktop { display: none; }
+  @media (min-width: 1024px) { .toc-desktop { display: block; } }
+
+  /* ---------- main column ---------- */
+  main { min-width: 0; }
+
+  /* ============================================================
+     HERO
+     ============================================================ */
+  .hero {
+    position: relative;
+    border-bottom: var(--rule);
+    padding: clamp(2rem, 5vw, 4.5rem) var(--gutter) clamp(1.75rem, 4vw, 3rem);
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(color-mix(in srgb, var(--ink) 22%, transparent) 1px, transparent 1.4px);
+    background-size: 14px 14px;
+    opacity: 0.5;
+    pointer-events: none;
+    mask-image: linear-gradient(to bottom, #000 0%, transparent 78%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 78%);
+  }
+  .hero > * { position: relative; }
+
+  .hero-kicker {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem 0.9rem;
+    margin: 0 0 clamp(1.25rem, 3vw, 2rem);
+    color: var(--muted-foreground);
+  }
+  .hero-kicker .slash { color: color-mix(in srgb, var(--ink) 40%, transparent); }
+  .hero-kicker .live {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--ink);
+  }
+  .hero-kicker .live::before {
+    content: "";
+    width: 0.45rem;
+    height: 0.45rem;
+    background: var(--flare);
+    display: inline-block;
+  }
+
+  .hero-title {
+    margin: 0;
+    font-size: clamp(3.2rem, 12vw, 9.5rem);
+    letter-spacing: -0.045em;
+    line-height: 0.82;
+  }
+  .hero-title .flare-dot { color: var(--flare); }
+
+  .hero-sub {
+    max-width: 46rem;
+    margin: clamp(1.25rem, 3vw, 2rem) 0 0;
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    line-height: 1.55;
+    color: var(--ink);
+  }
+  .hero-sub + .hero-sub {
+    margin-top: 0.9rem;
+    color: var(--muted-foreground);
+    font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+  }
+
+  .hero-meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: clamp(1.75rem, 4vw, 2.75rem);
+    border-top: var(--rule);
+    border-left: var(--rule);
+  }
+  @media (min-width: 720px) { .hero-meta { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+  .hero-meta div {
+    padding: 0.8rem 0.9rem;
+    border-right: var(--rule);
+    border-bottom: var(--rule);
+    min-width: 0;
+  }
+  .hero-meta dt {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    margin: 0 0 0.3rem;
+  }
+  .hero-meta dd {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    overflow-wrap: anywhere;
+  }
+
+  /* ============================================================
+     SECTIONS
+     ============================================================ */
+  .section {
+    padding: clamp(2rem, 4.5vw, 3.5rem) var(--gutter);
+    border-bottom: var(--rule);
+    scroll-margin-top: 5rem;
+  }
+
+  .section-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 0.75rem 1.5rem;
+    margin-bottom: clamp(1.25rem, 3vw, 2rem);
+  }
+  .section-num {
+    display: block;
+    margin-bottom: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    color: var(--muted-foreground);
+  }
+  .section-title {
+    margin: 0;
+    font-size: clamp(1.6rem, 4.2vw, 2.9rem);
+    letter-spacing: -0.03em;
+    line-height: 0.92;
+  }
+  .section-aside {
+    display: none;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    text-align: right;
+    padding-bottom: 0.25rem;
+  }
+  @media (min-width: 720px) { .section-aside { display: block; } }
+
+  .prose { max-width: 62rem; }
+  .prose p {
+    margin: 0 0 1rem;
+    font-size: clamp(0.98rem, 1.2vw, 1.06rem);
+    line-height: 1.65;
+  }
+  .prose p:last-child { margin-bottom: 0; }
+  .prose strong { font-weight: 800; }
+
+  /* ---------- callouts ---------- */
+  .callout {
+    position: relative;
+    margin: 1.5rem 0 0;
+    padding: 1.1rem 1.25rem 1.1rem 1.5rem;
+    border: var(--rule);
+    background: var(--secondary);
+    max-width: 62rem;
+  }
+  .callout::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0.4rem;
+    background: var(--flare);
+  }
+  .callout-label {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .callout p {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+  .callout p + p { margin-top: 0.6rem; }
+
+  /* ---------- tables ---------- */
+  .table-wrap {
+    margin-top: 1.5rem;
+    border: var(--rule);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 34rem;
+    font-size: 0.94rem;
+  }
+  caption {
+    caption-side: top;
+    text-align: left;
+    padding: 0.7rem 0.9rem;
+    border-bottom: var(--rule);
+    background: var(--secondary);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+  thead th {
+    background: var(--secondary);
+    color: var(--ink);
+    text-align: left;
+    padding: 0.75rem 0.9rem;
+    border-bottom: var(--rule);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 0.8rem 0.9rem;
+    border-bottom: var(--rule-soft);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody tr { transition: background-color 140ms ease, color 140ms ease; }
+  tbody tr:hover { background: var(--ink); color: var(--paper); }
+  tbody tr:hover .page-ref { color: var(--paper); }
+  tbody tr:hover .page-ref::after { border-color: color-mix(in srgb, var(--paper) 45%, transparent); }
+  tbody tr:hover code { background: color-mix(in srgb, var(--paper) 14%, transparent); color: var(--paper); border-color: color-mix(in srgb, var(--paper) 30%, transparent); }
+
+  td:first-child { font-weight: 700; }
+  .col-key { width: 34%; }
+
+  /* non-link page names */
+  .page-ref {
+    display: inline-block;
+    font-weight: 700;
+    color: var(--ink);
+    cursor: default;
+  }
+  .page-ref::after {
+    content: "";
+    display: block;
+    margin-top: 0.15rem;
+    border-bottom: 1px dashed color-mix(in srgb, var(--ink) 35%, transparent);
+  }
+
+  .table-note {
+    margin: 0.7rem 0 0;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    line-height: 1.7;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    max-width: 62rem;
+  }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+    padding: 0.1em 0.35em;
+    background: var(--secondary);
+    border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+
+  /* ---------- repository contents list ---------- */
+  .path-list {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    border-top: var(--rule);
+    max-width: 62rem;
+  }
+  .path-list li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.2rem 1.25rem;
+    padding: 0.75rem 0.25rem;
+    border-bottom: var(--rule-soft);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  @media (min-width: 640px) {
+    .path-list li { grid-template-columns: 12.5rem minmax(0, 1fr); align-items: baseline; }
+  }
+  .path-list .path {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+  .path-list .desc { color: var(--muted-foreground); }
+
+  /* ---------- code blocks ---------- */
+  .code-block {
+    margin: 1.25rem 0 0;
+    border: var(--rule);
+    background: var(--secondary);
+    max-width: 62rem;
+    overflow: hidden;
+  }
+  .code-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 0.85rem;
+    border-bottom: var(--rule);
+    background: var(--paper);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+  .code-head .lang { color: var(--ink); }
+  .code-block pre {
+    margin: 0;
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.84rem;
+    line-height: 1.75;
+    color: var(--ink);
+    tab-size: 2;
+  }
+  .code-block pre code {
+    background: none;
+    border: 0;
+    padding: 0;
+    font-size: inherit;
+    color: inherit;
+  }
+  .code-block .prompt { color: var(--muted-foreground); user-select: none; }
+
+  /* ---------- command list ---------- */
+  .cmd-list {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    border-top: var(--rule);
+    max-width: 62rem;
+  }
+  .cmd-list li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.3rem 1.25rem;
+    padding: 0.7rem 0.25rem;
+    border-bottom: var(--rule-soft);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  @media (min-width: 640px) {
+    .cmd-list li { grid-template-columns: 13.5rem minmax(0, 1fr); align-items: baseline; }
+  }
+  .cmd-list code {
+    justify-self: start;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.2em 0.45em;
+  }
+  .cmd-list .desc { color: var(--muted-foreground); }
+
+  /* ---------- numbered principles ---------- */
+  .steps {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    border-top: var(--rule);
+    max-width: 62rem;
+    counter-reset: step;
+  }
+  .steps li {
+    display: grid;
+    grid-template-columns: 2.6rem minmax(0, 1fr);
+    gap: 0.35rem 1rem;
+    padding: 1.1rem 0.25rem;
+    border-bottom: var(--rule-soft);
+  }
+  @media (min-width: 720px) {
+    .steps li { grid-template-columns: 4rem minmax(0, 1fr); gap: 0.35rem 1.5rem; }
+  }
+  .steps .num {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--muted-foreground);
+    line-height: 1.5;
+  }
+  .steps .body { min-width: 0; }
+  .steps .lead {
+    display: block;
+    font-weight: 800;
+    font-size: 1.02rem;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.15rem;
+  }
+  .steps .body p {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--muted-foreground);
+  }
+
+  /* ---------- report list ---------- */
+  .report-list {
+    list-style: none;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0;
+    border: var(--rule);
+    max-width: 62rem;
+  }
+  .report-list li {
+    display: grid;
+    grid-template-columns: 1.6rem minmax(0, 1fr);
+    gap: 0.6rem;
+    padding: 0.8rem 0.95rem;
+    border-bottom: var(--rule-soft);
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+  .report-list li:last-child { border-bottom: 0; }
+  .report-list li::before {
+    content: "→";
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--flare);
+    line-height: 1.7;
+  }
+
+  /* ---------- maintenance bullets ---------- */
+  .check-list {
+    list-style: none;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    max-width: 62rem;
+    border-top: var(--rule);
+  }
+  .check-list li {
+    display: grid;
+    grid-template-columns: 1.4rem minmax(0, 1fr);
+    gap: 0.6rem;
+    padding: 0.7rem 0.25rem;
+    border-bottom: var(--rule-soft);
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+  .check-list li::before {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-top: 0.55rem;
+    background: var(--ink);
+    display: block;
+  }
+
+  /* ---------- ownership / status ---------- */
+  .status-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    margin-top: 1.5rem;
+    border-top: var(--rule);
+    border-left: var(--rule);
+    max-width: 62rem;
+  }
+  @media (min-width: 720px) { .status-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .status-grid div {
+    padding: 1rem 1.1rem;
+    border-right: var(--rule);
+    border-bottom: var(--rule);
+    min-width: 0;
+  }
+  .status-grid dt {
+    margin: 0 0 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+  .status-grid dd {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+  .status-grid dd.placeholder {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--muted-foreground);
+  }
+
+  /* ============================================================
+     FOOTER — on-dark, marquee band, 2px grid (SiteFooter.tsx)
+     ============================================================ */
+  .site-footer {
+    border-top: var(--rule);
+    background: var(--paper);
+  }
+  .footer-band {
+    overflow: hidden;
+    border-bottom: var(--rule);
+    padding: 0.9rem 0;
+  }
+  .footer-track {
+    display: flex;
+    width: max-content;
+    animation: marquee-x 26s linear infinite;
+  }
+  .footer-track span {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding-right: 1.5rem;
+    font-family: var(--font-grotesk);
+    font-weight: 800;
+    font-size: clamp(1.6rem, 4vw, 3rem);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .footer-track .sep { color: var(--flare); }
+  @keyframes marquee-x {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 720px) { .footer-grid { grid-template-columns: 1.4fr 1fr 1fr; } }
+  .footer-cell {
+    padding: 1.25rem var(--gutter);
+    border-bottom: var(--rule);
+  }
+  @media (min-width: 720px) {
+    .footer-cell { border-bottom: 0; border-right: var(--rule); }
+    .footer-cell:last-child { border-right: 0; }
+  }
+  .footer-cell h2 {
+    margin: 0 0 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+  .footer-cell p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+  .footer-cell p + p { margin-top: 0.4rem; color: var(--muted-foreground); }
+  .footer-cell a {
+    text-decoration: none;
+    border-bottom: 2px solid var(--flare);
+    padding-bottom: 1px;
+  }
+  .footer-cell a:hover { background: var(--flare); color: var(--flare-foreground); }
+
+  .footer-base {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    padding: 0.85rem var(--gutter);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .footer-track { animation: none; }
+    .brand:hover .logo-mark { transform: none; }
+    *, *::before, *::after { transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="brand" href="#top" aria-label="RADARSite Wiki — home">
+    <span class="logo-mark" role="img" aria-label="RADARCharts by REM"></span>
+    <span class="brand-text">
+      <span class="brand-name">RADARSite</span>
+      <span class="brand-tag">Wiki</span>
+    </span>
+  </a>
+  <div class="header-controls">
+    <a class="header-link" href="https://github.com/remRADAR/RADARSite" target="_blank" rel="noreferrer">Repository ↗</a>
+    <button class="theme-toggle" type="button" id="themeToggle" aria-pressed="false" aria-label="Switch to light theme">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+      <span id="themeLabel">Light</span>
+    </button>
+  </div>
+</header>
+
+<div class="shell" id="top">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="toc" aria-label="On this page">
+    <details class="toc-mobile">
+      <summary>On this page <span class="plus" aria-hidden="true">+</span></summary>
+      <div class="toc-inner">
+        <ol class="toc-list">
+          <li><a href="#start-here"><span class="n">01</span><span>Start here</span></a></li>
+          <li><a href="#at-a-glance"><span class="n">02</span><span>Project at a glance</span></a></li>
+          <li><a href="#contents"><span class="n">03</span><span>What this repository contains</span></a></li>
+          <li><a href="#run-locally"><span class="n">04</span><span>Run the application locally</span></a></li>
+          <li><a href="#commands"><span class="n">05</span><span>Common project commands</span></a></li>
+          <li><a href="#how-we-work"><span class="n">06</span><span>How we work on RADARSite</span></a></li>
+          <li><a href="#ai-agents"><span class="n">07</span><span>Working with AI coding agents</span></a></li>
+          <li><a href="#maintenance"><span class="n">08</span><span>Documentation maintenance</span></a></li>
+          <li><a href="#ownership"><span class="n">09</span><span>Ownership and status</span></a></li>
+        </ol>
+      </div>
+    </details>
+
+    <div class="toc-desktop">
+      <div class="toc-inner">
+        <p class="toc-label mono">On this page <span aria-hidden="true">/ 09</span></p>
+        <ol class="toc-list">
+          <li><a href="#start-here"><span class="n">01</span><span>Start here</span></a></li>
+          <li><a href="#at-a-glance"><span class="n">02</span><span>Project at a glance</span></a></li>
+          <li><a href="#contents"><span class="n">03</span><span>What this repository contains</span></a></li>
+          <li><a href="#run-locally"><span class="n">04</span><span>Run the application locally</span></a></li>
+          <li><a href="#commands"><span class="n">05</span><span>Common project commands</span></a></li>
+          <li><a href="#how-we-work"><span class="n">06</span><span>How we work on RADARSite</span></a></li>
+          <li><a href="#ai-agents"><span class="n">07</span><span>Working with AI coding agents</span></a></li>
+          <li><a href="#maintenance"><span class="n">08</span><span>Documentation maintenance</span></a></li>
+          <li><a href="#ownership"><span class="n">09</span><span>Ownership and status</span></a></li>
+        </ol>
+        <p class="toc-note">
+          <strong>Documentation rule</strong>
+          Code, configuration and approved decisions are the source of truth. A Wiki page is guidance.
+        </p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main>
+
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="page-title">
+      <p class="hero-kicker mono">
+        <span>RADARCharts by REM</span>
+        <span class="slash" aria-hidden="true">/</span>
+        <span>Project handbook</span>
+        <span class="slash" aria-hidden="true">/</span>
+        <span class="live">Wiki home</span>
+      </p>
+
+      <h1 class="hero-title display" id="page-title">RADARSite<span class="flare-dot">.</span></h1>
+
+      <p class="hero-sub">
+        RADARSite is the web platform for RADARCharts by REM. This repository contains the
+        application code and supporting tools used to develop, test, and maintain the site.
+      </p>
+      <p class="hero-sub">
+        This Wiki is the project handbook for developers, maintainers, and AI agents working on
+        RADARSite. It explains how the project is organized, how to work on it safely, and where to
+        find the relevant technical guidance.
+      </p>
+
+      <dl class="hero-meta">
+        <div>
+          <dt>Repository</dt>
+          <dd>remRADAR/RADARSite</dd>
+        </div>
+        <div>
+          <dt>Branch</dt>
+          <dd>main</dd>
+        </div>
+        <div>
+          <dt>Stack</dt>
+          <dd>Next.js · TypeScript</dd>
+        </div>
+        <div>
+          <dt>Runtime</dt>
+          <dd>Node.js 20+</dd>
+        </div>
+      </dl>
+
+      <div class="callout">
+        <span class="callout-label">Documentation rule</span>
+        <p>
+          Treat the repository's current code, configuration, and approved project decisions as the
+          source of truth. A Wiki page is guidance—not proof that a feature is deployed, an
+          environment is configured, or a migration is complete.
+        </p>
+      </div>
+    </section>
+
+    <!-- 01 START HERE -->
+    <section class="section" id="start-here" aria-labelledby="h-start-here">
+      <div class="section-head">
+        <div>
+          <span class="section-num">(01)</span>
+          <h2 class="section-title display" id="h-start-here">Start here</h2>
+        </div>
+        <p class="section-aside">Navigation</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <caption>Where to go next</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="col-key">If you want to…</th>
+              <th scope="col">Read</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Understand the application and its major components</td>
+              <td><span class="page-ref">Architecture</span></td>
+            </tr>
+            <tr>
+              <td>Set up a local development environment</td>
+              <td><span class="page-ref">Development Guide</span></td>
+            </tr>
+            <tr>
+              <td>Understand the content system and CMS workflows</td>
+              <td><span class="page-ref">Content and CMS</span></td>
+            </tr>
+            <tr>
+              <td>Review hosting, storage, and deployment procedures</td>
+              <td><span class="page-ref">Infrastructure and Deployment</span></td>
+            </tr>
+            <tr>
+              <td>Work on security, testing, or operational issues</td>
+              <td><span class="page-ref">Security and Operations</span></td>
+            </tr>
+            <tr>
+              <td>Use an AI coding agent on this repository</td>
+              <td><span class="page-ref">AI Agent Handbook</span></td>
+            </tr>
+            <tr>
+              <td>Find recorded technical choices and their rationale</td>
+              <td><span class="page-ref">Technical Decisions</span></td>
+            </tr>
+            <tr>
+              <td>Investigate a known problem</td>
+              <td><span class="page-ref">Troubleshooting</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note">
+        Pages should be added to this navigation as they are written and verified. Do not link to a
+        page that does not yet exist.
+      </p>
+    </section>
+
+    <!-- 02 AT A GLANCE -->
+    <section class="section" id="at-a-glance" aria-labelledby="h-at-a-glance">
+      <div class="section-head">
+        <div>
+          <span class="section-num">(02)</span>
+          <h2 class="section-title display" id="h-at-a-glance">Project at a glance</h2>
+        </div>
+        <p class="section-aside">Repository facts</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <caption>Current repository information</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="col-key">Area</th>
+              <th scope="col">Current repository information</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Repository</td>
+              <td><code>remRADAR/RADARSite</code></td>
+            </tr>
+            <tr>
+              <td>Primary branch</td>
+              <td><code>main</code></td>
+            </tr>
+            <tr>
+              <td>Application framework</td>
+              <td>Next.js App Router</td>
+            </tr>
+            <tr>
+              <td>Language</td>
+              <td>TypeScript</td>
+            </tr>
+            <tr>
+              <td>Styling</td>
+              <td>Tailwind CSS</td>
+            </tr>
+            <tr>
+              <td>Data services listed in the project README</td>
+              <td>Neon Postgres and Cloudflare R2</td>
+            </tr>
+            <tr>
+              <td>Error monitoring listed in the project README</td>
+              <td>Sentry</td>
+            </tr>
+            <tr>
+              <td>Local runtime prerequisite</td>
+              <td>Node.js 20 or newer</td>
+            </tr>
+            <tr>
+              <td>Main project areas</td>
+              <td><code>src/app/</code>, <code>src/components/</code>, <code>src/lib/</code>, <code>scripts/</code>, <code>cloudflare/</code>, <code>docs/</code>, <code>reports/</code>, <code>qa-artifacts/</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <span class="callout-label">Important</span>
+        <p>
+          This table summarizes repository documentation. Confirm the current production
+          architecture, configured environments, and active integrations before relying on them for
+          an operational change.
+        </p>
+      </div>
+    </section>
+
+    <!-- 03 CONTENTS -->
+    <section class="section" id="contents" aria-labelledby="h-contents">
+      <div class="section-head">
+        <div>
+          <span class="section-num">(03)</span>
+          <h2 class="section-title display" id="h-contents">What this repository contains</h2>
+        </div>
+        <p class="section-aside">Directory map</p>
+      </div>
+
+      <ul class="path-list">
+        <li><span class="path">src/app/</span><span class="desc">Next.js application routes and route-level behavior.</span></li>
+        <li><span class="path">src/components/</span><span class="desc">shared interface components.</span></li>
+        <li><span class="path">src/lib/</span><span class="desc">application utilities and supporting logic.</span></li>
+        <li><span class="path">scripts/</span><span class="desc">development, validation, diagnostics, and maintenance scripts.</span></li>
+        <li><span class="path">cloudflare/</span><span class="desc">Cloudflare-related project files.</span></li>
+        <li><span class="path">docs/</span><span class="desc">project documentation.</span></li>
+        <li><span class="path">reports/</span><span class="desc">reports and audit-related material.</span></li>
+        <li><span class="path">qa-artifacts/</span><span class="desc">quality-assurance artifacts.</span></li>
+      </ul>
+
+      <div class="prose" style="margin-top:1.5rem">
+        <p>
+          The repository also contains tests and validation scripts for areas such as end-to-end
+          behavior, accessibility, Content Security Policy, CMS contracts and diagnostics, media
+          migration, and live-route checks. Consult the relevant script and its current instructions
+          before running it.
+        </p>
+      </div>
+    </section>
+
+    <!-- 04 RUN LOCALLY -->
+    <section class="section" id="run-locally" aria-labelledby="h-run-locally">
+      <div class="section-head">
+        <div>
+          <span class="section-num">(04)</span>
+          <h2 class="section-title display" id="h-run-locally">Run the application locally</h2>
+        </div>
+        <p class="section-aside">Local setup</p>
+      </div>
+
+      <div class="prose">
+        <p>The repository README documents this basic setup:</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-head"><span class="lang">Shell</span><span>Install &amp; configure</span></div>
+        <pre><code><span class="prompt">$ </span>npm install
+<span class="prompt">$ </span>cp .env.local.example .env.local</code></pre>
+      </div>
+
+      <div class="prose" style="margin-top:1.5rem">
+        <p>Add the required values to <code>.env.local</code>, then start the development server:</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-head"><span class="lang">Shell</span><span>Dev server</span></div>
+        <pre><code><span class="prompt">$ </span>npm run dev</code></pre>
+      </div>
+
+      <div class="prose" style="margin-top:1.5rem">
+        <p>
+          Use Node.js 20 or newer. Check the README and environment example for the current required
+          variables and any setup changes. Do not copy credentials into the Wiki, commit them, or
+          paste them into prompts or issue reports.
+        </p>
+      </div>
+    </section>
+
+    <!-- 05 COMMANDS -->
+    <section class="section" id="commands" aria-labelledby="h-commands">
+      <div class="section-head">
+        <div>
+          <span class="section-num">(05)</span>
+          <h2 class="section-title display" id="h-commands">Common project commands</h2>
+        </div>
+        <p class="section-aside">package.json</p>
+      </div>
+
+      <div class="prose">
+        <p>The repository includes scripts for tasks such as:</p>
+      </div>
+
+      <ul class="cmd-list">
+        <li><code>npm run build</code><span class="desc">build the application.</span></li>
+        <li><code>npm run start</code><span class="desc">start the production server.</span></li>
+        <li><code>npm run lint</code><span class="desc">run lint checks.</span></li>
+        <li><code>npm run typecheck</code><span class="desc">run TypeScript checks.</span></li>
+        <li><code>npm run test</code><span class="desc">run the configured test suite.</span></li>
+      </ul>
+
+      <div class="prose" style="margin-top:1.5rem">
+        <p>
+          Additional Playwright, accessibility, security, CMS, migration, and route-verification
+          scripts are available. Check <code>package.json</code> before running a command; the script
+          names, prerequisites, and expected environment may change.
+        </p>
+      </div>
+
+      <div class="callout">
+        <span class="callout-label">Note</span>
+        <p>
+          A successful build is not, by itself, proof that production data access, external services,
+          or every live route is working. The project documentation notes that production builds
+          intentionally avoid database access and that database behavior is checked through
+          contract-test scripts.
+        </p>
+      </div>
+    </section>
+
+    <!-- 06 HOW WE WORK -->
+    <section class="section" id="how-we-work" aria-labelledby="h-how-we-work">
+      <div class="section-head">
+        <div>
+          <span class="section-num">(06)</span>
+          <h2 class="section-title display" id="h-how-we-work">How we work on RADARSite</h2>
+        </div>
+        <p class="section-aside">Working principles</p>
+      </div>
+
+      <ol class="steps">
+        <li>
+          <span class="num">01</span>
+          <div class="body">
+            <span class="lead">Inspect before changing.</span>
+            <p>Read the relevant code, configuration, documentation, and existing tests first.</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">02</span>
+          <div class="body">
+            <span class="lead">Keep the change scoped.</span>
+            <p>Avoid unrelated refactors, dependency changes, or design changes.</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">03</span>
+          <div class="body">
+            <span class="lead">Verify the affected behavior.</span>
+            <p>Run the relevant checks and report exactly what passed, failed, or could not be run.</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">04</span>
+          <div class="body">
+            <span class="lead">Separate preparation from execution.</span>
+            <p>
+              Treat production deployments, DNS changes, environment-variable changes, database
+              changes, and data migrations as consequential operations that require an explicit plan
+              and authorization.
+            </p>
+          </div>
+        </li>
+        <li>
+          <span class="num">05</span>
+          <div class="body">
+            <span class="lead">Report evidence, not assumptions.</span>
+            <p>Distinguish verified results from inferred behavior, planned work, and blocked checks.</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- 07 AI AGENTS -->
+    <section class="section" id="ai-agents" aria-labelledby="h-ai-agents">
+      <div class="section-head">
+        <div>
+          <span class="section-num">(07)</span>
+          <h2 class="section-title display" id="h-ai-agents">Working with AI coding agents</h2>
+        </div>
+        <p class="section-aside">Agent protocol</p>
+      </div>
+
+      <div class="prose">
+        <p>
+          AI agents should read the relevant Wiki page and repository instructions before making
+          changes. They must not assume that a documented integration is connected, that a deployment
+          is current, or that a script is safe to run against production.
+        </p>
+        <p>For every task, report:</p>
+      </div>
+
+      <ul class="report-list">
+        <li>the files and behavior examined;</li>
+        <li>the proposed or completed changes;</li>
+        <li>the checks actually executed and their results;</li>
+        <li>any unverified assumptions, blockers, or required human approval.</li>
+      </ul>
+
+      <div class="callout">
+        <span class="callout-label">Never include</span>
+        <p>
+          Do not include secrets, access tokens, private credentials, or sensitive production data in
+          prompts, commits, Wiki pages, or reports.
+        </p>
+      </div>
+    </section>
+
+    <!-- 08 MAINTENANCE -->
+    <section class="section" id="maintenance" aria-labelledby="h-maintenance">
+      <div class="section-head">
+        <div>
+          <span class="section-num">(08)</span>
+          <h2 class="section-title display" id="h-maintenance">Documentation maintenance</h2>
+        </div>
+        <p class="section-aside">Keeping it true</p>
+      </div>
+
+      <div class="prose">
+        <p>
+          Keep this Home page short and dependable. Put detailed procedures in their own pages and
+          link to them here.
+        </p>
+        <p>When documentation changes:</p>
+      </div>
+
+      <ul class="check-list">
+        <li>verify instructions against the current repository;</li>
+        <li>identify whether a statement describes current, planned, or historical behavior;</li>
+        <li>remove or correct obsolete instructions;</li>
+        <li>avoid duplicating large sections of the README or source documentation;</li>
+        <li>update links when pages are renamed.</li>
+      </ul>
+
+      <div class="prose" style="margin-top:1.5rem">
+        <p>
+          Historical audit and migration reports may be useful evidence, but they should not be
+          treated as current operating instructions without verification.
+        </p>
+      </div>
+    </section>
+
+    <!-- 09 OWNERSHIP -->
+    <section class="section" id="ownership" aria-labelledby="h-ownership">
+      <div class="section-head">
+        <div>
+          <span class="section-num">(09)</span>
+          <h2 class="section-title display" id="h-ownership">Ownership and status</h2>
+        </div>
+        <p class="section-aside">Record &amp; review</p>
+      </div>
+
+      <div class="prose">
+        <p>
+          This Wiki documents RADARSite for RADARCharts by REM. Project ownership, production status,
+          release procedures, and operational contacts should be recorded here only after they have
+          been confirmed by the project maintainers.
+        </p>
+      </div>
+
+      <dl class="status-grid">
+        <div>
+          <dt>Last reviewed</dt>
+          <dd class="placeholder">YYYY-MM-DD</dd>
+        </div>
+        <div>
+          <dt>Review owner</dt>
+          <dd class="placeholder">[maintainer or team]</dd>
+        </div>
+        <div>
+          <dt>Documentation status</dt>
+          <dd>Initial draft — verify against the current repository before treating as authoritative.</dd>
+        </div>
+      </dl>
+    </section>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-band" aria-hidden="true">
+    <div class="footer-track">
+      <span>RADARSite <span class="sep">/</span> RADARCharts by REM <span class="sep">/</span> Project handbook <span class="sep">/</span></span>
+      <span>RADARSite <span class="sep">/</span> RADARCharts by REM <span class="sep">/</span> Project handbook <span class="sep">/</span></span>
+    </div>
+  </div>
+  <div class="footer-grid">
+    <div class="footer-cell">
+      <h2>Repository</h2>
+      <p><a href="https://github.com/remRADAR/RADARSite" target="_blank" rel="noreferrer">remRADAR/RADARSite ↗</a></p>
+      <p>Application code and supporting tools for the RADARCharts platform.</p>
+    </div>
+    <div class="footer-cell">
+      <h2>Documentation rule</h2>
+      <p>Code, configuration and approved decisions are the source of truth. A Wiki page is guidance.</p>
+    </div>
+    <div class="footer-cell">
+      <h2>Status</h2>
+      <p>Initial draft — verify against the current repository before treating as authoritative.</p>
+    </div>
+  </div>
+  <div class="footer-base">
+    <span>© REM 2026 — All rights reserved</span>
+    <span>Wiki home / Last reviewed: YYYY-MM-DD</span>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('themeToggle');
+    var label = document.getElementById('themeLabel');
+    var stored = null;
+    try { stored = localStorage.getItem('radarsite-wiki-theme'); } catch (e) { stored = null; }
+
+    function apply(theme) {
+      var light = theme === 'light';
+      root.classList.toggle('theme-light', light);
+      root.classList.toggle('theme-dark', !light);
+      btn.setAttribute('aria-pressed', light ? 'true' : 'false');
+      btn.setAttribute('aria-label', light ? 'Switch to dark theme' : 'Switch to light theme');
+      label.textContent = light ? 'Dark' : 'Light';
+    }
+
+    apply(stored === 'light' ? 'light' : 'dark');
+
+    btn.addEventListener('click', function () {
+      var next = root.classList.contains('theme-light') ? 'dark' : 'light';
+      apply(next);
+      try { localStorage.setItem('radarsite-wiki-theme', next); } catch (e) {}
+    });
+  })();
+</script>
+
+</body>
+</html>
