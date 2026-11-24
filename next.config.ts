@@ -93,6 +93,13 @@ const nextConfig: NextConfig = {
       },
       { source: "/hero-new/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
       { source: "/api/:path*", headers: [{ key: "Cache-Control", value: "no-store, max-age=0" }] },
+      // Social cards are immutable per article revision and are fetched by
+      // crawlers in bursts. The blanket /api no-store rule above forced a full
+      // satori + resvg render on every request, which intermittently exceeded
+      // the Worker CPU budget (Cloudflare 1102). This more specific rule is
+      // declared last so it wins, and lets the route's own long-lived cache
+      // header stand.
+      { source: "/api/social-card/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800" }] },
     ];
   },
 };
