@@ -20,6 +20,8 @@ const ONE_DOUBLE_MEDIA = {
     { src: "/editorial/1double-la-vida/article-2.webp", alt: "1DOUBLE !! seated in profile" },
   ],
 } as const;
+const LAGOS_IN_PARIS_SLUG = "lagos-in-paris-return-with-don-t-a-celebration-of-freedom-on-the-dancefloor";
+const LAGOS_IN_PARIS_FEATURED_IMAGE = "/editorial/lagos-in-paris-dont/featured.jpg";
 
 /**
  * Reconnects verified, durable site assets to editorial records whose source
@@ -27,6 +29,16 @@ const ONE_DOUBLE_MEDIA = {
  * remain untouched.
  */
 export function applyArticleMediaOverrides(record: CmsRecord): CmsRecord {
+  if (record.slug === LAGOS_IN_PARIS_SLUG) {
+    return {
+      ...record,
+      imageUrl: LAGOS_IN_PARIS_FEATURED_IMAGE,
+      featuredImage: LAGOS_IN_PARIS_FEATURED_IMAGE,
+      socialImage: LAGOS_IN_PARIS_FEATURED_IMAGE,
+      featuredImageAlt: "Lagos In Paris perform in silhouette against a light backdrop",
+    };
+  }
+
   if (record.slug === ONE_DOUBLE_SLUG) {
     const source = record.bodyHtml || record.body || "";
     let imageIndex = 0;
