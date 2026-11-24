@@ -17,21 +17,21 @@ const podPlaylist: RadarIpodPlaylist = {
 // TEMPORARY: every moon orbit fallback opens this shared playlist pod while the
 // curated editorial playlists and the RADARMusic catalog are integrated into
 // the pod. The "source" prop already identifies which signal was tapped; once
-// per-source content lands, switch on it here (playlists, releases, podcast).
+// per-source content lands, switch on it here (editorials, curated, podcast).
 export type PodSource = "editorial" | "releases" | "podcast";
 
 const POD_COPY: Record<PodSource, { topline: string; eyebrow: string; title: string; intro: string }> = {
   editorial: {
-    topline: "RADAR / EDITORIAL PLAYLISTS",
-    eyebrow: "RADARMUSIC / EDITORIAL PLAYLISTS",
+    topline: "RADAR / EDITORIALS",
+    eyebrow: "RADARMUSIC / EDITORIALS",
     title: "RADAR sound, on repeat.",
-    intro: "A living selection from the RADAR Music signal — new voices, essential records, and the songs moving culture forward.",
+    intro: "A living selection from the RADAR Music signal \u2014 new voices, essential records, and the songs moving culture forward.",
   },
   releases: {
-    topline: "RADAR / RELEASES",
-    eyebrow: "RADARMUSIC / RELEASES",
-    title: "Records moving the culture.",
-    intro: "Notable releases and new music surfaced by RADARCharts, played through the shared playlist pod while the dedicated view is rebuilt.",
+    topline: "RADAR / CURATED",
+    eyebrow: "RADARMUSIC / CURATED",
+    title: "Records, curated by RADAR.",
+    intro: "Curated selections of notable releases and new music surfaced by RADARCharts, played through the shared playlist pod while the dedicated view is rebuilt.",
   },
   podcast: {
     topline: "RADAR / PODCAST",
@@ -55,7 +55,7 @@ export function RadarPlaylistsExperience({ source = "editorial" }: { source?: Po
     <main className={styles.page}>
       <div className={styles.topline}>
         <span>{copy.topline}</span>
-        <a href={spotifyProfileUrl} target="_blank" rel="noreferrer">Spotify profile ↗</a>
+        <a href={spotifyProfileUrl} target="_blank" rel="noreferrer">Spotify profile \u2197</a>
       </div>
 
       <section className={styles.podSection} aria-labelledby="radar-pod-title">
@@ -70,7 +70,7 @@ export function RadarPlaylistsExperience({ source = "editorial" }: { source?: Po
           playlist={podPlaylist}
           embeddedPlayerUrl={youtubeEmbedUrl}
           externalUrl={spotifyProfileUrl}
-          externalLabel="Spotify profile ↗"
+          externalLabel="Spotify profile \u2197"
         />
 
         <section className={styles.coverSection} aria-label="Spotify playlist cover artwork">
