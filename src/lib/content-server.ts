@@ -387,8 +387,14 @@ export async function readPublishedContent(): Promise<ContentCollections> {
  * back and selecting one record is safe and skips the second full pass.
  */
 export async function readPublishedArticleBySlug(slug: string): Promise<Article | null> {
-  const isPublished = (record: { status?: string } | undefined) => Boolean(record) && record?.status !== "draft" && record?.status !== "archived";
-  const fromSnapshot = () => {
+  // `Article` does not declare `status`; the collection filter in
+  // readPublishedContent reads it through a cast for the same reason.
+  const isPublished = (record: unknown): record is Article => {
+    if (!record || typeof record !== "object") return false;
+    const status = (record as { status?: string }).status;
+    return status !== "draft" && status !== "archived";
+  };
+  const fromSnapshot = (): Article | null => {
     const found = (mergedSnapshot.articles as Article[]).find((article) => article.slug === slug);
     return isPublished(found) ? found : null;
   };
@@ -399,8 +405,8 @@ export async function readPublishedArticleBySlug(slug: string): Promise<Article 
     const encoded = await readCachedPublicContent();
     const raw = JSON.parse(gunzipSync(Buffer.from(encoded, "base64")).toString("utf8")) as Partial<ContentCollections>;
     const articles = Array.isArray(raw.articles) ? raw.articles : [];
-    const found = articles.find((article) => article && typeof article === "object" && (article as { slug?: string }).slug === slug);
-    return isPublished(found as { status?: string } | undefined) ? (found as Article) : null;
+    const found = articles.find((article) => article && typeof article === "object" && (article as { slug?: string }).slug === slug) as Article | undefined;
+    return isPublished(found) ? found : null;
   } catch (error) {
     logContentReadError(error, "Public content cache unavailable; using committed snapshot for article lookup");
     return fromSnapshot();
