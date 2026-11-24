@@ -19,8 +19,7 @@
  * ------
  *   public/social/cards/<slug>.webp   (1200x630, cover-cropped, quality 82)
  *   public/social/cards/manifest.json (slug -> { file, source, bytes })
- *
- * The manifest is what the route reads. It is generated, not hand-edited.
+ *   src/data/social-card-manifest.ts (the same data as an ESM module)
  *
  * Usage
  * -----
@@ -42,7 +41,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const OUT_DIR = path.join(ROOT, "public", "social", "cards");
 const MANIFEST = path.join(OUT_DIR, "manifest.json");
-const ROUTE_MANIFEST = path.join(ROOT, "src", "data", "social-card-manifest.json");
+const ROUTE_MANIFEST = path.join(ROOT, "src", "data", "social-card-manifest.ts");
 const CONTENT = path.join(ROOT, "src", "data", "merged-content.json");
 
 const CARD_W = 1200;
@@ -240,43 +239,9 @@ async function main() {
   // Two copies on purpose:
   //   public/social/cards/manifest.json  -> served as a static asset, and the
   //                                         human-readable record of what exists
-  //   src/data/social-card-manifest.json -> imported by the route at build time,
-  //                                         so the lookup is a bundled object
-  //                                         rather than a runtime fetch
-  await writeFile(MANIFEST, manifestBody);
-  await writeFile(ROUTE_MANIFEST, manifestBody);
-
-  const totalBytes = built.reduce((n, r) => n + (r.bytes || 0), 0);
-  const totalSource = built.reduce((n, r) => n + (r.sourceBytes || 0), 0);
-
-  console.log(`\nbuilt:   ${built.length}`);
-  console.log(`cached:  ${cached.length}`);
-  console.log(`skipped: ${skipped.length}`);
-  console.log(`failed:  ${failed.length}`);
-  if (built.length) {
-    console.log(
-      `\noutput:  ${(totalBytes / 1024).toFixed(0)} KB total, ` +
-        `${(totalBytes / built.length / 1024).toFixed(1)} KB avg`,
-    );
-    console.log(
-      `source:  ${(totalSource / 1024 / 1024).toFixed(1)} MB total, ` +
-        `${(totalSource / built.length / 1024).toFixed(0)} KB avg ` +
-        `(${(totalSource / Math.max(totalBytes, 1)).toFixed(1)}^ reduction)`,
-    );
-  }
-  console.log(`manifest: ${Object.keys(cards).length} entries`);
-
-  if (failed.length) {
-    console.log("\nfailures:");
-    for (const f of failed) console.log(`  ${f.slug}: ${f.reason}`);
-  }
-
-  // Non-zero exit only when nothing at all succeeded, so a handful of dead
-  // legacy URLs do not fail the build.
-  if (built.length === 0 && cached.length === 0) process.exit(1);
-}
-
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+  //   src/data/social-card-manifest.ts   -> imported by the route at build time.
+  //                                         A .ts module rather than .json: the
+  //                                         JSON import resolved under tsc but
+  //                                         failed at Worker module load, which
+  //                                         took the whole route down with a 500
+  //                                         on every request including HEAD¸(€…Ý…¥ÐÝÉ¥Ñ•¥±”¡59%MP°µ…¹¥™•ÍÑ	½‘ä¤ì(€…Ý…¥ÐÝÉ¥Ñ•¥±” (€€€I=UQ}59%MP°(€€€€ˆ¼¼9IQ‰äÍÉ¥ÁÑÌ½•¹•É…Ñ”µÍ½¥…°µ…Éµ‘•É¥Ù…Ñ¥Ù•Ì¹µ©ÌƒŠP‘¼¹½Ð•‘¥Ð¹q¸ˆ€¬(€€€€€€ˆ¼¼5…ÁÌ…ÉÑ¥±”Í±Õœ€´øÁÉ”µÉ•Í¥é•€ÄÈÀÁàØÌÀ…É‘•É¥Ù…Ñ¥Ù”¹q¸ˆ€¬(€€€€€€‰•áÁ½ÉÐÑåÁ”M½¥…±…É‘5…¹¥™•ÍÐ€ôíq¸ˆ€¬(€€€€€€ˆ€•¹•É…Ñ•‘ÐèÍÑÉ¥¹œð¹Õ±°íq¸ˆ€¬(€€€€€€ˆ€Ý¥‘Ñ è¹Õµ‰•Èíq¸ˆ€¬(€€€€€€ˆ€¡•¥¡Ðè¹Õµ‰•Èíq¸ˆ€¬(€€€€€€ˆ€™½Éµ…ÐèÍÑÉ¥¹œíq¸ˆ€¬(€€€€€€ˆ€½Õ¹Ðè¹Õµ‰•Èíq¸ˆ€¬(€€€€€€ˆ€…É‘ÌèI•½ÉñÍÑÉ¥¹œ°ì™¥±”èÍÑÉ¥¹œìÍ½ÕÉ”èÍÑÉ¥¹œì‰åÑ•Ìè¹Õµ‰•Èôøíq¸ˆ€¬(€€€€€€‰ôíq¹q¸ˆ€¬(€€€€€½¹ÍÐÍ½¥…±…É‘5…¹¥™•ÍÐèM½¥…±…É‘5…¹¥™•ÍÐ€ô€‘íµ…¹¥™•ÍÑ	½‘ä¹ÑÉ¥´ ¥ôíq¹q¹€€¬(€€€€€€‰•áÁ½ÉÐ‘•™…Õ±ÐÍ½¥…±…É‘5…¹¥™•ÍÐíq¸ˆ°(€€¤ì((€½¹ÍÐÑ½Ñ…±	åÑ•Ì€ô‰Õ¥±Ð¹É•‘Õ” ¡¸°È¤€ôø¸€¬€¡È¹‰åÑ•Ìñð€À¤°€À¤ì(€½¹ÍÐÑ½Ñ…±M½ÕÉ”€ô‰Õ¥±Ð¹É•‘Õ” ¡¸°È¤€ôø¸€¬€¡È¹Í½ÕÉ•	åÑ•Ìñð€À¤°€À¤ì((€½¹Í½±”¹±½œ¡q¹‰Õ¥±Ðè€€€‘í‰Õ¥±Ð¹±•¹Ñ¡õ€¤ì(€½¹Í½±”¹±½œ¡…¡•è€€‘í…¡•¹±•¹Ñ¡õ€¤ì(€½¹Í½±”¹±½œ¡Í­¥ÁÁ•è€‘íÍ­¥ÁÁ•¹±•¹Ñ¡õ€¤ì(€½¹Í½±”¹±½œ¡™…¥±•è€€‘í™…¥±•¹±•¹Ñ¡õ€¤ì(€¥˜€¡‰Õ¥±Ð¹±•¹Ñ ¤ì(€€€½¹Í½±”¹±½œ (€€€€€q¹½ÕÑÁÕÐè€€‘ì¡Ñ½Ñ…±	åÑ•Ì€¼€ÄÀÈÐ¤¹Ñ½¥á• À¥ô-Ñ½Ñ…°°€€¬(€€€€€€€€‘ì¡Ñ½Ñ…±	åÑ•Ì€¼‰Õ¥±Ð¹±•¹Ñ €¼€ÄÀÈÐ¤¹Ñ½¥á• Ä¥ô-…Ù€°(€€€€¤ì(€€€½¹Í½±”¹±½œ (€€€€€Í½ÕÉ”è€€‘í¡Ñ½Ñ…±M½ÕÉ”€¼€ÄÀÈÐ€¼€ÄÀÈÑô¹Ñ½¥á• Ä¥ô5Ñ½Ñ…°°€€¬(€€€€€€€€‘ì¡Ñ½Ñ…±M½ÕÉ”€¼‰Õ¥±Ð¹±•¹Ñ €¼€ÄÀÈÐ¤¹Ñ½¥á• À¥ô-…Ùœ€€¬(€€€€€€€€ ‘ì¡Ñ½Ñ…±M½ÕÉ”€¼5…Ñ ¹µ…à¡Ñ½Ñ…±	åÑ•Ì°€Ä¤¤¹Ñ½¥á• Ä¥õàÉ•‘ÕÑ¥½¸¥€°(€€€€¤ì(€ô(€½¹Í½±”¹±½œ¡µ…¹¥™•ÍÐè€‘í=‰©•Ð¹­•åÌ¡…É‘Ì¤¹±•¹Ñ¡ô•¹ÑÉ¥•Í€¤ì((€¥˜€¡™…¥±•¹±•¹Ñ ¤ì(€€€½¹Í½±”¹±½œ ‰q¹™…¥±ÕÉ•Ìèˆ¤ì(€€€™½È€¡½¹ÍÐ˜½˜™…¥±•¤½¹Í½±”¹±½œ¡€€€‘í˜¹Í±Õôè€‘í˜¹É•…Í½¹õ€¤ì(€ô((€€¼¼9½¸µé•É¼•á¥Ð½¹±äÝ¡•¸¹½Ñ¡¥¹œ…Ð…±°ÍÕ••‘•°Í¼„¡…¹‘™Õ°½˜‘•…(€€¼¼±•…äUI1Ì‘¼¹½Ð™…¥°Ñ¡”‰Õ¥±¸(€¥˜€¡‰Õ¥±Ð¹±•¹Ñ €ôôô€À€˜˜…¡•¹±•¹Ñ €ôôô€À¤ÁÉ½•ÍÌ¹•á¥Ð Ä¤ì)ô()µ…¥¸ ¤¹…Ñ  ¡•ÉÉ½È¤€ôøì(€½¹Í½±”¹•ÉÉ½È¡•ÉÉ½È¤ì(€ÁÉ½•ÍÌ¹•á¥Ð Ä¤ì)ô¤ì(
