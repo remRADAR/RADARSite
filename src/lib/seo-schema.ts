@@ -1,6 +1,8 @@
 import type { CmsRecord } from "@/lib/content-server";
 import { absolutePublicUrl, publicSiteUrl } from "@/lib/public-site";
 import { normalizeEditorialRecord } from "@/lib/editorial-normalization";
+import { editorialAuthorProfile } from "@/lib/editorial-authors";
+
 
 function text(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
@@ -18,6 +20,7 @@ function uniqueStrings(values: unknown[]) {
 
 export function articleStructuredData(input: CmsRecord, canonicalUrl: string, imageUrl?: string) {
   const record = normalizeEditorialRecord(input);
+  const authorProfile = editorialAuthorProfile(record);
   const canonical = absolutePublicUrl(canonicalUrl);
   const data: Record<string, unknown> = {
     "@context": "https://schema.org",
@@ -35,12 +38,19 @@ export function articleStructuredData(input: CmsRecord, canonicalUrl: string, im
     },
     inLanguage: "en",
   };
-  const author = text(record.author);
   const published = validDate(record.publishedAt || record.date);
   const modified = validDate(record.modifiedAt || record.updatedAt || record.modifiedDate);
   const section = text(record.sectionLabel || record.section);
   const keywords = uniqueStrings([...(record.tags || []), ...(record.categories || [])]);
-  if (author) data.author = { "@type": "Person", name: author };
+  data.author = authorProfile.schemaType === "Person"
+    ? {
+        "@type": "Person",
+        name: authorProfile.name,
+        jobTitle: authorProfile.jobTitle,
+        affiliation: { "@type": "Organization", name: authorProfile.affiliation },
+        url: absolutePublicUrl(authorProfile.profilePath),
+      }
+    : { "@type": "Organization", name: authorProfile.name, url: absolutePublicUrl(authorProfile.profilePath) };
   if (published) data.datePublished = published;
   if (modified) data.dateModified = modified;
   if (section) data.articleSection = section;

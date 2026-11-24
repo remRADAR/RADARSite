@@ -8,6 +8,7 @@ import {
 import { normalizeEditorialRecord, articlePath } from "@/lib/editorial-normalization";
 import { pickEditorialImage } from "@/lib/editorial-image";
 import { isOriginalEditorialRecord } from "@/lib/editorial-archives";
+import { editorialAuthorProfile } from "@/lib/editorial-authors";
 
 /**
  * Editorial Tree — the homepage's living editorial feed (server-only).
@@ -97,7 +98,7 @@ async function buildRecentEditorialPosts(limit: number): Promise<EditorialTreePo
       publishedAt: record.publishedAt || "",
       date: record.date || "",
       year,
-      author: record.author || "RADARCharts",
+      author: editorialAuthorProfile(record).byline,
       imageUrl,
       imageAlt: record.featuredImageAlt || record.title || "Featured image",
       destinationUrl: articlePath(record),

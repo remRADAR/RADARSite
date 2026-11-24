@@ -1,11 +1,13 @@
 import type { CmsRecord } from "@/lib/content-server";
 import { articlePath, normalizeEditorialRecord } from "@/lib/editorial-normalization";
 import { deriveEditorialTaxonomy } from "@/lib/cms-taxonomy";
+import { editorialAuthorProfile } from "@/lib/editorial-authors";
 import { absoluteUrl, canonicalPath } from "@/lib/seo";
 
 export function buildArticleJsonLd(record: CmsRecord) {
   const taxonomy = deriveEditorialTaxonomy(record);
   const normalized = normalizeEditorialRecord(record);
+  const authorProfile = editorialAuthorProfile(normalized);
   const canonical = absoluteUrl(canonicalPath(normalized.canonicalUrl, articlePath(normalized)));
   const image = typeof record.imageUrl === "string" && record.imageUrl ? record.imageUrl : typeof record.featuredImage === "string" && record.featuredImage ? record.featuredImage : "";
   const tags = Array.isArray(record.tags) ? record.tags.filter((tag): tag is string => typeof tag === "string" && Boolean(tag.trim())) : [];
@@ -17,11 +19,19 @@ export function buildArticleJsonLd(record: CmsRecord) {
     description: normalized.metaDescription || normalized.excerpt || normalized.subtitle || "",
     ...(normalized.publishedAt || normalized.date ? { datePublished: normalized.publishedAt || normalized.date } : {}),
     ...((normalized.sourceModifiedAt || normalized.updatedAt) ? { dateModified: normalized.sourceModifiedAt || normalized.updatedAt } : {}),
-    // 63 of 342 snapshot articles have no author. Emitting the publisher name
-    // as a `Person` is invalid; fall back to the organisation instead.
-    author: normalized.author
-      ? { "@type": "Person", name: normalized.author }
-      : { "@type": "Organization", name: "RADARCharts by REM", url: "https://radarcharts.net" },
+    author: authorProfile.schemaType === "Person"
+      ? {
+          "@type": "Person",
+          name: authorProfile.name,
+          jobTitle: authorProfile.jobTitle,
+          affiliation: { "@type": "Organization", name: authorProfile.affiliation },
+          url: absoluteUrl(authorProfile.profilePath),
+        }
+      : {
+          "@type": "Organization",
+          name: authorProfile.name,
+          url: absoluteUrl(authorProfile.profilePath),
+        },
     publisher: { "@type": "Organization", name: "RADARCharts by REM", url: "https://radarcharts.net", logo: { "@type": "ImageObject", url: "https://radarcharts.net/radar-logo.webp" } },
     mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
     url: canonical,

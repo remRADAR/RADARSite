@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { buildPageMetadata } from "@/lib/seo";
 import { FounderLanyard } from "@/components/marketing/FounderLanyard";
+import { StructuredData } from "@/components/StructuredData";
 
 // Brand purpose and the five-part artist-support model are adapted from REM's
 // published legacy site: https://remradar.webflow.io/.
@@ -48,6 +49,17 @@ export const metadata: Metadata = buildPageMetadata({
 export default function RemRadarPage() {
   return (
     <article className="overflow-hidden pt-14">
+      <StructuredData data={{
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "@id": "https://radarcharts.net/remradar#cza-of-rem",
+        name: "CZA OF REM",
+        alternateName: "Tarzaa Gerald Caesar",
+        jobTitle: "Founder",
+        affiliation: { "@type": "Organization", name: "Adhoc web team for remRADAR" },
+        worksFor: { "@type": "Organization", name: "REM", url: "https://radarcharts.net" },
+        url: "https://radarcharts.net/remradar",
+      }} />
       <header className="border-b-2 border-ink px-4 pb-12 pt-16 md:px-8 md:pb-16 md:pt-24">
         <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
           (01 / The REM story)
@@ -89,7 +101,7 @@ export default function RemRadarPage() {
               Tarzaa Gerald Caesar
             </h2>
             <p className="mt-5 max-w-md text-base leading-relaxed text-muted-foreground md:text-lg">
-              Founder of REM; known as CZA OF REM.
+              Founder of REM; known as CZA OF REM. Represents the Adhoc web team for remRADAR.
             </p>
           </div>
           <p className="mt-12 max-w-sm border-t border-ink/40 pt-4 font-mono text-[11px] uppercase leading-relaxed tracking-wider text-muted-foreground">

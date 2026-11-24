@@ -10,6 +10,7 @@ import { ArticleSourceExcerpt } from "@/components/marketing/ArticleSourceExcerp
 import { buildArticleSourceExcerpt } from "@/lib/source-excerpt";
 import { articleSocialCardUrl } from "@/lib/social-card";
 import { deriveEditorialTaxonomy } from "@/lib/cms-taxonomy";
+import { editorialAuthorProfile } from "@/lib/editorial-authors";
 export const revalidate = 3600;
 // Unknown editorial slugs must be real 404s, not successful static shells with noindex metadata.
 // New approved CMS slugs are resolved on demand after publishing invalidates the path.
@@ -31,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ article: 
   // imported source URLs redirect here and must not remain in canonical tags.
   const canonical = articlePath(record);
   const image = articleSocialCardUrl(record.slug || article);
-  return buildPageMetadata({ title: record.metaTitle || record.title || "Article", description: record.metaDescription || record.excerpt, path: canonical, image, type: "article", indexable: record.noindex !== true, publishedTime: record.publishedAt || record.date, modifiedTime: typeof record.sourceModifiedAt === "string" ? record.sourceModifiedAt : typeof record.updatedAt === "string" ? record.updatedAt : undefined, authors: record.author ? [record.author] : undefined });
+  return buildPageMetadata({ title: record.metaTitle || record.title || "Article", description: record.metaDescription || record.excerpt, path: canonical, image, type: "article", indexable: record.noindex !== true, publishedTime: record.publishedAt || record.date, modifiedTime: typeof record.sourceModifiedAt === "string" ? record.sourceModifiedAt : typeof record.updatedAt === "string" ? record.updatedAt : undefined, authors: [editorialAuthorProfile(record).byline] });
 }
 export default async function ArticleDetail({ params }: { params: Promise<{ article: string }> }) {
   const { article } = await params;

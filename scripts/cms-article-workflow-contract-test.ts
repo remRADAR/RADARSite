@@ -26,6 +26,7 @@ const added = normalizeArticleInput({
 });
 assert.equal(added.status, "draft");
 assert.equal(added.editorialType, "Spotlight");
+assert.equal(added.author, "Editorial Team, REM", "general RADARCharts entries use the editorial-team profile");
 
 const edited = normalizeArticleInput({ id: "workflow-test", title: "Abuja Afrobeats Signal — Updated", bodyHtml: "<p>Updated Abuja music story.</p>" }, added);
 assert.equal(edited.title, "Abuja Afrobeats Signal — Updated");
@@ -69,6 +70,19 @@ assert.equal(pressSchema.keywords, "Afrobeats");
 assert.equal(canonicalSchema.url, "https://radarcharts.net/editorial/verified-canonical");
 assert.equal(canonicalSchema["@id"], "https://radarcharts.net/editorial/verified-canonical#article");
 assert.equal((canonicalSchema.mainEntityOfPage as { "@id": string })["@id"], canonicalSchema.url);
+assert.equal((pressSchema.author as { "@type": string })["@type"], "Organization");
+const newsletter = normalizeArticleInput({ id: "newsletter-policy", slug: "newsletter", title: "RADARCharts Newsletter – New Year", editorialType: "Spotlight", bodyHtml: "<p>Newsletter update.</p>" });
+assert.equal(newsletter.author, "CZA OF REM, Founder", "only newsletter entries use the founder byline");
+const ordinaryNewsletterMention = normalizeArticleInput({ id: "newsletter-mention", slug: "ordinary-story", title: "An ordinary editorial", excerpt: "Sign up for our newsletter for more updates.", editorialType: "Spotlight" });
+assert.equal(ordinaryNewsletterMention.author, "Editorial Team, REM", "a newsletter mention in descriptive copy does not make an article a newsletter");
+const newsletterSchema = buildArticleJsonLd(newsletter);
+const newsletterAuthor = newsletterSchema.author as { "@type": string; name: string; jobTitle: string; affiliation: { "@type": string; name: string }; url: string };
+assert.equal(newsletterAuthor["@type"], "Person");
+assert.equal(newsletterAuthor.name, "CZA OF REM");
+assert.equal(newsletterAuthor.jobTitle, "Founder");
+assert.equal(newsletterAuthor.affiliation.name, "Adhoc web team for remRADAR");
+const nonNewsletterFounderAttempt = normalizeArticleInput({ ...added, id: "non-newsletter-author", slug: "general-editorial", title: "General editorial", author: "CZA OF REM, Founder" });
+assert.equal(nonNewsletterFounderAttempt.author, "Editorial Team, REM", "the founder byline cannot be assigned to a non-newsletter");
 
 const hostile = serializeJsonLd({ headline: "</script><script>alert('x')</script> & <tag>" });
 assert.ok(!hostile.includes("</script>"), "serialized JSON-LD must not contain a raw closing script tag");

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { defaultSiteOverrides } from "@/lib/site-overrides";
 import { contentCacheTag, hasContentDatabase, logReadContentError, normalizeContent, readContent, writeContent, type CmsRecord } from "@/lib/content-server";
+import { EDITORIAL_AUTHOR_PROFILES, editorialAuthorProfile } from "@/lib/editorial-authors";
 import { createSessionToken, getSessionCookieName, getSessionCookieOptions, hasDatabase, isAdminPasswordValid, isSessionValid, readStudioSettings, writeStudioSettings } from "@/lib/studio-server";
 import { deriveEditorialTaxonomy, EDITORIAL_TYPES, MAGAZINE_SUBTYPES, suggestArticleTags, suggestSeoMetadata, validateEditorialTaxonomy } from "@/lib/cms-taxonomy";
 import { sanitizeEditorialHtml } from "@/lib/editorial-migration";
@@ -30,7 +31,7 @@ function stripHtml(value: string) { return value.replace(/<[^>]*>/g, " ").replac
 function slugify(value: string) { return value.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 180) || `draft-${Date.now()}`; }
 function timestamp(record: CmsRecord) { const parsed = Date.parse(String(record.publishedAt || record.date || "")); return Number.isFinite(parsed) ? parsed : 0; }
 function summary(record: CmsRecord): ArticleListItem { const taxonomy = deriveEditorialTaxonomy(record); return { id: text(record.id, 120), sourceId: text(record.sourceId, 120) || undefined, slug: text(record.slug, 300), title: text(record.title || record.name, 300) || "Untitled article", excerpt: text(record.excerpt || record.subtitle || record.description, 500), status: text(record.status) || "published", editorialType: taxonomy.editorialType, magazineSubtype: taxonomy.magazineSubtype, projectSection: taxonomy.projectSection, needsTaxonomyReview: taxonomy.needsReview, featuredImage: text(record.featuredImage || record.imageUrl, 2000), date: text(record.publishedAt || record.date, 100), tags: array(record.tags), categories: array(record.categories), sourceProvider: text(record.sourceProvider) || "radarsite" }; }
-function articleForEditor(record: CmsRecord) { const taxonomy = deriveEditorialTaxonomy(record); const seo = suggestSeoMetadata(record); return { ...record, editorialType: taxonomy.editorialType || "Press", magazineSubtype: taxonomy.magazineSubtype, projectSection: taxonomy.projectSection, tags: array(record.tags), tagsApproved: array(record.tagsApproved), tagsSuggested: suggestArticleTags({ ...record, editorialType: taxonomy.editorialType, projectSection: taxonomy.projectSection }), metaTitle: seo.metaTitle, metaDescription: seo.metaDescription, socialImage: seo.socialImage, taxonomyNeedsReview: taxonomy.needsReview, taxonomyEvidence: taxonomy.evidence }; }
+function articleForEditor(record: CmsRecord) { const taxonomy = deriveEditorialTaxonomy(record); const seo = suggestSeoMetadata(record); return { ...record, author: editorialAuthorProfile(record).byline, editorialType: taxonomy.editorialType || "Press", magazineSubtype: taxonomy.magazineSubtype, projectSection: taxonomy.projectSection, tags: array(record.tags), tagsApproved: array(record.tagsApproved), tagsSuggested: suggestArticleTags({ ...record, editorialType: taxonomy.editorialType, projectSection: taxonomy.projectSection }), metaTitle: seo.metaTitle, metaDescription: seo.metaDescription, socialImage: seo.socialImage, taxonomyNeedsReview: taxonomy.needsReview, taxonomyEvidence: taxonomy.evidence }; }
 export function buildArticleLibrary(records: CmsRecord[], params: URLSearchParams) {
   const page = Math.max(1, Number(params.get("page") || 1) || 1);
   const pageSize = Math.min(MAX_LIBRARY_PAGE_SIZE, Math.max(5, Number(params.get("pageSize") || 12) || 12));
@@ -46,7 +47,7 @@ export function buildArticleLibrary(records: CmsRecord[], params: URLSearchParam
   const total = filtered.length;
   return { items: filtered.slice((page - 1) * pageSize, page * pageSize).map(summary), pagination: { page, pageSize, total, pageCount: Math.max(1, Math.ceil(total / pageSize)) }, taxonomy: { editorialTypes: EDITORIAL_TYPES, magazineSubtypes: MAGAZINE_SUBTYPES, projectSections: ["Motherland"] } };
 }
-function defaultArticle(): CmsRecord { return { id: `studio-${randomUUID()}`, sourceProvider: "radarsite", slug: "", title: "", excerpt: "", subtitle: "", body: "", bodyHtml: "<p></p>", status: "draft", editorialType: "Press", magazineSubtype: "", projectSection: "", section: "radar-articles", categories: ["RADARArticles"], tags: [], tagsApproved: [], tagsSuggested: [], featuredImage: "", imageUrl: "", featuredImageAlt: "", featuredImageCaption: "", metaTitle: "", metaDescription: "", canonicalUrl: "", socialImage: "", noindex: false, focusTopic: "", sourceExcerpt: "", sourceExcerptSurface: "", sourceArtistId: "", sourceArtistName: "", sourceSongId: "", sourceSongName: "", sourceReleaseId: "", sourceReleaseName: "", date: new Date().toISOString().slice(0, 10), author: "RADARCharts by REM" }; }
+function defaultArticle(): CmsRecord { return { id: `studio-${randomUUID()}`, sourceProvider: "radarsite", slug: "", title: "", excerpt: "", subtitle: "", body: "", bodyHtml: "<p></p>", status: "draft", editorialType: "Press", magazineSubtype: "", projectSection: "", section: "radar-articles", categories: ["RADARArticles"], tags: [], tagsApproved: [], tagsSuggested: [], featuredImage: "", imageUrl: "", featuredImageAlt: "", featuredImageCaption: "", metaTitle: "", metaDescription: "", canonicalUrl: "", socialImage: "", noindex: false, focusTopic: "", sourceExcerpt: "", sourceExcerptSurface: "", sourceArtistId: "", sourceArtistName: "", sourceSongId: "", sourceSongName: "", sourceReleaseId: "", sourceReleaseName: "", date: new Date().toISOString().slice(0, 10), author: EDITORIAL_AUTHOR_PROFILES.editorialTeam.byline }; }
 export function normalizeArticleInput(input: Record<string, unknown>, existing?: CmsRecord): CmsRecord {
   const base = existing || defaultArticle();
   const has = (key: string) => Object.prototype.hasOwnProperty.call(input, key);
@@ -71,7 +72,7 @@ export function normalizeArticleInput(input: Record<string, unknown>, existing?:
   const categories = list("categories", array(base.categories), 20);
   const featuredImage = value("featuredImage", text(base.featuredImage || base.imageUrl), 2000);
   const date = value("date", text(base.date || base.publishedAt), 100);
-  const author = value("author", text(base.author), 300);
+  const author = editorialAuthorProfile({ ...base, title, slug, editorialType: editorialType as CmsRecord["editorialType"], projectSection, categories, tags }).byline;
   const metaTitle = value("metaTitle", text(base.metaTitle) || title.slice(0, 60), 300);
   const metaDescription = value("metaDescription", text(base.metaDescription) || excerpt.slice(0, 1000), 1000);
   const canonicalUrl = value("canonicalUrl", text(base.canonicalUrl), 2000);
