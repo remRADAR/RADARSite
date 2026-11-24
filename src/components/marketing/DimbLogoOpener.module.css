@@ -12,6 +12,12 @@
   background: var(--paper, #f7f7f2);
   color: var(--ink, #050505);
   overflow: hidden;
+  transition: background-color 0.45s ease, color 0.45s ease;
+}
+
+.opener:focus-visible {
+  outline: 2px solid var(--flare, #ff4d2e);
+  outline-offset: -6px;
 }
 
 .inner {
@@ -36,6 +42,7 @@
   letter-spacing: -0.06em;
   text-transform: none;
   color: var(--ink, #050505);
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), letter-spacing 0.45s ease;
 }
 
 .letter {
@@ -44,6 +51,7 @@
   clip-path: inset(0 0 100% 0);
   transform: translateY(0.4em);
   opacity: 0;
+  transition: color 0.3s ease, filter 0.3s ease;
 }
 
 .wordmarkIn .letter {
@@ -84,6 +92,25 @@
   /* the mark is a transparent-background ink crop of the delivered logo, so it
      needs no blend mode - it drops straight into the paper */
   transform-origin: 50% 50%;
+  transition: filter 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.opener:hover .wordmark,
+.opener:focus-visible .wordmark {
+  transform: scale(1.025);
+  letter-spacing: -0.045em;
+}
+
+.opener:hover .letter,
+.opener:focus-visible .letter {
+  color: var(--flare, #ff4d2e);
+  filter: drop-shadow(0 0 0.08em rgb(255 77 46 / 0.35));
+}
+
+.opener:hover .eye,
+.opener:focus-visible .eye {
+  transform: scale(1.08, 0.82) rotate(-3deg);
+  filter: drop-shadow(0 0 0.18rem rgb(255 77 46 / 0.55));
 }
 
 /* The blink happens in place, as a lid closing over the same box. */
@@ -105,6 +132,12 @@
 
 .openerIn .rule {
   animation: draw 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1s forwards;
+}
+
+.opener:hover .rule,
+.opener:focus-visible .rule {
+  background: var(--flare, #ff4d2e);
+  transition: background-color 0.3s ease;
 }
 
 .strap {
@@ -184,5 +217,10 @@
   }
   .strap {
     opacity: 1;
+  }
+  .wordmark,
+  .letter,
+  .eye {
+    transition: none;
   }
 }

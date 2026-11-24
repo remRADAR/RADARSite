@@ -42,6 +42,7 @@ export function DimbLogoOpener() {
       ref={ref}
       className={styles.opener + (inView ? " " + styles.openerIn : "")}
       aria-label="DuMb logotype"
+      tabIndex={0}
     >
       <div className={styles.inner}>
         <p className={styles.wordmark + cls} aria-label="DuMb">

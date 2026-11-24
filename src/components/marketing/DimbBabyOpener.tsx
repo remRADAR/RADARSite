@@ -77,7 +77,7 @@ export function DimbBabyOpener() {
           : "";
 
   return (
-    <section className={styles.intro} aria-label="DuMb podcast opening">
+    <section className={styles.intro} aria-label="DuMb podcast opening" tabIndex={0}>
       <p className={styles.kicker}>(02 / DuMb)</p>
 
       <div className={styles.stage + phaseClass}>

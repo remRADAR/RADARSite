@@ -13,6 +13,12 @@
   color: var(--ink, #050505);
   overflow: hidden;
   isolation: isolate;
+  transition: background-color 0.45s ease;
+}
+
+.intro:focus-visible {
+  outline: 2px solid var(--flare, #ff4d2e);
+  outline-offset: -6px;
 }
 
 /* ---------- frame furniture ---------- */
@@ -102,6 +108,13 @@
   background-size: contain;
   background-position: center bottom;
   background-repeat: no-repeat;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
+}
+
+.intro:hover .frame,
+.intro:focus-visible .frame {
+  transform: scale(1.025) rotate(-0.35deg);
+  filter: contrast(1.04) saturate(1.08);
 }
 
 /* ---------- headphones activity ---------- */
@@ -119,7 +132,13 @@
   border-radius: 9999px;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.5s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s ease;
+}
+
+.intro:hover .cups,
+.intro:focus-visible .cups {
+  transform: scale(1.1) rotate(4deg);
+  box-shadow: 0 0 1.5rem rgb(255 77 46 / 0.25);
 }
 
 .stageGrab .cups,
@@ -175,6 +194,13 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: rgb(5 5 5 / 0.7);
+  transition: color 0.3s ease, letter-spacing 0.3s ease;
+}
+
+.intro:hover .captionLine,
+.intro:focus-visible .captionLine {
+  color: var(--flare, #ff4d2e);
+  letter-spacing: 0.18em;
 }
 
 .captionNow {
@@ -240,6 +266,13 @@
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: rgb(5 5 5 / 0.4);
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.intro:hover .scrollCue,
+.intro:focus-visible .scrollCue {
+  color: var(--flare, #ff4d2e);
+  transform: translateX(-50%) translateY(-0.25rem);
 }
 
 /* ---------- motion ---------- */
@@ -285,5 +318,11 @@
   .stageVibe .cups::after,
   .pip {
     animation: none;
+  }
+  .frame,
+  .cups,
+  .captionLine,
+  .scrollCue {
+    transition: none;
   }
 }
