@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import styles from "./ReleaseLinkPanel.module.css";
+import { BrandTicker } from "./BrandTicker";
 import type { ReleaseLink } from "@/lib/release-links";
 
 function getRemaining(target: Date) { const delta = Math.max(0, target.getTime() - Date.now()); const totalSeconds = Math.floor(delta / 1000); return { days: Math.floor(totalSeconds / 86400), hours: Math.floor((totalSeconds % 86400) / 3600), minutes: Math.floor((totalSeconds % 3600) / 60), seconds: totalSeconds % 60 }; }
@@ -31,5 +32,6 @@ export function ReleaseLinkPanel({ release }: { release: ReleaseLink }) {
       <div className={styles.preSaveRow}><span className={styles.preSave}>{remaining.days > 0 ? "PRE-SAVE" : "STREAM NOW"}</span>{remaining.days > 0 && <a className={styles.calendarLink} href={`/api/release-links/${release.slug}/calendar`}>ADD TO CALENDAR</a>}<span className={styles.releaseDate}>RELEASES {dateLabel}</span></div>
       <div className={styles.platformPanel}><p className={styles.platformHeading}>STREAM / SAVE</p><div className={styles.platformList}>{visiblePlatforms.map((platform) => <div className={`${styles.platformRow} ${styles[platform.tone] || ""}`} key={`${platform.name}-${platform.href}`}><span className={styles.platformName}><span className={styles.platformMark} aria-hidden="true" />{platform.name}</span><a className={styles.listen} href={platform.href} target="_blank" rel="noreferrer">{platform.kind === "presave" ? "Pre-save" : "Listen"}</a></div>)}</div>{remaining.days <= 0 && visiblePlatforms.length === 0 && <p className={styles.emptyLinks}>Verified listening links will appear here when the source confirms the live release.</p>}<p className={styles.footerLabel}>RADAR / MUSIC / RELEASE LINKS</p></div>
     </section>
+    <BrandTicker className={styles.brandTicker} />
   </main>;
 }
