@@ -39,6 +39,7 @@
     "cloudflare-content:contract-test": "tsx scripts/cloudflare-content-store-contract-test.ts",
     "test:csp": "tsx scripts/csp-contract-test.ts",
     "hero:process": "tsx scripts/hero-image-process.ts",
+    "social-cards:generate": "node scripts/generate-social-card-derivatives.mjs",
     "hero:contract-test": "tsx scripts/hero-image-contract-test.ts",
     "dev:vinext": "vite dev --port 3001",
     "build:vinext": "vite build",
@@ -95,7 +96,7 @@
     "shadcn": "^4.21.5",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
-    "typescript": "^7",
+    "typescript": "~5.9.3",
     "vinext": "1.4.6",
     "vite": "^8.3.8",
     "vite-css-modules": "^1.16.1"

@@ -1,0 +1,247 @@
+#!/usr/bin/env node
+/**
+ * Generate pre-resized 1200x630 social-card derivatives for every published
+ * article's artwork.
+ *
+ * Why this exists
+ * ---------------
+ * /api/social-card/[slug] renders a 1200x630 PNG with satori + resvg. The
+ * artwork it embeds is the article's full-size source image, which is routinely
+ * 3000-6000px wide and up to ~1.1 MB. Decoding and downscaling that inside the
+ * Worker on a cold render blows the Cloudflare CPU budget (error 1102 -> 503).
+ *
+ * The fix is to stop asking the Worker to do the resize. This script produces a
+ * 1200x630 WebP derivative per article, committed under public/social/cards/,
+ * which the route prefers over the full-size source. A 1200x630 WebP is a few
+ * tens of KB, so the cold render decodes almost nothing.
+ *
+ * Output
+ * ------
+ *   public/social/cards/<slug>.webp   (1200x630, cover-cropped, quality 82)
+ *   public/social/cards/manifest.json (slug -> { file, source, bytes })
+ *   src/data/social-card-manifest.ts (the same data as an ESM module)
+ *
+ * Usage
+ * -----
+ *   node scripts/generate-social-card-derivatives.mjs            # all published
+ *   node scripts/generate-social-card-derivatives.mjs --limit 5  # smoke test
+ *   node scripts/generate-social-card-derivatives.mjs --only <slug>
+ *   node scripts/generate-social-card-derivatives.mjs --force    # redo existing
+ */
+
+import { mkdir, writeFile, readFile, access } from "node:fs/promises";
+import { createRequire } from "node:module";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const require = createRequire(import.meta.url);
+const sharp = require("sharp");
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(__dirname, "..");
+const OUT_DIR = path.join(ROOT, "public", "social", "cards");
+const MANIFEST = path.join(OUT_DIR, "manifest.json");
+const ROUTE_MANIFEST = path.join(ROOT, "src", "data", "social-card-manifest.ts");
+const CONTENT = path.join(ROOT, "src", "data", "merged-content.json");
+
+const CARD_W = 1200;
+const CARD_H = 630;
+const QUALITY = 82;
+const CONCURRENCY = 3;
+const FETCH_TIMEOUT_MS = 20000;
+
+const args = process.argv.slice(2);
+const flag = (name) => args.includes(name);
+const value = (name) => {
+  const i = args.indexOf(name);
+  return i >= 0 ? args[i + 1] : undefined;
+};
+
+const LIMIT = value("--limit") ? Number(value("--limit")) : Infinity;
+const ONLY = value("--only");
+const FORCE = flag("--force");
+
+const exists = async (p) => {
+  try {
+    await access(p);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * Fetch with a hard timeout and bounded retry.
+ *
+ * The R2 bucket behind the legacy artwork returns transient 503s when several
+ * requests land at once, so a single attempt would leave holes in the manifest
+ * for images that are perfectly fine. 404 is NOT retried: it means the source
+ * genuinely is not there, and the route's own fallback covers that case.
+ */
+async function fetchBuffer(url, attempts = 4) {
+  let lastError;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+    try {
+      const res = await fetch(url, { signal: controller.signal, redirect: "follow" });
+      if (res.ok) return Buffer.from(await res.arrayBuffer());
+      if (res.status === 404) throw new Error("HTTP 404");
+      lastError = new Error(`HTTP ${res.status}`);
+    } catch (error) {
+      lastError = error;
+      if (error instanceof Error && error.message === "HTTP 404") throw error;
+    } finally {
+      clearTimeout(timer);
+    }
+    if (attempt < attempts) await sleep(400 * 2 ** (attempt - 1));
+  }
+  throw lastError;
+}
+
+async function buildOne(article) {
+  const slug = article.slug;
+  const source = article.imageUrl || article.featuredImage;
+  const outFile = path.join(OUT_DIR, `${slug}.webp`);
+
+  if (!source) return { slug, status: "skipped", reason: "no image" };
+  if (!FORCE && (await exists(outFile))) {
+    const bytes = (await readFile(outFile)).length;
+    return { slug, status: "cached", file: `${slug}.webp`, source, bytes };
+  }
+
+  const input = await fetchBuffer(source);
+  const out = await sharp(input)
+    .resize(CARD_W, CARD_H, { fit: "cover", position: "attention" })
+    .webp({ quality: QUALITY, effort: 4 })
+    .toBuffer();
+
+  await writeFile(outFile, out);
+  return {
+    slug,
+    status: "built",
+    file: `${slug}.webp`,
+    source,
+    sourceBytes: input.length,
+    bytes: out.length,
+  };
+}
+
+/** Run tasks with a bounded pool so we do not open 342 sockets at once. */
+async function pool(items, worker, size) {
+  const results = [];
+  let cursor = 0;
+  const runners = Array.from({ length: Math.min(size, items.length) }, async () => {
+    while (cursor < items.length) {
+      const index = cursor++;
+      try {
+        results[index] = await worker(items[index]);
+      } catch (error) {
+        results[index] = {
+          slug: items[index].slug,
+          status: "failed",
+          reason: error instanceof Error ? error.message : String(error),
+        };
+      }
+    }
+  });
+  await Promise.all(runners);
+  return results;
+}
+
+/**
+ * Load the article list.
+ *
+ * The committed snapshot (src/data/merged-content.json) is a build-time
+ * fallback and lags production: it is missing recently published articles, and
+ * those are exactly the ones whose cards get shared first. Production reads the
+ * live content store, so this script does too, falling back to the snapshot when
+ * the store is unreachable (offline run, or the bucket is not public).
+ */
+async function loadArticles() {
+  const LIVE_URL =
+    process.env.RADAR_CONTENT_STORE_URL ||
+    "https://pub-2d7f41f7140544c480801d8b90da765e.r2.dev/content/radarsite-content-v1.json";
+
+  try {
+    const raw = await fetchBuffer(LIVE_URL, 3);
+    const state = JSON.parse(raw.toString("utf8"));
+    const articles = state?.content?.articles;
+    if (Array.isArray(articles) && articles.length) {
+      console.log(`source: live content store (${articles.length} articles)`);
+      return articles;
+    }
+    throw new Error("live store returned no articles");
+  } catch (error) {
+    console.warn(
+      `live content store unavailable (${error instanceof Error ? error.message : error}); ` +
+        "falling back to committed snapshot",
+    );
+    const content = JSON.parse(await readFile(CONTENT, "utf8"));
+    console.log(`source: committed snapshot (${(content.articles || []).length} articles)`);
+    return content.articles || [];
+  }
+}
+
+async function main() {
+  await mkdir(OUT_DIR, { recursive: true });
+
+  const all = await loadArticles();
+  let articles = all.filter(
+    (a) => a && a.slug && a.status !== "draft" && a.status !== "archived",
+  );
+  if (ONLY) articles = articles.filter((a) => a.slug === ONLY);
+  if (Number.isFinite(LIMIT)) articles = articles.slice(0, LIMIT);
+
+  console.log(`Generating ${CARD_W}x${CARD_H} derivatives for ${articles.length} article(s)...`);
+
+  const results = await pool(articles, buildOne, CONCURRENCY);
+
+  // Merge into the existing manifest so a --limit / --only run does not drop
+  // entries that were generated by an earlier full run.
+  let previous = {};
+  if (await exists(MANIFEST)) {
+    try {
+      previous = JSON.parse(await readFile(MANIFEST, "utf8")).cards || {};
+    } catch {
+      previous = {};
+    }
+  }
+
+  const cards = { ...previous };
+  for (const r of results) {
+    if (r.status === "built" || r.status === "cached") {
+      cards[r.slug] = { file: r.file, source: r.source, bytes: r.bytes };
+    }
+  }
+
+  const built = results.filter((r) => r.status === "built");
+  const cached = results.filter((r) => r.status === "cached");
+  const failed = results.filter((r) => r.status === "failed");
+  const skipped = results.filter((r) => r.status === "skipped");
+
+  const manifestBody =
+    JSON.stringify(
+      {
+        generatedAt: new Date().toISOString(),
+        width: CARD_W,
+        height: CARD_H,
+        format: "webp",
+        count: Object.keys(cards).length,
+        cards,
+      },
+      null,
+      2,
+    ) + "\n";
+
+  // Two copies on purpose:
+  //   public/social/cards/manifest.json  -> served as a static asset, and the
+  //                                         human-readable record of what exists
+  //   src/data/social-card-manifest.ts   -> imported by the route at build time.
+  //                                         A .ts module rather than .json: the
+  //                                         JSON import resolved under tsc but
+  //                                         failed at Worker module load, which
+  //                                         took the whole route down with a 500
+  //                                         on every request including HEAD¸(€…İ…¥ĞİÉ¥Ñ•¥±”¡59%MP°µ…¹¥™•ÍÑ	½‘ä¤ì(€…İ…¥ĞİÉ¥Ñ•¥±” (€€€I=UQ}59%MP°(€€€€ˆ¼¼9IQ‰äÍÉ¥ÁÑÌ½•¹•É…Ñ”µÍ½¥…°µ…Éµ‘•É¥Ù…Ñ¥Ù•Ì¹µ©ÌƒŠP‘¼¹½Ğ•‘¥Ğ¹q¸ˆ€¬(€€€€€€ˆ¼¼5…ÁÌ…ÉÑ¥±”Í±Õœ€´øÁÉ”µÉ•Í¥é•€ÄÈÀÁàØÌÀ…É‘•É¥Ù…Ñ¥Ù”¹q¸ˆ€¬(€€€€€€‰•áÁ½ÉĞÑåÁ”M½¥…±…É‘5…¹¥™•ÍĞ€ôíq¸ˆ€¬(€€€€€€ˆ€•¹•É…Ñ•‘ĞèÍÑÉ¥¹œğ¹Õ±°íq¸ˆ€¬(€€€€€€ˆ€İ¥‘Ñ è¹Õµ‰•Èíq¸ˆ€¬(€€€€€€ˆ€¡•¥¡Ğè¹Õµ‰•Èíq¸ˆ€¬(€€€€€€ˆ€™½Éµ…ĞèÍÑÉ¥¹œíq¸ˆ€¬(€€€€€€ˆ€½Õ¹Ğè¹Õµ‰•Èíq¸ˆ€¬(€€€€€€ˆ€…É‘ÌèI•½ÉñÍÑÉ¥¹œ°ì™¥±”èÍÑÉ¥¹œìÍ½ÕÉ”èÍÑÉ¥¹œì‰åÑ•Ìè¹Õµ‰•Èôøíq¸ˆ€¬(€€€€€€‰ôíq¹q¸ˆ€¬(€€€€€½¹ÍĞÍ½¥…±…É‘5…¹¥™•ÍĞèM½¥…±…É‘5…¹¥™•ÍĞ€ô€‘íµ…¹¥™•ÍÑ	½‘ä¹ÑÉ¥´ ¥ôíq¹q¹€€¬(€€€€€€‰•áÁ½ÉĞ‘•™…Õ±ĞÍ½¥…±…É‘5…¹¥™•ÍĞíq¸ˆ°(€€¤ì((€½¹ÍĞÑ½Ñ…±	åÑ•Ì€ô‰Õ¥±Ğ¹É•‘Õ” ¡¸°È¤€ôø¸€¬€¡È¹‰åÑ•Ìñğ€À¤°€À¤ì(€½¹ÍĞÑ½Ñ…±M½ÕÉ”€ô‰Õ¥±Ğ¹É•‘Õ” ¡¸°È¤€ôø¸€¬€¡È¹Í½ÕÉ•	åÑ•Ìñğ€À¤°€À¤ì((€½¹Í½±”¹±½œ¡q¹‰Õ¥±Ğè€€€‘í‰Õ¥±Ğ¹±•¹Ñ¡õ€¤ì(€½¹Í½±”¹±½œ¡…¡•è€€‘í…¡•¹±•¹Ñ¡õ€¤ì(€½¹Í½±”¹±½œ¡Í­¥ÁÁ•è€‘íÍ­¥ÁÁ•¹±•¹Ñ¡õ€¤ì(€½¹Í½±”¹±½œ¡™…¥±•è€€‘í™…¥±•¹±•¹Ñ¡õ€¤ì(€¥˜€¡‰Õ¥±Ğ¹±•¹Ñ ¤ì(€€€½¹Í½±”¹±½œ (€€€€€q¹½ÕÑÁÕĞè€€‘ì¡Ñ½Ñ…±	åÑ•Ì€¼€ÄÀÈĞ¤¹Ñ½¥á• À¥ô-Ñ½Ñ…°°€€¬(€€€€€€€€‘ì¡Ñ½Ñ…±	åÑ•Ì€¼‰Õ¥±Ğ¹±•¹Ñ €¼€ÄÀÈĞ¤¹Ñ½¥á• Ä¥ô-…Ù€°(€€€€¤ì(€€€½¹Í½±”¹±½œ (€€€€€Í½ÕÉ”è€€‘í¡Ñ½Ñ…±M½ÕÉ”€¼€ÄÀÈĞ€¼€ÄÀÈÑô¹Ñ½¥á• Ä¥ô5Ñ½Ñ…°°€€¬(€€€€€€€€‘ì¡Ñ½Ñ…±M½ÕÉ”€¼‰Õ¥±Ğ¹±•¹Ñ €¼€ÄÀÈĞ¤¹Ñ½¥á• À¥ô-…Ùœ€€¬(€€€€€€€€ ‘ì¡Ñ½Ñ…±M½ÕÉ”€¼5…Ñ ¹µ…à¡Ñ½Ñ…±	åÑ•Ì°€Ä¤¤¹Ñ½¥á• Ä¥õàÉ•‘ÕÑ¥½¸¥€°(€€€€¤ì(€ô(€½¹Í½±”¹±½œ¡µ…¹¥™•ÍĞè€‘í=‰©•Ğ¹­•åÌ¡…É‘Ì¤¹±•¹Ñ¡ô•¹ÑÉ¥•Í€¤ì((€¥˜€¡™…¥±•¹±•¹Ñ ¤ì(€€€½¹Í½±”¹±½œ ‰q¹™…¥±ÕÉ•Ìèˆ¤ì(€€€™½È€¡½¹ÍĞ˜½˜™…¥±•¤½¹Í½±”¹±½œ¡€€€‘í˜¹Í±Õôè€‘í˜¹É•…Í½¹õ€¤ì(€ô((€€¼¼9½¸µé•É¼•á¥Ğ½¹±äİ¡•¸¹½Ñ¡¥¹œ…Ğ…±°ÍÕ••‘•°Í¼„¡…¹‘™Õ°½˜‘•…(€€¼¼±•…äUI1Ì‘¼¹½Ğ™…¥°Ñ¡”‰Õ¥±¸(€¥˜€¡‰Õ¥±Ğ¹±•¹Ñ €ôôô€À€˜˜…¡•¹±•¹Ñ €ôôô€À¤ÁÉ½•ÍÌ¹•á¥Ğ Ä¤ì)ô()µ…¥¸ ¤¹…Ñ  ¡•ÉÉ½È¤€ôøì(€½¹Í½±”¹•ÉÉ½È¡•ÉÉ½È¤ì(€ÁÉ½•ÍÌ¹•á¥Ğ Ä¤ì)ô¤ì(

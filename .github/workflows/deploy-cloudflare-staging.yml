@@ -53,6 +53,27 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate social-card derivatives
+        # Builds the 1200x630 WebP per article that /api/social-card prefers over
+        # the full-size source artwork. Without these the route falls back to
+        # decoding multi-megapixel images in the Worker and cold renders 503
+        # (Cloudflare 1102) -- so this step is REQUIRED, not best-effort.
+        #
+        # It used to be continue-on-error, which hid a crash that produced zero
+        # files and shipped a Worker whose cards still 503'd. It now fails the
+        # deploy and prints diagnostics instead of degrading silently.
+        run: |
+          set -euo pipefail
+          node --version
+          node -e "const s=require('sharp'); console.log('sharp', s.versions.vips)"
+          npm run social-cards:generate
+          count=$(ls public/social/cards/*.webp 2>/dev/null | wc -l)
+          echo "generated $count derivatives"
+          if [ "$count" -lt 1 ]; then
+            echo "::error::No social-card derivatives were generated; refusing to deploy a Worker whose cards will 503."
+            exit 1
+          fi
+
       - name: Build (Vinext / Cloudflare Workers)
         run: npm run build:vinext
 
