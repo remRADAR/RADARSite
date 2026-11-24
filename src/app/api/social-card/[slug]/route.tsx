@@ -1,7 +1,6 @@
 import { ImageResponse } from "next/og";
 import { NextResponse } from "next/server";
-import { readPublishedContent } from "@/lib/content-server";
-import { findBySlug } from "@/lib/ia-content";
+import { readPublishedArticleBySlug } from "@/lib/content-server";
 import { normalizeEditorialRecord } from "@/lib/editorial-normalization";
 import { getEffectiveImageUrl } from "@/lib/effective-image-url";
 import { publicSiteUrl } from "@/lib/public-site";
@@ -27,12 +26,13 @@ function titleSize(title: string) {
 
 export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { articles } = await readPublishedContent();
-  const item = findBySlug(articles, decodeURIComponent(slug));
+  // Single-article lookup: readPublishedContent() normalises all 342 articles to
+  // keep one, which blows the Worker CPU budget on a cold render (Cloudflare 1102).
+  const item = await readPublishedArticleBySlug(decodeURIComponent(slug));
   if (!item) return NextResponse.json({ error: "Article not found" }, { status: 404 });
 
   const record = normalizeEditorialRecord(item);
-  const title = record.title || "RADARCharts";
+  const title = record.title || "RDARCharts";
   const excerptSource = record.excerpt || record.metaDescription || "";
   const excerpt = excerptSource.length > 110 ? `${excerptSource.slice(0, 109).trimEnd()}\u2026` : excerptSource;
   const imageUrl = safeImageUrl(record.imageUrl || record.featuredImage);
@@ -57,22 +57,23 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
       <div style={{ position: "relative", display: "flex", flexDirection: "column", justifyContent: "space-between", width: "100%", padding: "54px 64px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "18px" }}>
-            <img src={logoUrl} alt="RADARCharts" width="210" height="60" style={{ width: "210px", height: "60px", objectFit: "contain" }} />
+            <img src={logoUrl} alt="RDARCharts" width="210" height="60" style={{ width: "210px", height: "60px", objectFit: "contain" }} />
             <div style={{ display: "flex", color: "#ff3b30", fontSize: 22, fontWeight: 700, letterSpacing: "3px" }}>ON THE RADAR</div>
           </div>
           <div style={{ display: "flex", color: "#f4f1ea", fontSize: 18, fontWeight: 700, letterSpacing: "2px" }}>RADARCHARTS.NET</div>
         </div>
         <div style={{ display: "flex", flex: 1, flexDirection: "column", justifyContent: "center", maxWidth: "760px", marginTop: "18px", marginBottom: "18px" }}>
-          <div style={{ display: "flex", color: "#ff3b30", fontSize: 20, fontWeight: 700, letterSpacing: "4px", textTransform: "uppercase", marginBottom: "18px" }}>RADARARTICLE</div>
-          <div style={{ display: "flex", fontSize: titleSize(title), lineHeight: 1.02, fontWeight: 900, letterSpacing: "-1.5px", textTransform: "uppercase" }}>{title}</div>
-          {excerpt ? <div style={{ display: "flex", marginTop: "16px", maxWidth: "700px", color: "#d6d1c8", fontSize: 16, lineHeight: 1.2, letterSpacing: "0.2px" }}>{excerpt}</div> : null}
-        </div>
-        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", width: "100%", borderTop: "2px solid #f4f1ea", paddingTop: "18px", color: "#f4f1ea", fontSize: 18, fontWeight: 700, letterSpacing: "2px" }}>
-          <div style={{ display: "flex" }}>RADARCharts by REM</div>
-          <div style={{ display: "flex", color: "#ff3b30" }}>PROTECTING THE MUSIC</div>
+            <div style={{ display: "flex", color: "#ff3b30", fontSize: 20, fontWeight: 700, letterSpacing: "4px", textTransform: "uppercase", marginBottom: "18px" }}>RADARARTICLE</div>
+            <div style={{ display: "flex", fontSize: titleSize(title), lineHeight: 1.02, fontWeight: 900, letterSpacing: "-1.5px", textTransform: "uppercase" }}>{title}</div>
+            {excerpt ? <div style={{ display: "flex", marginTop: "16px", maxWidth: "700px", color: "#d6d1c8", fontSize: 16, lineHeight: 1.2, letterSpacing: "0.2px" }}>{excerpt}</div> : null}
+          </div>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", width: "100%", borderTop: "2px solid #f4f1ea", paddingTop: "18px", color: "#f4f1ea", fontSize: 18, fontWeight: 700, letterSpacing: "2px" }}>
+            <div style={{ display: "flex" }}>RDARCharts by REM</div>
+            <div style={{ display: "flex", color: "#ff3b30" }}>PROTECTING THE MUSIC</div>
+          </div>
         </div>
       </div>
-    </div>,
+    ,
     { width: 1200, height: 630, headers: { "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800" } },
   );
 }
