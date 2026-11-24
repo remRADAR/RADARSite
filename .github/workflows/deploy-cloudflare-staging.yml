@@ -50,11 +50,8 @@ jobs:
           node-version: 22
           cache: npm
 
-      # `npm install` (not `npm ci`) so the lockfile is reconciled with package.json
-      # after the dependabot react/vinext bump. Switch back to `npm ci` once the
-      # regenerated package-lock.json is committed.
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci
 
       - name: Build (Vinext / Cloudflare Workers)
         run: npm run build:vinext
