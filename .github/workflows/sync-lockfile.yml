@@ -1,0 +1,50 @@
+name: Sync lockfile
+
+# Keeps package-lock.json in step with package.json.
+#
+# The react 19.3.1 / @react-three/fiber 9.8.2 bump landed in package.json
+# without a matching lockfile, so `npm ci` failed with ERESOLVE and the CI
+# workflow could not install. This runs on every push to main and exits
+# immediately when the two already agree, so it costs nothing in the normal case.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-lockfile
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    # Skip pushes made by this workflow itself, so it can never loop.
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Regenerate lockfile
+        run: npm install --package-lock-only --no-audit --no-fund
+
+      - name: Commit if it changed
+        run: |
+          if git diff --quiet -- package-lock.json; then
+            echo "package-lock.json already in sync - nothing to do."
+            exit 0
+          fi
+          echo "lockfile was out of sync; committing the regenerated file."
+          node -e "const l=require('./package-lock.json');for(const k of ['react','react-dom','@react-three/fiber','react-server-dom-webpack'])console.log(k, l.packages['node_modules/'+k].version)"
+          git config user.name "lockfile-sync-bot"
+          git config user.email "lockfile-sync-bot@users.noreply.github.com"
+          git add package-lock.json
+          git commit -m "chore(deps): resync package-lock.json with package.json"
+          git push origin HEAD:main
