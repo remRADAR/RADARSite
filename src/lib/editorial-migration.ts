@@ -362,7 +362,6 @@ export function contentReconciliation(content: ContentCollections) {
   return {
     radarSiteArticles: records.length,
     sourceIdentifiedArticles: records.filter((record) => record.sourceId || record.sourceUrl).length,
-    sourceIdentifiedArticlesCount: records.filter((record) => record.sourceId || record.sourceUrl).length,
     duplicates,
     validTitles: normalized.filter(({ title }) => title !== "Editorial record requires review").length,
     missingTitles: normalized.filter(({ title }) => title === "Editorial record requires review").length,
