@@ -11,6 +11,7 @@ const knownCollectionPaths = [
   "/ontheradar/projects",
   "/motherland",
   "/radarmusic",
+  "/releases",
   "/radarmusic/artists",
   "/radarmusic/releases",
   "/projects",

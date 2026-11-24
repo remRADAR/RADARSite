@@ -27,9 +27,7 @@ const groups = [
     label: "THE RADARMusic",
     href: "/radarmusic",
     children: [
-      { href: "/playlists", label: "Playlists" },
-      { href: "/radarmusic/artists", label: "Editorials" },
-      { href: "/radarmusic/releases", label: "Releases" },
+      { href: "/releases", label: "Releases" },
     ],
   },
   {

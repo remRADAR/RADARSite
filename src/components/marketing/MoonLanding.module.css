@@ -1,4 +1,4 @@
-/* RADARMusic moon landing: a moon suspended in a switchable sky, with an orbiting dot index. */
+/* RADARMusic moon landing; the shared html.theme-light class selects daylight. */
 
 .scene {
   position: relative;
@@ -13,7 +13,6 @@
 }
 
 /* ---------- the sky ---------- */
-
 .sky {
   position: absolute;
   inset: 0;
@@ -28,7 +27,6 @@
   transition: background 0.6s ease;
 }
 
-/* Soft clouds of distant gas — kept very low contrast so the mono type stays legible. */
 .nebula {
   position: absolute;
   inset: -20%;
@@ -42,7 +40,6 @@
   transition: opacity 0.6s ease;
 }
 
-/* The faint band of the galaxy, tilted across the frame. */
 .milkyWay {
   position: absolute;
   left: -30%;
@@ -59,11 +56,7 @@
   transition: opacity 0.6s ease;
 }
 
-.starLayer {
-  position: absolute;
-  inset: 0;
-  transition: opacity 0.6s ease;
-}
+.starLayer { position: absolute; inset: 0; transition: opacity 0.6s ease; }
 
 .starFar,
 .starNear {
@@ -77,16 +70,12 @@
   will-change: opacity;
 }
 
-.starFar {
-  box-shadow: 0 0 2px rgb(247 247 242 / 0.5);
-}
-
+.starFar { box-shadow: 0 0 2px rgb(247 247 242 / 0.5); }
 .starNear {
   background: #fffdf6;
   box-shadow: 0 0 4px rgb(255 246 224 / 0.85), 0 0 10px rgb(255 214 165 / 0.35);
 }
 
-/* Two slow meteors, far apart in timing so the sky never feels busy. */
 .shootingStar,
 .shootingStarAlt {
   position: absolute;
@@ -110,20 +99,9 @@
   background: linear-gradient(to left, rgb(255 253 246 / 0.85), transparent);
 }
 
-.shootingStar {
-  top: 16%;
-  left: 8%;
-  animation: meteor 11s linear infinite;
-}
+.shootingStar { top: 16%; left: 8%; animation: meteor 11s linear infinite; }
+.shootingStarAlt { top: 62%; left: 72%; animation: meteor 17s linear infinite; animation-delay: 6s; }
 
-.shootingStarAlt {
-  top: 62%;
-  left: 72%;
-  animation: meteor 17s linear infinite;
-  animation-delay: 6s;
-}
-
-/* Daylight-only layers, hidden at night. */
 .dayGlow,
 .dayClouds {
   position: absolute;
@@ -132,14 +110,12 @@
   transition: opacity 0.6s ease;
 }
 
-/* Low warm sun haze from the upper left, the way a morning sky reads. */
 .dayGlow {
   background:
     radial-gradient(60% 50% at 18% 6%, rgb(255 244 214 / 0.95), transparent 62%),
     radial-gradient(90% 70% at 50% 0%, rgb(255 236 200 / 0.5), transparent 70%);
 }
 
-/* A few soft, slow cloud bands to give the daylight depth. */
 .dayClouds {
   background:
     radial-gradient(46% 12% at 24% 26%, rgb(255 255 255 / 0.75), transparent 70%),
@@ -148,8 +124,7 @@
   filter: blur(10px);
 }
 
-/* ---------- the stage ---------- */
-
+/* ---------- the moon ---------- */
 .stage {
   position: relative;
   z-index: 1;
@@ -161,7 +136,6 @@
   max-width: min(78vw, 30rem);
 }
 
-/* Thin limb of scattered light where the moon meets the sky. */
 .atmosphere {
   position: absolute;
   inset: 6%;
@@ -173,24 +147,15 @@
   transition: background 0.6s ease;
 }
 
-.moonButton {
+.moonArt {
   position: relative;
   z-index: 2;
   width: 64%;
   aspect-ratio: 1;
   border-radius: 9999px;
-  background: transparent;
-  cursor: pointer;
-  transition: transform 0.4s ease;
 }
 
-.moonButton:hover {
-  transform: scale(1.04);
-}
-
-/* A ring of scattered light sitting just above the disc, so the artwork's edge
-   dissolves into the sky instead of ending on a hard cut. */
-.moonButton::after {
+.moonArt::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -210,13 +175,6 @@
   transition: filter 0.6s ease;
 }
 
-.moonButton:hover .moon {
-  filter:
-    drop-shadow(0 0 2rem rgb(255 240 220 / 0.7))
-    drop-shadow(0 0 5rem rgb(255 214 165 / 0.5))
-    drop-shadow(0 0 9rem rgb(190 210 255 / 0.28));
-}
-
 .halo {
   position: absolute;
   inset: -22%;
@@ -224,233 +182,47 @@
   background: radial-gradient(closest-side, rgb(255 196 128 / 0.26), rgb(255 196 128 / 0.08) 55%, transparent 76%);
   animation: halo-pulse 6s ease-in-out infinite;
   opacity: 0.7;
-  transition: opacity 0.4s ease, background 0.6s ease;
+  transition: background 0.6s ease;
   pointer-events: none;
 }
 
-.haloActive {
-  opacity: 1;
-}
+/* Daylight is driven by the same shared theme class as ThemeToggle. */
+:global(html.theme-light) .scene { background: #dfe8f2; }
 
-.orbit {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-}
-
-.dot {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  transform: translate(-50%, -50%);
-  animation: dot-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
-
-.dotDot {
-  width: 0.875rem;
-  height: 0.875rem;
-  border-radius: 9999px;
-  background: #f7f7f2;
-  box-shadow: 0 0 0 3px rgb(255 255 255 / 0.12), 0 0 1.4rem rgb(255 214 165 / 0.85);
-  transition: background 0.2s ease, box-shadow 0.6s ease;
-}
-
-.dot:hover .dotDot {
-  background: var(--color-flare, #ff4d2e);
-}
-
-.dotLabel {
-  max-width: 9rem;
-  padding: 0.3rem 0.65rem;
-  border: 1px solid rgb(247 242 230 / 0.35);
-  background: rgb(5 5 5 / 0.78);
-  font-family: var(--font-mono, monospace);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: #f7f7f2;
-  transition: color 0.2s ease, border-color 0.2s ease, background 0.6s ease;
-}
-
-.dot:hover .dotLabel {
-  border-color: currentColor;
-  color: var(--color-flare, #ff4d2e);
-}
-
-.hint {
-  position: absolute;
-  bottom: -3.25rem;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-top: 1rem;
-  font-family: var(--font-mono, monospace);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--color-muted-foreground, rgb(250 250 249 / 0.6));
-  white-space: nowrap;
-  transition: color 0.6s ease;
-}
-
-/* ---------- the sky switch ---------- */
-
-.skySwitch {
-  position: absolute;
-  z-index: 4;
-  top: 1rem;
-  right: 1rem;
-  display: flex;
-  border: 1px solid rgb(247 242 230 / 0.35);
-  background: rgb(5 5 5 / 0.6);
-  backdrop-filter: blur(6px);
-  transition: border-color 0.6s ease, background 0.6s ease;
-}
-
-.skyOption {
-  padding: 0.4rem 0.7rem;
-  border: 0;
-  background: transparent;
-  font-family: var(--font-mono, monospace);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgb(247 242 230 / 0.6);
-  cursor: pointer;
-  transition: color 0.2s ease, background 0.2s ease;
-}
-
-.skyOption + .skyOption {
-  border-left: 1px solid rgb(247 242 230 / 0.25);
-}
-
-.skyOption:hover {
-  color: #f7f7f2;
-}
-
-.skyOption:focus-visible {
-  outline: 2px solid var(--color-flare, #ff4d2e);
-  outline-offset: 2px;
-}
-
-.skyOptionActive {
-  background: #f7f7f2;
-  color: #050505;
-}
-
-.skyOptionActive:hover {
-  color: #050505;
-}
-
-/* ---------- daylight mode ---------- */
-
-.sceneDay {
-  background: #dfe8f2;
-}
-
-.sceneDay .sky {
+:global(html.theme-light) .sky {
   background:
     radial-gradient(120% 90% at 50% 122%, rgb(150 178 204 / 0.85), transparent 66%),
     radial-gradient(70% 55% at 16% 4%, rgb(255 246 214 / 0.9), transparent 58%),
     linear-gradient(180deg, #8fb4d4 0%, #b9d0e4 34%, #dbe7f1 68%, #eef3f8 100%);
 }
 
-.sceneDay .nebula,
-.sceneDay .milkyWay,
-.sceneDay .starLayer {
-  opacity: 0;
-}
+:global(html.theme-light) .nebula,
+:global(html.theme-light) .milkyWay,
+:global(html.theme-light) .starLayer { opacity: 0; }
 
-.sceneDay .dayGlow,
-.sceneDay .dayClouds {
-  opacity: 1;
-}
+:global(html.theme-light) .dayGlow,
+:global(html.theme-light) .dayClouds { opacity: 1; }
 
-/* Sunlit moon: a warm rim and a cool, wide daylight bloom instead of a night glow. */
-.sceneDay .moon {
+:global(html.theme-light) .moon {
   filter:
     drop-shadow(0 0 1.25rem rgb(255 255 255 / 0.9))
     drop-shadow(0 0 3rem rgb(255 246 224 / 0.55))
     drop-shadow(0 0 6rem rgb(150 180 210 / 0.35));
 }
 
-.sceneDay .moonButton:hover .moon {
-  filter:
-    drop-shadow(0 0 1.75rem rgb(255 255 255 / 1))
-    drop-shadow(0 0 4rem rgb(255 246 224 / 0.7))
-    drop-shadow(0 0 8rem rgb(150 180 210 / 0.45));
-}
-
-.sceneDay .moonButton::after {
+:global(html.theme-light) .moonArt::after {
   background: radial-gradient(closest-side, transparent 72%, rgb(255 255 255 / 0.6) 90%, rgb(255 255 255 / 0.25) 97%, transparent 100%);
 }
 
-.sceneDay .atmosphere {
+:global(html.theme-light) .atmosphere {
   background: radial-gradient(closest-side, transparent 60%, rgb(255 255 255 / 0.55) 74%, rgb(150 180 210 / 0.3) 86%, transparent 94%);
 }
 
-.sceneDay .halo {
+:global(html.theme-light) .halo {
   background: radial-gradient(closest-side, rgb(255 255 255 / 0.5), rgb(255 246 224 / 0.18) 55%, transparent 76%);
 }
 
-/* Ink-on-paper dots so the index stays readable against a bright sky. */
-.sceneDay .dotDot {
-  background: #050505;
-  box-shadow: 0 0 0 3px rgb(5 5 5 / 0.12), 0 0 1.2rem rgb(5 5 5 / 0.25);
-}
-
-.sceneDay .dot:hover .dotDot {
-  background: var(--color-flare, #ff4d2e);
-}
-
-.sceneDay .dotLabel {
-  border-color: rgb(5 5 5 / 0.45);
-  background: rgb(247 247 242 / 0.92);
-  color: #050505;
-}
-
-.sceneDay .dot:hover .dotLabel {
-  border-color: var(--color-flare, #ff4d2e);
-  color: var(--color-flare, #ff4d2e);
-}
-
-.sceneDay .hint {
-  color: rgb(5 5 5 / 0.6);
-}
-
-.sceneDay .skySwitch {
-  border-color: rgb(5 5 5 / 0.35);
-  background: rgb(247 247 242 / 0.7);
-}
-
-.sceneDay .skyOption {
-  color: rgb(5 5 5 / 0.6);
-}
-
-.sceneDay .skyOption + .skyOption {
-  border-left-color: rgb(5 5 5 / 0.25);
-}
-
-.sceneDay .skyOption:hover {
-  color: #050505;
-}
-
-.sceneDay .skyOptionActive {
-  background: #050505;
-  color: #f7f7f2;
-}
-
-.sceneDay .skyOptionActive:hover {
-  color: #f7f7f2;
-}
-
 /* ---------- motion ---------- */
-
 @keyframes moon-breathe {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.025); }
@@ -483,22 +255,15 @@
   100% { opacity: 0; transform: translate3d(26rem, 14rem, 0) rotate(28deg); }
 }
 
-@keyframes dot-in {
-  from { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
-  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .moon,
   .halo,
-  .dot,
   .atmosphere,
   .nebula,
   .starFar,
   .starNear,
   .shootingStar,
   .shootingStarAlt { animation: none; }
-  .moonButton { transition: none; }
   .shootingStar,
   .shootingStarAlt { opacity: 0; }
   .scene,
@@ -509,10 +274,7 @@
   .dayGlow,
   .dayClouds,
   .moon,
+  .moonArt::after,
   .atmosphere,
-  .halo,
-  .dotDot,
-  .dotLabel,
-  .hint,
-  .skySwitch { transition: none; }
+  .halo { transition: none; }
 }

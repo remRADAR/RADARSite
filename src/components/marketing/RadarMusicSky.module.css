@@ -1,4 +1,4 @@
-/* RADARMusic landing shell: the page itself switches between night and day. */
+/* RADARMusic landing shell follows the shared site color theme. */
 
 .page {
   position: relative;
@@ -7,19 +7,15 @@
   transition: background 0.6s ease, color 0.6s ease;
 }
 
-.pageDay {
+:global(html.theme-light) .page {
   background: #eef3f8;
   color: #050505;
 }
 
-.header {
-  padding: 4rem 1rem 0;
-}
+.header { padding: 4rem 1rem 0; }
 
 @media (min-width: 768px) {
-  .header {
-    padding: 5rem 2rem 0;
-  }
+  .header { padding: 5rem 2rem 0; }
 }
 
 .kicker {
@@ -44,10 +40,8 @@
   transition: color 0.6s ease;
 }
 
-.pageDay .kicker,
-.pageDay .intro {
-  color: rgb(5 5 5 / 0.6);
-}
+:global(html.theme-light) .kicker,
+:global(html.theme-light) .intro { color: rgb(5 5 5 / 0.6); }
 
 .quickLinks {
   display: flex;
@@ -64,19 +58,10 @@
 }
 
 @media (min-width: 768px) {
-  .quickLinks {
-    padding: 1.5rem 2rem;
-  }
+  .quickLinks { padding: 1.5rem 2rem; }
 }
 
-.pageDay .quickLinks {
-  border-top-color: #050505;
-}
+:global(html.theme-light) .quickLinks { border-top-color: #050505; }
 
-.quickLink {
-  transition: color 0.2s ease;
-}
-
-.quickLink:hover {
-  color: var(--color-flare, #ff4d2e);
-}
+.quickLink { transition: color 0.2s ease; }
+.quickLink:hover { color: var(--color-flare, #ff4d2e); }

@@ -28,6 +28,13 @@
   max-width: 42rem;
 }
 
+.suppliedLogo {
+  display: block;
+  width: min(72vw, 22rem);
+  height: auto;
+  object-fit: contain;
+}
+
 /* ---------- the spelled logotype ---------- */
 
 .wordmark {
@@ -194,6 +201,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .suppliedLogo { content: url("/media/podcast/logo-static.png"); }
   .wordmarkIn .letter,
   .wordmarkIn .eyeSlot,
   .wordmarkIn .eyeBlink,

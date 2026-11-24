@@ -18,6 +18,11 @@ test("opens the circular navigation overlay and traps keyboard focus accessibly"
   const primaryNav = page.getByRole("navigation", { name: "Primary navigation" });
   const firstLink = primaryNav.getByRole("link", { name: "THE RADARMusic" });
   await expect(firstLink).toHaveAttribute("href", "/radarmusic");
+  const musicGroup = firstLink.locator("xpath=ancestor::section");
+  const musicChildren = musicGroup.locator("ul a");
+  await expect(musicChildren).toHaveCount(1);
+  await expect(musicChildren).toHaveAttribute("href", "/releases");
+  await expect(musicChildren).toHaveText("Releases");
   await expect(primaryNav.getByRole("link", { name: "ON THE RADAR" })).toHaveAttribute(
     "href",
     "/ontheradar",

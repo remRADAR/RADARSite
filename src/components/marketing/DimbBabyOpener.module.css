@@ -18,6 +18,16 @@
   transition: background-color 0.45s ease;
 }
 
+.intro::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: min(42vh, 19rem);
+  background: url("/media/podcast/top-banner.gif") center 38% / contain no-repeat;
+  opacity: 0.22;
+  pointer-events: none;
+}
+
 .intro:focus-visible {
   outline: 2px solid var(--flare, #ff4d2e);
   outline-offset: -6px;
@@ -130,7 +140,7 @@
   position: absolute;
   inset: 0;
   /* transparent cutout: the page background shows through, no photo backdrop */
-  background-image: url("/media/podcast-baby-cutout.webp");
+  background-image: url("/media/podcast/baby.png");
   background-size: contain;
   background-position: center bottom;
   background-repeat: no-repeat;
@@ -343,6 +353,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .intro::before {
+    background-image: url("/media/podcast/banner-static.png");
+  }
   /* Show the settled end-state immediately: no entrance, no bob. */
   .stage,
   .stageVibe {
