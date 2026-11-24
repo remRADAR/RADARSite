@@ -3,8 +3,8 @@ import { RadarPlaylistsExperience } from "@/components/marketing/RadarPlaylistsE
 import { buildPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Releases",
-  description: "Explore notable releases and new music surfaced by RADARCharts.",
+  title: "Curated Playlists",
+  description: "Curated playlists of notable releases and new music surfaced by RADARCharts.",
   path: "/radarmusic/releases",
 });
 
