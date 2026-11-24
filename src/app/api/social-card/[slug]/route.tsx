@@ -1,14 +1,13 @@
 import { ImageResponse } from "next/og";
 import { NextResponse } from "next/server";
-import { readPublishedArticleBySlug } from "@/lib/content-server";
+import { readPublishedContent } from "@/lib/content-server";
+import { findBySlug } from "@/lib/ia-content";
 import { normalizeEditorialRecord } from "@/lib/editorial-normalization";
 import { getEffectiveImageUrl } from "@/lib/effective-image-url";
 import { publicSiteUrl } from "@/lib/public-site";
 
 export const runtime = "nodejs";
 export const revalidate = 3600;
-
-const FALLBACK_CARD = "/social/radar-global-card.png";
 
 function safeImageUrl(source: string | undefined) {
   const candidate = getEffectiveImageUrl(source || "").effectiveUrl;
@@ -28,7 +27,8 @@ function titleSize(title: string) {
 
 export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const item = await readPublishedArticleBySlug(decodeURIComponent(slug));
+  const { articles } = await readPublishedContent();
+  const item = findBySlug(articles, decodeURIComponent(slug));
   if (!item) return NextResponse.json({ error: "Article not found" }, { status: 404 });
 
   const record = normalizeEditorialRecord(item);
@@ -38,32 +38,6 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
   const imageUrl = safeImageUrl(record.imageUrl || record.featuredImage);
   const logoUrl = `${publicSiteUrl()}/radar-logo.webp`;
 
-  try {
-    return await renderCard({ title, excerpt, imageUrl, logoUrl });
-  } catch (error) {
-    // A card is a social-preview nicety, never a reason to fail the request.
-    // Satori/resvg can exceed the Worker CPU budget on a heavy source image, so
-    // retry once without the photograph: the typographic card still carries the
-    // headline and brand, and costs a fraction of the CPU.
-    console.error("[social-card] render failed; retrying without source image", {
-      slug,
-      name: error instanceof Error ? error.name : "UnknownError",
-      message: error instanceof Error ? error.message : String(error),
-    });
-    try {
-      return await renderCard({ title, excerpt, imageUrl: "", logoUrl });
-    } catch (fallbackError) {
-      console.error("[social-card] fallback render failed; serving static brand card", {
-        slug,
-        name: fallbackError instanceof Error ? fallbackError.name : "UnknownError",
-        message: fallbackError instanceof Error ? fallbackError.message : String(fallbackError),
-      });
-      return NextResponse.redirect(`${publicSiteUrl()}${FALLBACK_CARD}`, 302);
-    }
-  }
-}
-
-async function renderCard({ title, excerpt, imageUrl, logoUrl }: { title: string; excerpt: string; imageUrl: string; logoUrl: string }) {
   return new ImageResponse(
     <div
       style={{
@@ -77,7 +51,7 @@ async function renderCard({ title, excerpt, imageUrl, logoUrl }: { title: string
         overflow: "hidden",
       }}
     >
-      {imageUrl ? <img src={imageUrl} alt="" width="1200" height="630" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
+      <img src={imageUrl} alt="" width="1200" height="630" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
       <div style={{ position: "absolute", inset: 0, display: "flex", background: "linear-gradient(90deg, rgba(8,8,8,.96) 0%, rgba(8,8,8,.82) 46%, rgba(8,8,8,.18) 100%)" }} />
       <div style={{ position: "absolute", inset: 0, display: "flex", background: "linear-gradient(0deg, rgba(8,8,8,.92) 0%, transparent 45%)" }} />
       <div style={{ position: "relative", display: "flex", flexDirection: "column", justifyContent: "space-between", width: "100%", padding: "54px 64px" }}>
