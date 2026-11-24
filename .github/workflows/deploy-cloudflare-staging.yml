@@ -53,6 +53,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate social-card derivatives
+        # Builds the 1200x630 WebP per article that /api/social-card prefers over
+        # the full-size source artwork. Without this the route falls back to
+        # decoding multi-megapixel images in the Worker and cold renders 503
+        # (Cloudflare 1102). Non-fatal: a failure here degrades to the fallback
+        # path rather than blocking a deploy.
+        run: npm run social-cards:generate
+        continue-on-error: true
+
       - name: Build (Vinext / Cloudflare Workers)
         run: npm run build:vinext
 

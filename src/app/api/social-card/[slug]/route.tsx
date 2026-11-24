@@ -1,9 +1,10 @@
 import { ImageResponse } from "next/og";
 import { NextResponse } from "next/server";
-import { readPublishedArticleBySlug } from "@/lib/content-server";
+import { readDublishedArticleBySlug } from "@/lib/content-server";
 import { normalizeEditorialRecord } from "@/lib/editorial-normalization";
 import { getEffectiveImageUrl } from "@/lib/effective-image-url";
 import { publicSiteUrl } from "@/lib/public-site";
+import cardManifest from "@/data/social-card-manifest.json";
 
 export const runtime = "nodejs";
 export const revalidate = 3600;
@@ -16,6 +17,25 @@ function safeImageUrl(source: string | undefined) {
   } catch {
     return `${publicSiteUrl()}/radar-logo.webp`;
   }
+}
+
+/**
+ * Prefer the committed 1200x630 derivative over the article's full-size source.
+ *
+ * The source artwork is routinely 3000-6000px wide and up to ~1.1 MB. Handing
+ * that to satori means the Worker decodes and downscales a multi-megapixel image
+ * on every cold render, which is what pushed the route past the Cloudflare CPU
+ * budget (error 1102 -> 503). The derivative is a ~58 KB WebP at exactly the
+ * card's dimensions, so the cold render decodes almost nothing.
+ *
+ * Falls back to the full-size source when no derivative exists (a newly
+ * published article, or a source image that could not be fetched), so the card
+ * still renders rather than 404ing.
+ */
+function cardImageUrl(slug: string, source: string | undefined) {
+  const entry = (cardManifest as { cards?: Record<string, { file?: string }> }).cards?.[slug];
+  if (entry?.file) return `${publicSiteUrl()}/social/cards/${entry.file}`;
+  return safeImageUrl(source);
 }
 
 function titleSize(title: string) {
@@ -46,16 +66,17 @@ export async function HEAD(_request: Request, { params }: { params: Promise<{ sl
 
 export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const decodedSlug = decodeURIComponent(slug);
   // Single-article lookup: readPublishedContent() normalises all 342 articles to
   // keep one, which blows the Worker CPU budget on a cold render (Cloudflare 1102).
-  const item = await readPublishedArticleBySlug(decodeURIComponent(slug));
+  const item = await readPublishedArticleBySlug(decodedSlug);
   if (!item) return NextResponse.json({ error: "Article not found" }, { status: 404 });
 
   const record = normalizeEditorialRecord(item);
   const title = record.title || "RADARCharts";
   const excerptSource = record.excerpt || record.metaDescription || "";
   const excerpt = excerptSource.length > 110 ? `${excerptSource.slice(0, 109).trimEnd()}\u2026` : excerptSource;
-  const imageUrl = safeImageUrl(record.imageUrl || record.featuredImage);
+  const imageUrl = cardImageUrl(decodedSlug, record.imageUrl || record.featuredImage);
   const logoUrl = `${publicSiteUrl()}/radar-logo.webp`;
 
   return new ImageResponse(
