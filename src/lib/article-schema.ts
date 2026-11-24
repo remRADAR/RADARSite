@@ -17,7 +17,11 @@ export function buildArticleJsonLd(record: CmsRecord) {
     description: normalized.metaDescription || normalized.excerpt || normalized.subtitle || "",
     ...(normalized.publishedAt || normalized.date ? { datePublished: normalized.publishedAt || normalized.date } : {}),
     ...((normalized.sourceModifiedAt || normalized.updatedAt) ? { dateModified: normalized.sourceModifiedAt || normalized.updatedAt } : {}),
-    author: { "@type": "Person", name: normalized.author || "RADARCharts by REM" },
+    // 63 of 342 snapshot articles have no author. Emitting the publisher name
+    // as a `Person` is invalid; fall back to the organisation instead.
+    author: normalized.author
+      ? { "@type": "Person", name: normalized.author }
+      : { "@type": "Organization", name: "RADARCharts by REM", url: "https://radarcharts.net" },
     publisher: { "@type": "Organization", name: "RADARCharts by REM", url: "https://radarcharts.net", logo: { "@type": "ImageObject", url: "https://radarcharts.net/radar-logo.webp" } },
     mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
     url: canonical,

@@ -1,4 +1,10 @@
-import { readPublishedContent, type CmsRecord } from "@/lib/content-server";
+import { unstable_cache } from "next/cache";
+import {
+  PUBLIC_CONTENT_CACHE_TAG,
+  PUBLIC_CONTENT_REVALIDATE_SECONDS,
+  readPublishedContent,
+  type CmsRecord,
+} from "@/lib/content-server";
 import { normalizeEditorialRecord, articlePath } from "@/lib/editorial-normalization";
 import { pickEditorialImage } from "@/lib/editorial-image";
 import { isOriginalEditorialRecord } from "@/lib/editorial-archives";
@@ -73,7 +79,7 @@ export function selectFeaturedPipelineRecords(articles: CmsRecord[], limit = 4) 
  *
  * @param limit Maximum number of posts to return (default 4).
  */
-export async function getRecentEditorialPosts(limit = 4): Promise<EditorialTreePost[]> {
+async function buildRecentEditorialPosts(limit: number): Promise<EditorialTreePost[]> {
   const { articles } = await readPublishedContent();
   const normalized = selectFeaturedPipelineRecords(articles as CmsRecord[], limit);
 
@@ -98,4 +104,44 @@ export async function getRecentEditorialPosts(limit = 4): Promise<EditorialTreeP
       tone: TONE_CYCLE[index % TONE_CYCLE.length],
     };
   });
+}
+
+/**
+ * Cached homepage editorial feed.
+ *
+ * The homepage used to be `force-dynamic`, so every request re-read the public
+ * content and re-normalised the full article collection (342 records) before
+ * selecting four posts. On a Cloudflare Worker with a hard CPU budget that
+ * pushed the request over the limit and produced intermittent 503s
+ * (error 1102). The selection is now memoised in the shared tagged content
+ * cache, so a request only pays for the four-record projection. Publishing
+ * already invalidates PUBLIC_CONTENT_CACHE_TAG, which keeps the homepage
+ * current without a rebuild.
+ */
+const cachedRecentEditorialPosts = new Map<number, () => Promise<EditorialTreePost[]>>();
+
+function recentEditorialPostsCache(limit: number) {
+  const existing = cachedRecentEditorialPosts.get(limit);
+  if (existing) return existing;
+  const cached = unstable_cache(
+    () => buildRecentEditorialPosts(limit),
+    ["radarsite-homepage-editorial-tree", String(limit)],
+    { revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS, tags: [PUBLIC_CONTENT_CACHE_TAG] },
+  );
+  cachedRecentEditorialPosts.set(limit, cached);
+  return cached;
+}
+
+export async function getRecentEditorialPosts(limit = 4): Promise<EditorialTreePost[]> {
+  const safeLimit = Number.isFinite(limit) ? Math.max(0, Math.floor(limit)) : 4;
+  try {
+    return await recentEditorialPostsCache(safeLimit)();
+  } catch (error) {
+    // The incremental cache is an optimisation, never a prerequisite: a
+    // runtime that rejects it must still render the homepage.
+    console.warn("[editorial-tree] Homepage editorial cache unavailable; reading directly", {
+      name: error instanceof Error ? error.name : "UnknownError",
+    });
+    return buildRecentEditorialPosts(safeLimit);
+  }
 }
