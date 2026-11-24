@@ -70,6 +70,15 @@ const nextConfig: NextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840, 8192],
     qualities: [75, 100],
   },
+  async rewrites() {
+    return [
+      // The Wiki home page is a static document at public/wiki/index.html.
+      // Next.js only serves public files at their exact path, so /wiki would
+      // 404 without this rewrite. The page uses absolute asset paths
+      // (/radar-logo.webp) so it renders correctly at both URLs.
+      { source: "/wiki", destination: "/wiki/index.html" },
+    ];
+  },
   async redirects() {
     return [
       ...legacyArticleRedirects(),
