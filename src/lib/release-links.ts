@@ -1,7 +1,7 @@
 import { databaseSql } from "@/lib/database";
 import fallbackReleaseLinks from "@/data/release-links.json";
 
-export type ReleasePlatform = { name: string; href: string; tone: string };
+export type ReleasePlatform = { name: string; href: string; tone: string; verification?: "source" | "metadata"; kind?: "presave" | "stream" };
 export type ReleaseLink = {
   id: string;
   slug: string;
@@ -92,11 +92,35 @@ function parseDate(textValue: string) {
   return Number.isNaN(date.getTime()) ? "" : date.toISOString().slice(0, 10);
 }
 function parseTitle(textValue: string, sourceTitle: string) {
+  const explicitRelease = textValue.match(/([A-Za-z][\w .'-]{1,80})\s+-\s+([A-Za-z][\w .'-]{1,80})\s+(?=Available\s+from)/i);
+  if (explicitRelease) return { artist: explicitRelease[1].trim(), title: explicitRelease[2].trim() };
   const heading = textValue.match(/(?:available\s+from|listen\s*\/\s*buy)/i)?.index;
   const candidate = (heading === undefined ? sourceTitle : textValue.slice(0, heading)).replace(/\s+/g, " ").trim();
   const parts = candidate.split(/\s+[|—–-]\s+/).map((item) => item.trim()).filter(Boolean);
   if (parts.length >= 2) return { artist: parts[0], title: parts[1] };
   return { artist: "", title: candidate.slice(0, 240) };
+}
+function normalizedWords(value: string) { return text(value, 500).toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").split(/\s+/).filter((word) => word.length > 1); }
+function matchesReleaseMetadata(value: string, artist: string, title: string) {
+  const haystack = new Set(normalizedWords(value));
+  const artistWords = normalizedWords(artist); const titleWords = normalizedWords(title);
+  return artistWords.length > 0 && titleWords.length > 0 && artistWords.every((word) => haystack.has(word)) && titleWords.every((word) => haystack.has(word));
+}
+function metadataFromHtml(html: string) { return [html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)/i)?.[1], html.match(/<meta[^>]+name=["']twitter:title["'][^>]+content=["']([^"']+)/i)?.[1], html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]].filter(Boolean).map((value) => stripHtml(value || "")).join(" | "); }
+function isPresaveRedirect(href: string, finalUrl: string) { return /ampsuite\.com|suitebeats\.ampsuite\.com/i.test(href) || /accounts\.spotify\.com|authorize/i.test(finalUrl); }
+const PLATFORM_HOSTS: Record<string, RegExp> = { Spotify: /spotify\.com$/i, "Apple Music": /apple\.com$/i, Boomplay: /boomplay\.com$/i, Audiomack: /audiomack\.com$/i, Tidal: /tidal\.com$/i, Deezer: /deezer\.com$/i, SoundCloud: /soundcloud\.com$/i, iHeartRadio: /iheart\.com$/i, YouTube: /youtube\.com$|youtu\.be$/i };
+async function verifyPlatformLink(href: string, platform: string, artist: string, title: string): Promise<ReleasePlatform | null> {
+  try {
+    const response = await fetch(href, { redirect: "follow", cache: "no-store", signal: AbortSignal.timeout(8_000), headers: { accept: "text/html,application/xhtml+xml", "user-agent": "RADARMusic-LinkVerifier/1.0" } });
+    const finalUrl = response.url || href;
+    if (isPresaveRedirect(href, finalUrl)) return { name: platform, tone: PLATFORM_DEFINITIONS.find(([name]) => name === platform)?.[1] || "", href, verification: "source", kind: "presave" };
+    if (!response.ok) return null;
+    const html = (await response.text()).slice(0, 1_000_000);
+    const metadata = metadataFromHtml(html);
+    const finalHost = new URL(finalUrl).hostname;
+    if (!PLATFORM_HOSTS[platform]?.test(finalHost) || !matchesReleaseMetadata(metadata, artist, title)) return null;
+    return { name: platform, tone: PLATFORM_DEFINITIONS.find(([name]) => name === platform)?.[1] || "", href, verification: "metadata", kind: "stream" };
+  } catch { return null; }
 }
 
 export async function scrapeReleaseSource(sourceInput: string): Promise<ReleaseLink> {
@@ -107,14 +131,16 @@ export async function scrapeReleaseSource(sourceInput: string): Promise<ReleaseL
   if (html.length > 3_000_000) throw new Error("Source page is too large to scrape safely.");
   const sourceTitle = stripHtml((html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || "")).slice(0, 300);
   const readable = stripHtml(html);
-  const parsed = parseTitle(readable, sourceTitle);
+  const structuredBlocks = [...html.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)].map((match) => stripHtml(match[1])).filter(Boolean);
+  const releaseBlock = structuredBlocks.find((block) => /^[^.!?]{1,100}\s+-\s+[^.!?]{1,100}$/.test(block));
+  const parsed = parseTitle(releaseBlock ? `${releaseBlock} Available from` : readable, sourceTitle);
   const title = parsed.title.replace(/\s+-\s+Mamuzo$/i, "").trim() || "Untitled release";
   const artist = parsed.artist || sourceTitle.split(/\s+[|—–-]\s+/)[0] || "Unknown artist";
   const slug = slugify(title);
   const imageMatches = [...html.matchAll(/<(?:img|meta)[^>]+(?:src|content)=["']([^"']+)["'][^>]*>/gi)].map((match) => absoluteUrl(match[1], sourceUrl)).filter((url) => /\.(?:jpe?g|png|webp)(?:\?|$)/i.test(url));
   const coverImage = imageMatches.find((url) => !/logo|icon|retailer|privacy/i.test(url)) || imageMatches[0] || "";
   const anchorMatches = [...html.matchAll(/<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)];
-  const platformLinks = PLATFORM_DEFINITIONS.flatMap(([name, tone]) => {
+  const potentialLinks = PLATFORM_DEFINITIONS.flatMap(([name, tone]) => {
     const match = anchorMatches.find(([, href, inner]) => new RegExp(name.replace(/\s+/g, "[\\s-]+"), "i").test(stripHtml(inner)) || new RegExp(name.split(" ")[0], "i").test(href));
     if (!match) return [];
     const href = absoluteUrl(match[1], sourceUrl);
@@ -122,5 +148,6 @@ export async function scrapeReleaseSource(sourceInput: string): Promise<ReleaseL
   });
   const releaseDate = parseDate(readable);
   if (!title || !releaseDate || !coverImage) throw new Error("Source page did not expose a release title, release date, and cover image together.");
+  const platformLinks = (await Promise.all(potentialLinks.map((platform) => verifyPlatformLink(platform.href, platform.name, artist, title)))).filter((platform): platform is ReleasePlatform => Boolean(platform));
   return { id: `source-${slug}`, slug, title, artist, releaseDate, coverImage, sourceUrl: sourceUrl.toString(), sourceTitle, platformLinks, status: "published", updatedAt: new Date().toISOString() };
 }

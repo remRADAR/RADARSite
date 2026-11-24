@@ -12,7 +12,9 @@
       {
         "name": "Spotify",
         "tone": "spotify",
-        "href": "https://paradoxrecords.ampsuite.com/releases/link-redirect?release_id=400&store_id=6"
+        "href": "https://paradoxrecords.ampsuite.com/releases/link-redirect?release_id=400&store_id=6",
+        "verification": "source",
+        "kind": "presave"
       }
     ],
     "status": "published",
