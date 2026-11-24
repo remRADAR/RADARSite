@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import styles from "./RadarExplore.module.css";
 
@@ -105,7 +106,7 @@ export function RadarExplore() {
             } as React.CSSProperties
           }
         >
-          <img className={styles.image} src="/images/about/radar-explore.png" alt="RADARCharts stadium above a city at dusk, framed by the Statue of Liberty" />
+          <Image className={styles.image} src="/images/about/radar-explore.png" alt="RADARCharts stadium above a city at dusk, framed by the Statue of Liberty" fill sizes="(min-width: 1024px) 60vw, 100vw" priority />
           <div className={styles.imageShade} aria-hidden="true" />
           <div className={styles.scanline} aria-hidden="true" />
 

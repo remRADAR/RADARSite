@@ -7,19 +7,17 @@ import { EDITORIAL_ARCHIVE_PAGE_SIZE, recordsForEditorialType } from "@/lib/edit
 import { getTrackStories } from "@/lib/track-story";
 export const revalidate = 3600;
 
-// These CMS rows are currently present in the runtime feed but resolve to 404.
-// Keep them out of discovery until their source records are repaired or removed.
-export const SITEMAP_EXCLUDED_ARTICLE_SLUGS = new Set([
-  "styling-is-choosing-life-with-aye-lawa-feat-wyza",
-  "teeroy-tyobee-channels-tiv-heritage-and-resilience-on-iember-joy",
-  "young-beejay-and-davetheoracle-unite-on-designer",
-]);
+// These CMS rows were previously present in the runtime feed but resolved to
+// 404, so they were hidden from discovery. All three now return HTTP 200, so
+// the exclusion is stale and they are back in the sitemap. Keep this set for
+// genuinely broken records only.
+export const SITEMAP_EXCLUDED_ARTICLE_SLUGS = new Set<string>([]);
 
 export async function generateSitemap(): Promise<MetadataRoute.Sitemap> {
   const content = await readContent();
   const { articles, artists, events, magazine, radarProjects, releases } = content;
   const tracks = getTrackStories(content);
-  const routes = ["/", "/radarmusic", "/radarmusic/artists", "/radarmusic/releases", "/radarmusic/tracks", "/radarmusic/podcast", "/ontheradar", "/ontheradar/articles", "/ontheradar/magazine", "/ontheradar/projects", "/stayaktiv", "/omajiverse", "/work", "/about", "/remradar", "/about/ecosystem", "/motherland", "/privacy", "/terms"];
+  const routes = ["/", "/radarmusic", "/radarmusic/artists", "/radarmusic/releases", "/radarmusic/tracks", "/radarmusic/podcast", "/playlists", "/ontheradar", "/ontheradar/articles", "/ontheradar/magazine", "/ontheradar/projects", "/stayaktiv", "/omajiverse", "/work", "/about", "/remradar", "/about/ecosystem", "/motherland", "/privacy", "/terms"];
   const date = (item: unknown) => {
     const record = item && typeof item === "object" ? item as Record<string, unknown> : {};
     const raw = record.updatedAt || record.sourceModifiedAt || record.modifiedAt || record.publishedAt;

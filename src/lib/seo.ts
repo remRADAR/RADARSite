@@ -73,6 +73,9 @@ export function buildPageMetadata(input: {
 }
 
 export function websiteStructuredData() {
+  // No `potentialAction`/SearchAction: the site has no search endpoint, and a
+  // sitelinks-search-box target that does not resolve is rejected by Google.
+  // Re-add it only alongside a real, working search URL.
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -80,7 +83,6 @@ export function websiteStructuredData() {
     url: SITE_URL,
     description: SITE_DESCRIPTION,
     publisher: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
-    potentialAction: { "@type": "SearchAction", target: `${SITE_URL}/ontheradar/articles?type={search_term_string}`, "query-input": "required name=search_term_string" },
   };
 }
 
