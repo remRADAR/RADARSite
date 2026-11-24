@@ -9,7 +9,7 @@ export const metadata: Metadata = buildPageMetadata({
 });
 
 // Moon orbit fallback: shared playlist pod. Passes source="editorial" so the
-// pod labels itself as the editorials signal. This will receive the
+// pod labels itself as the editorial playlists signal. This will receive the
 // curated editorial playlist feed first (TEMPORARY shared pod).
 export default function EditorialPlaylistsPage() {
   return <RadarPlaylistsExperience source="editorial" />;
