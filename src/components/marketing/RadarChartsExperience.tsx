@@ -30,7 +30,7 @@ const CHARTS: RadarChart[] = [
     tab: "Top 100 Abuja",
     title: "TOP 100 ABUJA",
     partner: "with grillhype",
-    description: "The city chart. One hundred records counted out of Abujas airwaves, clubs, and streets, ranked together with grillhype. Updated weekly.",
+    description: "The city chart. One hundred records counted out of Abuja, from the airwaves to the clubs and the streets, ranked together with grillhype. Updated weekly.",
     slots: 100,
     cadence: "Updates weekly",
     spotifyUrl: "",
