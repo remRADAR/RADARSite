@@ -17,12 +17,15 @@ export const metadata: Metadata = buildPageMetadata({
 // The homepage is sourced from the live Editorial Pipeline. Do not bake the
 // committed snapshot into the production landing page during a build.
 //
-// It stays request-rendered so a newly published story appears immediately,
-// but the expensive part — reading and normalising the full article collection
-// — is memoised in the shared tagged content cache by getRecentEditorialPosts.
-// That keeps the Worker inside its CPU budget (the previous per-request
-// normalisation caused intermittent 503 / error 1102 responses).
-export const dynamic = "force-dynamic";
+// It is served from the ISR cache with a 60-second revalidate window: a newly
+// published story appears within a minute, and the publish webhook's
+// revalidatePath("/") call makes it appear immediately on publish, while the
+// page is no longer re-rendered on every request. The expensive part — reading
+// and normalising the full article collection — is memoised in the shared
+// tagged content cache by getRecentEditorialPosts. This keeps the Worker
+// inside its CPU budget (the previous per-request normalisation caused
+// intermittent 503 / error 1102 responses).
+export const revalidate = 60;
 
 export default async function LandingPage() {
   // The Editorial Tree: fetches the most recent published posts from the CMS.
