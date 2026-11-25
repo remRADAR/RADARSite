@@ -111,6 +111,12 @@ const nextConfig: NextConfig = {
       // declared last so it wins, and lets the route's own long-lived cache
       // header stand.
       { source: "/api/social-card/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800" }] },
+      // Release-link calendar files are public, unauthenticated, and read only
+      // a committed JSON snapshot (src/lib/release-fallback.ts). The blanket
+      // /api no-store rule above would otherwise force a fresh Worker
+      // invocation for every calendar download; this more specific rule is
+      // declared last so it wins, and lets the route's own cache header stand.
+      { source: "/api/release-links/:path*/calendar", headers: [{ key: "Cache-Control", value: "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400" }] },
     ];
   },
 };
