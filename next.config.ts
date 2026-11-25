@@ -72,11 +72,13 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
-      // The Wiki home page is a static document at public/wiki/index.html.
+      // The Wiki pages are static documents under public/wiki/.
       // Next.js only serves public files at their exact path, so /wiki would
-      // 404 without this rewrite. The page uses absolute asset paths
-      // (/radar-logo.webp) so it renders correctly at both URLs.
+      // 404 without these rewrites. The pages use absolute asset paths
+      // (/radar-logo.webp) and sibling-relative page links, so they render
+      // correctly at both the pretty and the .html form of each URL.
       { source: "/wiki", destination: "/wiki/index.html" },
+      { source: "/wiki/architecture", destination: "/wiki/architecture.html" },
     ];
   },
   async redirects() {

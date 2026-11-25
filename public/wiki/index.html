@@ -618,6 +618,14 @@
     border-bottom: 1px dashed color-mix(in srgb, var(--ink) 35%, transparent);
   }
 
+  /* a page that exists — same shape, but a real link */
+  a.page-ref.page-link { cursor: pointer; text-decoration: none; }
+  a.page-ref.page-link::after { border-bottom-style: solid; border-bottom-width: 2px; border-bottom-color: var(--flare); }
+  a.page-ref.page-link:hover { color: var(--flare); }
+  a.page-ref.page-link:hover::after { border-bottom-color: var(--flare); }
+  tbody tr:hover a.page-ref.page-link { color: var(--paper); }
+  tbody tr:hover a.page-ref.page-link::after { border-bottom-color: var(--paper); }
+
   .table-note {
     margin: 0.7rem 0 0;
     font-family: var(--font-mono);
@@ -1106,7 +1114,7 @@
           <tbody>
             <tr>
               <td>Understand the application and its major components</td>
-              <td><span class="page-ref">Architecture</span></td>
+              <td><a class="page-ref page-link" href="/wiki/architecture.html">Architecture</a></td>
             </tr>
             <tr>
               <td>Set up a local development environment</td>
