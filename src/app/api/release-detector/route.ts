@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     if (body?.action === "profile" && body.profile) {
       const profile = body.profile;
       const artistName = value(profile.artistName, 200); const profileUrl = value(profile.profileUrl, 2000); const monitorUrl = value(profile.monitorUrl, 2000) || profileUrl; const platform = value(profile.platform, 80).toLowerCase();
-      if (!artistName || !profileUrl || !monitorUrl || !platform) return json({ error: "Artist name, platform, profile URL, and monitor URL are required" }, { status: 400 });
+      if (!artistName || !profileUrl || !monitorUrl || !platform) return json({ error: "Artist name, platform, and profile URL are required" }, { status: 400 });
       return json({ profile: await upsertArtistProfile({ id: value(profile.id, 160) || `artist-profile-${Date.now()}`, artistKey: value(profile.artistKey, 160) || artistName, artistName, platform, profileUrl, profileId: value(profile.profileId, 300), monitorUrl, status: "active", lastSeenSignature: "" }) });
     }
     return json({ error: "Use action profile or run" }, { status: 400 });

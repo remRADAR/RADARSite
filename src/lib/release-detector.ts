@@ -11,11 +11,11 @@ function releaseCandidates(html: string, base: URL) {
   return [...urls].slice(0, MAX_CANDIDATES);
 }
 async function readProfile(profile: ArtistProfile) {
-  const monitorUrl = new URL(profile.monitorUrl);
+  const monitorUrl = new URL(profile.profileUrl || profile.monitorUrl);
   const response = await fetch(monitorUrl, { cache: "no-store", redirect: "follow", signal: AbortSignal.timeout(15_000), headers: { accept: "text/html,application/xhtml+xml,application/json", "user-agent": "RADARMusic-ReleaseDetector/1.0" } });
-  if (!response.ok) throw new Error(`${profile.platform} monitor returned HTTP ${response.status}`);
+  if (!response.ok) throw new Error(`${profile.platform} profile returned HTTP ${response.status}`);
   const html = await response.text();
-  if (html.length > MAX_PROFILE_BYTES) throw new Error(`${profile.platform} monitor response exceeded the safety limit`);
+  if (html.length > MAX_PROFILE_BYTES) throw new Error(`${profile.platform} profile response exceeded the safety limit`);
   const signature = `${html.length}:${html.slice(0, 160)}:${html.slice(-160)}`;
   return { html, signature, candidates: releaseCandidates(html, monitorUrl) };
 }
