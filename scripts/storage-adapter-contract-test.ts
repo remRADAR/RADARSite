@@ -67,6 +67,13 @@ function withEnv<T>(env: Record<string, string | undefined>, fn: () => T): T {
   }
 }
 
+/** Returns a copy of `env` with the named keys removed. */
+function without(env: Record<string, string>, ...keys: string[]): Record<string, string> {
+  const copy = { ...env };
+  for (const key of keys) delete copy[key];
+  return copy;
+}
+
 const results: string[] = [];
 function check(name: string, fn: () => void) {
   fn();
@@ -117,7 +124,7 @@ check("storj does not require any R2 variable", () => {
 
 // 5. Region defaults when unset.
 check("storj region defaults to us-east-1", () => {
-  const { STORJ_REGION: _omit, ...withoutRegion } = STORJ_ENV;
+  const withoutRegion = without(STORJ_ENV, "STORJ_REGION");
   withEnv({ ...withoutRegion, STORAGE_PROVIDER: "storj" }, () => {
     assert.equal(storjStorageConfig().region, "us-east-1");
   });
@@ -179,7 +186,7 @@ check("storj adapter exposes the full interface", () => {
 
 // 11. No public base URL means no invented URL.
 check("adapter returns undefined when no public base URL is set", () => {
-  const { STORJ_PUBLIC_BASE_URL: _omit, ...withoutPublic } = STORJ_ENV;
+  const withoutPublic = without(STORJ_ENV, "STORJ_PUBLIC_BASE_URL");
   withEnv({ ...withoutPublic, STORAGE_PROVIDER: "storj" }, () => {
     const adapter = createStorjAdapter(storjStorageConfig());
     assert.equal(adapter.publicUrl("site-assets/x.webp"), undefined);
