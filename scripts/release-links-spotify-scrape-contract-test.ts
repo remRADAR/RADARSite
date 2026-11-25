@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { buildSpotifyAlbumReleaseLink, parseSpotifyAlbumEmbed, parseSpotifyAlbumMetadata, SPOTIFY_ALBUM_URL_PATTERN } from "@/lib/release-links";
+import { buildSpotifyAlbumReleaseLink, matchCrossPlatformReleases, parseSpotifyAlbumEmbed, parseSpotifyAlbumMetadata, SPOTIFY_ALBUM_URL_PATTERN } from "@/lib/release-links";
 
 const pageHtml = `<!doctype html><html><head>
 <title>Listen to Dark Era - Album by Mamuzo | Spotify</title>
@@ -59,7 +59,7 @@ assert.deepEqual(embed.tracks.map((track) => [track.id, track.title, track.artis
 assert.deepEqual(parseSpotifyAlbumEmbed("<html><body>no state</body></html>"), { title: "", artist: "", tracks: [] });
 assert.deepEqual(parseSpotifyAlbumEmbed(`<script id="__NEXT_DATA__" type="application/json">{broken</script>`), { title: "", artist: "", tracks: [] });
 
-const release = buildSpotifyAlbumReleaseLink(sourceUrl, page, embed);
+const release = await buildSpotifyAlbumReleaseLink(sourceUrl, page, embed);
 assert.equal(release.slug, "dark-era");
 assert.equal(release.title, "Dark Era");
 assert.equal(release.artist, "Mamuzo");
@@ -72,9 +72,45 @@ assert.deepEqual([release.platformLinks[0].name, release.platformLinks[0].href, 
 assert.deepEqual([release.platformLinks[1].name, release.platformLinks[1].href], ["1. Shokoto", "https://open.spotify.com/track/1111111111111111111111"]);
 assert.deepEqual([release.platformLinks[2].name, release.platformLinks[2].href], ["2. Dark Era", "https://open.spotify.com/track/2222222222222222222222"]);
 
-const pageOnly = buildSpotifyAlbumReleaseLink(sourceUrl, page, { title: "", artist: "", tracks: [] });
-assert.equal(pageOnly.platformLinks.length, 3);
+const pageOnly = await buildSpotifyAlbumReleaseLink(sourceUrl, page, { title: "", artist: "", tracks: [] });
 assert.equal(pageOnly.platformLinks[1].name, "Spotify track 1");
+
+const cross = matchCrossPlatformReleases(
+  "Erizstar",
+  "Look Up",
+  [{ collectionName: "Look Up - Single", artistName: "Erizstar & AdebowaleFire", collectionViewUrl: "https://music.apple.com/us/album/look-up-single/6838333540?uo=4" }],
+  [
+    { title: "Look Up", artist: { name: "Erizstar" }, link: "https://www.deezer.com/album/1153577241" },
+    { title: "Look Up Child", artist: { name: "Lauren Daigle" }, link: "https://www.deezer.com/album/83580292" },
+  ],
+);
+assert.deepEqual(cross.map((platform) => [platform.name, platform.href, platform.verification, platform.kind]), [
+  ["Apple Music", "https://music.apple.com/us/album/look-up-single/6838333540?uo=4", "metadata", "stream"],
+  ["Deezer", "https://www.deezer.com/album/1153577241", "metadata", "stream"],
+]);
+
+const rejects = matchCrossPlatformReleases(
+  "Erizstar",
+  "Look Up",
+  [
+    { collectionName: "Look Up Child", artistName: "Lauren Daigle", collectionViewUrl: "https://music.apple.com/us/album/1" },
+    { collectionName: "Look Up", artistName: "Somebody Else", collectionViewUrl: "https://music.apple.com/us/album/2" },
+    { collectionName: "Not Even Close", artistName: "Erizstar", collectionViewUrl: "https://evil.example/album/3" },
+  ],
+  [{ title: "Look Up", artist: { name: "Lauren Daigle" }, link: "https://www.deezer.com/album/83580292" }],
+);
+assert.deepEqual(rejects, []);
+
+const editionOnly = matchCrossPlatformReleases(
+  "Mamuzo",
+  "Dark Era",
+  [{ collectionName: "Dark Era - Deluxe Edition", artistName: "Mamuzo", collectionViewUrl: "https://music.apple.com/us/album/dark-era-deluxe/99" }],
+  [],
+);
+assert.deepEqual(editionOnly.map((platform) => platform.name), ["Apple Music"]);
+
+const releaseWithCross = buildSpotifyAlbumReleaseLink(sourceUrl, page, embed, cross);
+assert.deepEqual(releaseWithCross.platformLinks.map((platform) => platform.name), ["Spotify", "Apple Music", "Deezer", "1. Shokoto", "2. Dark Era"]);
 
 assert.throws(() => buildSpotifyAlbumReleaseLink(sourceUrl, { ...page, title: "" }, { title: "", artist: "", tracks: embed.tracks }), /title and artist/);
 assert.throws(() => buildSpotifyAlbumReleaseLink(sourceUrl, { ...page, coverImage: "" }, embed), /cover artwork/);

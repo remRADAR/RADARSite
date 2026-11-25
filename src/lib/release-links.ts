@@ -157,7 +157,7 @@ export function parseSpotifyAlbumEmbed(html: string): { title: string; artist: s
   const tracks = rawTracks.map((track) => ({ id: text(String(track.uri || "").split(":").pop() || "", 40), title: text(String(track.title || "").replace(/\u00a0/g, " ")), artist: text(String(track.subtitle || "").replace(/\u00a0/g, " ")) })).filter((track) => /^[A-Za-z0-9]{22}$/.test(track.id) && track.title);
   return { title: text(typeof entity.name === "string" ? entity.name : "", 300), artist: text(typeof entity.subtitle === "string" ? entity.subtitle : "", 300), tracks };
 }
-export function buildSpotifyAlbumReleaseLink(sourceUrl: URL, page: SpotifyAlbumMetadata, embed: { title: string; artist: string; tracks: SpotifyEmbedTrack[] }): ReleaseLink {
+export function buildSpotifyAlbumReleaseLink(sourceUrl: URL, page: SpotifyAlbumMetadata, embed: { title: string; artist: string; tracks: SpotifyEmbedTrack[] }, crossPlatform: ReleasePlatform[] = []): ReleaseLink {
   const title = embed.title || page.title;
   const artist = page.artist || embed.artist;
   if (!title || !artist) throw new Error("The Spotify album page did not expose the release title and artist.");
@@ -167,20 +167,67 @@ export function buildSpotifyAlbumReleaseLink(sourceUrl: URL, page: SpotifyAlbumM
   const tracks = embed.tracks.length ? embed.tracks : page.trackIds.map((id, index) => ({ id, title: "", artist: `Track ${index + 1}` }));
   const platformLinks: ReleasePlatform[] = [
     { name: "Spotify", tone: "spotify", href: albumUrl, verification: "source", kind: "stream" },
+    ...crossPlatform,
     ...tracks.map((track, index) => ({ name: track.title ? `${index + 1}. ${track.title}` : `Spotify track ${index + 1}`, tone: "spotify", href: `https://open.spotify.com/track/${track.id}`, verification: "source" as const, kind: "stream" as const })),
   ];
   return { id: `source-${slug}`, slug, title, artist, releaseDate: page.releaseDate, coverImage: page.coverImage, sourceUrl: sourceUrl.toString(), sourceTitle: `${artist} \u2014 ${title}`, platformLinks, status: "published", updatedAt: new Date().toISOString() };
+}
+type ItunesAlbumResult = { collectionName?: unknown; artistName?: unknown; collectionViewUrl?: unknown };
+type DeezerAlbumResult = { title?: unknown; artist?: { name?: unknown } | null; link?: unknown };
+const ALBUM_EDITION_SUFFIX = /\s*[-–]\s*(?:single|ep|album|maxi single|deluxe(?: edition)?|remixes)\s*$/i;
+function albumTitleMatches(candidate: string, title: string) {
+  const candidateWords = normalizedWords(candidate.replace(ALBUM_EDITION_SUFFIX, "")).join(" ");
+  const titleWords = normalizedWords(title).join(" ");
+  return candidateWords.length > 0 && titleWords.length > 0 && candidateWords === titleWords;
+}
+function creditedArtistMatches(credited: string, artist: string) {
+  const creditedWords = normalizedWords(credited);
+  const artistWords = normalizedWords(artist);
+  return artistWords.length > 0 && artistWords.every((word) => creditedWords.includes(word));
+}
+export function matchCrossPlatformReleases(artist: string, title: string, appleResults: ItunesAlbumResult[], deezerResults: DeezerAlbumResult[]): ReleasePlatform[] {
+  const found: ReleasePlatform[] = [];
+  const apple = appleResults.find((item) => typeof item.collectionViewUrl === "string" && /^https:\/\/music\.apple\.com\//i.test(item.collectionViewUrl) && albumTitleMatches(text(item.collectionName, 300), title) && creditedArtistMatches(text(item.artistName, 300), artist));
+  if (apple) found.push({ name: "Apple Music", tone: "apple", href: apple.collectionViewUrl as string, verification: "metadata", kind: "stream" });
+  const deezer = deezerResults.find((item) => typeof item.link === "string" && /^https:\/\/(?:www\.)?deezer\.com\//i.test(item.link) && albumTitleMatches(text(item.title, 300), title) && creditedArtistMatches(text(item.artist?.name, 300), artist));
+  if (deezer) found.push({ name: "Deezer", tone: "deezer", href: deezer.link as string, verification: "metadata", kind: "stream" });
+  return found;
+}
+async function fetchItunesAlbumResults(title: string, artist: string): Promise<ItunesAlbumResult[]> {
+  try {
+    const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(`${title} ${artist}`)}&entity=album&limit=10`, { cache: "no-store", signal: AbortSignal.timeout(8_000) });
+    if (!response.ok) return [];
+    const payload = await response.json() as { results?: unknown };
+    return Array.isArray(payload.results) ? payload.results.filter((item): item is ItunesAlbumResult => typeof item === "object" && item !== null) : [];
+  } catch { return []; }
+}
+async function fetchDeezerAlbumResults(title: string, artist: string): Promise<DeezerAlbumResult[]> {
+  try {
+    const response = await fetch(`https://api.deezer.com/search/album?q=${encodeURIComponent(`${title} ${artist}`)}&limit=10`, { cache: "no-store", signal: AbortSignal.timeout(8_000) });
+    if (!response.ok) return [];
+    const payload = await response.json() as { data?: unknown };
+    return Array.isArray(payload.data) ? payload.data.filter((item): item is DeezerAlbumResult => typeof item === "object" && item !== null) : [];
+  } catch { return []; }
 }
 async function fetchSpotifyAlbumHtml(url: string): Promise<string> {
   const response = await fetch(url, { cache: "no-store", redirect: "follow", signal: AbortSignal.timeout(15_000), headers: { accept: "text/html,application/xhtml+xml", "user-agent": "RADARMusic-ReleaseScraper/1.0" } });
   if (!response.ok) throw new Error(`Spotify page ${new URL(url).pathname.slice(0, 60)} returned HTTP ${response.status}.`);
   return (await response.text()).slice(0, 3_000_000);
 }
+async function discoverCrossPlatformLinks(artist: string, title: string): Promise<ReleasePlatform[]> {
+  const [appleResults, deezerResults] = await Promise.all([fetchItunesAlbumResults(title, artist), fetchDeezerAlbumResults(title, artist)]);
+  return matchCrossPlatformReleases(artist, title, appleResults, deezerResults);
+}
 async function scrapeSpotifyAlbum(sourceUrl: URL): Promise<ReleaseLink> {
   const albumId = sourceUrl.toString().match(SPOTIFY_ALBUM_URL_PATTERN)?.[1];
   if (!albumId) throw new Error("Source URL is not a Spotify album link.");
   const [pageHtml, embedHtml] = await Promise.all([fetchSpotifyAlbumHtml(`https://open.spotify.com/album/${albumId}`), fetchSpotifyAlbumHtml(`https://open.spotify.com/embed/album/${albumId}`).catch(() => "")]);
-  return buildSpotifyAlbumReleaseLink(sourceUrl, parseSpotifyAlbumMetadata(pageHtml, albumId), parseSpotifyAlbumEmbed(embedHtml));
+  const page = parseSpotifyAlbumMetadata(pageHtml, albumId);
+  const embed = parseSpotifyAlbumEmbed(embedHtml);
+  const title = embed.title || page.title;
+  const artist = page.artist || embed.artist;
+  const crossPlatform = title && artist ? await discoverCrossPlatformLinks(artist, title) : [];
+  return buildSpotifyAlbumReleaseLink(sourceUrl, page, embed, crossPlatform);
 }
 export async function scrapeReleaseSource(sourceInput: string): Promise<ReleaseLink> {
   const sourceUrl = safeSourceUrl(sourceInput);
