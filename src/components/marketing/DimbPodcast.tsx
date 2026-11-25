@@ -69,6 +69,10 @@ export function DimbPodcast() {
         </div>
       </section>
       <section className={styles.section} aria-labelledby="dimb-listen">
+        <div className={styles.sectionHead}><div><p className={styles.eyebrow}>DuMb / LISTEN</p><h2 id="dimb-listen" className={styles.title}>Listen on Spotify.</h2></div><p className={styles.note}>Official show embed will appear here when the Spotify show URL or ID is provided.</p></div>
+        {spotifyUrl ? <div className={styles.embedFrame}><iframe title="DuMb podcast on Spotify" src={spotifyUrl} loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" /></div> : <div className={styles.embedEmpty} role="status"><strong>Spotify player slot</strong><span>Waiting for the official Spotify show URL or show ID. No player is connected yet.</span></div>}
+      </section>
+      <section className={styles.section} aria-labelledby="dimb-library">
         <div className={styles.sectionHead}><div><p className={styles.eyebrow}>DuMb / TO COME</p><h2 id="dimb-library" className={styles.title}>Built out, waiting<br />on the audio.</h2></div><p className={styles.note}>Three surfaces below are laid out and styled but deliberately empty. Each one names what will fill it.</p></div>
         <div className={styles.grid}><div className={styles.slot}><span className={styles.slotTag}>Slot 01</span><div><p className={styles.slotTitle}>Clipping room</p><p className={styles.slotBody}>Short vertical cuts from each episode, cut and captioned, ready to post.</p></div></div><div className={styles.slot}><span className={styles.slotTag}>Slot 02</span><div><p className={styles.slotTitle}>Guest shelf</p><p className={styles.slotBody}>Each guest&apos;s own records, with the one track they brought into the room.</p></div></div><div className={styles.slot}><span className={styles.slotTag}>Slot 03</span><div><p className={styles.slotTitle}>Listen anywhere</p><p className={styles.slotBody}>Spotify, Apple Podcasts, and the RSS feed, once distribution is set up.</p></div></div></div>
       </section>
