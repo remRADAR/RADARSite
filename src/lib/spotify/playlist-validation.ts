@@ -84,7 +84,7 @@ export function normalizeSpotifyPlaylist(input: unknown, fallbackId?: string): R
   const id = boundedText(value.id, 120) || `spotify-playlist-${reference.id}`;
   const title = boundedText(value.title, MAX_TEXT_LENGTH) || "Untitled RADAR playlist";
   const tracks = Array.isArray(value.tracks) ? value.tracks.map(normalizeSpotifyTrack).filter((track): track is RadarSpotifyTrack => Boolean(track)).slice(0, MAX_TRACKS_PER_PLAYLIST) : [];
-  const status = value.metadataStatus === "stale" || value.metadataStatus === "error" ? value.metadataStatus : "ready";
+  const status = value.metadataStatus === "stale" || value.metadataStatus === "error" || value.metadataStatus === "pending" ? value.metadataStatus : "ready";
   return {
     id,
     spotifyPlaylistId: reference.id,
@@ -99,7 +99,8 @@ export function normalizeSpotifyPlaylist(input: unknown, fallbackId?: string): R
     featured: value.featured === true,
     metadataFetchedAt: typeof value.metadataFetchedAt === "string" && !Number.isNaN(Date.parse(value.metadataFetchedAt)) ? value.metadataFetchedAt : undefined,
     metadataStatus: status,
-    lastError: status === "error" ? boundedText(value.lastError, 300) : undefined,
+    lastError: status === "error" || status === "stale" ? boundedText(value.lastError, 300) : undefined,
+    lastAttemptAt: typeof value.lastAttemptAt === "string" && !Number.isNaN(Date.parse(value.lastAttemptAt)) ? value.lastAttemptAt : undefined,
   };
 }
 

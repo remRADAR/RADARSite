@@ -48,7 +48,10 @@
     "start:vinext": "vite preview",
     "deploy:vinext": "vinext-cloudflare deploy",
     "radar-playlists:contract-test": "tsx scripts/radar-playlists-contract-test.ts",
-    "radar-playlists:store-contract-test": "tsx scripts/radar-playlists-store-contract-test.ts"
+    "radar-playlists:store-contract-test": "tsx scripts/radar-playlists-store-contract-test.ts",
+    "radar-playlists:sync-contract-test": "tsx scripts/radar-playlists-sync-contract-test.ts",
+    "release-links:spotify-scrape-contract-test": "tsx scripts/release-links-spotify-scrape-contract-test.ts",
+    "artwork-palette:contract-test": "tsx scripts/artwork-palette-contract-test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1175.0",

@@ -45,6 +45,8 @@ fails fast with a clear message if either secret is missing.
 | `NOTION_API_KEY`, `RADAR_NOTION_DATA_SOURCE_ID` | Notion integration | Data-source ID must be re-verified by the workspace owner |
 | `RADAR_NOTION_PUBLISHING_ENABLED=false`, `RADAR_NOTION_SYNC_SECRET` | Notion publish webhook | Keep disabled until staging auth/dry-run approved |
 | `RADARSITE_CACHE_MAINTENANCE_TOKEN` | Cache-maintenance worker shared secret | Same value the maintenance worker holds |
+| `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET` | RADARCharts playlist synchronisation (Spotify Web API client credentials) | Server-only; playlists must be publicly accessible |
+| `RADAR_PLAYLIST_SYNC_TOKEN` | Bearer secret accepted by `POST /api/spotify/playlists/sync` | Server-only; the `radarcharts-playlist-sync` cron Worker holds the same value |
 | `RADAR_TRUSTED_PROXY_HOPS` | Proxy-aware rate limiting | `1` per .env.local.example |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `NEXT_PUBLIC_SENTRY_DSN`/`SENTRY_DSN`, `UNSPLASH_ACCESS_KEY`, `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`, `NEXT_PUBLIC_SPLINE_SCENE` | Client-side integrations | These are baked in at BUILD time, so set them wherever the production build runs (GitHub Actions env, or Cloudflare dashboard build settings) — see .env.local.example |
 

@@ -1,12 +1,15 @@
 .page {
   --accent: #b45cff;
   --accent-bright: #c985ff;
+  --release-h: 276;
+  --release-sat: 88%;
   --ink: #f7f2ff;
   position: relative;
   min-height: 100svh;
   overflow: hidden;
   padding: clamp(.7rem, 2vw, 1.25rem);
-  background: #09050f;
+  background: hsl(var(--release-h), 44%, 4.5%);
+  transition: background-color .6s ease;
   color: var(--ink);
   isolation: isolate;
 }
@@ -22,7 +25,7 @@
 .backdrop::after {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 50% 20%, rgba(180, 92, 255, .38), transparent 38%), rgba(0, 0, 0, .25);
+  background: radial-gradient(circle at 50% 20%, hsla(var(--release-h), var(--release-sat), 60%, .4), transparent 38%), rgba(0, 0, 0, .25);
   content: "";
 }
 .frame {
@@ -58,7 +61,7 @@
 .countdown { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: .2rem; padding: .85rem .7rem .55rem; }
 .countdownValue { font: 500 clamp(1.5rem, 6vw, 3.4rem)/.8 var(--font-mono), monospace; letter-spacing: -.1em; text-align: center; }
 .countdownLabels { position: absolute; right: .65rem; bottom: .43rem; left: .65rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: .2rem; color: rgba(247, 242, 255, .5); font: 700 .42rem/1 var(--font-mono), monospace; letter-spacing: .12em; text-align: center; }
-.titleRail { overflow: hidden; padding: .95rem .8rem; background: var(--accent); color: #13051b; font: 800 clamp(.76rem, 2.2vw, 1.16rem)/1 var(--font-grotesk), sans-serif; letter-spacing: .02em; white-space: nowrap; text-transform: uppercase; transform: rotate(-1.15deg) scale(1.015); margin-block: -.15rem; box-shadow: 0 .25rem .9rem rgba(0, 0, 0, .18); }
+.titleRail { overflow: hidden; padding: .95rem .8rem; background: var(--accent); color: #13051b; font: 800 clamp(.76rem, 2.2vw, 1.16rem)/1 var(--font-grotesk), sans-serif; letter-spacing: .02em; white-space: nowrap; text-transform: uppercase; transform: rotate(-1.15deg) scale(1.015); margin-block: -.15rem; box-shadow: 0 .25rem .9rem rgba(0, 0, 0, .18); transition: background-color .6s ease; }
 .tickerViewport { overflow: hidden; width: 100%; }
 .tickerTrack { display: flex; width: max-content; animation: releaseTicker 22s linear infinite; will-change: transform; }
 .tickerGroup { display: inline-flex; align-items: center; gap: clamp(.55rem, 2vw, 1rem); padding-right: clamp(1.8rem, 5vw, 3.5rem); flex: none; }
@@ -72,21 +75,24 @@
 .preSaveRow { border-bottom: 1px solid rgba(247, 242, 255, .25); }
 .preSave { display: inline-flex; padding: .65rem .85rem; background: var(--accent-bright); color: #15031b; font: 900 .78rem/1 var(--font-mono), monospace; letter-spacing: .14em; }
 .calendarLink { color: var(--ink); font: 700 .52rem/1 var(--font-mono), monospace; letter-spacing: .12em; text-decoration: underline; text-underline-offset: .22rem; }
-.platformPanel { margin: 1rem clamp(.8rem, 3vw, 1.5rem) 1.1rem; padding: 1.15rem .9rem .8rem; border: 1px solid rgba(247, 242, 255, .56); background: rgba(64, 24, 83, .32); }
+.platformPanel { margin: 1rem clamp(.8rem, 3vw, 1.5rem) 1.1rem; padding: 1.15rem .9rem .8rem; border: 1px solid rgba(247, 242, 255, .56); background: hsla(var(--release-h), 45%, 20%, .35); }
 .platformHeading { margin: 0 0 .7rem; color: var(--accent-bright); font: 700 .58rem/1 var(--font-mono), monospace; letter-spacing: .2em; text-align: center; text-transform: uppercase; }
 .platformList { display: grid; gap: .15rem; }
 .emptyLinks { margin: .8rem 0 .2rem; color: rgba(247, 242, 255, .62); font: 600 .65rem/1.5 var(--font-mono), monospace; text-align: center; }
 .platformRow { display: flex; align-items: center; justify-content: space-between; gap: .8rem; min-height: 3.35rem; padding: .35rem .35rem .35rem .1rem; border-bottom: 1px solid rgba(247, 242, 255, .16); }
-.platformName { display: inline-flex; align-items: center; gap: .55rem; color: rgba(247, 242, 255, .9); font: 700 clamp(.85rem, 2.5vw, 1.15rem)/1 var(--font-grotesk), sans-serif; }
-.platformMark { display: inline-block; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: currentColor; box-shadow: inset 0 0 0 4px rgba(9, 5, 15, .35); }
-.spotify .platformMark { color: #1ed760; }
-.apple .platformMark { color: #fff; border-radius: .25rem; }
-.boomplay .platformMark { color: #5ed2ff; }
-.audiomack .platformMark { color: #ffae2d; }
-.tidal .platformMark { color: #f7f2ff; border-radius: 0; transform: rotate(45deg) scale(.7); }
-.deezer .platformMark { color: #a56bff; }
-.soundcloud .platformMark { color: #ff6b21; }
-.iheart .platformMark { color: #fa334d; }
+.platformName { display: inline-flex; align-items: center; gap: .55rem; min-width: 0; color: rgba(247, 242, 255, .9); font: 700 clamp(.85rem, 2.5vw, 1.15rem)/1.15 var(--font-grotesk), sans-serif; }
+.platformLabel { min-width: 0; overflow-wrap: anywhere; }
+.platformMark { display: inline-flex; flex: none; width: clamp(1.3rem, 4.5vw, 1.5rem); height: clamp(1.3rem, 4.5vw, 1.5rem); align-items: center; justify-content: center; }
+.platformMark svg { display: block; width: 100%; height: 100%; stroke-linecap: round; stroke-linejoin: round; }
+.row.spotify .platformMark, .platformRow .spotify.platformMark { color: #1ed760; }
+.row.apple .platformMark, .platformRow .apple.platformMark { color: #fff; }
+.row.boomplay .platformMark, .platformRow .boomplay.platformMark { color: #5ed2ff; }
+.row.audiomack .platformMark, .platformRow .audiomack.platformMark { color: #ffae2d; }
+.row.tidal .platformMark, .platformRow .tidal.platformMark { color: #f7f2ff; }
+.row.deezer .platformMark, .platformRow .deezer.platformMark { color: #a56bff; }
+.row.soundcloud .platformMark, .platformRow .soundcloud.platformMark { color: #ff6b21; }
+.row.iheart .platformMark, .platformRow .iheart.platformMark { color: #fa334d; }
+.row.youtube .platformMark, .platformRow .youtube.platformMark { color: #ff4e45; }
 .listen { display: inline-flex; min-width: 4.8rem; align-items: center; justify-content: center; padding: .65rem .85rem; border-radius: 999px; background: #050308; color: var(--accent-bright); font: 700 .62rem/1 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; transition: transform .2s ease, background-color .2s ease, color .2s ease; }
 .listen:hover, .listen:focus-visible { background: var(--accent-bright); color: #13051b; transform: translateY(-2px); }
 .disabled { cursor: not-allowed; opacity: .62; }

@@ -3,7 +3,7 @@ export const MAX_PLAYLISTS = 48;
 export const MAX_TRACKS_PER_PLAYLIST = 100;
 export const MAX_TEXT_LENGTH = 240;
 
-export type PlaylistMetadataStatus = "ready" | "stale" | "error";
+export type PlaylistMetadataStatus = "pending" | "ready" | "stale" | "error";
 export type RadarPlaybackState = "idle" | "loading" | "playing" | "paused" | "error";
 export type RadarRepeatMode = "off" | "one" | "all";
 
@@ -33,6 +33,7 @@ export type RadarSpotifyPlaylist = {
   metadataFetchedAt?: string;
   metadataStatus: PlaylistMetadataStatus;
   lastError?: string;
+  lastAttemptAt?: string;
 };
 
 export type RadarSpotifyPlaylistPublic = Omit<RadarSpotifyPlaylist, "lastError"> & {
