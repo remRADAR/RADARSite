@@ -55,6 +55,9 @@ jobs:
       - name: RADARCharts Spotify sync contract test
         run: npm run radar-playlists:sync-contract-test
 
+      - name: RADARMusic Spotify release-link contract test
+        run: npm run release-links:spotify-scrape-contract-test
+
       - name: Lint
         run: npm run lint
 

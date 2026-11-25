@@ -127,8 +127,64 @@ async function verifyPlatformLink(href: string, platform: string, artist: string
   } catch { return null; }
 }
 
+export const SPOTIFY_ALBUM_URL_PATTERN = /^https:\/\/open\.spotify\.com\/(?:intl-[^/]+\/)?album\/([A-Za-z0-9]{22})(?:[?#]|$)/;
+export type SpotifyAlbumMetadata = { albumId: string; title: string; artist: string; releaseDate: string; coverImage: string; trackIds: string[] };
+export type SpotifyEmbedTrack = { id: string; title: string; artist: string };
+function spotifyMetaContent(html: string, key: string) {
+  const forward = html.match(new RegExp(`<meta[^>]+(?:property|name)=["']${key}["'][^>]+content=["']([^"']+)`, "i"))?.[1];
+  const backward = html.match(new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']${key}["']`, "i"))?.[1];
+  return text(forward ?? backward ?? "", 1000);
+}
+export function parseSpotifyAlbumMetadata(html: string, albumId: string): SpotifyAlbumMetadata {
+  const ogTitle = spotifyMetaContent(html, "og:title").replace(/^Listen to\s+/i, "").replace(/\s*\|\s*Spotify\s*$/i, "").trim();
+  const typed = ogTitle.match(/^(.*?)\s+-\s+(?:Single|EP|Album)\s+by\s+(.+)$/i);
+  const plain = typed ? [] : ogTitle.split(/\s+by\s+/);
+  const title = typed?.[1] || (plain.length > 1 ? plain.slice(0, -1).join(" by ") : ogTitle) || "";
+  const artist = typed?.[2] || (plain.length > 1 ? plain[plain.length - 1] : "") || "";
+  const coverRaw = spotifyMetaContent(html, "og:image");
+  const coverHost = (() => { try { return new URL(coverRaw).hostname; } catch { return ""; } })();
+  const coverImage = /^(?:[^.]+\.)?(?:scdn\.co|spotifycdn\.com)$/i.test(coverHost) ? coverRaw : "";
+  const releaseDate = spotifyMetaContent(html, "music:release_date").match(/^\d{4}-\d{2}-\d{2}$/)?.[0] || "";
+  const trackIds = [...html.matchAll(/<meta[^>]+name=["']music:song["'][^>]+content=["']https:\/\/open\.spotify\.com\/track\/([A-Za-z0-9]{22})["']/gi)].map((match) => match[1]);
+  return { albumId, title, artist, releaseDate, coverImage, trackIds };
+}
+export function parseSpotifyAlbumEmbed(html: string): { title: string; artist: string; tracks: SpotifyEmbedTrack[] } {
+  const json = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/i)?.[1];
+  if (!json) return { title: "", artist: "", tracks: [] };
+  let entity: { name?: unknown; subtitle?: unknown; trackList?: unknown } = {};
+  try { entity = (JSON.parse(json) as { props?: { pageProps?: { state?: { data?: { entity?: unknown } } } } })?.props?.pageProps?.state?.data?.entity as typeof entity || {}; } catch { return { title: "", artist: "", tracks: [] }; }
+  const rawTracks = Array.isArray(entity.trackList) ? entity.trackList as Record<string, unknown>[] : [];
+  const tracks = rawTracks.map((track) => ({ id: text(String(track.uri || "").split(":").pop() || "", 40), title: text(String(track.title || "").replace(/\u00a0/g, " ")), artist: text(String(track.subtitle || "").replace(/\u00a0/g, " ")) })).filter((track) => /^[A-Za-z0-9]{22}$/.test(track.id) && track.title);
+  return { title: text(typeof entity.name === "string" ? entity.name : "", 300), artist: text(typeof entity.subtitle === "string" ? entity.subtitle : "", 300), tracks };
+}
+export function buildSpotifyAlbumReleaseLink(sourceUrl: URL, page: SpotifyAlbumMetadata, embed: { title: string; artist: string; tracks: SpotifyEmbedTrack[] }): ReleaseLink {
+  const title = embed.title || page.title;
+  const artist = page.artist || embed.artist;
+  if (!title || !artist) throw new Error("The Spotify album page did not expose the release title and artist.");
+  if (!page.coverImage) throw new Error("The Spotify album page did not expose cover artwork.");
+  const slug = slugify(title);
+  const albumUrl = `https://open.spotify.com/album/${page.albumId}`;
+  const tracks = embed.tracks.length ? embed.tracks : page.trackIds.map((id, index) => ({ id, title: "", artist: `Track ${index + 1}` }));
+  const platformLinks: ReleasePlatform[] = [
+    { name: "Spotify", tone: "spotify", href: albumUrl, verification: "source", kind: "stream" },
+    ...tracks.map((track, index) => ({ name: track.title ? `${index + 1}. ${track.title}` : `Spotify track ${index + 1}`, tone: "spotify", href: `https://open.spotify.com/track/${track.id}`, verification: "source" as const, kind: "stream" as const })),
+  ];
+  return { id: `source-${slug}`, slug, title, artist, releaseDate: page.releaseDate, coverImage: page.coverImage, sourceUrl: sourceUrl.toString(), sourceTitle: `${artist} \u2014 ${title}`, platformLinks, status: "published", updatedAt: new Date().toISOString() };
+}
+async function fetchSpotifyAlbumHtml(url: string): Promise<string> {
+  const response = await fetch(url, { cache: "no-store", redirect: "follow", signal: AbortSignal.timeout(15_000), headers: { accept: "text/html,application/xhtml+xml", "user-agent": "RADARMusic-ReleaseScraper/1.0" } });
+  if (!response.ok) throw new Error(`Spotify page ${new URL(url).pathname.slice(0, 60)} returned HTTP ${response.status}.`);
+  return (await response.text()).slice(0, 3_000_000);
+}
+async function scrapeSpotifyAlbum(sourceUrl: URL): Promise<ReleaseLink> {
+  const albumId = sourceUrl.toString().match(SPOTIFY_ALBUM_URL_PATTERN)?.[1];
+  if (!albumId) throw new Error("Source URL is not a Spotify album link.");
+  const [pageHtml, embedHtml] = await Promise.all([fetchSpotifyAlbumHtml(`https://open.spotify.com/album/${albumId}`), fetchSpotifyAlbumHtml(`https://open.spotify.com/embed/album/${albumId}`).catch(() => "")]);
+  return buildSpotifyAlbumReleaseLink(sourceUrl, parseSpotifyAlbumMetadata(pageHtml, albumId), parseSpotifyAlbumEmbed(embedHtml));
+}
 export async function scrapeReleaseSource(sourceInput: string): Promise<ReleaseLink> {
   const sourceUrl = safeSourceUrl(sourceInput);
+  if (SPOTIFY_ALBUM_URL_PATTERN.test(sourceUrl.toString())) return scrapeSpotifyAlbum(sourceUrl);
   const response = await fetch(sourceUrl, { cache: "no-store", redirect: "follow", signal: AbortSignal.timeout(15_000), headers: { accept: "text/html,application/xhtml+xml" } });
   if (!response.ok) throw new Error(`Source page returned HTTP ${response.status}.`);
   const html = await response.text();
