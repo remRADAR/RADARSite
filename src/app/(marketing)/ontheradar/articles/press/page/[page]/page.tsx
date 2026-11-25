@@ -7,10 +7,7 @@ import { paginateRecords, parseArchivePage, recordsForEditorialType } from "@/li
 import { buildPageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
-// The archive is CMS-backed and must reflect newly published Notion/CMS
-// records without requiring a site rebuild. readPublishedContent retains the
-// shared content cache and the publish webhook invalidates that cache.
-export const dynamic = "force-dynamic";
+// The CMS-backed archive uses hourly ISR; the publish webhook invalidates the shared content cache.
 export const dynamicParams = true;
 
 export async function generateMetadata({ params }: { params: Promise<{ page: string }> }) {
