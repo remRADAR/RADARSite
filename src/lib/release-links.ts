@@ -221,7 +221,11 @@ export function candidatePlatformHrefs(html: string, sourceUrl: string, platform
     .map((match) => absoluteUrl(match[1], new URL(sourceUrl)))
     .filter((href) => { try { return hostPattern.test(new URL(href).hostname); } catch { return false; } })
     .filter((href, index, all) => all.indexOf(href) === index)
-    .slice(0, 3);
+    // Cap the number of candidate hrefs verified per platform. The previous cap of
+    // 3 truncated the verified set to 3 links even when a release had 4+ real
+    // platform links (E2E item 1.2). 8 keeps the verification work bounded while
+    // allowing the full set of genuine links through.
+    .slice(0, 8);
 }
 const SEARCH_PAGE_PROBES = [
   { platform: "Audiomack", searchUrl: (query: string) => `https://audiomack.com/search?q=${encodeURIComponent(query)}` },

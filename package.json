@@ -23,6 +23,7 @@
     "notion:media-webp-contract-test": "tsx scripts/notion-media-webp-contract-test.ts",
     "notion:media-stage": "tsx scripts/stage-notion-media.ts",
     "postgres:adapter-contract-test": "tsx scripts/postgres-adapter-contract-test.ts",
+    "neon:connection-path-contract-test": "tsx scripts/neon-connection-path-contract-test.ts",
     "storage:adapter-contract-test": "tsx scripts/storage-adapter-contract-test.ts",
     "test:e2e": "playwright test",
     "magazine:layout-contract-test": "tsx scripts/magazine-layout-contract-test.ts",
