@@ -52,6 +52,9 @@ jobs:
       - name: Editorial sanitizer idempotency contract test
         run: npm run test:editorial-sanitizer
 
+      - name: RADARCharts Spotify sync contract test
+        run: npm run radar-playlists:sync-contract-test
+
       - name: Lint
         run: npm run lint
 

@@ -10,6 +10,7 @@ import {
   readRadarPlaylistStore,
   writeRadarPlaylistStoreState,
 } from "@/lib/spotify/playlist-store";
+import { bootstrapRadarPlaylistConfig } from "@/lib/spotify/playlist-sync";
 
 const NO_STORE = { "Cache-Control": "no-store" };
 
@@ -17,13 +18,13 @@ export async function GET(request: NextRequest) {
   const adminRead = new URL(request.url).searchParams.get("admin") === "1";
   if (adminRead && !isSessionValid(request.cookies.get(getSessionCookieName())?.value)) return NextResponse.json({ error: "Admin authentication required" }, { status: 401, headers: NO_STORE });
   if (!radarPlaylistStoreConfigured()) {
-    const config = emptyRadarPlaylistConfig();
+    const config = adminRead ? emptyRadarPlaylistConfig() : bootstrapRadarPlaylistConfig();
     return NextResponse.json({ config: adminRead ? config : toPublicRadarPlaylistConfig(config), ...(adminRead ? { etag: null } : {}) }, { headers: NO_STORE });
   }
   try {
     const snapshot = await readRadarPlaylistStore();
-    const config = snapshot?.state.config || emptyRadarPlaylistConfig();
-    return NextResponse.json({ config: adminRead ? config : toPublicRadarPlaylistConfig(config), updatedAt: snapshot?.state.updatedAt || new Date(0).toISOString(), ...(adminRead ? { etag: snapshot?.etag || null } : {}) }, { headers: NO_STORE });
+    const config = snapshot?.state.config && snapshot.state.config.playlists.length > 0 ? snapshot.state.config : adminRead ? emptyRadarPlaylistConfig() : bootstrapRadarPlaylistConfig();
+    return NextResponse.json({ config: adminRead ? config : toPublicRadarPlaylistConfig(config), updatedAt: config.updatedAt, ...(adminRead ? { etag: snapshot?.etag || null } : {}) }, { headers: NO_STORE });
   } catch {
     return NextResponse.json({ error: "RADARPlaylists are temporarily unavailable." }, { status: 503, headers: NO_STORE });
   }

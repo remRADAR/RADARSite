@@ -18,6 +18,7 @@ See `.env.local.example` for the full list. Key groups:
 
 - **Database** — Neon/Postgres connection settings
 - **Media (R2)** — Cloudflare R2 bucket credentials and `R2_PUBLIC_BASE_URL`
+- **Spotify (RADARCharts)** — `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET` for the official playlist synchronisation, and `RADAR_PLAYLIST_SYNC_TOKEN` for the cron Worker (`cloudflare/spotify-playlist-sync-worker`); all server-only
 - **Monitoring** — Sentry DSNs (client/server/edge)
 - **Analytics** — Google Analytics / Tag Manager IDs
 

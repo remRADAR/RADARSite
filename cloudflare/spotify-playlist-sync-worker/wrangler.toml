@@ -1,0 +1,13 @@
+name = "radarcharts-playlist-sync"
+main = "src/index.ts"
+compatibility_date = "2026-09-24"
+previews = {}
+
+[triggers]
+# Twice daily; syncs are idempotent, last-known-good data is preserved on failure.
+crons = ["30 7 * * *", "30 19 * * *"]
+
+[vars]
+RADAR_PLAYLIST_SYNC_URL = "https://radarcharts.net/api/spotify/playlists/sync"
+# Set the secret before deployment:
+# wrangler secret put RADAR_PLAYLIST_SYNC_TOKEN

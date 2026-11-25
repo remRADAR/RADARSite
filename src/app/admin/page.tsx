@@ -4,9 +4,10 @@ import { AdminSplitStudio } from "@/components/admin/AdminSplitStudio";
 import { MigrationControlPanel } from "@/components/admin/MigrationControlPanel";
 import { TrackStoryStudio } from "@/components/admin/TrackStoryStudio";
 import { ReleaseLinksStudio } from "@/components/admin/ReleaseLinksStudio";
+import { ChartsManagementStudio } from "@/components/admin/ChartsManagementStudio";
 
 export const metadata = { title: "RADAR Studio CMS", robots: { index: false, follow: false, noarchive: true, nosnippet: true } };
 
 export default function AdminPage() {
-  return <AdminAuthGate><ReleaseLinksStudio /><CmsStudioPanel /><TrackStoryStudio /><details className="border-t border-neutral-800 bg-neutral-950 text-neutral-100"><summary className="cursor-pointer px-5 py-5 font-mono text-xs uppercase tracking-widest text-neutral-400 sm:px-8">Open site composition controls</summary><AdminSplitStudio /></details><MigrationControlPanel /></AdminAuthGate>;
+  return <AdminAuthGate><ChartsManagementStudio /><ReleaseLinksStudio /><CmsStudioPanel /><TrackStoryStudio /><details className="border-t border-neutral-800 bg-neutral-950 text-neutral-100"><summary className="cursor-pointer px-5 py-5 font-mono text-xs uppercase tracking-widest text-neutral-400 sm:px-8">Open site composition controls</summary><AdminSplitStudio /></details><MigrationControlPanel /></AdminAuthGate>;
 }
