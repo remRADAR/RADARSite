@@ -1,0 +1,171 @@
+/* RADAR Charts: header hero that switches between charts, and the pod player. */
+
+.page {
+  --page-ink: var(--ink, #050505);
+  --page-paper: var(--paper, #f7f7f2);
+  --page-flare: var(--flare, #b7ff00);
+  background-color: var(--page-paper);
+  background-image: linear-gradient(
+    color-mix(in srgb, var(--page-paper) 94%, transparent),
+    color-mix(in srgb, var(--page-paper) 97%, transparent)
+  ), url("/images/radarmusic/playlists/curated-1.webp");
+  background-position: center top;
+  background-size: cover;
+  background-attachment: fixed;
+  color: var(--page-ink);
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  overflow-x: clip;
+  padding: clamp(1rem, 2.8vw, 2.25rem);
+}
+
+.topline,
+.bottomline {
+  align-items: center;
+  border-bottom: 1px solid color-mix(in srgb, var(--page-ink) 30%, transparent);
+  display: flex;
+  font: 700 .62rem/1 var(--font-mono), monospace;
+  gap: 1rem;
+  justify-content: space-between;
+  letter-spacing: .12em;
+  min-height: 2.5rem;
+  text-transform: uppercase;
+}
+
+.topline a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .25rem; }
+
+.bottomline {
+  border-bottom: 0;
+  border-top: 1px solid color-mix(in srgb, var(--page-ink) 30%, transparent);
+  margin-top: clamp(2.5rem, 7vw, 6rem);
+}
+
+.hero {
+  margin: 0 auto;
+  max-width: 1180px;
+  padding: clamp(3rem, 7vw, 6rem) 0 clamp(2rem, 4vw, 3rem);
+  width: 100%;
+}
+
+.eyebrow {
+  font: 700 .62rem/1.2 var(--font-mono), monospace;
+  letter-spacing: .14em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.heading {
+  font-family: var(--font-display, var(--font-sans), sans-serif);
+  font-size: clamp(2.75rem, 9vw, 7.5rem);
+  letter-spacing: -.06em;
+  line-height: .88;
+  margin: 1rem 0 0;
+  text-transform: uppercase;
+}
+
+.heroNote {
+  font: 500 clamp(1rem, 1.6vw, 1.25rem)/1.45 var(--font-sans), sans-serif;
+  margin: 1.25rem 0 0;
+  max-width: 38rem;
+}
+
+/* ---------- the chart billboard (spotlighted chart in the hero) ---------- */
+
+.billboard {
+  border-top: 1px solid color-mix(in srgb, var(--page-ink) 30%, transparent);
+  display: grid;
+  gap: 1.1rem;
+  margin-top: clamp(1.5rem, 3vw, 2.5rem);
+  padding-top: clamp(1.25rem, 2.5vw, 2rem);
+}
+
+.chartHead { display: grid; gap: .6rem; }
+
+.chartIndex {
+  font: 700 .62rem/1 var(--font-mono), monospace;
+  letter-spacing: .2em;
+}
+
+.chartIndex b { color: var(--page-flare); }
+
+.chartTitle {
+  font-family: var(--font-display, var(--font-sans), sans-serif);
+  font-size: clamp(1.9rem, 5.5vw, 4.5rem);
+  letter-spacing: -.05em;
+  line-height: .92;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.partner {
+  color: var(--page-flare);
+  font: 700 .68rem/1 var(--font-mono), monospace;
+  letter-spacing: .18em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.chartDesc {
+  font: 500 clamp(1rem, 1.6vw, 1.2rem)/1.55 var(--font-sans), sans-serif;
+  margin: 0;
+  max-width: 44rem;
+}
+
+.chartMeta {
+  color: color-mix(in srgb, var(--page-ink) 65%, transparent);
+  display: flex;
+  flex-wrap: wrap;
+  font: 700 .62rem/1 var(--font-mono), monospace;
+  gap: .5rem 1.5rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+/* ---------- the chart switcher (appears once a second chart joins) ---------- */
+
+.switcher {
+  border-block: 1px solid color-mix(in srgb, var(--page-ink) 30%, transparent);
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.tab,
+.tabActive {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-right: 1px solid color-mix(in srgb, var(--page-ink) 30%, transparent);
+  color: inherit;
+  cursor: pointer;
+  flex: 1 1 auto;
+  font: 700 .72rem/1 var(--font-mono), monospace;
+  letter-spacing: .12em;
+  min-height: 3.25rem;
+  padding: 0 1.25rem;
+  text-align: left;
+  text-transform: uppercase;
+  transition: background-color .2s ease, color .2s ease;
+}
+
+.tab:hover { background: color-mix(in srgb, var(--page-ink) 6%, transparent); }
+
+.tabActive { background: var(--page-ink); color: var(--page-paper); }
+
+.tab:focus-visible,
+.tabActive:focus-visible { outline: 2px solid var(--page-flare); outline-offset: -4px; }
+
+/* ---------- the pod ---------- */
+
+.podSection { margin: 0 auto; max-width: 1180px; width: 100%; }
+
+@media (max-width: 560px) {
+  .tab,
+  .tabActive { border-bottom: 1px solid color-mix(in srgb, var(--page-ink) 30%, transparent); border-right: 0; flex-basis: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab,
+  .tabActive { transition: none; }
+}

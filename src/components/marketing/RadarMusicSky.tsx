@@ -6,10 +6,11 @@ import styles from "./RadarMusicSky.module.css";
 // signal sits in the sky and opens its destination. Nothing is populated
 // below the moon any more; the old footer strip is gone.
 const SIGNALS: MoonSignal[] = [
-  { label: "Podcast Charts", href: "/radarmusic/podcast", x: 16, y: 12 },
-  { label: "Editorials", href: "/radarmusic/artists", x: 84, y: 12 },
-  { label: "Curated", href: "/radarmusic/releases", x: 16, y: 84 },
-  { label: "Legacies", href: "/radarmusic/legacies", x: 84, y: 84 },
+  { label: "Charts", href: "/radarmusic/charts", x: 16, y: 12 },
+  { label: "Podcast", href: "/radarmusic/podcast", x: 84, y: 12 },
+  { label: "Editorials", href: "/radarmusic/artists", x: 12, y: 48 },
+  { label: "Curated", href: "/radarmusic/releases", x: 88, y: 48 },
+  { label: "Legacies", href: "/radarmusic/legacies", x: 50, y: 90 },
 ];
 
 export function RadarMusicSky() {
@@ -17,7 +18,7 @@ export function RadarMusicSky() {
     <div className={styles.page}>
       <div className={styles.header}>
         <p className={styles.kicker}>(01 / RADARMusic)</p>
-        <p className={styles.intro}>Editorial playlists, releases, and the podcast.</p>
+        <p className={styles.intro}>The charts, editorial playlists, releases, and the podcast.</p>
       </div>
       <MoonLanding signals={SIGNALS} />
     </div>
