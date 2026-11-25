@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { IaDetail } from "@/components/marketing/IaPages";
-import { readPublishedContent } from "@/lib/content-server";
-import { findBySlug } from "@/lib/ia-content";
+import { readPublishedArticleBySlug, readPublishedContent } from "@/lib/content-server";
 import { articlePath, normalizeEditorialRecord } from "@/lib/editorial-normalization";
 import { buildArticleJsonLd, serializeJsonLd } from "@/lib/article-schema";
 import { buildPageMetadata } from "@/lib/seo";
@@ -23,8 +22,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ article: string }> }): Promise<Metadata> {
   const { article } = await params;
-  const { articles } = await readPublishedContent();
-  const item = findBySlug(articles, article);
+  const item = await readPublishedArticleBySlug(article);
   if (!item) return { title: "Article" };
 
   const record = normalizeEditorialRecord(item);
@@ -36,13 +34,15 @@ export async function generateMetadata({ params }: { params: Promise<{ article: 
 }
 export default async function ArticleDetail({ params }: { params: Promise<{ article: string }> }) {
   const { article } = await params;
-  const { articles, magazine } = await readPublishedContent();
-  const item = findBySlug(articles, article);
+  const item = await readPublishedArticleBySlug(article);
   if (!item) notFound();
   const record = normalizeEditorialRecord(item);
   const schema = buildArticleJsonLd(record);
   const excerpt = buildArticleSourceExcerpt(record);
   const isMagazine = deriveEditorialTaxonomy(item).editorialType === "Magazine";
+  const { articles, magazine } = isMagazine
+    ? await readPublishedContent()
+    : { articles: [], magazine: [] };
   const relatedItems = isMagazine
     ? [...magazine, ...articles.filter((candidate) => deriveEditorialTaxonomy(candidate).editorialType === "Magazine")]
         .filter((candidate) => candidate.slug !== article)
