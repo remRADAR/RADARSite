@@ -17,7 +17,7 @@ export async function generateSitemap(): Promise<MetadataRoute.Sitemap> {
   const content = await readContent();
   const { articles, artists, events, magazine, radarProjects, releases } = content;
   const tracks = getTrackStories(content);
-  const routes = ["/", "/radarmusic", "/releases", "/radarmusic/artists", "/radarmusic/releases", "/radarmusic/tracks", "/radarmusic/podcast", "/playlists", "/ontheradar", "/ontheradar/articles", "/ontheradar/magazine", "/ontheradar/projects", "/stayaktiv", "/omajiverse", "/work", "/about", "/remradar", "/about/ecosystem", "/motherland", "/privacy", "/terms"];
+  const routes = ["/", "/radarmusic", "/releases", "/radarmusic/artists", "/radarmusic/releases", "/radarmusic/tracks", "/radarmusic/podcast", "/radarmusic/legacies", "/playlists", "/ontheradar", "/ontheradar/articles", "/ontheradar/magazine", "/ontheradar/projects", "/stayaktiv", "/omajiverse", "/work", "/about", "/remradar", "/about/ecosystem", "/motherland", "/privacy", "/terms"];
   const date = (item: unknown) => {
     const record = item && typeof item === "object" ? item as Record<string, unknown> : {};
     const raw = record.updatedAt || record.sourceModifiedAt || record.modifiedAt || record.publishedAt;

@@ -18,7 +18,7 @@ const podPlaylist: RadarIpodPlaylist = {
 // curated editorial playlists and the RADARMusic catalog are integrated into
 // the pod. The "source" prop already identifies which signal was tapped; once
 // per-source content lands, switch on it here (playlists, releases, podcast).
-export type PodSource = "editorial" | "releases" | "podcast";
+export type PodSource = "editorial" | "releases" | "podcast" | "legacies";
 
 const POD_COPY: Record<PodSource, { topline: string; eyebrow: string; title: string; intro: string }> = {
   editorial: {
@@ -38,6 +38,12 @@ const POD_COPY: Record<PodSource, { topline: string; eyebrow: string; title: str
     eyebrow: "RADARMUSIC / PODCAST",
     title: "The signal, on air.",
     intro: "Conversations and track stories from the RADARMusic world, streamed through the shared playlist pod while the podcast view is built.",
+  },
+  legacies: {
+    topline: "RADAR / LEGACIES",
+    eyebrow: "RADARMUSIC / LEGACIES",
+    title: "The legacies, on the shelf.",
+    intro: "Foundational records and the people who set the RADAR signal in motion, kept on air through the shared playlist pod while the dedicated legacies view is built.",
   },
 };
 
