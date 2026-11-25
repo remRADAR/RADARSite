@@ -104,7 +104,6 @@ export function DimbBabyOpener() {
       </div>
 
       {phase === "vibe" ? <p className={styles.scrollCue}>Scroll ↓</p> : null}
-      <div aria-hidden="true" className={styles.rule} />
     </section>
   );
 }

@@ -78,24 +78,6 @@
   }
 }
 
-/* A hairline rule under the opener, tying it to the site's hard rules. */
-.rule {
-  position: absolute;
-  left: 1rem;
-  right: 1rem;
-  bottom: 0;
-  z-index: 3;
-  height: 2px;
-  background: var(--ink, #050505);
-}
-
-@media (min-width: 768px) {
-  .rule {
-    left: 2rem;
-    right: 2rem;
-  }
-}
-
 /* ---------- the figure ---------- */
 
 .stage {
@@ -353,9 +335,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .intro::before {
-    background-image: url("/media/podcast/banner-static.png");
-  }
   /* Show the settled end-state immediately: no entrance, no bob. */
   .stage,
   .stageVibe {

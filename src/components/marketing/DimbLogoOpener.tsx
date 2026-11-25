@@ -26,8 +26,6 @@ export function DimbLogoOpener() {
       <div className={styles.inner}>
         <Image className={styles.suppliedLogo} src="/media/podcast/logo.gif" alt="DuMb — Deep in my bones" width={796} height={796} unoptimized />
 
-        <div aria-hidden="true" className={styles.rule} />
-        <p className={styles.strap}>Deep in my bones</p>
       </div>
     </section>
   );
