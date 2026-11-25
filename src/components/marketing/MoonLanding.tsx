@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import styles from "./MoonLanding.module.css";
 
@@ -32,7 +33,11 @@ function seededStars(count: number, seed: number): Star[] {
 const FAR_STARS = seededStars(96, 20261124);
 const NEAR_STARS = seededStars(46, 68301);
 
-export function MoonLanding() {
+// Category buttons that live on the stars: each signal is a clickable star
+// hotspot the visitor taps to enter that part of RADARMusic.
+export type MoonSignal = { label: string; href: string; x: number; y: number };
+
+export function MoonLanding({ signals = [] as MoonSignal[] }: { signals?: MoonSignal[] } = {}) {
   const [landingMoonFailed, setLandingMoonFailed] = useState(false);
 
   return (
@@ -77,6 +82,23 @@ export function MoonLanding() {
         <div className={styles.dayGlow} />
         <div className={styles.dayClouds} />
       </div>
+
+      {signals.length > 0 ? (
+        <nav aria-label="RADARMusic signals" className={styles.signals}>
+          {signals.map((signal) => (
+            <Link
+              key={signal.label}
+              href={signal.href}
+              className={styles.signal}
+              style={{ left: signal.x + "%", top: signal.y + "%" }}
+              aria-label={`Open ${signal.label}`}
+            >
+              <span aria-hidden="true" className={styles.signalDot} />
+              <span aria-hidden="true" className={styles.signalLabel}>{signal.label}</span>
+            </Link>
+          ))}
+        </nav>
+      ) : null}
 
       <div className={styles.stage}>
         <div aria-hidden="true" className={styles.atmosphere} />

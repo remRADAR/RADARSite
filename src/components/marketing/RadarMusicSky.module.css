@@ -42,26 +42,3 @@
 
 :global(html.theme-light) .kicker,
 :global(html.theme-light) .intro { color: rgb(5 5 5 / 0.6); }
-
-.quickLinks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 2rem;
-  border-top: 2px solid #f7f7f2;
-  padding: 1.5rem 1rem;
-  font-family: var(--font-mono, monospace);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  transition: border-color 0.6s ease;
-}
-
-@media (min-width: 768px) {
-  .quickLinks { padding: 1.5rem 2rem; }
-}
-
-:global(html.theme-light) .quickLinks { border-top-color: #050505; }
-
-.quickLink { transition: color 0.2s ease; }
-.quickLink:hover { color: var(--color-flare, #ff4d2e); }

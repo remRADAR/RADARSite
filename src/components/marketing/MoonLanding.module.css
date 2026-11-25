@@ -278,3 +278,77 @@
   .atmosphere,
   .halo { transition: none; }
 }
+
+/* ---------- signals: the category buttons that live on the stars ---------- */
+
+.signals {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.signal {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  padding: 0.4rem 0.2rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-decoration: none;
+  color: rgb(247 247 242 / 0.78);
+  transition: color 0.25s ease;
+}
+
+.signalDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 9999px;
+  background: #fffdf6;
+  box-shadow: 0 0 6px rgb(255 246 224 / 0.9), 0 0 14px rgb(255 214 165 / 0.5);
+  animation: signal-twinkle 4.2s ease-in-out infinite;
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.signalLabel { text-shadow: 0 0 12px rgb(5 5 5 / 0.85); }
+
+.signal:hover,
+.signal:focus-visible { color: #f7f7f2; }
+
+.signal:hover .signalDot,
+.signal:focus-visible .signalDot {
+  background: var(--flare, #ff4d2e);
+  box-shadow: 0 0 8px rgb(255 77 46 / 0.95), 0 0 20px rgb(255 77 46 / 0.6);
+  animation-play-state: paused;
+}
+
+.signal:focus-visible {
+  outline: 2px solid var(--flare, #ff4d2e);
+  outline-offset: 4px;
+}
+
+/* Stagger the twinkle so the signals sit in the sky like the stars around them. */
+.signal:nth-child(2) .signalDot { animation-delay: 1.1s; }
+.signal:nth-child(3) .signalDot { animation-delay: 2.3s; }
+.signal:nth-child(4) .signalDot { animation-delay: 3.2s; }
+
+:global(html.theme-light) .signal { color: rgb(5 5 5 / 0.78); }
+:global(html.theme-light) .signal:hover,
+:global(html.theme-light) .signal:focus-visible { color: #050505; }
+:global(html.theme-light) .signalLabel { text-shadow: none; }
+
+@media (max-width: 480px) {
+  .signal { font-size: 8px; letter-spacing: 0.16em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signalDot { animation: none; opacity: 1; }
+  .signal { transition: none; }
+}
