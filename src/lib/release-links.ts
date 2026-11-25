@@ -214,9 +214,50 @@ async function fetchSpotifyAlbumHtml(url: string): Promise<string> {
   if (!response.ok) throw new Error(`Spotify page ${new URL(url).pathname.slice(0, 60)} returned HTTP ${response.status}.`);
   return (await response.text()).slice(0, 3_000_000);
 }
+export function candidatePlatformHrefs(html: string, sourceUrl: string, platform: string): string[] {
+  const hostPattern = PLATFORM_HOSTS[platform];
+  if (!hostPattern) return [];
+  return [...html.matchAll(/<a[^>]+href=["']([^"']+)/gi)]
+    .map((match) => absoluteUrl(match[1], new URL(sourceUrl)))
+    .filter((href) => { try { return hostPattern.test(new URL(href).hostname); } catch { return false; } })
+    .filter((href, index, all) => all.indexOf(href) === index)
+    .slice(0, 3);
+}
+const SEARCH_PAGE_PROBES = [
+  { platform: "Audiomack", searchUrl: (query: string) => `https://audiomack.com/search?q=${encodeURIComponent(query)}` },
+  { platform: "SoundCloud", searchUrl: (query: string) => `https://soundcloud.com/search?q=${encodeURIComponent(query)}` },
+  { platform: "Boomplay", searchUrl: (query: string) => `https://www.boomplay.com/search/album?keyword=${encodeURIComponent(query)}` },
+  { platform: "Tidal", searchUrl: (query: string) => `https://tidal.com/search?q=${encodeURIComponent(query)}` },
+];
+async function probeSearchPlatform(platform: string, searchUrl: string, artist: string, title: string): Promise<ReleasePlatform | null> {
+  try {
+    const response = await fetch(searchUrl, { cache: "no-store", redirect: "follow", signal: AbortSignal.timeout(9_000), headers: { accept: "text/html,application/xhtml+xml", "user-agent": "Mozilla/5.0 (compatible; RADARMusic-LinkVerifier/1.0)" } });
+    if (!response.ok) return null;
+    const html = (await response.text()).slice(0, 1_000_000);
+    const words = new Set(normalizedWords(html.slice(0, 200_000)));
+    if (!normalizedWords(artist).every((word) => words.has(word)) || !normalizedWords(title).every((word) => words.has(word))) return null;
+    for (const candidate of candidatePlatformHrefs(html, searchUrl, platform)) {
+      const verified = await verifyPlatformLink(candidate, platform, artist, title);
+      if (verified) return verified;
+    }
+    return null;
+  } catch { return null; }
+}
+async function discoverSearchedPlatformLinks(artist: string, title: string): Promise<ReleasePlatform[]> {
+  const query = `${title} ${artist}`;
+  const results = await Promise.all(SEARCH_PAGE_PROBES.map(async (probe) => {
+    const verified = await probeSearchPlatform(probe.platform, probe.searchUrl(query), artist, title);
+    return verified;
+  }));
+  return results.filter((platform): platform is ReleasePlatform => Boolean(platform));
+}
 async function discoverCrossPlatformLinks(artist: string, title: string): Promise<ReleasePlatform[]> {
-  const [appleResults, deezerResults] = await Promise.all([fetchItunesAlbumResults(title, artist), fetchDeezerAlbumResults(title, artist)]);
-  return matchCrossPlatformReleases(artist, title, appleResults, deezerResults);
+  const [appleResults, deezerResults, searched] = await Promise.all([fetchItunesAlbumResults(title, artist), fetchDeezerAlbumResults(title, artist), discoverSearchedPlatformLinks(artist, title)]);
+  const direct = matchCrossPlatformReleases(artist, title, appleResults, deezerResults);
+  const directNames = new Set(direct.map((platform) => platform.name));
+  const order = new Map<string, number>(PLATFORM_DEFINITIONS.map(([name], index) => [name, index] as [string, number]));
+  return [...direct, ...searched.filter((platform) => !directNames.has(platform.name))]
+    .sort((a, b) => (order.get(a.name) ?? 99) - (order.get(b.name) ?? 99));
 }
 async function scrapeSpotifyAlbum(sourceUrl: URL): Promise<ReleaseLink> {
   const albumId = sourceUrl.toString().match(SPOTIFY_ALBUM_URL_PATTERN)?.[1];

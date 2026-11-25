@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { RadarSpotifyPlaylistPublic } from "@/types/radar-playlists";
 import { RADAR_DEFAULT_ATMOSPHERES } from "@/lib/spotify/playlist-defaults";
+import { extractArtworkPalette } from "@/lib/artwork-palette";
 import styles from "./RadarChartsExperience.module.css";
 
 const spotifyProfileUrl = "https://open.spotify.com/user/fjh0nofc014ci0frc7nxzts9f";
@@ -15,8 +16,6 @@ type ChartsState = {
 
 type Palette = { atmo: string; accent: string; resolved: boolean };
 
-const paletteCache = new Map<string, Palette>();
-
 // Derived from the playlist ID so the frame still carries an intentional
 // atmosphere before artwork (and therefore a real palette) is available.
 function fallbackPalette(playlistId: string): Palette {
@@ -27,69 +26,20 @@ function fallbackPalette(playlistId: string): Palette {
   return { atmo: `hsl(${hash} 55% 9%)`, accent: `hsl(${hash} 62% 62%)`, resolved: false };
 }
 
-// Dominant-colour extraction from the playlist artwork. Runs once per artwork
-// URL; results are cached so switching playlists never re-processes art.
+// Dominant-colour extraction from the playlist artwork, shared with the
+// release landing panel. Runs once per artwork URL; results are cached so
+// switching playlists never re-processes art.
 function extractPalette(playlistId: string, artworkUrl?: string): Promise<Palette> {
   const fallback = fallbackPalette(playlistId);
   if (!artworkUrl) return Promise.resolve(fallback);
-  const cached = paletteCache.get(artworkUrl);
-  if (cached) return Promise.resolve(cached);
-  return new Promise<Palette>((resolve) => {
-    const image = new window.Image();
-    image.crossOrigin = "anonymous";
-    const finish = (palette: Palette) => {
-      paletteCache.set(artworkUrl, palette);
-      resolve(palette);
+  return extractArtworkPalette(artworkUrl).then((palette) => {
+    if (!palette) return fallback;
+    const light = palette.lightness;
+    return {
+      atmo: `hsl(${palette.hue} ${Math.max(28, palette.saturation)}% ${Math.max(6, Math.round(light * 0.22))}%)`,
+      accent: `hsl(${palette.hue} ${palette.saturation}% ${light > 26 ? light : 58}%)`,
+      resolved: true,
     };
-    image.onerror = () => finish(fallback);
-    image.onload = () => {
-      try {
-        const canvas = document.createElement("canvas");
-        canvas.width = 16;
-        canvas.height = 16;
-        const context = canvas.getContext("2d", { willReadFrequently: true });
-        if (!context) return finish(fallback);
-        context.drawImage(image, 0, 0, 16, 16);
-        const { data } = context.getImageData(0, 0, 16, 16);
-        let bestHue = -1;
-        let bestScore = -1;
-        let bestLightness = 0;
-        let bestSaturation = 0;
-        for (let index = 0; index < data.length; index += 4) {
-          if (data[index + 3] < 200) continue;
-          const red = data[index] / 255;
-          const green = data[index + 1] / 255;
-          const blue = data[index + 2] / 255;
-          const max = Math.max(red, green, blue);
-          const min = Math.min(red, green, blue);
-          const lightness = (max + min) / 2;
-          const spread = max - min;
-          if (spread <= 0) continue;
-          const saturation = spread / Math.max(max, 0.0001);
-          const score = (saturation * 0.25 + spread) * (0.55 + lightness * 0.25);
-          if (score <= bestScore) continue;
-          bestScore = score;
-          let hue;
-          if (max === red) hue = ((green - blue) / spread + (green < blue ? 6 : 0)) * 60;
-          else if (max === green) hue = ((blue - red) / spread + 2) * 60;
-          else hue = ((red - green) / spread + 4) * 60;
-          bestHue = hue;
-          bestLightness = Math.min(58, Math.max(18, lightness * 46));
-          bestSaturation = Math.min(85, saturation * 92) + 8;
-        }
-        if (bestHue < 0) return finish(fallback);
-        const hue = Math.round(bestHue);
-        const light = Math.round(bestLightness);
-        finish({
-          atmo: `hsl(${hue} ${Math.round(Math.max(28, bestSaturation))}% ${Math.max(6, Math.round(light * 0.22))}%)`,
-          accent: `hsl(${hue} ${Math.round(bestSaturation)}% ${light > 26 ? light : 58}%)`,
-          resolved: true,
-        });
-      } catch {
-        finish(fallback);
-      }
-    };
-    image.src = artworkUrl;
   });
 }
 

@@ -58,6 +58,9 @@ jobs:
       - name: RADARMusic Spotify release-link contract test
         run: npm run release-links:spotify-scrape-contract-test
 
+      - name: Artwork palette contract test
+        run: npm run artwork-palette:contract-test
+
       - name: Lint
         run: npm run lint
 
