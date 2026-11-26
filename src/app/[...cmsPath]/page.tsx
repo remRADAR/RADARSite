@@ -4,6 +4,7 @@ import { readPublishedContent } from "@/lib/content-server";
 import { MediaFrame } from "@/components/MediaFrame";
 import { buildPageMetadata } from "@/lib/seo";
 import { getReleaseLink } from "@/lib/release-links";
+import { resolveReleaseLinkState } from "@/lib/release-link-state";
 import { ReleaseLinkPanel } from "@/components/marketing/ReleaseLinkPanel";
 
 export const revalidate = 3600;
@@ -34,7 +35,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CmsPage({ params }: Props) {
   const release = await getRelease(params);
-  if (release) return <ReleaseLinkPanel release={release} />;
+  if (release) {
+    const resolved = await resolveReleaseLinkState(release);
+    return <ReleaseLinkPanel release={resolved} linkState={resolved.linkState} />;
+  }
   const page = await getPage(params);
   if (!page) notFound();
   const taxonomy = [...(page.tags || []), ...(page.categories || [])].join(" / ");

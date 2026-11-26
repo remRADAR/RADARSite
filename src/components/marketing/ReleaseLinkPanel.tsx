@@ -25,7 +25,7 @@ function PlatformGlyph({ name }: { name: string }) {
   return <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5" /></svg>;
 }
 
-export function ReleaseLinkPanel({ release }: { release: ReleaseLink }) {
+export function ReleaseLinkPanel({ release, linkState = "presave" }: { release: ReleaseLink; linkState?: "presave" | "live" }) {
   const target = useMemo(() => releaseDate(release.releaseDate), [release.releaseDate]);
   const [remaining, setRemaining] = useState(() => getRemaining(target));
   const [paletteVars, setPaletteVars] = useState<PaletteVars>({ ...DEFAULT_PALETTE_VARS });
@@ -48,14 +48,14 @@ export function ReleaseLinkPanel({ release }: { release: ReleaseLink }) {
     return () => { active = false; window.clearTimeout(timer); };
   }, [release.coverImage]);
   const title = release.title.toUpperCase(); const artist = release.artist.toUpperCase(); const date = releaseDate(release.releaseDate);
-  // `remaining.days` is floored, so it reads 0 for the whole final 24h before release.
-  // Gating on it hid the only link a pre-release title has (kind "presave") and left the
-  // panel empty while the label already said "STREAM NOW". Derive the released state from
-  // the countdown state, which already ticks once a second, so render stays pure.
-  const released = remaining.days === 0 && remaining.hours === 0 && remaining.minutes === 0 && remaining.seconds === 0;
-  const visiblePlatforms = released
-    ? release.platformLinks.filter((platform) => platform.kind === "stream" || platform.kind === "presave")
-    : release.platformLinks;
+  // The presave/stream decision is made on the server by resolveReleaseLinkState(), which
+  // probes the Spotify source and reads where it actually lands. A floored day count is not
+  // a release signal: it reads 0 for the whole final 24h, which used to flip the label to
+  // "STREAM NOW" while the only link (kind "presave") was filtered out of the panel.
+  const released = linkState === "live";
+  // The presave link must always be available. Nothing is filtered out here — the server
+  // has already rewritten the Spotify row to the stream href once the source goes live.
+  const visiblePlatforms = release.platformLinks;
   // The backdrop is blurred 30px, so it needs only a small image. Pointing it at the raw
   // cover made the browser fetch the full-size original a second time (1.2 MB) on top of
   // the optimised <img>. Use the optimiser at a small width instead.
@@ -76,7 +76,7 @@ export function ReleaseLinkPanel({ release }: { release: ReleaseLink }) {
         </div>
       </div>
       <div className={styles.preSaveRow}><span className={styles.preSave}>{released ? "STREAM NOW" : "PRE-SAVE"}</span>{!released && <a className={styles.calendarLink} href={`/api/release-links/${release.slug}/calendar`}>ADD TO CALENDAR</a>}<span className={styles.releaseDate}>RELEASES {dateLabel}</span></div>
-      <div className={styles.platformPanel}><p className={styles.platformHeading}>STREAM / SAVE</p><div className={styles.platformList}>{visiblePlatforms.map((platform) => <div className={`${styles.platformRow} ${styles[platform.tone] || ""}`} key={`${platform.name}-${platform.href}`}><span className={styles.platformName}><span className={`${styles.platformMark} ${styles[platform.tone] || ""}`} aria-hidden="true"><PlatformGlyph name={platform.name} /></span><span className={styles.platformLabel}>{platform.name}</span></span><a className={styles.listen} href={platform.href} target="_blank" rel="noreferrer">{platform.kind === "presave" ? "Pre-save" : "Listen"}</a></div>)}</div>{released && visiblePlatforms.length === 0 && <p className={styles.emptyLinks}>Verified listening links will appear here when the source confirms the live release.</p>}<p className={styles.footerLabel}>RADAR / MUSIC / RELEASE LINKS</p></div>
+      <div className={styles.platformPanel}><p className={styles.platformHeading}>STREAM / SAVE</p><div className={styles.platformList}>{visiblePlatforms.map((platform) => <div className={`${styles.platformRow} ${styles[platform.tone] || ""}`} key={`${platform.name}-${platform.href}`}><span className={styles.platformName}><span className={`${styles.platformMark} ${styles[platform.tone] || ""}`} aria-hidden="true"><PlatformGlyph name={platform.name} /></span><span className={styles.platformLabel}>{platform.name}</span></span><a className={styles.listen} href={platform.href} target="_blank" rel="noreferrer">{platform.kind === "presave" ? "Pre-save" : "Listen"}</a></div>)}</div>{visiblePlatforms.length === 0 && <p className={styles.emptyLinks}>Verified listening links will appear here when the source confirms the live release.</p>}<p className={styles.footerLabel}>Distributed by The RADARMusic</p></div>
     </section>
     <BrandTicker className={styles.brandTicker} />
   </main>;
