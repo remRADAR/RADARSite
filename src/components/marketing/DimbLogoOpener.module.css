@@ -1,22 +1,23 @@
-/* DuMb logo opener: the spelled logo D · eye · M · b.
-   The eye is the letter itself - it sits inline at the same size and baseline as
-   the glyphs and blinks in place while D, M and b write up around it.
-   The eye image is never retouched; it is only clipped, blended and animated. */
+/* DuMb frame 2: the retained animated logotype.
+   The artwork is black on a transparent field. On the dark page it needs a
+   controlled white edge to stay legible; on the light page it needs nothing but
+   a subtle black hover. Both are driven by the shared theme tokens. */
 
 .opener {
   position: relative;
   display: grid;
   place-items: center;
-  min-height: 88svh;
-  padding: 5rem 1rem;
+  min-height: 100svh;
+  padding: clamp(3rem, 8vw, 6rem) clamp(1rem, 4vw, 3rem);
   background: transparent;
-  color: var(--ink, #050505);
+  color: var(--ink, #f7f7f2);
   overflow: hidden;
+  isolation: isolate;
   transition: background-color 0.45s ease, color 0.45s ease;
 }
 
 .opener:focus-visible {
-  outline: 2px solid var(--flare, #ff4d2e);
+  outline: 2px solid var(--flare, #ffffff);
   outline-offset: -6px;
 }
 
@@ -25,154 +26,77 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 42rem;
+  max-width: 56rem;
+}
+
+.logoFrame {
+  display: block;
+  width: 100%;
+  max-width: min(56rem, 78vw);
+  /* the artwork's own 3.6:1 frame, so nothing is letterboxed or stretched */
+  aspect-ratio: 702 / 195;
+  opacity: 0;
+  transform: translateY(0.75rem) scale(0.985);
+  transition: opacity 0.7s var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+    transform 0.7s var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1)),
+    filter 0.35s ease;
+}
+
+.openerIn .logoFrame {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .suppliedLogo {
   display: block;
-  width: min(72vw, 22rem);
-  height: auto;
-  object-fit: contain;
-}
-
-/* ---------- the spelled logotype ---------- */
-
-.wordmark {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 0;
-  font-family: var(--font-grotesk, "Archivo", system-ui, sans-serif);
-  font-weight: 700;
-  font-size: clamp(3.25rem, 19vw, 8rem);
-  line-height: 0.84;
-  letter-spacing: -0.06em;
-  text-transform: none;
-  color: var(--ink, #050505);
-  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), letter-spacing 0.45s ease;
-}
-
-.letter {
-  display: block;
-  /* write-up: each glyph rises out of its own baseline */
-  clip-path: inset(0 0 100% 0);
-  transform: translateY(0.4em);
-  opacity: 0;
-  transition: color 0.3s ease, filter 0.3s ease;
-}
-
-.wordmarkIn .letter {
-  animation: write-up 0.72s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* The b: same family, dropped and slightly smaller, masthead style. */
-.letterLower {
-  font-size: 0.84em;
-  padding-bottom: 0.015em;
-  letter-spacing: -0.045em;
-}
-
-/* ---------- the eye, as the letter I ---------- */
-
-.eyeSlot {
-  position: relative;
-  display: block;
-  flex: 0 0 auto;
-  /* the mark is a wide ellipse (1.72:1), so the slot is wider than tall and
-     its optical centre sits near the cap-height middle, not the baseline */
-  width: 0.78em;
-  height: 0.455em;
-  margin: 0 0.005em 0.145em;
-  align-self: flex-end;
-  opacity: 0;
-}
-
-.wordmarkIn .eyeSlot {
-  animation: eye-in 0.42s ease 0.1s forwards;
-}
-
-.eye {
-  display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  /* the mark is a transparent-background ink crop of the delivered logo, so it
-     needs no blend mode - it drops straight into the paper */
-  transform-origin: 50% 50%;
-  transition: filter 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  object-position: center;
+  /* dark page: the black artwork needs a white edge to read at all */
+  filter: drop-shadow(0 0 1px rgb(255 255 255 / 0.9))
+    drop-shadow(0 0 6px rgb(255 255 255 / 0.45))
+    drop-shadow(0 0 18px rgb(255 255 255 / 0.18));
+  transition: filter 0.35s ease, transform 0.35s var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
-.opener:hover .wordmark,
-.opener:focus-visible .wordmark {
-  transform: scale(1.025);
-  letter-spacing: -0.045em;
+/* Light page: keep the original black artwork, no glow, subtle black hover. */
+:global(html.theme-light) .suppliedLogo {
+  filter: none;
 }
 
-.opener:hover .letter,
-.opener:focus-visible .letter {
-  color: var(--flare, #ff4d2e);
-  filter: drop-shadow(0 0 0.08em rgb(255 77 46 / 0.35));
+.opener:hover .suppliedLogo,
+.opener:focus-visible .suppliedLogo {
+  transform: scale(1.012);
 }
 
-.opener:hover .eye,
-.opener:focus-visible .eye {
-  transform: scale(1.08, 0.82) rotate(-3deg);
-  filter: drop-shadow(0 0 0.18rem rgb(255 77 46 / 0.55));
+:global(html.theme-light) .opener:hover .suppliedLogo,
+:global(html.theme-light) .opener:focus-visible .suppliedLogo {
+  filter: drop-shadow(0 0 1px rgb(5 5 5 / 0.55)) drop-shadow(0 0 10px rgb(5 5 5 / 0.18));
 }
 
-/* The blink happens in place, as a lid closing over the same box. */
-.wordmarkIn .eyeBlink {
-  animation: eye-in 0.42s ease 0.1s forwards, blink 1.15s cubic-bezier(0.45, 0, 0.2, 1) 0.55s both;
+/* Dark page hover: a slightly stronger white edge, never a blur. */
+:global(html:not(.theme-light)) .opener:hover .suppliedLogo,
+:global(html:not(.theme-light)) .opener:focus-visible .suppliedLogo {
+  filter: drop-shadow(0 0 1px rgb(255 255 255 / 1))
+    drop-shadow(0 0 8px rgb(255 255 255 / 0.6))
+    drop-shadow(0 0 22px rgb(255 255 255 / 0.26));
 }
 
-/* ---------- motion ---------- */
-
-@keyframes eye-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* Lid closes to a line and opens again, entirely within the letter's own box. */
-@keyframes blink {
-  0% { transform: scaleY(1); }
-  30% { transform: scaleY(0.08); }
-  42% { transform: scaleY(0.08); }
-  100% { transform: scaleY(1); }
-}
-
-@keyframes write-up {
-  from {
-    clip-path: inset(0 0 100% 0);
-    transform: translateY(0.4em);
-    opacity: 0;
-  }
-  to {
-    clip-path: inset(0 0 0 0);
-    transform: translateY(0);
-    opacity: 1;
+/* Touch devices have no hover: the resting treatment must already be legible. */
+@media (hover: none) {
+  .opener:hover .suppliedLogo {
+    transform: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wordmarkIn .letter,
-  .wordmarkIn .eyeSlot,
-  .wordmarkIn .eyeBlink {
-    animation: none;
-  }
-  .letter {
-    clip-path: none;
+  .logoFrame {
+    opacity: 1;
     transform: none;
-    opacity: 1;
+    transition: none;
   }
-  .eyeSlot {
-    opacity: 1;
-  }
-  .eye {
-    clip-path: none;
-  }
-  .wordmark,
-  .letter,
-  .eye {
+  .suppliedLogo {
     transition: none;
   }
 }

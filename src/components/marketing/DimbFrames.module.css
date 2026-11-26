@@ -1,0 +1,43 @@
+/* Two-frame DuMb opening.
+   Phones: each frame is one viewport and scroll-snap aligns them, so a single
+   natural scroll reveals frame 2 whole. Tablets and up: snap is released and
+   the frames size to their content, so desktop never inherits a phone viewport
+   height. */
+
+.frames {
+  position: relative;
+  display: block;
+}
+
+.frames > * {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+@media (max-width: 767px) {
+  .frames {
+    scroll-snap-type: y proximity;
+  }
+
+  .frames > * {
+    min-height: 100svh;
+  }
+}
+
+/* A short phone in landscape cannot give each frame a full viewport without
+   clipping the statement, so the snap is dropped and the frames flow. */
+@media (max-width: 767px) and (max-height: 520px) {
+  .frames {
+    scroll-snap-type: none;
+  }
+
+  .frames > * {
+    min-height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frames {
+    scroll-snap-type: none;
+  }
+}

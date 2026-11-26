@@ -14691,7 +14691,9 @@
       "date": "2026-08-29T13:04:04",
       "status": "published",
       "author": "",
-      "categories": ["Spotlight"],
+      "categories": [
+        "Spotlight"
+      ],
       "tags": [],
       "editorialType": "Spotlight",
       "metaTitle": "BHADBOI DELA: BUILDING HIS OWN SOUND, ONE RECORD AT A TIME",
@@ -16399,98 +16401,6 @@
   ],
   "magazine": [],
   "pages": [],
-  "radarProjects": [
-    {
-      "artist": "",
-      "author": "",
-      "bio": "",
-      "body": "",
-      "bodyHtml": "",
-      "brief": "A complete debut world spanning identity, live session, cover system, and release campaign.",
-      "canonicalUrl": "",
-      "categories": [],
-      "category": "Artist development",
-      "date": "",
-      "description": "",
-      "excerpt": "",
-      "featuredImage": "",
-      "id": "",
-      "imageQuery": "singer microphone red spotlight concert",
-      "imageUrl": "",
-      "location": "",
-      "metaDescription": "",
-      "metaTitle": "",
-      "migrationWarnings": [],
-      "name": "",
-      "path": "",
-      "project": "",
-      "publishedAt": "",
-      "related": {
-        "artists": [
-          "luna-vale"
-        ],
-        "magazine": [],
-        "releases": [
-          "first-light"
-        ]
-      },
-      "section": "",
-      "slug": "first-light-world",
-      "sourceId": "",
-      "sourceUrl": "",
-      "status": "published",
-      "subtitle": "",
-      "tags": [],
-      "title": "Luna Vale — First Light",
-      "year": "2026"
-    },
-    {
-      "artist": "",
-      "author": "",
-      "bio": "",
-      "body": "",
-      "bodyHtml": "",
-      "brief": "A tactile album campaign across physical editions, outdoor signal, and intimate listening rooms.",
-      "canonicalUrl": "",
-      "categories": [],
-      "category": "Release campaign",
-      "date": "",
-      "description": "",
-      "excerpt": "",
-      "featuredImage": "",
-      "id": "",
-      "imageQuery": "music billboard city night",
-      "imageUrl": "",
-      "location": "",
-      "metaDescription": "",
-      "metaTitle": "",
-      "migrationWarnings": [],
-      "name": "",
-      "path": "",
-      "project": "",
-      "publishedAt": "",
-      "related": {
-        "articles": [
-          "north-star-release-note"
-        ],
-        "artists": [
-          "kofi-north"
-        ],
-        "releases": [
-          "north-star"
-        ]
-      },
-      "section": "",
-      "slug": "north-star-world",
-      "sourceId": "",
-      "sourceUrl": "",
-      "status": "published",
-      "subtitle": "",
-      "tags": [],
-      "title": "Kofi North — North Star",
-      "year": "2026"
-    }
-  ],
   "releases": [
     {
       "artist": "Luna Vale",

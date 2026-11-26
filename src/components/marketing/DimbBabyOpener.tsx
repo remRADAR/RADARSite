@@ -11,6 +11,13 @@ const WELCOME_AUDIO_SRC = "/media/podcast-welcome.mp3";
 // the end of the audio; when the file ends the baby drops his hands and vibes.
 const GRAB_MS = 1150;
 
+/**
+ * Frame 1 of the DuMb podcast opener.
+ *
+ * Composition, in deliberate order: the baby photograph, then the featured
+ * statement, then the scroll indicator. The banner GIF that used to sit behind
+ * this frame is gone; the photograph now carries the description area itself.
+ */
 export function DimbBabyOpener() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [blocked, setBlocked] = useState(false);
@@ -80,30 +87,49 @@ export function DimbBabyOpener() {
     <section className={styles.intro} aria-label="DuMb podcast opening" tabIndex={0}>
       <p className={styles.kicker}>(02 / DuMb)</p>
 
-      <div className={styles.stage + phaseClass}>
-        <div aria-hidden="true" className={styles.floorShadow} />
-        <div aria-hidden="true" className={styles.frame} />
-        <div aria-hidden="true" className={styles.cups} />
-      </div>
+      <div className={styles.composition}>
+        <div className={styles.stage + phaseClass}>
+          <div aria-hidden="true" className={styles.floorShadow} />
+          <picture className={styles.frame}>
+            <img
+              className={styles.figure}
+              src="/media/podcast/baby-1400.webp"
+              alt="A baby wearing large headphones, hands raised to the ear cups"
+              width={1400}
+              height={1187}
+              decoding="async"
+              fetchPriority="high"
+            />
+          </picture>
+          <div aria-hidden="true" className={styles.cups} />
+        </div>
 
-      <div className={styles.caption}>
-        <p className={styles.captionLine}>
-          Deep in my bones, the records that never left us.
-        </p>
-        {phase === "welcome" ? (
-          <p className={styles.captionNow}>
-            <span aria-hidden="true" className={styles.pip} />
-            <span>Welcome is playing</span>
+        <div className={styles.caption}>
+          <p className={styles.captionLine}>
+            Deep in my bones, the records that never left us.
           </p>
-        ) : null}
-        {blocked ? (
-          <button type="button" className={styles.play} onClick={onPlay}>
-            Play the welcome
-          </button>
-        ) : null}
+          {phase === "welcome" ? (
+            <p className={styles.captionNow}>
+              <span aria-hidden="true" className={styles.pip} />
+              <span>Welcome is playing</span>
+            </p>
+          ) : null}
+          {blocked ? (
+            <button type="button" className={styles.play} onClick={onPlay}>
+              Play the welcome
+            </button>
+          ) : null}
+        </div>
+
+        <p className={styles.statement}>REMEMBER, DONT STAY DUMB ON THE RADAR</p>
       </div>
 
-      {phase === "vibe" ? <p className={styles.scrollCue}>Scroll ↓</p> : null}
+      <p className={styles.scrollCue}>
+        <span>Scroll</span>
+        <span aria-hidden="true" className={styles.scrollArrow}>
+          ↓
+        </span>
+      </p>
     </section>
   );
 }

@@ -5,13 +5,13 @@ import { FadeIn } from "@/components/motion/FadeIn";
 import { RichEditorialBody } from "@/components/marketing/RichEditorialBody";
 import type { CmsRecord } from "@/lib/content-server";
 import { articlePath, normalizeEditorialRecord } from "@/lib/editorial-normalization";
-import type { Article, Artist, Event, MagazineStory, RadarProject, Release } from "@/lib/ia-content";
+import type { Article, Artist, Event, MagazineStory, Release } from "@/lib/ia-content";
 import { StructuredData } from "@/components/StructuredData";
 import { breadcrumbStructuredData, webPageStructuredData } from "@/lib/seo";
 import { MagazineFlipbook, type MagazineRelatedItem } from "@/components/marketing/MagazineExperience";
 import { editorialAuthorProfile } from "@/lib/editorial-authors";
 
-type Entity = (Artist | Release | Article | MagazineStory | RadarProject | Event | CmsRecord) & { slug: string };
+type Entity = (Artist | Release | Article | MagazineStory | Event | CmsRecord) & { slug: string };
 
 function editorial(item: Entity) {
   return normalizeEditorialRecord(item as CmsRecord);

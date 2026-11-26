@@ -8,7 +8,6 @@ const knownCollectionPaths = [
   "/ontheradar/articles",
   "/ontheradar/events",
   "/ontheradar/magazine",
-  "/ontheradar/projects",
   "/motherland",
   "/radarmusic",
   "/releases",

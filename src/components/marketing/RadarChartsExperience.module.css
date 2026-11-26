@@ -127,7 +127,7 @@
 
 .tabActive {
   background: var(--page-flare);
-  color: #050505;
+  color: var(--flare-foreground, #050505);
 }
 
 .tab:focus-visible,
