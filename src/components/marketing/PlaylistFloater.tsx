@@ -66,6 +66,10 @@ export function PlaylistFloater() {
   const [playing, setPlaying] = useState(true);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [collapsed, setCollapsed] = useState(false);
+  // The YouTube embed is a third-party iframe that holds the page's `load` event open
+  // (measured 2.5s on `/`, and it can hang indefinitely on restricted mobile networks).
+  // Mount it only once the visitor actually asks for audio.
+  const [audioReady, setAudioReady] = useState(false);
   const hasStoredPosition = position.x !== 0 || position.y !== 0;
   const visiblePosition = hasStoredPosition ? position : defaultPosition();
 
@@ -143,6 +147,7 @@ export function PlaylistFloater() {
       send("pauseVideo");
       setPlayingState(false);
     } else {
+      setAudioReady(true);
       send("unMute");
       send("playVideo");
       setPlayingState(true);
@@ -209,14 +214,17 @@ export function PlaylistFloater() {
 
   return (
     <>
-      <iframe
-        ref={frameRef}
-        title="RADAR playlist audio"
-        className="pointer-events-none fixed -left-px -top-px h-px w-px opacity-0"
-        src={`https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(overrides.playlistId)}&autoplay=1&mute=1&enablejsapi=1&controls=0&playsinline=1`}
-        allow="autoplay; encrypted-media"
-        onLoad={resumeIfActive}
-      />
+      {audioReady && (
+        <iframe
+          ref={frameRef}
+          title="RADAR playlist audio"
+          className="pointer-events-none fixed -left-px -top-px h-px w-px opacity-0"
+          src={`https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(overrides.playlistId)}&autoplay=1&mute=1&enablejsapi=1&controls=0&playsinline=1`}
+          loading="lazy"
+          allow="autoplay; encrypted-media"
+          onLoad={resumeIfActive}
+        />
+      )}
       <div
         className={`group fixed z-[60] ${hasStoredPosition ? "" : "bottom-2 right-2"}`}
         style={hasStoredPosition ? { left: visiblePosition.x, top: visiblePosition.y } : undefined}

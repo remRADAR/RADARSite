@@ -8,7 +8,7 @@ export function LiveSiteOverrides() {
   const overrides = parseSiteOverrides(snapshot);
 
   useEffect(() => {
-    fetch("/api/studio", { cache: "no-store" })
+    fetch("/api/studio", { cache: "force-cache" })
       .then((response) => response.ok ? response.json() : null)
       .then((payload) => {
         if (!payload?.configured || !payload.settings) return;

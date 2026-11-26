@@ -40,8 +40,8 @@ export function BrandTicker({ className = "", surface = "ink" }: BrandTickerProp
               alt={logo.alt}
               width={800}
               height={148}
-              unoptimized
-              loading="eager"
+              loading="lazy"
+              decoding="async"
               className={`h-8 w-auto object-contain sm:h-9 md:h-10${logo.monochrome ? ` ticker-logo-monochrome${onPaper ? " ticker-logo-on-paper" : ""}` : ""}`}
             />
           </span>

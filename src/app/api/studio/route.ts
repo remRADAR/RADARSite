@@ -128,9 +128,18 @@ export async function GET(request: NextRequest) {
       return json(buildArticleLibrary(records, request.nextUrl.searchParams));
     } catch (error) { logReadContentError(error, "Studio article library read failed"); return json({ error: "Article library is unavailable" }, { status: 503 }); }
   }
-  if (!hasDatabase()) return json({ configured: false, contentConfigured: hasContentDatabase(), settings: defaultSiteOverrides });
+  if (!hasDatabase()) return json({ configured: false, contentConfigured: hasContentDatabase(), settings: defaultSiteOverrides, reason: "DATABASE_URL is not set on this Worker." });
   try { return json({ configured: true, contentConfigured: hasContentDatabase(), settings: await readStudioSettings() }); }
-  catch (error) { logReadContentError(error, "Studio GET persistence read failed"); return json({ configured: false, settings: defaultSiteOverrides, error: "Studio persistence is unavailable" }, { status: 503 }); }
+  catch (error) {
+    // A missing or invalid database configuration is a degraded state, not a server
+    // fault: the site renders fine from committed defaults. Returning 503 here made
+    // every page load log a failed request and hid the real cause behind a generic
+    // message. Surface the actual reason and answer 200 so the client can fall back.
+    const reason = error instanceof Error ? error.message : String(error);
+    logReadContentError(error, "Studio GET persistence read failed");
+    console.error("[api/studio] persistence unavailable:", reason);
+    return json({ configured: false, contentConfigured: hasContentDatabase(), settings: defaultSiteOverrides, degraded: true, reason });
+  }
 }
 
 export async function POST(request: NextRequest) {

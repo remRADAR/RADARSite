@@ -48,12 +48,24 @@ export function ReleaseLinkPanel({ release }: { release: ReleaseLink }) {
     return () => { active = false; window.clearTimeout(timer); };
   }, [release.coverImage]);
   const title = release.title.toUpperCase(); const artist = release.artist.toUpperCase(); const date = releaseDate(release.releaseDate);
-  const visiblePlatforms = remaining.days > 0 ? release.platformLinks : release.platformLinks.filter((platform) => platform.kind === "stream");
-  return <main className={styles.page} style={{ "--release-art": `url(${release.coverImage})`, ...paletteVars } as React.CSSProperties}>
+  // `remaining.days` is floored, so it reads 0 for the whole final 24h before release.
+  // Gating on it hid the only link a pre-release title has (kind "presave") and left the
+  // panel empty while the label already said "STREAM NOW". Derive the released state from
+  // the countdown state, which already ticks once a second, so render stays pure.
+  const released = remaining.days === 0 && remaining.hours === 0 && remaining.minutes === 0 && remaining.seconds === 0;
+  const visiblePlatforms = released
+    ? release.platformLinks.filter((platform) => platform.kind === "stream" || platform.kind === "presave")
+    : release.platformLinks;
+  // The backdrop is blurred 30px, so it needs only a small image. Pointing it at the raw
+  // cover made the browser fetch the full-size original a second time (1.2 MB) on top of
+  // the optimised <img>. Use the optimiser at a small width instead.
+  // q must be one of next.config's `qualities` ([75, 100]) or the optimiser answers 400.
+  const backdropArt = `/_next/image?url=${encodeURIComponent(release.coverImage)}&w=384&q=75`;
+  return <main className={styles.page} style={{ "--release-art": `url(${backdropArt})`, ...paletteVars } as React.CSSProperties}>
     <div className={styles.backdrop} aria-hidden="true" />
     <section className={styles.frame} aria-labelledby="release-title">
       <header className={styles.header}><span className={styles.brand}>THE RADARMUSIC</span><span className={styles.headerCode}>RELEASE LINK / {release.slug.toUpperCase()}</span></header>
-      <div className={styles.artworkWrap}><Image src={release.coverImage} alt={`${release.title} cover artwork`} fill priority sizes="(max-width: 680px) 100vw, 680px" className={styles.artwork} unoptimized /><div className={styles.artworkOverlay} aria-hidden="true" /></div>
+      <div className={styles.artworkWrap}><Image src={release.coverImage} alt={`${release.title} cover artwork`} fill priority sizes="(max-width: 680px) 100vw, 680px" className={styles.artwork} /><div className={styles.artworkOverlay} aria-hidden="true" /></div>
       <div className={styles.infoRow}><div className={styles.releaseCode}><span>{date.getMonth() + 1}</span><span>—</span><span>{date.getDate()}</span></div><div className={styles.countdown} aria-label={`Release countdown: ${remaining.days} days, ${remaining.hours} hours, ${remaining.minutes} minutes, ${remaining.seconds} seconds`}><div className={styles.countdownValue}>{String(remaining.days).padStart(2, "0")}</div><div className={styles.countdownValue}>{String(remaining.hours).padStart(2, "0")}</div><div className={styles.countdownValue}>{String(remaining.minutes).padStart(2, "0")}</div><div className={styles.countdownValue}>{String(remaining.seconds).padStart(2, "0")}</div><div className={styles.countdownLabels}><span>DAYS</span><span>HRS</span><span>MINS</span><span>SECS</span></div></div></div>
       <div className={styles.titleRail} aria-label={`${release.title} by ${release.artist}`}>
         <h1 className={styles.srOnly} id="release-title">{release.title} — {release.artist}</h1>
@@ -63,8 +75,8 @@ export function ReleaseLinkPanel({ release }: { release: ReleaseLink }) {
           </div>
         </div>
       </div>
-      <div className={styles.preSaveRow}><span className={styles.preSave}>{remaining.days > 0 ? "PRE-SAVE" : "STREAM NOW"}</span>{remaining.days > 0 && <a className={styles.calendarLink} href={`/api/release-links/${release.slug}/calendar`}>ADD TO CALENDAR</a>}<span className={styles.releaseDate}>RELEASES {dateLabel}</span></div>
-      <div className={styles.platformPanel}><p className={styles.platformHeading}>STREAM / SAVE</p><div className={styles.platformList}>{visiblePlatforms.map((platform) => <div className={`${styles.platformRow} ${styles[platform.tone] || ""}`} key={`${platform.name}-${platform.href}`}><span className={styles.platformName}><span className={`${styles.platformMark} ${styles[platform.tone] || ""}`} aria-hidden="true"><PlatformGlyph name={platform.name} /></span><span className={styles.platformLabel}>{platform.name}</span></span><a className={styles.listen} href={platform.href} target="_blank" rel="noreferrer">{platform.kind === "presave" ? "Pre-save" : "Listen"}</a></div>)}</div>{remaining.days <= 0 && visiblePlatforms.length === 0 && <p className={styles.emptyLinks}>Verified listening links will appear here when the source confirms the live release.</p>}<p className={styles.footerLabel}>RADAR / MUSIC / RELEASE LINKS</p></div>
+      <div className={styles.preSaveRow}><span className={styles.preSave}>{released ? "STREAM NOW" : "PRE-SAVE"}</span>{!released && <a className={styles.calendarLink} href={`/api/release-links/${release.slug}/calendar`}>ADD TO CALENDAR</a>}<span className={styles.releaseDate}>RELEASES {dateLabel}</span></div>
+      <div className={styles.platformPanel}><p className={styles.platformHeading}>STREAM / SAVE</p><div className={styles.platformList}>{visiblePlatforms.map((platform) => <div className={`${styles.platformRow} ${styles[platform.tone] || ""}`} key={`${platform.name}-${platform.href}`}><span className={styles.platformName}><span className={`${styles.platformMark} ${styles[platform.tone] || ""}`} aria-hidden="true"><PlatformGlyph name={platform.name} /></span><span className={styles.platformLabel}>{platform.name}</span></span><a className={styles.listen} href={platform.href} target="_blank" rel="noreferrer">{platform.kind === "presave" ? "Pre-save" : "Listen"}</a></div>)}</div>{released && visiblePlatforms.length === 0 && <p className={styles.emptyLinks}>Verified listening links will appear here when the source confirms the live release.</p>}<p className={styles.footerLabel}>RADAR / MUSIC / RELEASE LINKS</p></div>
     </section>
     <BrandTicker className={styles.brandTicker} />
   </main>;
