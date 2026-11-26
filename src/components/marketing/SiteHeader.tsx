@@ -9,9 +9,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
-import { Logo } from "@/components/Logo";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { ArrowUpRight, Minimize2, Moon, Sun } from "lucide-react";
 import { RADARME_URL } from "@/lib/ia-content";
 import {
   getSiteOverridesServerSnapshot,
@@ -21,6 +19,15 @@ import {
 } from "@/lib/site-overrides";
 import styles from "./SiteHeader.module.css";
 
+/**
+ * Global navigation, per the redesign mockup.
+ *
+ * The menu is a full-screen overlay with its own header (avatar + wordmark on
+ * the left, theme / CLOSE / dismiss on the right), three numbered groups, and a
+ * full-width footer block separated by a heavier rule. The mockup was captured
+ * at a wide viewport, so every measurement is expressed as a clamp() that keeps
+ * the same proportions down to true mobile widths.
+ */
 const groups = [
   {
     number: "01",
@@ -35,9 +42,7 @@ const groups = [
     label: "ON THE RADAR",
     href: "/ontheradar",
     children: [
-      { href: "/ontheradar/articles", label: "Articles" },
       { href: "/ontheradar/magazine", label: "Magazine" },
-      { href: "/ontheradar/projects", label: "Projects" },
       { href: "/stayaktiv", label: "stayAKTiV" },
     ],
   },
@@ -52,6 +57,35 @@ const groups = [
   },
 ];
 
+const THEME_STORAGE_KEY = "radarcharts-theme";
+type Theme = "dark" | "light";
+
+const themeListeners = new Set<() => void>();
+
+function subscribeToTheme(onChange: () => void) {
+  themeListeners.add(onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    themeListeners.delete(onChange);
+    window.removeEventListener("storage", onChange);
+  };
+}
+
+function getThemeSnapshot(): Theme {
+  const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+  if (stored === "light" || stored === "dark") return stored;
+  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+}
+
+function getThemeServerSnapshot(): Theme {
+  return "dark";
+}
+
+function applyTheme(theme: Theme) {
+  document.documentElement.classList.toggle("theme-light", theme === "light");
+  document.documentElement.style.colorScheme = theme;
+}
+
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [origin, setOrigin] = useState({ x: 0, y: -28 });
@@ -63,10 +97,29 @@ export function SiteHeader() {
   const overrides = parseSiteOverrides(snapshot);
   const radarMeUrl = overrides.radarMeUrl || RADARME_URL;
   const socials = overrides.socialLinks.filter((link) => link.enabled);
+  const logoImage = overrides.logoImage || "/radar-logo.webp";
+  const logoText = overrides.logoText || "remRADAR";
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const wasOpen = useRef(false);
   const revealFrames = useRef<number[]>([]);
+
+  // Mirror the theme the ThemeToggle already applied so the overlay's own
+  // control stays in sync with the header control. Read through
+  // useSyncExternalStore so the server snapshot stays "dark" and the client
+  // picks up the stored preference without a setState-in-effect cascade.
+  const theme = useSyncExternalStore(
+    subscribeToTheme,
+    getThemeSnapshot,
+    getThemeServerSnapshot,
+  );
+
+  const toggleTheme = () => {
+    const next: Theme = theme === "dark" ? "light" : "dark";
+    window.localStorage.setItem(THEME_STORAGE_KEY, next);
+    applyTheme(next);
+    themeListeners.forEach((listener) => listener());
+  };
 
   const cancelRevealFrames = () => {
     revealFrames.current.forEach((frame) => window.cancelAnimationFrame(frame));
@@ -76,7 +129,7 @@ export function SiteHeader() {
   const openMenu = () => {
     cancelRevealFrames();
     const buttonRect = menuButtonRef.current?.getBoundingClientRect();
-    const overlayTop = overlayRef.current?.getBoundingClientRect().top ?? 56;
+    const overlayTop = overlayRef.current?.getBoundingClientRect().top ?? 0;
     if (buttonRect) {
       setOrigin({
         x: Math.round(buttonRect.left + buttonRect.width / 2),
@@ -182,7 +235,18 @@ export function SiteHeader() {
     <header className="sticky inset-x-0 top-0 z-50 border-b-2 border-ink bg-paper">
       <div className={styles.headerRow}>
         <div inert={menuOpen} aria-hidden={menuOpen} className="flex min-w-0 items-stretch">
-          <Logo className="min-w-0 shrink border-r-2 border-ink px-3 sm:px-4 md:px-6" />
+          <Link
+            href="/"
+            aria-label={`${logoText} — home`}
+            className={styles.brand}
+          >
+            <span
+              aria-hidden="true"
+              className={styles.brandAvatar}
+              style={{ backgroundImage: `url(${logoImage})` }}
+            />
+            <span className={styles.brandWord}>{logoText}</span>
+          </Link>
         </div>
         <div className={styles.controls}>
           <div inert={menuOpen} aria-hidden={menuOpen} className="flex items-stretch">
@@ -194,7 +258,18 @@ export function SiteHeader() {
             >
               RADARMe <ArrowUpRight aria-hidden size={13} />
             </a>
-            <ThemeToggle />
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-pressed={theme === "light"}
+              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+              className={styles.themeButton}
+            >
+              <span aria-hidden="true" className="flex items-center">
+                {theme === "dark" ? <Sun size={13} /> : <Moon size={13} />}
+              </span>
+              <span className="hidden sm:inline">{theme === "dark" ? "Light" : "Dark"}</span>
+            </button>
           </div>
           <button
             ref={menuButtonRef}
@@ -233,9 +308,50 @@ export function SiteHeader() {
         style={overlayStyle}
       >
         <div className={styles.overlayFrame}>
+          {/* Overlay header: avatar + wordmark, then theme / CLOSE / dismiss. */}
           <div className={styles.overlayHeader}>
-            <p className={styles.kicker}>remRADAR <span aria-hidden="true">/</span> Global navigation</p>
-            <p className={styles.headerNote}>Protecting the music as remRADAR.</p>
+            <div className={styles.overlayBrand}>
+              <span
+                aria-hidden="true"
+                className={styles.overlayAvatar}
+                style={{ backgroundImage: `url(${logoImage})` }}
+              />
+              <span className={styles.overlayWord}>{logoText}</span>
+            </div>
+            <div className={styles.overlayControls}>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                aria-pressed={theme === "light"}
+                aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+                className={styles.overlayTheme}
+              >
+                <span aria-hidden="true" className="flex items-center">
+                  {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+                </span>
+              </button>
+              <span className={styles.overlayCloseLabel} aria-hidden="true">
+                Close
+              </span>
+              <button
+                type="button"
+                onClick={closeMenu}
+                aria-label="Close site navigation"
+                className={styles.overlayClose}
+              >
+                <span aria-hidden="true" className={styles.overlayCloseIcon}>
+                  <span className={styles.overlayCloseLine} />
+                  <span className={`${styles.overlayCloseLine} ${styles.overlayCloseLineAlt}`} />
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div className={styles.kickerRow}>
+            <p className={styles.kicker}>
+              {logoText} <span aria-hidden="true">/</span> Global navigation
+            </p>
+            <p className={styles.headerNote}>Protecting the music as {logoText}.</p>
           </div>
 
           <div className={styles.content}>
@@ -265,39 +381,37 @@ export function SiteHeader() {
                           </Link>
                         </li>
                       ))}
+                      {index === groups.length - 1 ? (
+                        <li aria-hidden="true" className={styles.subIcon}>
+                          <Minimize2 size={15} />
+                        </li>
+                      ) : null}
                     </ul>
                   </div>
                 </section>
               ))}
             </nav>
-
-            <aside
-              className={`${styles.support} ${styles.entrance}`}
-              style={{ "--menu-delay": "400ms" } as CSSProperties}
-            >
-              <p className={styles.supportLabel}>RADARCharts by REM</p>
-              <p className={styles.supportText}>
-                A music ecosystem for artists, releases, stories, projects, and the people moving
-                culture forward.
-              </p>
-              <a href={radarMeUrl} target="_blank" rel="noreferrer" onClick={closeMenu} className={styles.radarMeCta}>
-                Open RADARMe <ArrowUpRight aria-hidden size={14} />
-              </a>
-              <ul aria-label="Social links" className={styles.socials}>
-                {socials.map((social) => (
-                  <li key={social.label}>
-                    <a href={social.href} target="_blank" rel="noreferrer" onClick={closeMenu} className={styles.socialLink}>
-                      {social.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </aside>
           </div>
 
-          <div className={styles.overlayFooter}>
-            <span>© REM 2026</span>
-            <span>All rights reserved</span>
+          {/* Full-width footer block, separated by the heavier rule. */}
+          <div className={`${styles.support} ${styles.entrance}`} style={{ "--menu-delay": "400ms" } as CSSProperties}>
+            <p className={styles.supportLabel}>RADARCharts by REM</p>
+            <p className={styles.supportText}>
+              A music ecosystem for artists, releases, stories, projects, and the people moving
+              culture forward.
+            </p>
+            <a href={radarMeUrl} target="_blank" rel="noreferrer" onClick={closeMenu} className={styles.radarMeCta}>
+              Open RADARMe <ArrowUpRight aria-hidden size={14} />
+            </a>
+            <ul aria-label="Social links" className={styles.socials}>
+              {socials.map((social) => (
+                <li key={social.label}>
+                  <a href={social.href} target="_blank" rel="noreferrer" onClick={closeMenu} className={styles.socialLink}>
+                    {social.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>

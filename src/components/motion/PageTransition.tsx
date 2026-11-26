@@ -62,20 +62,20 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
   return (
     <>
       <div ref={overlayRef} aria-hidden="true" className="fixed inset-0 z-[9999] overflow-hidden">
-        <div data-preloader-top className="absolute inset-x-0 top-0 h-1/2 bg-ink" />
-        <div data-preloader-bottom className="absolute inset-x-0 bottom-0 h-1/2 bg-ink" />
+        <div data-preloader-top="true" className="absolute inset-x-0 top-0 h-1/2 bg-ink" />
+        <div data-preloader-bottom="true" className="absolute inset-x-0 bottom-0 h-1/2 bg-ink" />
         <div
           ref={wordmarkRef}
           className="absolute left-1/2 top-1/2 z-10 inline-flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-4 whitespace-nowrap"
         >
           <div className="font-sans text-[clamp(1.5rem,5.5vw,3.75rem)] font-extrabold leading-none tracking-[0.055em] text-paper">
             {Array.from(WORDMARK).map((letter, index) => (
-              <span data-preloader-letter key={`${letter}-${index}`} className="inline-block">
+              <span data-preloader-letter="true" key={`${letter}-${index}`} className="inline-block">
                 {letter}
               </span>
             ))}
           </div>
-          <span data-preloader-underline className="block h-[2px] w-full origin-left bg-flare" />
+          <span data-preloader-underline="true" className="block h-[2px] w-full origin-left bg-flare" />
         </div>
       </div>
       <div ref={contentRef}>{children}</div>
