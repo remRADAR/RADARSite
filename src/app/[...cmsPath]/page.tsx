@@ -5,6 +5,7 @@ import { MediaFrame } from "@/components/MediaFrame";
 import { buildPageMetadata } from "@/lib/seo";
 import { getReleaseLink } from "@/lib/release-links";
 import { resolveReleaseLinkState } from "@/lib/release-link-state";
+import { releaseSitemapExcerpt, releaseSitemapTitle } from "@/lib/release-sitemap";
 import { ReleaseLinkPanel } from "@/components/marketing/ReleaseLinkPanel";
 
 export const revalidate = 3600;
@@ -25,7 +26,7 @@ async function getRelease(params: Props["params"]) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const release = await getRelease(params);
-  if (release) return buildPageMetadata({ title: `${release.title} — ${release.artist}`, description: `Pre-save and streaming links for ${release.title} by ${release.artist}, presented by RADARMusic.`, path: `/${release.slug}`, image: release.coverImage });
+  if (release) return buildPageMetadata({ title: releaseSitemapTitle(release), description: releaseSitemapExcerpt(release), path: `/${release.slug}`, image: release.coverImage });
   const page = await getPage(params);
   if (!page) return { title: "Page not found", robots: { index: false, follow: false } };
   const { cmsPath } = await params;

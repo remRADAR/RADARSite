@@ -5,6 +5,7 @@ import { caseStudies } from "@/lib/case-studies";
 import { articleCategories, categorySlug, pageCount } from "@/lib/article-taxonomy";
 import { EDITORIAL_ARCHIVE_PAGE_SIZE, recordsForEditorialType } from "@/lib/editorial-archives";
 import { getTrackStories } from "@/lib/track-story";
+import { buildReleaseSitemapEntries } from "@/lib/release-sitemap";
 export const revalidate = 3600;
 
 // These CMS rows were previously present in the runtime feed but resolved to
@@ -39,6 +40,13 @@ export async function generateSitemap(): Promise<MetadataRoute.Sitemap> {
     const total = pageCount(articles.filter((article) => articleCategories(article).some((value) => value.toLowerCase() === label.toLowerCase())).length);
     return Array.from({ length: total }, (_, index) => entry(`/ontheradar/articles/category/${categorySlug(label)}/page/${index + 1}`));
   });
-  const allEntries = [...routes.map((route) => entry(route)), ...editorialArchives, ...categoryArchives, ...artists.map((item) => entry(`/radarmusic/artists/${item.slug}`, item)), ...releases.map((item) => entry(`/radarmusic/releases/${item.slug}`, item)), ...tracks.map((item) => entry(`/radarmusic/tracks/${item.slug}`, item)), ...articleEntries, ...magazine.map((item) => entry(`/ontheradar/magazine/${item.slug}`, item)), ...radarProjects.map((item) => entry(`/ontheradar/projects/${item.slug}`, item)), ...(events.length ? [entry("/omajiverse", events[0])] : []), ...caseStudies.filter((item) => item.slug !== "luna-vale-first-light").map((item) => entry(`/work/${item.slug}`, item))];
+  // Every published release link gets its own entry, generated from the same
+  // builder that feeds /sitemap-releases.xml and /releases/feed.xml, so a new
+  // release is discoverable without touching this file.
+  const releaseLinkEntries = (await buildReleaseSitemapEntries()).map((item) => ({
+    url: item.url,
+    ...(item.lastModified ? { lastModified: new Date(item.lastModified) } : {}),
+  }));
+  const allEntries = [...routes.map((route) => entry(route)), ...editorialArchives, ...categoryArchives, ...artists.map((item) => entry(`/radarmusic/artists/${item.slug}`, item)), ...releases.map((item) => entry(`/radarmusic/releases/${item.slug}`, item)), ...tracks.map((item) => entry(`/radarmusic/tracks/${item.slug}`, item)), ...releaseLinkEntries, ...articleEntries, ...magazine.map((item) => entry(`/ontheradar/magazine/${item.slug}`, item)), ...radarProjects.map((item) => entry(`/ontheradar/projects/${item.slug}`, item)), ...(events.length ? [entry("/omajiverse", events[0])] : []), ...caseStudies.filter((item) => item.slug !== "luna-vale-first-light").map((item) => entry(`/work/${item.slug}`, item))];
   return [...new Map(allEntries.map((item) => [item.url, item])).values()];
 }

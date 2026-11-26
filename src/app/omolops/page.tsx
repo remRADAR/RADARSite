@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ReleaseLinkPanel } from "@/components/marketing/ReleaseLinkPanel";
 import { getFallbackReleaseLink } from "@/lib/release-fallback";
 import { resolveReleaseLinkState } from "@/lib/release-link-state";
+import { releaseSitemapExcerpt, releaseSitemapTitle } from "@/lib/release-sitemap";
 import { buildPageMetadata } from "@/lib/seo";
 
 export const revalidate = 300;
@@ -10,7 +11,7 @@ export const revalidate = 300;
 export async function generateMetadata(): Promise<Metadata> {
   const release = getFallbackReleaseLink("omolops");
   if (!release) return { title: "Release not found", robots: { index: false, follow: false } };
-  return buildPageMetadata({ title: `${release.title} — ${release.artist}`, description: `Pre-save and streaming links for ${release.title} by ${release.artist}, presented by RADARMusic.`, path: "/omolops", image: release.coverImage });
+  return buildPageMetadata({ title: releaseSitemapTitle(release), description: releaseSitemapExcerpt(release), path: "/omolops", image: release.coverImage });
 }
 
 export default async function OmolopsReleasePage() {
