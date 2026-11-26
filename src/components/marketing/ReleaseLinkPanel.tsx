@@ -58,9 +58,10 @@ export function ReleaseLinkPanel({ release, linkState = "presave" }: { release: 
   const visiblePlatforms = release.platformLinks;
   // The backdrop is blurred 30px, so it needs only a small image. Pointing it at the raw
   // cover made the browser fetch the full-size original a second time (1.2 MB) on top of
-  // the optimised <img>. Use the optimiser at a small width instead.
-  // q must be one of next.config's `qualities` ([75, 100]) or the optimiser answers 400.
-  const backdropArt = `/_next/image?url=${encodeURIComponent(release.coverImage)}&w=384&q=75`;
+  // the optimised <img>. Prefer the release's own small backdrop variant; fall back to the
+  // optimiser at a small width. q must be one of next.config's `qualities` ([75, 100]) or
+  // the optimiser answers 400.
+  const backdropArt = release.backdropImage || `/_next/image?url=${encodeURIComponent(release.coverImage)}&w=384&q=75`;
   return <main className={styles.page} style={{ "--release-art": `url(${backdropArt})`, ...paletteVars } as React.CSSProperties}>
     <div className={styles.backdrop} aria-hidden="true" />
     <section className={styles.frame} aria-labelledby="release-title">

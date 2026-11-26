@@ -9,6 +9,12 @@ export type ReleaseLink = {
   artist: string;
   releaseDate: string;
   coverImage: string;
+  /**
+   * Optional smaller variant used for the blurred backdrop behind the panel.
+   * The backdrop is blurred 30px so it needs only a few hundred pixels; without
+   * this the browser fetched the full-size cover a second time.
+   */
+  backdropImage?: string;
   sourceUrl: string;
   sourceTitle: string;
   platformLinks: ReleasePlatform[];
@@ -128,6 +134,14 @@ async function verifyPlatformLink(href: string, platform: string, artist: string
 }
 
 export const SPOTIFY_ALBUM_URL_PATTERN = /^https:\/\/open\.spotify\.com\/(?:intl-[^/]+\/)?album\/([A-Za-z0-9]{22})(?:[?#]|$)/;
+/**
+ * A release is often handed over as a single track link rather than the album
+ * link (the label copies "Share > Copy link" from the track page). Accept the
+ * track form too and resolve it to its parent album, so a track URL goes through
+ * exactly the same release pipeline as an album URL.
+ */
+export const SPOTIFY_TRACK_URL_PATTERN = /^https:\/\/open\.spotify\.com\/(?:intl-[^/]+\/)?track\/([A-Za-z0-9]{22})(?:[?#]|$)/;
+export const SPOTIFY_SOURCE_URL_PATTERN = /^https:\/\/open\.spotify\.com\/(?:intl-[^/]+\/)?(?:album|track)\/([A-Za-z0-9]{22})(?:[?#]|$)/;
 export type SpotifyAlbumMetadata = { albumId: string; title: string; artist: string; releaseDate: string; coverImage: string; trackIds: string[] };
 export type SpotifyEmbedTrack = { id: string; title: string; artist: string };
 function spotifyMetaContent(html: string, key: string) {
@@ -263,6 +277,21 @@ async function discoverCrossPlatformLinks(artist: string, title: string): Promis
   return [...direct, ...searched.filter((platform) => !directNames.has(platform.name))]
     .sort((a, b) => (order.get(a.name) ?? 99) - (order.get(b.name) ?? 99));
 }
+/**
+ * Resolve a Spotify track id to the album id that contains it.
+ * The track page carries the parent album link in its own markup; when that is
+ * missing we fall back to the embed payload's album uri.
+ */
+export async function resolveSpotifyTrackAlbum(trackId: string): Promise<string> {
+  const html = await fetchSpotifyAlbumHtml(`https://open.spotify.com/track/${trackId}`);
+  const fromPage = html.match(/open\.spotify\.com\/album\/([A-Za-z0-9]{22})/)?.[1];
+  if (fromPage) return fromPage;
+  const embedHtml = await fetchSpotifyAlbumHtml(`https://open.spotify.com/embed/track/${trackId}`).catch(() => "");
+  const fromEmbed = embedHtml.match(/spotify:album:([A-Za-z0-9]{22})/)?.[1];
+  if (fromEmbed) return fromEmbed;
+  throw new Error("The Spotify track page did not expose its parent album.");
+}
+
 async function scrapeSpotifyAlbum(sourceUrl: URL): Promise<ReleaseLink> {
   const albumId = sourceUrl.toString().match(SPOTIFY_ALBUM_URL_PATTERN)?.[1];
   if (!albumId) throw new Error("Source URL is not a Spotify album link.");
@@ -274,9 +303,32 @@ async function scrapeSpotifyAlbum(sourceUrl: URL): Promise<ReleaseLink> {
   const crossPlatform = title && artist ? await discoverCrossPlatformLinks(artist, title) : [];
   return buildSpotifyAlbumReleaseLink(sourceUrl, page, embed, crossPlatform);
 }
+
+/**
+ * A track link is a first-class release source: resolve it to its parent album
+ * and run the identical album pipeline, so the panel, the cross-platform
+ * discovery and the presave/stream probe all behave the same either way.
+ */
+async function scrapeSpotifyTrack(sourceUrl: URL): Promise<ReleaseLink> {
+  const trackId = sourceUrl.toString().match(SPOTIFY_TRACK_URL_PATTERN)?.[1];
+  if (!trackId) throw new Error("Source URL is not a Spotify track link.");
+  const albumId = await resolveSpotifyTrackAlbum(trackId);
+  const albumUrl = new URL(`https://open.spotify.com/album/${albumId}`);
+  const [pageHtml, embedHtml] = await Promise.all([fetchSpotifyAlbumHtml(albumUrl.toString()), fetchSpotifyAlbumHtml(`https://open.spotify.com/embed/album/${albumId}`).catch(() => "")]);
+  const page = parseSpotifyAlbumMetadata(pageHtml, albumId);
+  const embed = parseSpotifyAlbumEmbed(embedHtml);
+  const title = embed.title || page.title;
+  const artist = page.artist || embed.artist;
+  const crossPlatform = title && artist ? await discoverCrossPlatformLinks(artist, title) : [];
+  // Keep the track the label actually shared as the canonical source URL, so the
+  // presave/stream probe follows the link the distributor will flip.
+  return buildSpotifyAlbumReleaseLink(sourceUrl, page, embed, crossPlatform);
+}
+
 export async function scrapeReleaseSource(sourceInput: string): Promise<ReleaseLink> {
   const sourceUrl = safeSourceUrl(sourceInput);
   if (SPOTIFY_ALBUM_URL_PATTERN.test(sourceUrl.toString())) return scrapeSpotifyAlbum(sourceUrl);
+  if (SPOTIFY_TRACK_URL_PATTERN.test(sourceUrl.toString())) return scrapeSpotifyTrack(sourceUrl);
   const response = await fetch(sourceUrl, { cache: "no-store", redirect: "follow", signal: AbortSignal.timeout(15_000), headers: { accept: "text/html,application/xhtml+xml" } });
   if (!response.ok) throw new Error(`Source page returned HTTP ${response.status}.`);
   const html = await response.text();

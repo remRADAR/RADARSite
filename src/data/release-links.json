@@ -5,7 +5,8 @@
     "title": "Omolops",
     "artist": "Mamuzo",
     "releaseDate": "2026-11-27",
-    "coverImage": "/releases/omolops-cover.jpeg",
+    "coverImage": "/releases/omolops-cover-1080.webp",
+    "backdropImage": "/releases/omolops-cover-640.webp",
     "sourceUrl": "https://paradoxrecords.ampsuite.com/releases/links?id=400",
     "sourceTitle": "Omolops - Mamuzo",
     "platformLinks": [
@@ -19,5 +20,48 @@
     ],
     "status": "published",
     "updatedAt": "2026-11-24T00:00:00.000Z"
+  },
+  {
+    "id": "source-look-up",
+    "slug": "look-up",
+    "title": "Look Up",
+    "artist": "Erizstar, AdebowaleFire",
+    "releaseDate": "2026-11-25",
+    "coverImage": "/releases/look-up-cover.webp",
+    "backdropImage": "/releases/look-up-cover.webp",
+    "sourceUrl": "https://open.spotify.com/track/1i54v2NPrQqNTm9GA9HWTR",
+    "sourceTitle": "Erizstar, AdebowaleFire — Look Up",
+    "platformLinks": [
+      {
+        "name": "Spotify",
+        "tone": "spotify",
+        "href": "https://open.spotify.com/album/4Xz4hX4OGQbmDWO8sGzbwW",
+        "verification": "source",
+        "kind": "stream"
+      },
+      {
+        "name": "Apple Music",
+        "tone": "apple",
+        "href": "https://music.apple.com/us/album/look-up-single/6838333540?uo=4",
+        "verification": "metadata",
+        "kind": "stream"
+      },
+      {
+        "name": "Deezer",
+        "tone": "deezer",
+        "href": "https://www.deezer.com/album/1153577241",
+        "verification": "metadata",
+        "kind": "stream"
+      },
+      {
+        "name": "1. Look Up",
+        "tone": "spotify",
+        "href": "https://open.spotify.com/track/1i54v2NPrQqNTm9GA9HWTR",
+        "verification": "source",
+        "kind": "stream"
+      }
+    ],
+    "status": "published",
+    "updatedAt": "2026-11-26T17:43:36.886Z"
   }
 ]
