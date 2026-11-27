@@ -560,6 +560,12 @@ html {
 .editorial-body figure:hover .editorial-media { transform: scale(1.035); filter: saturate(1) contrast(1); }
 .editorial-body figure { width: 100%; max-width: 100%; overflow: hidden; }
 .editorial-body figure img { width: 100%; }
+/* The sanitizer emits bare <img class="editorial-media"> for images that were
+   not already inside a <figure>. Without this rule those images have no width
+   constraint and no block formatting, so they render at intrinsic size inline
+   in the paragraph flow and break the column. Style the bare form directly so
+   already-stored bodies are fixed without a data migration. */
+.editorial-body img.editorial-media { display: block; width: 100%; max-width: 100%; height: auto; margin: 2rem 0; }
 .editorial-body figcaption { margin-top: .5rem; font-family: var(--font-mono), monospace; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; opacity: .7; }
 .editorial-body .editorial-embed { position: relative; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; margin: 2rem 0; overflow: hidden; background: color-mix(in srgb, currentColor 8%, transparent); }
 /* Spotify players keep their intrinsic height: 152px compact tracks vs the
