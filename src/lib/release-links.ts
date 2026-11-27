@@ -74,6 +74,7 @@ export async function upsertReleaseLink(input: ReleaseLink): Promise<ReleaseLink
 }
 
 const releaseRefreshCache = new Map<string, { at: number; release: ReleaseLink }>();
+const releaseRefreshInFlight = new Map<string, Promise<ReleaseLink>>();
 const RELEASE_REFRESH_TTL_MS = 5 * 60_000;
 function releaseDayStart(value: string) {
   const date = new Date(`${value}T00:00:00+01:00`);
@@ -89,6 +90,19 @@ export async function refreshReleaseLink(release: ReleaseLink, now = new Date())
   if (!databaseEnabled() || release.status !== "published" || now.getTime() < releaseDayStart(release.releaseDate).getTime()) return release;
   const cached = releaseRefreshCache.get(release.slug);
   if (cached && Date.now() - cached.at < RELEASE_REFRESH_TTL_MS) return cached.release;
+  // Dedupe concurrent callers onto a single scrape: the page render, its
+  // metadata and the calendar route all funnel through here, and the
+  // completed-result TTL alone would let a burst of simultaneous requests
+  // each hit the authoritative source and each write an upsert.
+  const inFlight = releaseRefreshInFlight.get(release.slug);
+  if (inFlight) return inFlight;
+  const pending = refreshReleaseLinkNow(release).finally(() => releaseRefreshInFlight.delete(release.slug));
+  releaseRefreshInFlight.set(release.slug, pending);
+  return pending;
+}
+
+/** The uncached refresh body; only one caller per slug runs it at a time. */
+async function refreshReleaseLinkNow(release: ReleaseLink): Promise<ReleaseLink> {
   try {
     const scraped = await scrapeReleaseSource(release.sourceUrl);
     const livePlatforms = scraped.platformLinks.filter((platform) => platform.kind === "stream");
