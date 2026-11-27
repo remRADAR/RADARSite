@@ -33,6 +33,13 @@ export function WorkGrid({
     (c) => active === ALL || c.role.split(",").map((r) => r.trim()).includes(active)
   );
 
+  // The 2-up grid's centre divider follows the count of non-featured cards,
+  // not the raw array index: featured cards span both columns and restart the
+  // row, so keying on the index put the divider on the right-hand card after
+  // any featured card, drawing a stray border along the grid's outer edge.
+  let leftColumnSeen = 0;
+  const leftColumnFlags = visible.map((project) => (project.featured ? false : leftColumnSeen++ % 2 === 0));
+
   return (
     <div>
       {/* Hard toggle filter blocks. */}
@@ -62,7 +69,7 @@ export function WorkGrid({
             className={cn(
               "brut-border-b",
               project.featured ? "md:col-span-2" : "md:col-span-1",
-              !project.featured && i % 2 === 0 && "md:border-r-2 md:border-ink"
+              !project.featured && leftColumnFlags[i] && "md:border-r-2 md:border-ink"
             )}
           >
             <Link

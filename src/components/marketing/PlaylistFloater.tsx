@@ -102,7 +102,7 @@ export function PlaylistFloater() {
     window.addEventListener("pageshow", resumeIfActive);
     return () => {
       document.removeEventListener("visibilitychange", handleVisibility);
-      window.removeEventListener("pageshow", resumeIfActive);
+      document.removeEventListener("pageshow", resumeIfActive);
     };
   }, [resumeIfActive]);
 
@@ -261,14 +261,16 @@ export function PlaylistFloater() {
             >
               {playing ? <Pause size={17} strokeWidth={2.5} /> : <Play size={17} strokeWidth={2.5} className="translate-x-px" />}
             </button>
+            {/* 24x24 minimum so the minimize control clears the WCAG 2.5.8
+                target-size floor on touch devices (it was 20x20). */}
             <button
               type="button"
               aria-label="Minimize RADAR playlist player"
               title="Minimize player"
               onClick={toggleCollapsed}
-              className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full border border-paper bg-ink text-paper shadow-sm transition-transform hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flare"
+              className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full border border-paper bg-ink text-paper shadow-sm transition-transform hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flare"
             >
-              <Minimize2 size={10} strokeWidth={2.5} />
+              <Minimize2 size={12} strokeWidth={2.5} />
             </button>
           </div>
         )}
