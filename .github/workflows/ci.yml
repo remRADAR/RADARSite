@@ -31,7 +31,7 @@ jobs:
           echo "Available disk on /: ${AVAIL_GB} GB (minimum required: ${MIN_GB} GB)"
           df -h /
           if [ "$AVAIL_GB" -lt "$MIN_GB" ]; then
-            echo "::error::Insufficient disk space: ${AVAIL_GB} GB available, ${MIN_GB} GB required. Free space on the runner and re-run. No cleanup was attempted."
+            echo "::error::Insufficient disk space: $AVAIL_GB GB available, $MIN_GB GB required. Free up space on the runner and re-run. No cleanup was attempted."
             exit 1
           fi
 
@@ -48,6 +48,9 @@ jobs:
 
       - name: Media reference contract test
         run: npx tsx scripts/media-reference-contract-test.ts
+
+      - name: Studio media contract test
+        run: npm run media:studio-contract-test
 
       - name: Editorial sanitizer idempotency contract test
         run: npm run test:editorial-sanitizer
