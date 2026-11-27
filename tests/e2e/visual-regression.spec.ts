@@ -78,6 +78,23 @@ test.describe("visual regression baselines", () => {
       maxDiffPixelRatio: 0.01,
     });
   });
+
+  test("stayAKTiV archive — mobile", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/stayaktiv", { waitUntil: "networkidle" });
+    await page.addStyleTag({
+      content: `*, *::before, *::after { animation: none !important; transition: none !important; }`,
+    });
+    await page.waitForTimeout(500);
+
+    await expect(page.locator('main[class*="StayAktivArchive"]')).toHaveScreenshot("stayaktiv-archive-mobile.png", {
+      animations: "disabled",
+      caret: "hide",
+      scale: "css",
+      maxDiffPixelRatio: 0.01,
+    });
+  });
 });
 
 // Update snapshots intentionally with:
