@@ -14,13 +14,10 @@ const socialCardManifest: SocialCardManifest = {
   "width": 1200,
   "height": 630,
   "format": "jpeg",
-  "count": 1,
+  "count": 2,
   "cards": {
-    "neomah-teams-up-with-octobersrich-on-no-stress": {
-      "file": "neomah-teams-up-with-octobersrich-on-no-stress.jpg",
-      "source": "/editorial/neomah-teams-up-with-octobersrich-on-no-stress/featured.webp",
-      "bytes": 147873
-    }
+    "neomah-teams-up-with-octobersrich-on-no-stress": { "file": "neomah-teams-up-with-octobersrich-on-no-stress.jpg", "source": "/editorial/neomah-teams-up-with-octobersrich-on-no-stress/featured.webp", "bytes": 147873 },
+    "david-acekeyz-the-journey-17-track-debut-album": { "file": "david-acekeyz-the-journey-17-track-debut-album.jpg", "source": "https://pub-2d7f41f7140544c480801d8b90da765e.r2.dev/studio/assets/2026/11/fa16e3debebec082-img_6610.webp", "bytes": 39842 }
   }
 };
 
