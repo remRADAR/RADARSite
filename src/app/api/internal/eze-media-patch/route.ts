@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
       if (!bytes.length) throw new Error("empty image payload");
       if (bytes.length > 8 * 1024 * 1024) throw new Error("image exceeds 8MB");
       const result = await putMediaObject({
-        key: `editorial/eze/${image.key}.webp`,
+        key: image.key === "stayaktiv-logo" ? "brand/stayaktiv-logo.png" : `editorial/eze/${image.key}.webp`,
         body: bytes,
         contentType: image.contentType || "image/webp",
         cacheControl: "public, max-age=31536000, immutable",
