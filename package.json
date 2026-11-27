@@ -1,4 +1,3 @@
-{
   "name": "radarsite",
   "version": "0.1.0",
   "private": true,
@@ -40,6 +39,7 @@
     "cms:workflow-contract-test": "tsx scripts/cms-article-workflow-contract-test.ts",
     "notion:contract-test": "tsx scripts/notion-publish-contract-test.ts",
     "notion:image-hygiene-contract-test": "tsx scripts/notion-image-hygiene-test.ts",
+    "studio-image-slots:contract-test": "tsx scripts/studio-image-slots-contract-test.ts",
     "article-routing:contract-test": "tsx scripts/article-routing-contract-test.ts",
     "cloudflare-content:contract-test": "tsx scripts/cloudflare-content-store-contract-test.ts",
     "test:csp": "tsx scripts/csp-contract-test.ts",

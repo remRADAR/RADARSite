@@ -1,5 +1,5 @@
-import { decode } from "html-entities";
 import { readContent, type CmsRecord, type ContentCollections } from "@/lib/content-server";
+import { normalizeTagQuotes } from "@/lib/notion-image-hygiene";
 import { classifySection, editorialExcerpt, editorialTitle, normalizeEditorialContent } from "@/lib/editorial-normalization";
 import { deriveEditorialTaxonomy } from "@/lib/cms-taxonomy";
 import { getEffectiveImageUrl } from "@/lib/effective-image-url";
@@ -129,7 +129,7 @@ function spotifyEmbeds(source: string) {
 
 /** Converts known WordPress HTML into the deliberately small, safe editorial subset. */
 export function sanitizeEditorialHtml(input: unknown) {
-  const source = instagramEmbeds(spotifyEmbeds(socialFallbacks(typeof input === "string" ? input.slice(0, MAX_HTML) : "")));
+  const source = instagramEmbeds(spotifyEmbeds(socialFallbacks(normalizeTagQuotes(typeof input === "string" ? input.slice(0, MAX_HTML) : ""))));
   return source
     .replace(/<!--[\s\S]*?-->/g, "")
     .replace(/<\/?(script|style|object|embed|form|svg|math|link|meta|noscript)[^>]*>/gi, "")
