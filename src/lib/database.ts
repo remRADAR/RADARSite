@@ -1,5 +1,6 @@
 import { neon, neonConfig } from "@neondatabase/serverless";
 import postgres from "postgres";
+import { isD1DatabaseConfigured } from "@/lib/d1-database";
 
 type SqlClient = (strings: TemplateStringsArray, ...values: unknown[]) => Promise<unknown[]>;
 
@@ -129,7 +130,12 @@ function withRetry(client: SqlClient): SqlClient {
   })();
 }
 
+export function databaseConfigured() {
+  return isD1DatabaseConfigured() || Boolean(process.env.DATABASE_URL);
+}
+
 export function databaseSql(): SqlClient {
+  if (isD1DatabaseConfigured()) throw new Error("databaseSql is not available when DATABASE_PROVIDER=d1");
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL is not configured");
   const provider = databaseProvider();

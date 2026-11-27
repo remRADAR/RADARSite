@@ -50,7 +50,6 @@ async function imageSourceForRenderer(source: string) {
 
   if (url.origin === new URL(publicSiteUrl()).origin) {
     try {
-      // @ts-expect-error -- supplied by the Cloudflare Vite/Vinext runtime, not Node.js
       const workerModule: { env: unknown } = await import("cloudflare:workers");
       const environment = workerModule.env as { ASSETS?: WorkerAssetFetcher };
       if (environment.ASSETS) {

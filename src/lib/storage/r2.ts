@@ -106,7 +106,6 @@ function nativeInfo(object: NativeR2Object): StorageObjectInfo {
 async function nativeBucket(): Promise<NativeR2Bucket | undefined> {
   let workerModule: { env: unknown };
   try {
-    // @ts-expect-error -- supplied by the Cloudflare Vite/Vinext runtime, not by Vercel's Node runtime
     workerModule = await import("cloudflare:workers");
   } catch {
     return undefined;

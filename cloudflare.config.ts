@@ -26,6 +26,8 @@ export default defineConfig({
       ASSETS: bindings.assets(),
       RADARSITE_MEDIA: bindings.r2({ name: "radarsite-media" }),
       RADARSITE_R2_TRANSPORT: bindings.text("native"),
+      RADAR_DB: bindings.d1({ name: "radarsite-studio" }),
+      DATABASE_PROVIDER: bindings.text("d1"),
     },
   }),
 });
