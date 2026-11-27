@@ -120,7 +120,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
   const excerpt = excerptSource.length > 110 ? `${excerptSource.slice(0, 109).trimEnd()}\u2026` : excerptSource;
   const imageUrl = cardImageUrl(decodedSlug, record.imageUrl || record.featuredImage);
   const logoUrl = `${publicSiteUrl()}/radar-logo.webp`;
-  const stayAktivUrl = `${publicSiteUrl()}/brand/stayaktiv-logo.png`;
+  // stayAKTiV mark lives in our R2 media bucket (imported alongside the article
+  // artwork), so the card does not depend on a committed binary asset.
+  const stayAktivUrl = `${publicSiteUrl()}/api/brand/stayaktiv-logo`;
   const byline = editorialAuthorProfile(record).byline;
   const [imageSource, logoSource, stayAktivSource] = await Promise.all([
     imageSourceForRenderer(imageUrl),
