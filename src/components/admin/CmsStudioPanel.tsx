@@ -25,7 +25,10 @@ function extractInlineFigures(bodyHtml: string): InlineFigure[] {
     const src = block.match(/<img\b[^>]*\bsrc\s*=\s*["']([^"']+)["']/i)?.[1] || "";
     if (!src) continue;
     const alt = block.match(/<img\b[^>]*\balt\s*=\s*["']([^"']*)["']/i)?.[1]?.replace(/&quot;/g, "\"").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&") || "";
-    const caption = block.match(/<figcaption\b[^>]*>([\s\S]*?)<\/figcaption>/i)?.[1]?.replace(/<[^>]*>/g, "").trim() || "";
+    // Caption is plain text for the editor inputs: it is displayed through
+    // React (auto-escaped) and written back through escapeHtmlValue, so it is
+    // only entity-decoded here, never tag-stripped by hand.
+    const caption = block.match(/<figcaption\b[^>]*>([\s\S]*?)<\/figcaption>/i)?.[1]?.replace(/&quot;/g, "\"").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&").trim() || "";
     figures.push({ block, src, alt, caption });
   }
   return figures;
