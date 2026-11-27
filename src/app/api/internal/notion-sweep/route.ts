@@ -2,6 +2,7 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { POST as notionPublishPost } from "@/app/api/integrations/notion/publish/route";
 import { readContent } from "@/lib/content-server";
+import { backfillNotionImages } from "@/lib/notion-image-backfill";
 import { routePublishedArticles } from "@/lib/article-routing";
 import {
   EDITORIAL_PROPERTY_NAMES, NOTION_API_VERSION, normalizeNotionPageId, readNotionProperty,
@@ -114,6 +115,15 @@ async function sweep(request: NextRequest, dryRun: boolean) {
   const refreshed = dryRun ? content : await readContent({ fallbackToSnapshot: false });
   const reports = await routePublishedArticles(refreshed, { dryRun, limit: 50 });
 
+  // Self-healing: any article still carrying a temporary Notion image URL is
+  // repaired here, on the same schedule as the publish sweep. This is what
+  // makes the fix permanent rather than a one-off backfill — a temporary link
+  // that reaches the CMS by any path is healed on the next pass.
+  const images = await backfillNotionImages({ token, dryRun }).catch((error) => ({
+    ok: false, dryRun, scanned: 0, affected: 0, repaired: 0, failed: 0, reports: [],
+    blockedBy: error instanceof Error ? error.message : String(error),
+  }));
+
   return json({
     approved: approved.length,
     outstanding: outstanding.length,
@@ -121,6 +131,14 @@ async function sweep(request: NextRequest, dryRun: boolean) {
     routed: reports.length,
     complete: reports.filter((report) => report.complete).length,
     incomplete: reports.filter((report) => !report.complete).map((report) => ({ slug: report.slug, blocked: report.blocked })),
+    images: {
+      ok: images.ok,
+      affected: images.affected,
+      repaired: images.repaired,
+      failed: images.failed,
+      blockedBy: images.blockedBy || "",
+      reports: images.reports.map((report) => ({ slug: report.slug, replaced: report.replaced, written: report.written, error: report.error || "" })),
+    },
   });
 }
 
