@@ -12,7 +12,7 @@ import {
   removeMediaAsset,
   type MediaLibraryAsset,
 } from "@/lib/media-library";
-import { maxMediaUploadBytes, processStudioImageUpload, MediaUploadValidationError } from "@/lib/media-upload";
+import { maxMediaUploadBytes, processStudioImageUpload, MediaUploadValidationError, type MediaUploadErrorCode } from "@/lib/media-upload";
 import { isSameOriginMutation, rateLimit } from "@/lib/request-security";
 import { getSessionCookieName, isSessionValid } from "@/lib/studio-server";
 

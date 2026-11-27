@@ -261,7 +261,8 @@ export async function upsertMediaAsset(asset: MediaLibraryAsset): Promise<MediaL
 export async function removeMediaAsset(id: string): Promise<MediaLibraryAsset | null> {
   for (let attempt = 0; attempt < CAS_RETRY_ATTEMPTS; attempt++) {
     const { manifest, etag } = await readMediaLibrary();
-    const asset = manifest?.assets.find((item) => item.id === id) ?? null;
+    if (!manifest) return null;
+    const asset = manifest.assets.find((item) => item.id === id) ?? null;
     if (!asset) return null;
     const next: MediaLibraryManifest = { version: MEDIA_LIBRARY_VERSION, updatedAt: new Date().toISOString(), assets: manifest.assets.filter((item) => item.id !== id) };
     try { await writeMediaLibrary(next, etag); return asset; }
