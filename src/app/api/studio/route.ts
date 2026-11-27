@@ -7,6 +7,7 @@ import { EDITORIAL_AUTHOR_PROFILES, editorialAuthorProfile } from "@/lib/editori
 import { createSessionToken, getSessionCookieName, getSessionCookieOptions, hasDatabase, isAdminPasswordValid, isSessionValid, readStudioSettings, writeStudioSettings } from "@/lib/studio-server";
 import { deriveEditorialTaxonomy, EDITORIAL_TYPES, MAGAZINE_SUBTYPES, suggestArticleTags, suggestSeoMetadata, validateEditorialTaxonomy } from "@/lib/cms-taxonomy";
 import { sanitizeEditorialHtml } from "@/lib/editorial-migration";
+import { temporaryNotionImageBlocker } from "@/lib/notion-image-hygiene";
 import { getClientAddress, isSameOriginMutation, rateLimit } from "@/lib/request-security";
 import { PUBLIC_SITE_OVERRIDES_CACHE_TAG } from "@/lib/public-site";
 
@@ -167,6 +168,13 @@ export async function PUT(request: NextRequest) {
       // instead of silently overwriting it (same guard the Notion path uses).
       const snapshot = await readContentWriteSnapshot(); const current = snapshot.content; const existing = current.articles.map((item) => item as CmsRecord).find((item) => item.id === text(body.article?.id) || item.slug === text(body.article?.slug));
       const article = normalizeArticleInput(body.article, existing); const duplicate = current.articles.some((item) => item.slug === article.slug && item !== existing); if (duplicate) return json({ error: "Another article already uses this slug." }, { status: 409 });
+      // A published article must never carry a temporary Notion image URL: it
+      // expires within the hour and is never mirrored to Cloudflare storage.
+      // Drafts are allowed through so an editor can still work on them.
+      if (article.status === "published") {
+        const blocker = temporaryNotionImageBlocker(article as Record<string, unknown>);
+        if (blocker) return json({ error: blocker, code: "temporary_notion_image_url" }, { status: 422 });
+      }
       const next = normalizeContent({ ...current, articles: existing ? current.articles.map((item) => item === existing ? article : item) : [...current.articles, article] }); const written = await writeContentIfUnchanged(snapshot.revision, next);
       if (!written) return json({ error: "The CMS changed while this article was being saved. Reload the latest version and retry.", code: "concurrent_cms_update" }, { status: 409 });
       revalidateTag(contentCacheTag(), { expire: 0 }); return json({ saved: true, article: articleForEditor(article), summary: summary(article) });

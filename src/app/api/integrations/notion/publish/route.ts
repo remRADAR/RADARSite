@@ -7,6 +7,7 @@ import {
 } from "@/lib/content-server";
 import { articlePath } from "@/lib/editorial-normalization";
 import { createMediaRelationshipId } from "@/lib/media-relationships";
+import { temporaryNotionImageBlocker } from "@/lib/notion-image-hygiene";
 import { type ImportedNotionMedia, validateNotionImageUrl } from "@/lib/notion-media";
 import { notionPublishRuntime } from "@/lib/notion-publish-runtime";
 import {
@@ -106,7 +107,7 @@ async function notionChildren(blockId: string, token: string): Promise<NotionBlo
 function recordsIn(content: ContentCollections): CmsRecord[] {
   return [...content.articles, ...content.magazine].map((item) => item as CmsRecord);
 }
-function toPublishedRecord(page: NotionPage, dataSource: NotionDataSource, html: string, existing?: CmsRecord, featuredImage = ""): CmsRecord {
+function toPublishedRecord(page: NotionPage, dataSource: NotionDataSource, html: string, existing?: CmsRecord, featuredImage = "", options: { enforceStoredImages?: boolean } = {}): CmsRecord {
   const draft = mapNotionPageToDraft(page, dataSource, html);
   const placement = notionEditorialPlacement(draft);
   const article = normalizeArticleInput({
@@ -152,6 +153,14 @@ function toPublishedRecord(page: NotionPage, dataSource: NotionDataSource, html:
   article.featured = draft.featured;
   article.sourceSnapshot = cmsSyncSnapshot(article);
   article.sourceSnapshotHash = sourceFingerprint(article);
+  // Hard gate: a temporary Notion URL must never reach the CMS. Every image is
+  // imported into Cloudflare storage before this point, so a remaining
+  // temporary URL means an import silently failed. Refusing the write is the
+  // only safe outcome — publishing it would guarantee broken images later.
+  if (options.enforceStoredImages !== false) {
+    const blocker = temporaryNotionImageBlocker(article as Record<string, unknown>);
+    if (blocker) throw apiError(blocker, 502, "temporary_notion_image_url");
+  }
   return article;
 }
 function replaceCollection(content: ContentCollections, article: CmsRecord, existing?: CmsRecord): ContentCollections {
@@ -283,7 +292,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (isDryRun) {
-      const previewRecord = toPublishedRecord(page, dataSource, rendered.html, undefined, featuredSource ? "https://preview.invalid/notion-image" : "");
+      const previewRecord = toPublishedRecord(page, dataSource, rendered.html, undefined, featuredSource ? "https://preview.invalid/notion-image" : "", { enforceStoredImages: false });
       const cmsSnapshot = await notionPublishRuntime.readContentSnapshotReadOnly();
       const blockers: string[] = [];
       const hasImages = rendered.images.length > 0 || Boolean(featuredSource);
@@ -301,7 +310,7 @@ export async function POST(request: NextRequest) {
         if (currentCmsId && (!existing || allRecords.find((item) => item.id === currentCmsId) !== existing)) blockers.push("RADARSite CMS ID does not match the stored Notion page identity.");
         if (existing && !existing.sourceSnapshot) blockers.push("The existing CMS record lacks a sync snapshot and needs manual reconciliation.");
         if (permission.status === "Publishing" && !existing) blockers.push("Publishing can only be resumed when its CMS record exists.");
-        const comparisonRecord = existing ? toPublishedRecord(page, dataSource, rendered.html, existing, featuredSource ? "https://preview.invalid/notion-image" : "") : undefined;
+        const comparisonRecord = existing ? toPublishedRecord(page, dataSource, rendered.html, existing, featuredSource ? "https://preview.invalid/notion-image" : "", { enforceStoredImages: false }) : undefined;
         if (existing && comparisonRecord && hasImages) {
           for (const key of ["body", "bodyHtml", "featuredImage", "imageUrl", "featuredImageAlt", "socialImage"]) comparisonRecord[key] = existing[key];
         }

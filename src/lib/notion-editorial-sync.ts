@@ -314,6 +314,71 @@ export async function renderNotionBlockTree(blocks: NotionBlock[], readChildren:
   return { html: sanitized, images };
 }
 
+/**
+ * Collect every image source of a Notion page with a *currently valid* URL.
+ *
+ * Notion re-signs file URLs on every read, so this is the only way to recover
+ * an image whose stored URL has already expired. The returned `identity`
+ * (`origin + pathname`) is stable across re-signing and is what the repair
+ * engine matches on.
+ *
+ * `readChildren` is injected so the caller controls pagination and auth.
+ */
+export async function collectNotionImageSources(
+  page: NotionPage,
+  readChildren: ChildReader,
+  options: { maxBlocks?: number; maxDepth?: number } = {},
+): Promise<Array<{ blockId: string; sourceUrl: string; identity: string; alt: string; role: "featured" | "inline"; placementIndex?: number }>> {
+  const maxBlocks = options.maxBlocks ?? 1500;
+  const maxDepth = options.maxDepth ?? 8;
+  const sources: Array<{ blockId: string; sourceUrl: string; identity: string; alt: string; role: "featured" | "inline"; placementIndex?: number }> = [];
+  const identityOf = (value: string) => {
+    try { const url = new URL(value); return `${url.origin}${url.pathname}`; } catch { return value; }
+  };
+
+  const featured = notionFeaturedImageSource(page);
+  if (featured) {
+    sources.push({
+      blockId: "featured-image",
+      sourceUrl: featured,
+      identity: identityOf(featured),
+      alt: String(readNotionProperty(page, EDITORIAL_PROPERTY_NAMES.title) || ""),
+      role: "featured",
+    });
+  }
+
+  let count = 0;
+  let inlineIndex = 0;
+  const visit = async (items: NotionBlock[], depth: number): Promise<void> => {
+    if (depth > maxDepth) throw new Error("Notion content exceeds the supported nesting depth.");
+    for (const block of items) {
+      count += 1;
+      if (count > maxBlocks) throw new Error("Notion content exceeds the maximum supported block count.");
+      if (block.type === "image") {
+        const value = block[block.type] && typeof block[block.type] === "object" ? block[block.type] as Record<string, unknown> : {};
+        const source = value.external && typeof value.external === "object"
+          ? (value.external as Record<string, unknown>).url
+          : value.file && typeof value.file === "object"
+            ? (value.file as Record<string, unknown>).url
+            : "";
+        if (typeof source === "string" && source) {
+          sources.push({
+            blockId: block.id,
+            sourceUrl: source,
+            identity: identityOf(source),
+            alt: richTextText(value.caption) || "",
+            role: "inline",
+            placementIndex: inlineIndex++,
+          });
+        }
+      }
+      if (block.has_children) await visit(await readChildren(block.id), depth + 1);
+    }
+  };
+  await visit(await readChildren(page.id), 0);
+  return sources;
+}
+
 function safeUrl(value: unknown): string {
   if (typeof value !== "string" || !value.trim()) return "";
   try {
