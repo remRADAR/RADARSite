@@ -9,7 +9,6 @@ const marketingRoutes = [
   "/ontheradar",
   "/ontheradar/articles",
   "/ontheradar/magazine",
-  "/ontheradar/projects",
   "/ontheradar/events",
   "/radarmusic",
   "/radarmusic/artists",

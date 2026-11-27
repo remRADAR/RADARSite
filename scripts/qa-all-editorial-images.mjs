@@ -30,7 +30,6 @@ const routes = [
   "/ontheradar",
   "/ontheradar/articles",
   "/ontheradar/magazine",
-  "/ontheradar/projects",
   "/ontheradar/events",
   "/motherland",
   ...categoryRoutes,

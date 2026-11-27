@@ -31,7 +31,6 @@ const routes = [...new Set([
   "/ontheradar",
   "/ontheradar/articles",
   "/ontheradar/magazine",
-  "/ontheradar/projects",
   "/ontheradar/events",
   "/motherland",
   ...categoryRoutes,

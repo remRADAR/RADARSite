@@ -195,7 +195,7 @@ const r2Base = {
     Object.assign({ slug: "stale-notion-article", title: "Old Notion", date: "2026-01-01", tags: [], body: "", imageQuery: "", related: {} }, { sourceProvider: "notion", sourceId: "old-page" }),
   ],
   magazine: [Object.assign({ slug: "studio-magazine", title: "Studio Magazine", subtitle: "", year: "2026", body: "", imageQuery: "", related: {} }, { sourceProvider: "radarsite", sourceId: "mag-1" })],
-  radarProjects: [], events: [], pages: [], categories: [], archives: [],
+  events: [], pages: [], categories: [], archives: [],
 } as ContentCollections;
 const mergedDirect = mergeDirectNotionRecords(r2Base, [{ slug: "fresh-notion-article", sourceProvider: "notion", sourceId: "new-page" }]);
 assert.deepEqual(mergedDirect.articles.map((article) => article.slug), ["studio-article", "fresh-notion-article"], "fresh Notion content must replace stale Notion rows while preserving unrelated R2 articles");
@@ -225,7 +225,7 @@ assert.throws(() => validateNotionImageUrl("http://cdn.example/image.webp"), /HT
 assert.throws(() => validateNotionImageUrl("https://127.0.0.1/image.webp"), /hostname/);
 assert.throws(() => validateNotionImageUrl("https://metadata.google.internal/image.webp"), /hostname/);
 
-const EMPTY_CONTENT = (): ContentCollections => ({ articles: [], magazine: [], artists: [], releases: [], radarProjects: [], events: [], pages: [], categories: [], archives: [] });
+const EMPTY_CONTENT = (): ContentCollections => ({ articles: [], magazine: [], artists: [], releases: [], events: [], pages: [], categories: [], archives: [] });
 type PublishScenario = "success" | "cas-conflict" | "source-revoked" | "block-changed-same-revision" | "finalization-failure" | "media-failure" | "cache-failure";
 type ScenarioState = {
   page: NotionPage;

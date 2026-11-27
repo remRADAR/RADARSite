@@ -9,7 +9,6 @@ const routes = [
   "/motherland",
   "/ontheradar",
   "/ontheradar/articles",
-  "/ontheradar/projects",
   "/radarmusic",
   "/radarmusic/artists",
   "/work",

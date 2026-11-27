@@ -2,8 +2,8 @@
   position: relative;
   min-height: min(88svh, 58rem);
   overflow: hidden;
-  background: #050505;
-  color: #f7f7f2;
+  background: var(--paper, #050505);
+  color: var(--ink, #f7f7f2);
 }
 .media { position: absolute; inset: 0; }
 .scrim {

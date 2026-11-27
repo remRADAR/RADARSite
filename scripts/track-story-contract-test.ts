@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { getTrackStories, normalizeStorySyncCards, normalizeTrackStory, TrackStoryValidationError } from "@/lib/track-story";
 
-const emptyContent = { artists: [], releases: [], articles: [], magazine: [], radarProjects: [], events: [], pages: [], categories: [], archives: [], tracks: [] };
+const emptyContent = { artists: [], releases: [], articles: [], magazine: [], events: [], pages: [], categories: [], archives: [], tracks: [] };
 const empty = getTrackStories(emptyContent);
 assert.equal(empty.length, 0);
 const cards = normalizeStorySyncCards([{ id: "late", atSeconds: 20, title: "Late", body: "Later" }, { id: "early", atSeconds: 0, title: "Early", body: "Opening" }]);

@@ -49,7 +49,7 @@ export type SiteOverrides = {
   contactCTA: ContactCTA;
 };
 
-const defaultMotherlandBanner: MotherlandBanner[] = [{ text: "MOTHERLAND PROJECT", link: "/ontheradar/projects", startDate: "", endDate: "", visible: true }];
+const defaultMotherlandBanner: MotherlandBanner[] = [{ text: "MOTHERLAND PROJECT", link: "/motherland", startDate: "", endDate: "", visible: true }];
 const defaultEcosystemNav: EcosystemNavItem[] = [
   { label: "ARTICLES", slug: "/ontheradar/articles", order: 1, visible: true },
   { label: "MUSIC", slug: "/radarmusic", order: 2, visible: true },

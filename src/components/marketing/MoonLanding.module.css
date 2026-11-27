@@ -5,7 +5,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: min(86svh, 44rem);
+  /* fills the space the page gives it instead of leaving a gap above the pod */
+  min-height: clamp(24rem, 72svh, 40rem);
   overflow: hidden;
   background: #050505;
   isolation: isolate;
