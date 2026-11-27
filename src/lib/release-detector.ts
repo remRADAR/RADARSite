@@ -1,4 +1,4 @@
-import { listArtistProfiles, scrapeReleaseSource, updateArtistProfileSignature, upsertReleaseLink, type ArtistProfile, type ReleaseLink } from "@/lib/release-links";
+import { listArtistProfiles, listReleaseLinks, refreshReleaseLink, scrapeReleaseSource, updateArtistProfileSignature, upsertReleaseLink, type ArtistProfile, type ReleaseLink } from "@/lib/release-links";
 
 const MAX_PROFILE_BYTES = 2_000_000;
 const MAX_CANDIDATES = 12;
@@ -19,10 +19,20 @@ async function readProfile(profile: ArtistProfile) {
   const signature = `${html.length}:${html.slice(0, 160)}:${html.slice(-160)}`;
   return { html, signature, candidates: releaseCandidates(html, monitorUrl) };
 }
-export type DetectorResult = { profilesChecked: number; candidatesFound: number; releasesUpdated: ReleaseLink[]; errors: { profile: string; error: string }[] };
+export type DetectorResult = { profilesChecked: number; candidatesFound: number; releasesUpdated: ReleaseLink[]; releaseLinksChecked: number; releaseLinksRefreshed: number; errors: { profile: string; error: string }[] };
 export async function runReleaseDetector(): Promise<DetectorResult> {
   const profiles = await listArtistProfiles();
-  const result: DetectorResult = { profilesChecked: profiles.length, candidatesFound: 0, releasesUpdated: [], errors: [] };
+  const releaseLinks = await listReleaseLinks();
+  const result: DetectorResult = { profilesChecked: profiles.length, candidatesFound: 0, releasesUpdated: [], releaseLinksChecked: releaseLinks.filter((release) => release.status === "published").length, releaseLinksRefreshed: 0, errors: [] };
+  for (const release of releaseLinks) {
+    if (release.status !== "published") continue;
+    try {
+      const refreshed = await refreshReleaseLink(release);
+      if (refreshed.updatedAt !== release.updatedAt) result.releaseLinksRefreshed += 1;
+    } catch (error) {
+      result.errors.push({ profile: `${release.artist} — ${release.title}`, error: error instanceof Error ? error.message : "Release source refresh failed" });
+    }
+  }
   for (const profile of profiles) {
     try {
       const snapshot = await readProfile(profile);

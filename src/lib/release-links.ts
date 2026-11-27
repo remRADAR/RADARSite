@@ -60,7 +60,8 @@ export async function getReleaseLink(slug: string): Promise<ReleaseLink | null> 
     await ensureReleaseLinksTable();
     const rows = await sql()`SELECT id, slug, title, artist, release_date AS "releaseDate", cover_image AS "coverImage", source_url AS "sourceUrl", source_title AS "sourceTitle", platform_links AS "platformLinks", status, updated_at AS "updatedAt", artist_key AS "artistKey", detected_by AS "detectedBy" FROM release_links WHERE slug = ${normalized} AND status = 'published' LIMIT 1` as unknown as ReleaseLink[];
     const row = rows[0];
-    return row ? { ...row, platformLinks: uniquePlatforms(Array.isArray(row.platformLinks) ? row.platformLinks : []) } : fallbackItems().find((item) => item.slug === normalized) || null;
+    const release = row ? { ...row, platformLinks: uniquePlatforms(Array.isArray(row.platformLinks) ? row.platformLinks : []) } : fallbackItems().find((item) => item.slug === normalized) || null;
+    return release ? refreshReleaseLink(release) : null;
   } catch { return fallbackItems().find((item) => item.slug === normalized) || null; }
 }
 
@@ -70,6 +71,46 @@ export async function upsertReleaseLink(input: ReleaseLink): Promise<ReleaseLink
   await ensureReleaseLinksTable();
   await sql()`INSERT INTO release_links (id, slug, title, artist, release_date, cover_image, source_url, source_title, platform_links, status, updated_at, artist_key, detected_by) VALUES (${release.id}, ${release.slug}, ${release.title}, ${release.artist}, ${release.releaseDate}, ${release.coverImage}, ${release.sourceUrl}, ${release.sourceTitle}, ${JSON.stringify(release.platformLinks)}::jsonb, ${release.status}, now(), ${release.artistKey || null}, ${release.detectedBy || null}) ON CONFLICT (slug) DO UPDATE SET title = EXCLUDED.title, artist = EXCLUDED.artist, release_date = EXCLUDED.release_date, cover_image = EXCLUDED.cover_image, source_url = EXCLUDED.source_url, source_title = EXCLUDED.source_title, platform_links = EXCLUDED.platform_links, status = EXCLUDED.status, updated_at = now(), artist_key = EXCLUDED.artist_key, detected_by = EXCLUDED.detected_by`;
   return release;
+}
+
+const releaseRefreshCache = new Map<string, { at: number; release: ReleaseLink }>();
+const RELEASE_REFRESH_TTL_MS = 5 * 60_000;
+function releaseDayStart(value: string) {
+  const date = new Date(`${value}T00:00:00+01:00`);
+  return Number.isNaN(date.getTime()) ? new Date() : date;
+}
+
+/**
+ * Refresh a published release from its authoritative source page after release day.
+ * The source page is scraped for current metadata and platform links; a failed or
+ * still-presave source never overwrites the stored pre-save link.
+ */
+export async function refreshReleaseLink(release: ReleaseLink, now = new Date()): Promise<ReleaseLink> {
+  if (!databaseEnabled() || release.status !== "published" || now.getTime() < releaseDayStart(release.releaseDate).getTime()) return release;
+  const cached = releaseRefreshCache.get(release.slug);
+  if (cached && Date.now() - cached.at < RELEASE_REFRESH_TTL_MS) return cached.release;
+  try {
+    const scraped = await scrapeReleaseSource(release.sourceUrl);
+    const livePlatforms = scraped.platformLinks.filter((platform) => platform.kind === "stream");
+    if (!livePlatforms.length) {
+      releaseRefreshCache.set(release.slug, { at: Date.now(), release });
+      return release;
+    }
+    const refreshed = await upsertReleaseLink({
+      ...release,
+      ...scraped,
+      id: release.id,
+      slug: release.slug,
+      sourceUrl: release.sourceUrl,
+      backdropImage: release.backdropImage || scraped.backdropImage,
+      platformLinks: scraped.platformLinks,
+    });
+    releaseRefreshCache.set(release.slug, { at: Date.now(), release: refreshed });
+    return refreshed;
+  } catch {
+    releaseRefreshCache.set(release.slug, { at: Date.now(), release });
+    return release;
+  }
 }
 
 export async function listArtistProfiles(): Promise<ArtistProfile[]> {
@@ -117,19 +158,19 @@ function matchesReleaseMetadata(value: string, artist: string, title: string) {
   return artistWords.length > 0 && titleWords.length > 0 && artistWords.every((word) => haystack.has(word)) && titleWords.every((word) => haystack.has(word));
 }
 function metadataFromHtml(html: string) { return [html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)/i)?.[1], html.match(/<meta[^>]+name=["']twitter:title["'][^>]+content=["']([^"']+)/i)?.[1], html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]].filter(Boolean).map((value) => stripHtml(value || "")).join(" | "); }
-function isPresaveRedirect(href: string, finalUrl: string) { return /ampsuite\.com|suitebeats\.ampsuite\.com/i.test(href) || /accounts\.spotify\.com|authorize/i.test(finalUrl); }
+function isPresaveRedirect(finalUrl: string) { return /ampsuite\.com|suitebeats\.ampsuite\.com|accounts\.spotify\.com|authorize/i.test(finalUrl); }
 const PLATFORM_HOSTS: Record<string, RegExp> = { Spotify: /spotify\.com$/i, "Apple Music": /apple\.com$/i, Boomplay: /boomplay\.com$/i, Audiomack: /audiomack\.com$/i, Tidal: /tidal\.com$/i, Deezer: /deezer\.com$/i, SoundCloud: /soundcloud\.com$/i, iHeartRadio: /iheart\.com$/i, YouTube: /youtube\.com$|youtu\.be$/i };
 async function verifyPlatformLink(href: string, platform: string, artist: string, title: string): Promise<ReleasePlatform | null> {
   try {
     const response = await fetch(href, { redirect: "follow", cache: "no-store", signal: AbortSignal.timeout(8_000), headers: { accept: "text/html,application/xhtml+xml", "user-agent": "RADARMusic-LinkVerifier/1.0" } });
     const finalUrl = response.url || href;
-    if (isPresaveRedirect(href, finalUrl)) return { name: platform, tone: PLATFORM_DEFINITIONS.find(([name]) => name === platform)?.[1] || "", href, verification: "source", kind: "presave" };
+    if (isPresaveRedirect(finalUrl)) return { name: platform, tone: PLATFORM_DEFINITIONS.find(([name]) => name === platform)?.[1] || "", href, verification: "source", kind: "presave" };
     if (!response.ok) return null;
     const html = (await response.text()).slice(0, 1_000_000);
     const metadata = metadataFromHtml(html);
     const finalHost = new URL(finalUrl).hostname;
     if (!PLATFORM_HOSTS[platform]?.test(finalHost) || !matchesReleaseMetadata(metadata, artist, title)) return null;
-    return { name: platform, tone: PLATFORM_DEFINITIONS.find(([name]) => name === platform)?.[1] || "", href, verification: "metadata", kind: "stream" };
+    return { name: platform, tone: PLATFORM_DEFINITIONS.find(([name]) => name === platform)?.[1] || "", href: finalUrl, verification: "metadata", kind: "stream" };
   } catch { return null; }
 }
 
