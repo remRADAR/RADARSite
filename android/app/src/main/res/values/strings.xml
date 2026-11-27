@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">RADARCharts</string>
+    <string name="title_activity_main">RADARCharts</string>
+    <string name="package_name">net.radarcharts.app</string>
+    <string name="custom_url_scheme">net.radarcharts.app</string>
+</resources>

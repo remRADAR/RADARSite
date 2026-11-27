@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en" data-tv-mode="true">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RADARCharts TV — D-pad navigation harness</title>
+<style>
+  :root {
+    --bg: #07090f;
+    --bg-2: #0d1220;
+    --surface: #141b2d;
+    --surface-2: #1b2438;
+    --line: #26314a;
+    --text: #eef2ff;
+    --muted: #8b97b4;
+    --accent: #4ade80;
+    --accent-2: #22d3ee;
+    --focus: #ffffff;
+    --danger: #f87171;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", "Roboto", -apple-system, "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* TV safe area: 5% overscan margin, per Android TV guidance. */
+  #app {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    padding: 48px 96px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    background:
+      radial-gradient(1200px 600px at 12% -10%, rgba(34, 211, 238, 0.16), transparent 60%),
+      radial-gradient(900px 500px at 92% 0%, rgba(74, 222, 128, 0.12), transparent 55%),
+      linear-gradient(180deg, var(--bg-2) 0%, var(--bg) 55%);
+  }
+
+  /* ---------------------------------------------------------------- top bar */
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex: 0 0 auto;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-weight: 800;
+    font-size: 26px;
+    letter-spacing: -0.02em;
+  }
+
+  .brand .mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: grid;
+    place-items: center;
+    color: #04120a;
+    font-size: 20px;
+    font-weight: 900;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 8px;
+    margin-left: 18px;
+  }
+
+  .nav-link {
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--muted);
+    background: transparent;
+    border: 2px solid transparent;
+    transition: background 140ms ease, color 140ms ease, transform 140ms ease;
+    outline: none;
+  }
+
+  .nav-link[data-tv-focused="true"] {
+    color: #04120a;
+    background: var(--focus);
+    transform: scale(1.06);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.22), 0 10px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .spacer { flex: 1; }
+
+  .clock {
+    font-variant-numeric: tabular-nums;
+    font-size: 17px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  /* ------------------------------------------------------------------- hero */
+  .hero {
+    position: relative;
+    flex: 0 0 auto;
+    height: 300px;
+    border-radius: 22px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background:
+      linear-gradient(90deg, rgba(7, 9, 15, 0.96) 0%, rgba(7, 9, 15, 0.72) 46%, rgba(7, 9, 15, 0.18) 100%),
+      linear-gradient(120deg, #123 0%, #1b2a4a 40%, #0e3b3a 100%);
+    display: flex;
+    align-items: center;
+    padding: 0 56px;
+  }
+
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 64px),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 64px);
+    mask-image: linear-gradient(90deg, transparent 30%, #000 100%);
+    pointer-events: none;
+  }
+
+  .hero-copy { position: relative; z-index: 1; max-width: 720px; }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+
+  .eyebrow .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.18);
+  }
+
+  .hero h1 {
+    margin: 0 0 12px;
+    font-size: 46px;
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+    font-weight: 800;
+  }
+
+  .hero p {
+    margin: 0 0 22px;
+    font-size: 17px;
+    line-height: 1.5;
+    color: #b9c4dd;
+    max-width: 560px;
+  }
+
+  .hero-actions { display: flex; gap: 14px; }
+
+  .btn {
+    padding: 14px 30px;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: 700;
+    border: 2px solid transparent;
+    background: var(--surface-2);
+    color: var(--text);
+    outline: none;
+    transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+  }
+
+  .btn.primary { background: var(--accent); color: #04120a; }
+
+  .btn[data-tv-focused="true"] {
+    transform: scale(1.07);
+    box-shadow: 0 0 0 4px var(--focus), 0 14px 40px rgba(0, 0, 0, 0.6);
+    background: var(--focus);
+    color: #04120a;
+  }
+
+  /* ------------------------------------------------------------------ rails */
+  .rails {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-height: 0;
+  }
+
+  .rail-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .rail-head h2 {
+    margin: 0;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .rail-head .count {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .rail {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 6px 4px 10px;
+    scrollbar-width: none;
+  }
+
+  .rail::-webkit-scrollbar { display: none; }
+
+  .card {
+    flex: 0 0 auto;
+    width: 236px;
+    height: 132px;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 2px solid var(--line);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    outline: none;
+    transition: transform 150ms cubic-bezier(.2,.8,.2,1), box-shadow 150ms ease, border-color 150ms ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card .ticker {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--accent-2);
+  }
+
+  .card .name {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--text);
+  }
+
+  .card .delta {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .card .delta.down { color: var(--danger); }
+
+  .card[data-tv-focused="true"] {
+    transform: scale(1.09);
+    border-color: var(--focus);
+    box-shadow: 0 0 0 3px var(--focus), 0 18px 44px rgba(0, 0, 0, 0.65);
+    z-index: 2;
+  }
+
+  .card[data-tv-focused="true"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.10), transparent 60%);
+    pointer-events: none;
+  }
+
+  /* --------------------------------------------------------------- hud/status */
+  .hud {
+    position: absolute;
+    right: 96px;
+    bottom: 34px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  .hud .pill {
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(20, 27, 45, 0.9);
+    border: 1px solid var(--line);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hud .pill b { color: var(--text); }
+
+  /* Focus debug readout — proves which element the engine selected. */
+  #focus-readout {
+    position: absolute;
+    left: 96px;
+    bottom: 34px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  #focus-readout b { color: var(--accent); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="topbar" data-tv-container="topbar">
+    <div class="brand">
+      <div class="mark">R</div>
+      <span>RADARCharts</span>
+    </div>
+    <nav class="nav-links" data-tv-rail="nav">
+      <button class="nav-link" data-tv-focusable id="nav-home" data-tv-id="Home">Home</button>
+      <button class="nav-link" data-tv-focusable id="nav-markets" data-tv-id="Markets">Markets</button>
+      <button class="nav-link" data-tv-focusable id="nav-watchlist" data-tv-id="Watchlist">Watchlist</button>
+      <button class="nav-link" data-tv-focusable id="nav-signals" data-tv-id="Signals">Signals</button>
+    </nav>
+    <div class="spacer"></div>
+    <div class="clock" id="clock">--:--</div>
+  </header>
+
+  <section class="hero" data-tv-container="hero">
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="dot"></span> Live · Market open</div>
+      <h1>Momentum is rotating into<br />semiconductors</h1>
+      <p>Three of the four tracked sectors flipped positive on the 20-day trend. Your watchlist is up 2.4% on the session.</p>
+      <div class="hero-actions" data-tv-rail="hero-actions">
+        <button class="btn primary" data-tv-focusable id="hero-play" data-tv-id="Open dashboard">Open dashboard</button>
+        <button class="btn" data-tv-focusable id="hero-info" data-tv-id="More info">More info</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="rails">
+    <section data-tv-container="rail-trending">
+      <div class="rail-head">
+        <h2>Trending now</h2>
+        <span class="count">9 items</span>
+      </div>
+      <div class="rail" data-tv-rail="trending" id="rail-trending">
+        <div class="card" data-tv-focusable data-tv-id="NVDA" tabindex="0"><span class="ticker">NVDA</span><span class="name">NVIDIA Corp</span><span class="delta">+3.42%</span></div>
+        <div class="card" data-tv-focusable data-tv-id="AMD" tabindex="0"><span class="ticker">AMD</span><span class="name">Advanced Micro Devices</span><span class="delta">+2.18%</span></div>
+        <div class="card" data-tv-focusable data-tv-id="TSM" tabindex="0"><span class="ticker">TSM</span><span class="name">Taiwan Semiconductor</span><span class="delta">+1.94%</span></div>
+        <div class="card" data-tv-focusable data-tv-id="AVGO" tabindex="0"><span class="ticker">AVGO</span><span class="name">Broadcom Inc</span><span class="delta">+1.61%</span></div>
+        <div class="card" data-tv-focusable data-tv-id="ASML" tabindex="0"><span class="ticker">ASML</span><span class="name">ASML Holding</span><span class="delta">+1.12%</span></div>
+        <div class="card" data-tv-focusable data-tv-id="MU" tabindex="0"><span class="ticker">MU</span><span class="name">Micron Technology</span><span class="delta down">-0.44%</span></div>
+        <div class="card" data-tv-focusable data-tv-id="INTC" tabindex="0"><span class="ticker">INTC</span><span class="name">Intel Corp</span><span class="delta down">-1.02%</span></div>
+        <div class="card" data-tv-focusable data-tv-id="QCOM" tabindex="0"><span class="ticker">QCOM</span><span class="name">Qualcomm Inc</span><span class="delta">+0.73%</span></div>
+        <div class="card" data-tv-focusable data-tv-id="TXN" tabindex="0"><span class="ticker">TXN</span><span class="name">Texas Instruments</span><span class="delta">+0.28%</span></div>
+      </div>
+    </section>
+
+    <section data-tv-container="rail-watchlist">
+      <div class="rail-head">
+        <h2>Your watchlist</h2>
+        <span class="count">5 items</span>
+      </div>
+      <div class="rail" data-tv-rail="watchlist" id="rail-watchlist">
+        <div class="card" data-tv-focusable data-tv-id="AAPL" tabindex="0"><span class="ticker">AAPL</span><span class="name">Apple Inc</span><span class="delta">+0.87%</span></div>
+        <div class="card" data-tv-focusable data-tv-id="MSFT" tabindex="0"><span class="ticker">MSFT</span><span class="name">Microsoft Corp</span><span class="delta">+1.24%</span></div>
+        <div class="card" data-tv-focusable data-tv-id="GOOGL" tabindex="0"><span class="ticker">GOOGL</span><span class="name">Alphabet Inc</span><span class="delta down">-0.31%</span></div>
+        <div class="card" data-tv-focusable data-tv-id="AMZN" tabindex="0"><span class="ticker">AMZN</span><span class="name">Amazon.com Inc</span><span class="delta">+0.62%</span></div>
+        <div class="card" data-tv-focusable data-tv-id="META" tabindex="0"><span class="ticker">META</span><span class="name">Meta Platforms</span><span class="delta">+1.05%</span></div>
+      </div>
+    </section>
+  </div>
+
+  <div id="focus-readout">focus: <b id="focus-id">—</b> · moves: <b id="move-count">0</b></div>
+  <div class="hud">
+    <span class="pill">DPAD <b>↑ ↓ ← →</b></span>
+    <span class="pill">OK <b>select</b></span>
+    <span class="pill">BACK <b>exit</b></span>
+  </div>
+</div>
+
+<script src="./tv-nav.bundle.js"></script>
+<script>
+  (function () {
+    var moves = 0;
+    var nav = window.TvNav.createTvNav({
+      onFocusChange: function (el, dir) {
+        if (dir !== 'init') moves++;
+        var id = el.getAttribute('data-tv-id') || el.id || el.textContent.trim().slice(0, 18);
+        document.getElementById('focus-id').textContent = id;
+        document.getElementById('move-count').textContent = String(moves);
+        window.__tvFocus = { id: id, dir: dir, moves: moves };
+      },
+      onEdge: function (dir) {
+        window.__tvEdge = dir;
+      }
+    });
+    window.__nav = nav;
+    nav.start();
+
+    // Clock
+    function tick() {
+      var d = new Date();
+      document.getElementById('clock').textContent =
+        String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    }
+    tick();
+    setInterval(tick, 10000);
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "appId": "net.radarcharts.app",
+  "appName": "RADARCharts",
+  "webDir": "www",
+  "server": {
+    "url": "https://radarcharts.net",
+    "androidScheme": "https",
+    "hostname": "radarcharts.net",
+    "errorPath": "offline.html"
+  },
+  "android": {
+    "minWebViewVersion": 87,
+    "allowMixedContent": false,
+    "captureInput": false,
+    "webContentsDebuggingEnabled": false
+  }
+}

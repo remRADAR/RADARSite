@@ -1,0 +1,22 @@
+ext {
+    // ADR-003 (ratified): 24 / 36 / 36. compileSdk never lags targetSdk (I7).
+    minSdkVersion = 24
+    compileSdkVersion = 36
+    targetSdkVersion = 36
+
+    androidxActivityVersion = '1.9.3'
+    androidxAppCompatVersion = '1.7.0'
+    androidxCoordinatorLayoutVersion = '1.2.0'
+    androidxCoreVersion = '1.15.0'
+    androidxFragmentVersion = '1.8.5'
+    coreSplashScreenVersion = '1.0.1'
+    androidxWebkitVersion = '1.12.1'
+    junitVersion = '4.13.2'
+    androidxJunitVersion = '1.2.1'
+    androidxEspressoCoreVersion = '3.6.1'
+    cordovaAndroidVersion = '10.1.1'
+
+    // ADR-003 C3.2: desugaring is part of the decision, not a follow-up.
+    // Java 21 + minSdk 24 without this compiles and crashes at runtime.
+    desugarJdkLibsVersion = '2.1.5'
+}

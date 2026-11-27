@@ -54,3 +54,13 @@ screens/
 # route imports is committed as a placeholder so the build always resolves it.
 /public/social/cards/*.webp
 /public/social/cards/manifest.json
+
+# Android shell build artifacts and signing material (never commit secrets)
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/keystore.properties
+*.jks
+*.keystore
+evidence/build-output/

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  A11 fix. Capacitor's generated styles.xml references @color/colorPrimary,
+  @color/colorPrimaryDark and @color/colorAccent but ships NO colors.xml, so
+  aapt fails with "resource color/colorPrimary not found" on a clean build.
+  This file is the missing resource, populated with the RADARCharts palette.
+-->
+<resources>
+    <color name="colorPrimary">#4ADE80</color>
+    <color name="colorPrimaryDark">#07090F</color>
+    <color name="colorAccent">#22D3EE</color>
+
+    <color name="radar_background">#07090F</color>
+    <color name="radar_surface">#141B2D</color>
+    <color name="radar_text">#EEF2FF</color>
+    <color name="radar_focus">#FFFFFF</color>
+</resources>

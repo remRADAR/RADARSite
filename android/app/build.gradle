@@ -1,0 +1,158 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+/*
+ * RADARSite Android shell — one module, two flavours (ADR-004 / I6).
+ *
+ * mobile : phone/tablet, no leanback, no TV banner.
+ * tv     : Android TV, leanback required, banner, TV_FLAVOUR=true for the native
+ *          D-pad fallback path.
+ *
+ * Both ship from the same source set and the same signing config. The listing model
+ * is ADR-005 (docs/ADR-005-listing-model.md).
+ */
+
+android {
+    namespace "net.radarcharts.app"
+    compileSdk rootProject.ext.compileSdkVersion
+
+    defaultConfig {
+        applicationId "net.radarcharts.app"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+            ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+
+    // ADR-003 C3.2 — mandatory at Java 21 + minSdk 24.
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+        coreLibraryDesugaringEnabled true
+    }
+
+    kotlinOptions {
+        jvmTarget = '21'
+    }
+
+    flavorDimensions "platform"
+
+    productFlavors {
+        mobile {
+            dimension "platform"
+            buildConfigField "boolean", "TV_FLAVOUR", "false"
+            versionNameSuffix "-mobile"
+        }
+        tv {
+            dimension "platform"
+            buildConfigField "boolean", "TV_FLAVOUR", "true"
+            versionNameSuffix "-tv"
+            // Same applicationId as mobile per ADR-005 v1: one listing with a
+            // TV-enabled track. A distinct package later is a one-line change here
+            // plus a store asset, not a flavour-structure change.
+            applicationIdSuffix ""
+        }
+    }
+
+    // Signing config is read from keystore.properties, which is NOT committed.
+    // Absent properties -> no signingConfig is attached, and assembleRelease would
+    // produce an unsigned artifact; the build script refuses that case explicitly.
+    signingConfigs {
+        release {
+            def propsFile = rootProject.file("keystore.properties")
+            if (propsFile.exists()) {
+                def props = new Properties()
+                propsFile.withInputStream { props.load(it) }
+                storeFile rootProject.file(props['storeFile'])
+                storePassword props['storePassword']
+                keyAlias props['keyAlias']
+                keyPassword props['keyPassword']
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+            minifyEnabled false
+        }
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (rootProject.file("keystore.properties").exists()) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    // Derive packaged shell metadata from the build, never hand-edited (I8).
+    applicationVariants.all { variant ->
+        variant.resValue "string", "shell_build_id", "${variant.versionName}.${variant.versionCode}"
+    }
+
+    packagingOptions {
+        resources {
+            excludes += ['META-INF/*.kotlin_module']
+        }
+    }
+}
+
+repositories {
+    flatDir {
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation "androidx.webkit:webkit:$androidxWebkitVersion"
+    implementation project(':capacitor-android')
+
+    // ADR-003 C3.2 — core library desugaring.
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:$desugarJdkLibsVersion"
+
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch (Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied.")
+}
+
+/*
+ * Fail loudly instead of shipping an unsigned, uninstallable release APK.
+ */
+tasks.whenTaskAdded { task ->
+    if (task.name == 'assembleRelease' || task.name == 'bundleRelease') {
+        task.doFirst {
+            if (!rootProject.file("keystore.properties").exists()) {
+                throw new GradleException(
+                    "keystore.properties is missing — a release APK must be signed.\n" +
+                    "Run scripts/gen-keystore.sh first (see docs/BUILD_OUTPUT.md)."
+                )
+            }
+        }
+    }
+}
