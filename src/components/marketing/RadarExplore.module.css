@@ -178,6 +178,15 @@
   z-index: 2;
 }
 
+/* Hotspots past ~62% of the width sit close to the right edge; with the label
+   laid out to the right of the ring it ran past the frame and got clipped
+   (the "05 RADARCHARTS" and "04 ZUMZY BROWN" points). Mirror the row so the
+   label grows leftward into the image instead. */
+.hotspotFlip {
+  flex-direction: row-reverse;
+  transform: translate(-50%, -50%);
+}
+
 .hotspotRing {
   border: 1px solid var(--explore-accent);
   border-radius: 50%;
@@ -211,9 +220,14 @@
 }
 
 .hotspotLabel {
-  background: rgba(11, 11, 11, 0.72);
+  background: rgba(11, 11, 11, 0.86);
   padding: 0.3rem 0.45rem;
   white-space: nowrap;
+  /* The labels sit on a busy photograph — the stadium lights and the sunset
+     horizon are near-white, so dark text on 86% black still washed out.
+     A hairline light border plus a shadow holds the label against both. */
+  border: 1px solid rgba(244, 240, 232, 0.28);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
 }
 
 .hotspot:hover .hotspotRing,

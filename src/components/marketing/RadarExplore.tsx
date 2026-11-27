@@ -115,7 +115,7 @@ export function RadarExplore() {
               <button
                 key={point.id}
                 type="button"
-                className={`${styles.hotspot} ${activeId === point.id ? styles.activeHotspot : ""}`}
+                className={`${styles.hotspot} ${activeId === point.id ? styles.activeHotspot : ""} ${point.x > 62 ? styles.hotspotFlip : ""}`}
                 style={{ left: `${point.x}%`, top: `${point.y}%` }}
                 onClick={() => setActiveId(activeId === point.id ? null : point.id)}
                 aria-label={`Explore ${point.label}`}
