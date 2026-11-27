@@ -1,4 +1,4 @@
-.page { background: #f7f7f2; color: #050505; }
+.page { background: #f7f7f2; color: #050505; overflow-x: clip; }
 .ticker {
   position: relative;
   overflow: hidden;

@@ -68,7 +68,10 @@ test("landing page adapts between presave count-down and released states", async
     await expect(page.getByText("STREAM NOW", { exact: true })).toBeVisible();
     await expect(page.getByRole("link", { name: "ADD TO CALENDAR" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Pre-save", exact: true })).toHaveCount(0);
-    await expect(page.getByText("Verified listening links will appear here")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Listen", exact: true })).toHaveAttribute(
+      "href",
+      "https://open.spotify.com/album/5IzOj6CjShwPdswnu1oAzV",
+    );
   }
 });
 

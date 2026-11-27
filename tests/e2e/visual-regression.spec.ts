@@ -14,24 +14,34 @@ const freezeVisuals = async (page: Page) => {
       [aria-label="Hero slides"] button { pointer-events: none !important; }
     `,
   });
-  await page.evaluate(async () => {
-    await document.fonts.ready;
-    const imagesToFreeze = [...document.images].filter((image) => {
-      if (image.closest("[data-hero-panel]")) return true;
-      const { top, bottom } = image.getBoundingClientRect();
-      return bottom > 0 && top < window.innerHeight;
-    });
-    await Promise.all(
-      imagesToFreeze.map((image) =>
-        image.complete
-          ? Promise.resolve()
-          : new Promise<void>((resolve) => {
-              image.addEventListener("load", () => resolve(), { once: true });
-              image.addEventListener("error", () => resolve(), { once: true });
-            }),
-      ),
-    );
-  });
+  await page.evaluate(() => document.fonts.ready);
+
+  // Some editorial/remote images can remain pending indefinitely in CI. They
+  // should not block a screenshot forever: Playwright can still capture the
+  // deterministic layout and any image that did load after the bounded wait.
+  await page
+    .waitForFunction(
+      () =>
+        [...document.images]
+          .filter((image) => {
+            if (image.closest("[data-hero-panel]")) return true;
+            const { top, bottom } = image.getBoundingClientRect();
+            return bottom > 0 && top < window.innerHeight;
+          })
+          .every((image) => image.complete),
+      undefined,
+      { timeout: 3000 },
+    )
+    .catch(() => undefined);
+
+  // The app-level GSAP reveal is independent of CSS animations. Waiting for
+  // its actual hidden state prevents a route screenshot from capturing the
+  // #stayAKTiV curtain instead of the destination page.
+  const transitionOverlay = page.locator("[data-preloader-top]").locator("..");
+  if (await transitionOverlay.count()) {
+    await transitionOverlay.waitFor({ state: "hidden", timeout: 5000 }).catch(() => undefined);
+  }
+
   const firstSlide = page.getByRole("button", { name: "Show slide 1" });
   if (await firstSlide.count()) await firstSlide.click({ force: true });
 };
@@ -74,6 +84,23 @@ test.describe("visual regression baselines", () => {
       animations: "disabled",
       caret: "hide",
       mask: [page.locator("[data-visual-regression-mask]")],
+      scale: "css",
+      maxDiffPixelRatio: 0.01,
+    });
+  });
+
+  test("stayAKTiV archive — mobile", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/stayaktiv", { waitUntil: "networkidle" });
+    await page.addStyleTag({
+      content: `*, *::before, *::after { animation: none !important; transition: none !important; }`,
+    });
+    await page.waitForTimeout(500);
+
+    await expect(page.locator('main[class*="StayAktivArchive"]')).toHaveScreenshot("stayaktiv-archive-mobile.png", {
+      animations: "disabled",
+      caret: "hide",
       scale: "css",
       maxDiffPixelRatio: 0.01,
     });

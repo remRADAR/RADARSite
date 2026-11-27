@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { buildSpotifyAlbumReleaseLink, matchCrossPlatformReleases, parseSpotifyAlbumEmbed, parseSpotifyAlbumMetadata, SPOTIFY_ALBUM_URL_PATTERN } from "@/lib/release-links";
+import { buildSpotifyAlbumReleaseLink, matchCrossPlatformReleases, parseSpotifyAlbumEmbed, parseSpotifyAlbumMetadata, scrapeReleaseSource, SPOTIFY_ALBUM_URL_PATTERN } from "@/lib/release-links";
 
 const pageHtml = `<!doctype html><html><head>
 <title>Listen to Dark Era - Album by Mamuzo | Spotify</title>
@@ -114,5 +114,26 @@ assert.deepEqual(releaseWithCross.platformLinks.map((platform) => platform.name)
 
 assert.throws(() => buildSpotifyAlbumReleaseLink(sourceUrl, { ...page, title: "" }, { title: "", artist: "", tracks: embed.tracks }), /title and artist/);
 assert.throws(() => buildSpotifyAlbumReleaseLink(sourceUrl, { ...page, coverImage: "" }, embed), /cover artwork/);
+
+const ampsuiteSourceUrl = "https://paradoxrecords.ampsuite.com/releases/links?id=400";
+const ampsuiteLink = "https://paradoxrecords.ampsuite.com/releases/link-redirect?release_id=400&store_id=6";
+const ampsuiteHtml = `<!doctype html><html><head><title>Omolops - Mamuzo</title><meta property="og:title" content="Omolops - Mamuzo" /><meta property="og:image" content="https://paradoxrecords.ampsuite.com/uploaded/500x500/omolops.jpeg" /></head><body><p>Mamuzo - Omolops</p><p>Available from 11/27/26</p><a href="${ampsuiteLink}">Spotify View</a></body></html>`;
+const liveSpotifyHtml = `<!doctype html><html><head><title>Omolops - Album by Mamuzo | Spotify</title><meta property="og:title" content="Omolops - Album by Mamuzo | Spotify" /></head></html>`;
+const originalFetch = globalThis.fetch;
+const fakeResponse = (body: string, url: string) => ({ ok: true, status: 200, url, text: async () => body }) as Response;
+globalThis.fetch = (async (input: RequestInfo | URL) => {
+  const url = String(input);
+  if (url === ampsuiteSourceUrl) return fakeResponse(ampsuiteHtml, ampsuiteSourceUrl);
+  if (url === ampsuiteLink) return fakeResponse(liveSpotifyHtml, "https://open.spotify.com/album/5IzOj6CjShwPdswnu1oAzV");
+  throw new Error(`Unexpected contract-test fetch: ${url}`);
+}) as typeof fetch;
+try {
+  const refreshed = await scrapeReleaseSource(ampsuiteSourceUrl);
+  assert.equal(refreshed.sourceUrl, ampsuiteSourceUrl);
+  assert.equal(refreshed.releaseDate, "2026-11-27");
+  assert.deepEqual(refreshed.platformLinks, [{ name: "Spotify", tone: "spotify", href: "https://open.spotify.com/album/5IzOj6CjShwPdswnu1oAzV", verification: "metadata", kind: "stream" }]);
+} finally {
+  globalThis.fetch = originalFetch;
+}
 
 console.log("RADARMusic Spotify release-link contract passed: album metadata parsing, embed track lists, CDN allowlisted artwork, ordered album and track links.");

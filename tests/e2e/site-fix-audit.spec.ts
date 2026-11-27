@@ -35,4 +35,13 @@ test.describe("site fix responsive audit", () => {
     expect(await page.locator(".animate-marquee").first().evaluate((node) => getComputedStyle(node).animationName)).toBe("none");
     await context.close();
   });
+
+  for (const [width, height] of [[360, 740], [390, 844], [430, 932], [767, 1024], [768, 1024], [1024, 768]]) {
+    test(`stayAKTiV has no overflow at ${width}x${height}`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.goto("/stayaktiv", { waitUntil: "networkidle" });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBe(0);
+      expect(await page.evaluate(() => document.body.scrollWidth - window.innerWidth)).toBe(0);
+    });
+  }
 });
