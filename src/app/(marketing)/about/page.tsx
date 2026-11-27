@@ -15,7 +15,7 @@ export default function AboutPage() {
   return (
     <article className="overflow-hidden">
       <RadarExplore />
-      <BrandTicker surface="paper" className="border-y border-ink/30" />
+      <BrandTicker surface="paper" set="partnerships" className="border-y border-ink/30" />
       <FounderFrame />
       <section className="border-t border-ink bg-flare px-4 py-4 text-flare-foreground md:px-8" aria-label="Ecosystem link">
         <Link data-testid="about-ecosystem-tab" href="/about/ecosystem" className="flex items-center justify-between font-mono text-xs font-bold uppercase tracking-[0.14em]">
