@@ -180,11 +180,14 @@
 
 /* Hotspots past ~62% of the width sit close to the right edge; with the label
    laid out to the right of the ring it ran past the frame and got clipped
-   (the "05 RADARCHARTS" and "04 ZUMZY BROWN" points). Mirror the row so the
-   label grows leftward into the image instead. */
-.hotspotFlip {
-  flex-direction: row-reverse;
-  transform: translate(-50%, -50%);
+   (the "05 RADARCHARTS" and "04 ZUMZY BROWN" points). Take the label out of
+   the flow and hang it to the LEFT of the ring, so the ring stays exactly on
+   its map coordinate and only the chip moves inward. */
+.hotspotFlip .hotspotLabel {
+  position: absolute;
+  right: calc(100% + 0.5rem);
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .hotspotRing {
