@@ -6,6 +6,7 @@ import { normalizeEditorialRecord } from "@/lib/editorial-normalization";
 import { getEffectiveImageUrl } from "@/lib/effective-image-url";
 import { publicSiteUrl } from "@/lib/public-site";
 import { editorialAuthorProfile } from "@/lib/editorial-authors";
+import { readStorageObject } from "@/lib/media-storage";
 import cardManifest from "@/data/social-card-manifest";
 
 export const runtime = "nodejs";
@@ -78,6 +79,22 @@ async function imageSourceForRenderer(source: string) {
   return `data:${contentType};base64,${bytes.toString("base64")}`;
 }
 
+/**
+ * Read the stayAKTiV mark straight out of our media bucket.
+ *
+ * A Worker cannot fetch its own origin (the request would re-enter the same
+ * Worker), so the mark is read from storage and handed to Satori as bytes.
+ * Returns null when the object is absent, and the card then renders without it.
+ */
+async function brandMarkSource() {
+  try {
+    const object = await readStorageObject("brand/stayaktiv-logo.png");
+    return `data:image/png;base64,${Buffer.from(object.body).toString("base64")}`;
+  } catch {
+    return null;
+  }
+}
+
 const CARD_CACHE_CONTROL = "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800";
 
 function titleSize(title: string) {
@@ -120,14 +137,11 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
   const excerpt = excerptSource.length > 110 ? `${excerptSource.slice(0, 109).trimEnd()}\u2026` : excerptSource;
   const imageUrl = cardImageUrl(decodedSlug, record.imageUrl || record.featuredImage);
   const logoUrl = `${publicSiteUrl()}/radar-logo.webp`;
-  // stayAKTiV mark lives in our R2 media bucket (imported alongside the article
-  // artwork), so the card does not depend on a committed binary asset.
-  const stayAktivUrl = `${publicSiteUrl()}/api/brand/stayaktiv-logo`;
   const byline = editorialAuthorProfile(record).byline;
   const [imageSource, logoSource, stayAktivSource] = await Promise.all([
     imageSourceForRenderer(imageUrl),
     imageSourceForRenderer(logoUrl),
-    imageSourceForRenderer(stayAktivUrl),
+    brandMarkSource(),
   ]);
 
   return new ImageResponse(
@@ -164,7 +178,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
         </div>
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", width: "100%", color: "#f4f1ea", fontSize: 18, fontWeight: 700, letterSpacing: "2px" }}>
           <div style={{ display: "flex" }}>{byline}</div>
-          <img src={stayAktivSource} alt="stayAKTiV" width="96" height="96" style={{ width: "96px", height: "96px", objectFit: "contain" }} />
+          {stayAktivSource ? <img src={stayAktivSource} alt="stayAKTiV" width="96" height="96" style={{ width: "96px", height: "96px", objectFit: "contain" }} /> : null}
         </div>
       </div>
     </div>,
