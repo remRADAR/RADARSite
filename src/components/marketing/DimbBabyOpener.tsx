@@ -121,7 +121,7 @@ export function DimbBabyOpener() {
           ) : null}
         </div>
 
-        <p className={styles.statement}>REMEMBER, DONT STAY DUMB ON THE RADAR</p>
+        <p className={styles.statement}>REMEMBER, DON&apos;T STAY DUMB ON THE RADAR</p>
       </div>
 
       <p className={styles.scrollCue}>

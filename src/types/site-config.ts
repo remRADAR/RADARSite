@@ -29,7 +29,7 @@ export const defaultSiteConfig: GlobalSiteConfig = {
       ["03", "2026", "MOTHERLand, Artist Feature", "Rhia Bello", "Rhia Bello Invites Everyone to Celebrate, Connect and ‘Drink Up’", "A vibrant house record becomes an invitation to celebrate life, embrace community, and live fully in the moment.", "/ontheradar/articles/rhia-bello-invites-everyone-to-celebrate-connect-and-drink-up", "https://i0.wp.com/radarcharts.net/wp-content/uploads/2026/09/IMG_2325.jpeg"],
     ].map(([number, yearTag, categoryTag, artistOrProjectName, headline, description, caseStudyUrl, coverImage], i) => ({ id: `work-${i + 1}`, number, yearTag, categoryTag, artistOrProjectName, headline, description, caseStudyUrl, coverImage, visible: true })),
     processSteps: ["Listen", "Frame", "Make", "Move"].map((title, i) => ({ id: `step-${i + 1}`, stepNumber: String(i + 1).padStart(2, "0"), title, description: "A considered step in the process.", visible: true })),
-    ctaSection: { headline: "REMEBER, stayAKTiV ALWAYS.", contactEmail: "hello@radarcharts.net", buttonText: "Join the community" },
+    ctaSection: { headline: "REMEMBER, stayAKTiV ALWAYS.", contactEmail: "hello@radarcharts.net", buttonText: "Join the community" },
   },
   navigation: { headerLinks: [{ label: "RADARMe", url: "https://radarme.app", isExternal: true }], socialProfiles: { instagram: { visible: true, url: "https://www.instagram.com/remradar/" }, twitter: { visible: true, url: "https://x.com/RADARCharts" }, facebook: { visible: true, url: "https://www.facebook.com/radarcharts/" }, threads: { visible: true, url: "https://www.threads.com/@remradar" }, linkedin: { visible: true, url: "https://www.linkedin.com/company/radarcharts/" }, youtube: { visible: true, url: "https://www.youtube.com/@remradar" }, tiktok: { visible: true, url: "https://www.tiktok.com/@radarcharts" } } },
 };
@@ -38,6 +38,10 @@ const LEGACY_HERO_TICKER_TEXT = ["NEW OFFICIAL SITE", "AKT!V", "ON THE RADAR"];
 const PREVIOUS_HERO_TICKER_TEXT = ["Music is life itself…", "#stayAKT!V", "Protect The Music, Fans & Brands, Always."];
 const CURRENT_HERO_TICKER_TEXT = ["LIQUID CAFÉ, CITY PARK WUSE-ABUJA", "10TH DECEMBER", "6PM"];
 const LEGACY_CTA_HEADLINE = "Make some noise.";
+// The CTA headline shipped with a misspelling of "REMEMBER". A browser that
+// saved the old default in local storage would otherwise keep rendering the
+// typo after the fix, so migrate that exact stored value to the corrected copy.
+const TYPO_CTA_HEADLINE = "REMEBER, stayAKTiV ALWAYS.";
 
 export function normalizeSiteConfig(input: unknown): GlobalSiteConfig {
   if (!input || typeof input !== "object") return defaultSiteConfig;
@@ -49,7 +53,7 @@ export function normalizeSiteConfig(input: unknown): GlobalSiteConfig {
   const items = Array.isArray(ticker.items) ? ticker.items : defaultSiteConfig.tickers.ticker2_heroMarquee.items;
   const isLegacyDefault = [LEGACY_HERO_TICKER_TEXT, PREVIOUS_HERO_TICKER_TEXT].some((legacyText) => items.length === legacyText.length && items.every((item, index) => item && typeof item === "object" && item.text === legacyText[index]));
   ticker.items = isLegacyDefault ? items.map((item, index) => ({ ...item, text: CURRENT_HERO_TICKER_TEXT[index] ?? item.text })) : items;
-  if (ctaSection.headline === LEGACY_CTA_HEADLINE) ctaSection.headline = defaultSiteConfig.homepage.ctaSection.headline;
+  if (ctaSection.headline === LEGACY_CTA_HEADLINE || ctaSection.headline === TYPO_CTA_HEADLINE) ctaSection.headline = defaultSiteConfig.homepage.ctaSection.headline;
   if (ctaSection.contactEmail === "hello@radarcharts.com") ctaSection.contactEmail = "hello@radarcharts.net";
   return { ...defaultSiteConfig, ...value, tickers: { ...defaultSiteConfig.tickers, ...(value.tickers || {}), ticker2_heroMarquee: ticker }, homepage: { ...homepage, ctaSection }, navigation: { ...defaultSiteConfig.navigation, ...(value.navigation || {}) } };
 }

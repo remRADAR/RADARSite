@@ -7,7 +7,7 @@ const newAddress = "hello@radarcharts.net";
 const customAddress = "editor@example.org";
 
 assert.equal(defaultSiteConfig.homepage.ctaSection.contactEmail, newAddress);
-assert.equal(defaultSiteConfig.homepage.ctaSection.headline, "REMEBER, stayAKTiV ALWAYS.");
+assert.equal(defaultSiteConfig.homepage.ctaSection.headline, "REMEMBER, stayAKTiV ALWAYS.");
 assert.equal(COMMUNITY_CHANNEL_URL, "https://www.instagram.com/channel/Abb6oZ2Ug1FKhWyh/");
 assert.equal(
   normalizeSiteConfig({
@@ -16,7 +16,17 @@ assert.equal(
       ctaSection: { ...defaultSiteConfig.homepage.ctaSection, headline: "Make some noise." },
     },
   }).homepage.ctaSection.headline,
-  "REMEBER, stayAKTiV ALWAYS.",
+  "REMEMBER, stayAKTiV ALWAYS.",
+);
+assert.equal(
+  normalizeSiteConfig({
+    homepage: {
+      ...defaultSiteConfig.homepage,
+      ctaSection: { ...defaultSiteConfig.homepage.ctaSection, headline: "REMEBER, stayAKTiV ALWAYS." },
+    },
+  }).homepage.ctaSection.headline,
+  "REMEMBER, stayAKTiV ALWAYS.",
+  "a stored misspelled CTA headline migrates to the corrected copy",
 );
 assert.equal(
   normalizeSiteConfig({
