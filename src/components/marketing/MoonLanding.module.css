@@ -13,6 +13,16 @@
   transition: background 0.6s ease;
 }
 
+/* Background-layer variant used by the RADARMusic landing: the scene is
+   painted behind the page heading, so it must not impose its own min-height
+   and the moon settles at the bottom of the panel while stars fill all of it. */
+.scene.sceneStage {
+  height: 100%;
+  min-height: 0;
+  align-items: flex-end;
+  padding-bottom: 1.25rem;
+}
+
 /* ---------- the sky ---------- */
 .sky {
   position: absolute;
@@ -359,7 +369,6 @@
 @media (max-width: 767px) {
   .scene { min-height: calc(100svh - 3.5rem); }
 
-  /* Nudge the top signals clear of the intro text that overlays the sky. */
-  .signal:nth-child(1),
-  .signal:nth-child(2) { top: 24% !important; }
+  /* The stage variant is sized by its parent panel, never by a viewport unit. */
+  .scene.sceneStage { min-height: 0; height: 100%; }
 }

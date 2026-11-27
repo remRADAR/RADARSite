@@ -12,21 +12,43 @@
   color: var(--ink, #050505);
 }
 
-.header { padding: 4rem 1rem 0; }
-
-@media (min-width: 768px) {
-  .header { padding: 5rem 2rem 0; }
+/* One panel, one sky.
+ *
+ * The moon scene is the background layer of the whole first screen (it starts
+ * immediately under the sticky nav and fills the full height and width), and
+ * the heading block sits on top of that same sky. There is no flat black band
+ * between the nav and the first line of text and no black gutter around the
+ * heading: every pixel of the panel, including the top-right corner, is the
+ * moon sky.
+ */
+.stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* Fills the first screen from directly under the sticky nav, edge to edge. */
+  min-height: calc(100svh - 3.5rem);
+  overflow: hidden;
+  isolation: isolate;
 }
 
-/* Mobile: no blank strip above the bracket text. The intro overlays the sky
-   and the moon scene fills the first screen edge to edge. */
-@media (max-width: 767px) {
-  .header {
-    position: absolute;
-    inset: 0 0 auto 0;
-    z-index: 4;
-    padding: 2.75rem 1rem 0;
-  }
+/* The scene is painted behind the header and contributes no height of its
+   own, so the header can sit tight under the nav. */
+.skyLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.header {
+  position: relative;
+  z-index: 2;
+  /* Tight to the nav: one short step down to the first line of text. */
+  padding: 1.25rem 1rem 0;
+}
+
+@media (min-width: 768px) {
+  .stage { min-height: clamp(32rem, 84svh, 46rem); }
+  .header { padding: 1.5rem 2rem 0; }
 }
 
 .kicker {
@@ -36,6 +58,7 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgb(247 247 242 / 0.6);
+  text-shadow: 0 1px 14px rgb(5 5 5 / 0.85);
   transition: color 0.6s ease;
 }
 
@@ -48,8 +71,12 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgb(247 247 242 / 0.6);
+  text-shadow: 0 1px 14px rgb(5 5 5 / 0.85);
   transition: color 0.6s ease;
 }
 
 :global(html.theme-light) .kicker,
 :global(html.theme-light) .intro { color: var(--muted-foreground, #55554f); }
+
+:global(html.theme-light) .kicker,
+:global(html.theme-light) .intro { text-shadow: none; }

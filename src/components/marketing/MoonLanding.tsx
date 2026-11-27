@@ -37,11 +37,30 @@ const NEAR_STARS = seededStars(46, 68301);
 // hotspot the visitor taps to enter that part of RADARMusic.
 export type MoonSignal = { label: string; href: string; x: number; y: number };
 
-export function MoonLanding({ signals = [] as MoonSignal[] }: { signals?: MoonSignal[] } = {}) {
+type MoonLandingProps = {
+  signals?: MoonSignal[];
+  /**
+   * "stage" drops the section's own minimum height so it can be used as the
+   * background layer of a larger block (the RADARMusic landing, where the
+   * heading sits on top of the same sky instead of on a black band).
+   */
+  variant?: "scene" | "stage";
+  className?: string;
+};
+
+export function MoonLanding({
+  signals = [] as MoonSignal[],
+  variant = "scene",
+  className,
+}: MoonLandingProps = {}) {
   const [landingMoonFailed, setLandingMoonFailed] = useState(false);
+  const sceneClassName =
+    variant === "stage"
+      ? [styles.scene, styles.sceneStage, className].filter(Boolean).join(" ")
+      : [styles.scene, className].filter(Boolean).join(" ");
 
   return (
-    <section className={styles.scene} aria-label="RADARMusic moon">
+    <section className={sceneClassName} aria-label="RADARMusic moon">
       <div aria-hidden="true" className={styles.sky}>
         <div className={styles.nebula} />
         <div className={styles.milkyWay} />

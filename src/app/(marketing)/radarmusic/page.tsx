@@ -18,10 +18,10 @@ export default function RadarMusicPage() {
         path="/radarmusic"
         breadcrumbs={[{ name: "Home", path: "/" }, { name: "RADARMusic", path: "/radarmusic" }]}
       />
-      {/* Mobile: no extra top padding, so the sky fills the first screen edge to edge. */}
-      <div className="md:pt-14">
-        <RadarMusicSky />
-      </div>
+      {/* No top spacer: the moon sky begins immediately under the sticky nav, so
+          the only black band left is the menu row itself. The sky then fills the
+          heading area and the whole top-right corner. */}
+      <RadarMusicSky />
     </>
   );
 }
