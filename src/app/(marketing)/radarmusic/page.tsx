@@ -18,7 +18,8 @@ export default function RadarMusicPage() {
         path="/radarmusic"
         breadcrumbs={[{ name: "Home", path: "/" }, { name: "RADARMusic", path: "/radarmusic" }]}
       />
-      <div className="pt-14">
+      {/* Mobile: no extra top padding, so the sky fills the first screen edge to edge. */}
+      <div className="md:pt-14">
         <RadarMusicSky />
       </div>
     </>

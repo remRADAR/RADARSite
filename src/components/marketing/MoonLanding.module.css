@@ -353,3 +353,13 @@
   .signalDot { animation: none; opacity: 1; }
   .signal { transition: none; }
 }
+
+/* Mobile: the sky fills the whole first screen under the sticky header,
+   edge to edge, instead of starting after a blank strip. */
+@media (max-width: 767px) {
+  .scene { min-height: calc(100svh - 3.5rem); }
+
+  /* Nudge the top signals clear of the intro text that overlays the sky. */
+  .signal:nth-child(1),
+  .signal:nth-child(2) { top: 24% !important; }
+}

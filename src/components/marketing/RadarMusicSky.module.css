@@ -18,6 +18,17 @@
   .header { padding: 5rem 2rem 0; }
 }
 
+/* Mobile: no blank strip above the bracket text. The intro overlays the sky
+   and the moon scene fills the first screen edge to edge. */
+@media (max-width: 767px) {
+  .header {
+    position: absolute;
+    inset: 0 0 auto 0;
+    z-index: 4;
+    padding: 2.75rem 1rem 0;
+  }
+}
+
 .kicker {
   font-family: var(--font-mono, monospace);
   font-size: 0.75rem;
