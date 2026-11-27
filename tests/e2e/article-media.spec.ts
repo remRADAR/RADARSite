@@ -21,7 +21,7 @@ test.describe("article media resilience", () => {
   test("inline images are either loaded or carry the styled error placeholder", async ({ page }) => {
     await page.goto(currentArticle, { waitUntil: "domcontentloaded" });
     await waitForArticleImagesToSettle(page);
-    const states = await page.locator(".editorial-body img").evaluateAll((images) =>
+    const states = await page.locator(".editorial-body img").evaluateAll((images: HTMLImageElement[]) =>
       images.map((image) => ({
         src: image.getAttribute("src") || "",
         loaded: (image as HTMLImageElement).naturalWidth > 0,

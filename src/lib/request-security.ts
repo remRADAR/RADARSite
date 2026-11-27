@@ -45,7 +45,13 @@ export function rateLimit(request: NextRequest, scope: string, limit = 100) {
 
 export function isSameOriginMutation(request: NextRequest) {
   const origin = request.headers.get("origin");
-  if (!origin) return true;
+  if (!origin) {
+    // Browsers always send Origin on cross-site state changes, so a request
+    // that carries cookies but no Origin header is treated as untrusted.
+    // Cookie-less non-browser clients remain allowed so scripted tooling
+    // and contract tests keep working.
+    return request.cookies.getAll().length === 0;
+  }
   try {
     return new URL(origin).origin === new URL(request.url).origin;
   } catch {
