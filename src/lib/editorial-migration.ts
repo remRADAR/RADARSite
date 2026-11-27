@@ -163,8 +163,15 @@ export function sanitizeEditorialHtml(input: unknown) {
       if (name === "img" && !kept.some((item) => item.startsWith("src="))) return "";
       if (name === "iframe" && !kept.some((item) => item.startsWith("src="))) return embedLinkFallback(attrs);
       const generatedClass = name === "img" ? ` class="editorial-media"` : "";
+      // Inline images must be block-level media, not text-flow elements. A bare
+      // <img> inherits the paragraph's inline formatting and renders at its
+      // intrinsic size, which breaks the article column. Wrapping it in a
+      // <figure> gives it the same full-width treatment as a Notion image block.
+      // Idempotent: an image already inside a <figure> is left alone by the
+      // post-pass below, which only wraps images that are still bare.
       return `<${name}${generatedClass}${kept.length ? ` ${kept.join(" ")}` : ""}>`;
     })
+    .replace(/(<figure\b[^>]*>\s*)?(<img\b[^>]*class="editorial-media"[^>]*>)(?!\s*<\/figure>)/gi, (match, figureOpen: string | undefined, img: string) => (figureOpen ? match : `<figure>${img}</figure>`))
     .replace(/<iframe([^>]*)>(?:\s*<\/iframe>)?/gi, (_, attrs: string) => {
       // Spotify embeds need their intrinsic player height (152px tracks vs the
       // 352px large players); the wrapper modifier keeps the absolutely
