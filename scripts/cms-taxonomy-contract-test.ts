@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { deriveEditorialTaxonomy, suggestArticleTags, suggestSeoMetadata, validateEditorialTaxonomy } from "@/lib/cms-taxonomy";
+import { normalizeEditorialRecord } from "@/lib/editorial-normalization";
 
 assert.deepEqual(validateEditorialTaxonomy({ editorialType: "Press", magazineSubtype: "", projectSection: "" }), { ok: true });
 assert.deepEqual(validateEditorialTaxonomy({ editorialType: "Magazine", magazineSubtype: "Special Episode", projectSection: "Motherland" }), { ok: true });
@@ -19,6 +20,11 @@ assert.equal(magazineReview.needsReview, true);
 const motherland = deriveEditorialTaxonomy({ slug: "mother", title: "Motherland story", editorialType: "spotlight", categories: ["MOTHERLand"] });
 assert.equal(motherland.editorialType, "Spotlight");
 assert.equal(motherland.projectSection, "Motherland");
+const lagosInParis = normalizeEditorialRecord({ slug: "lagos-in-paris-return-with-don-t-a-celebration-of-freedom-on-the-dancefloor", title: "Lagos In Paris — Don't", categories: ["MOTHERLand", "RADARArticles"], section: "motherland-radar", projectSection: "Motherland" });
+assert.equal(lagosInParis.section, "radar-articles");
+assert.equal(lagosInParis.sectionLabel, "RADARArticles");
+assert.equal(lagosInParis.projectSection, "");
+assert.deepEqual(lagosInParis.categories, ["RADARArticles"]);
 const tags = suggestArticleTags({ title: "Abuja Afrobeats spotlight", excerpt: "A new music story", body: "Nigeria and culture", bodyHtml: "", tags: [], categories: [], editorialType: "Spotlight", projectSection: "Motherland" });
 assert.ok(tags.includes("Afrobeats"));
 assert.ok(tags.includes("Abuja"));
@@ -27,4 +33,4 @@ const seo = suggestSeoMetadata({ slug: "signal", title: "Signal", excerpt: "A sh
 assert.equal(seo.metaTitle, "Signal");
 assert.equal(seo.metaDescription, "A short deck");
 assert.equal(seo.socialImage, "https://example.com/image.webp");
-console.log(JSON.stringify({ validation: "PASS", legacyPress: "PASS", artistSpotlightOverlap: "PASS", magazineReviewGate: "PASS", tagSuggestions: "PASS", seoSuggestions: "PASS", databaseContacted: false }, null, 2));
+console.log(JSON.stringify({ validation: "PASS", legacyPress: "PASS", artistSpotlightOverlap: "PASS", magazineReviewGate: "PASS", lagosInParisPlacement: "PASS", tagSuggestions: "PASS", seoSuggestions: "PASS", databaseContacted: false }, null, 2));

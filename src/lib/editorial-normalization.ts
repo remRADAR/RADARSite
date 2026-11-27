@@ -7,6 +7,7 @@ export type CanonicalSection = (typeof CANONICAL_SECTIONS)[number];
 export const SECTION_LABELS: Record<CanonicalSection, string> = {
   "radar-articles": "RADARArticles", "discovery-spot": "Discovery Spot", "talk-to-us": "TALK TO US", "motherland-radar": "MOTHERLand RADAR", magazine: "Magazine", charts: "Charts", editorials: "Editorials", curated: "Curated", legacies: "Legacies",
 };
+const LAGOS_IN_PARIS_SLUG = "lagos-in-paris-return-with-don-t-a-celebration-of-freedom-on-the-dancefloor";
 const aliases: Record<string, CanonicalSection> = {
   articles: "radar-articles", radararticles: "radar-articles", "radar articles": "radar-articles", discovery: "discovery-spot", "discovery spot": "discovery-spot", "talk to us": "talk-to-us", talk: "talk-to-us", motherland: "motherland-radar", "motherland radar": "motherland-radar", magazine: "magazine", charts: "charts", chart: "charts", editorials: "editorials", editorial: "editorials", curated: "curated", legacies: "legacies", legacy: "legacies",
 };
@@ -47,6 +48,7 @@ export function canonicalSection(value: unknown): CanonicalSection | "" {
 }
 
 export function classifySection(record: CmsRecord): { section: CanonicalSection; confidence: "high" | "medium" | "low"; evidence: string } {
+  if (record.slug === LAGOS_IN_PARIS_SLUG) return { section: "radar-articles", confidence: "high", evidence: "editorial placement override: RADARArticles" };
   const explicit = canonicalSection(record.section);
   if (explicit) return { section: explicit, confidence: "high", evidence: "existing canonical section" };
   for (const value of [...(record.categories || []), ...(record.tags || [])]) {
@@ -69,12 +71,20 @@ export function looksLikeUrl(value: string) { return /^(?:https?:\/\/|www\.)/i.t
 
 export function normalizeEditorialRecord(record: CmsRecord): CmsRecord & { section: CanonicalSection; sectionLabel: string; sectionConfidence: string; sectionEvidence: string } {
   const normalizedRecord = normalizeEditorialContent(applyArticleMediaOverrides(record));
-  const classification = classifySection(normalizedRecord);
+  const placedRecord = normalizedRecord.slug === LAGOS_IN_PARIS_SLUG
+    ? {
+        ...normalizedRecord,
+        projectSection: "",
+        categories: [...new Set([...(normalizedRecord.categories || []).filter((value) => !/^motherland(?:\s+radar)?$/i.test(value)), "RADARArticles"])],
+        section: "radar-articles",
+      }
+    : normalizedRecord;
+  const classification = classifySection(placedRecord);
   const warnings = [...(record.migrationWarnings || [])];
   if (classification.confidence === "low" && !warnings.includes("Low-confidence section classification requires editorial review.")) warnings.push("Low-confidence section classification requires editorial review.");
-  if (!normalizedRecord.excerpt && !warnings.includes("Missing editorial excerpt/deck.")) warnings.push("Missing editorial excerpt/deck.");
-  if (normalizedRecord.title === "Editorial record requires review" && !warnings.includes("Missing valid editorial title.")) warnings.push("Missing valid editorial title.");
-  return { ...normalizedRecord, section: classification.section, sectionLabel: SECTION_LABELS[classification.section], sectionConfidence: classification.confidence, sectionEvidence: classification.evidence, migrationWarnings: warnings };
+  if (!placedRecord.excerpt && !warnings.includes("Missing editorial excerpt/deck.")) warnings.push("Missing editorial excerpt/deck.");
+  if (placedRecord.title === "Editorial record requires review" && !warnings.includes("Missing valid editorial title.")) warnings.push("Missing valid editorial title.");
+  return { ...placedRecord, section: classification.section, sectionLabel: SECTION_LABELS[classification.section], sectionConfidence: classification.confidence, sectionEvidence: classification.evidence, migrationWarnings: warnings };
 }
 
 export function articlePath(record: CmsRecord) { return `/ontheradar/articles/${encodeURIComponent(record.slug)}`; }
