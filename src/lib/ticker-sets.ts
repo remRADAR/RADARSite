@@ -40,13 +40,14 @@ const BRAND_LOGOS: TickerLogo[] = [
 const PARTNERSHIP_LOGOS: TickerLogo[] = BRAND_LOGOS;
 
 // 03 / Events - the stayAKTiV event ticker set, shared by /stayaktiv and
-// /omajiverse. The circled stayAKTiV badge baked into last-thursdays.png will
-// be replaced by a standalone transparent logo entry (the stayAKTiV wordmark
-// PNG at public/stayaktiv/tickers/stayaktiv-logo.png) as its own small,
-// clearly visible item once that asset lands in the repo or R2 media library.
+// /omajiverse. The standalone stayAKTiV vinyl mark (public/stayaktiv-logo.png,
+// transparent PNG from the stayAKTiV reference canvas) runs as its own small,
+// clearly visible item, replacing the circled badge that was baked into the
+// old composite ticker art.
 const EVENT_LOGOS: TickerLogo[] = [
   { src: "/stayaktiv/tickers/omaji-verse-2.png", alt: "OMAJI VERSE 2.0" },
   { src: "/stayaktiv/tickers/last-thursdays.png", alt: "THE LAST THURSDAYS" },
+  { src: "/stayaktiv-logo.png", alt: "stayAKTiV by RADARCharts" },
   { src: "/stayaktiv/tickers/release-radar-reel.png", alt: "RELEASE RADAR REEL" },
 ];
 
