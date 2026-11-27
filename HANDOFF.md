@@ -1,5 +1,18 @@
 # HANDOFF — RADARSite (radarcharts.net)
 
+## Studio media attachments + R2 media library (2026-11-27 — Vibe agent)
+
+Branch `feat/studio-media-attachments` (from main @ af88718), PR #89. Task: replace the manual featured-image URL placeholder in `src/components/admin/CmsStudioPanel.tsx` with native media attachments and a reusable Media Library on the existing Cloudflare R2 infrastructure.
+
+Implementation:
+- `src/lib/media-library.ts` — media registry as a versioned CAS-guarded JSON manifest at `content/media-library-v1.json` in the existing bucket (same concurrency model as `cloudflare-content-store.ts`; **no DB migration**; rollback = delete the manifest key). Key building (`studio/assets/<yyyy>/<mm>/<16hex>-<sanitized>.<ext>`, random segment so duplicates never overwrite), magic-byte signature detection, reference scanning (raw + HTML-escaped), deletion guard, search/filter/pagination, manifest validation.
+- `src/lib/media-upload.ts` — `processStudioImageUpload` with injectable store/remove/register; signature + MIME cross-check; sharp metadata when available (100 MP cap) with graceful degradation; original always preserved, JPEG/PNG get a `webp-q80-max2400-v1` WebP derivative that becomes the delivered URL; `RADAR_MEDIA_MAX_UPLOAD_BYTES` (default 8 MiB, cap 25 MiB); orphan cleanup when the registry write fails.
+- `src/app/api/studio/media/route.ts` — GET (search/filter/paginate), POST (authenticated multipart upload; browser never sees R2 credentials or supplies keys), DELETE (reference-checked 409 unless `force=true`, then object + manifest removal). Same session/same-origin/rate-limit conventions as the existing Studio API.
+- `src/components/admin/CmsStudioPanel.tsx` — featured-image attachment control (picker/drag-drop, preview, XHR progress, retry, replace, remove, copy URL, alt + caption), Insert Image toolbar action inserting a `<figure>` at the saved cursor with caret restoration, Inline images manager (alt/caption edit, replace, remove-from-article without deleting the asset), Media Library dialog (search, MIME filter, pagination, upload, preview, copy URL, select-to-attach), social image library picker.
+- `scripts/studio-media-contract-test.ts` + `package.json` `media:studio-contract-test` + CI step + `.env.local.example` doc for the limit env.
+
+**Verification status: NOT VERIFIED in this session (mobile session, no local Node/R2 runtime).** The gate is the `verify` CI check on PR #89: studio media contract test (14 assertion groups), existing contract tests, lint, `npm run typecheck`, and `npm run build` with `RADAR_SKIP_DATABASE=1`. Do not treat the feature as verified until that check is green. Live iPhone upload and a real R2 write remain unverified; production requires the audited R2 env vars (`R2_ACCOUNT_ID`, `R2_BUCKET`, `R2_ENDPOINT`, `R2_PUBLIC_BASE_URL`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, optional `RADAR_MEDIA_MAX_UPLOAD_BYTES`); no Worker binding change needed. Merge and deploy only with explicit owner authorization.
+
 ## Autoplay-only homepage hero (2026-11-07 — Vibe agent)
 
 Branch `fix/hero-autoplay-only` (from main @ 0f014a83 post-PR #40), PR #41, merged to main as `5087aa6d` with the `verify` CI check green. Owner instruction: "Remove the buttons on the homepage hero for front back and pause/play the images should just autoplay."
