@@ -86,6 +86,9 @@
   --chart-3: #a4a4a0;
   --chart-4: #555555;
   --chart-5: #171717;
+  /* MOTHERLand accent. Needs a different value per theme: the bright green
+     reads at 10.09:1 on the dark field but only 1.88:1 on light paper. */
+  --motherland: #31d158;
   --radius: 0px;
   --sidebar: var(--paper);
   --sidebar-foreground: var(--ink);
@@ -114,8 +117,14 @@ html {
 :root.theme-light {
   --paper: #f7f7f2;
   --ink: #050505;
-  --flare: #168a3a;
-  --flare-foreground: #050505;
+  /* Darkened from #168a3a: the old green gave only 4.13:1 against --paper,
+     below the 4.5:1 body-text floor. #127a33 clears it at 5.07:1.
+     The foreground flips to near-white because black on this green is only
+     3.74:1; white on it is 5.44:1. */
+  --flare: #127a33;
+  --flare-foreground: #f7f7f2;
+  /* Darkened for light paper: 5.04:1 here vs 1.88:1 for the dark-theme green. */
+  --motherland: #1a7a35;
   --background: var(--paper);
   --foreground: var(--ink);
   --card: var(--paper);

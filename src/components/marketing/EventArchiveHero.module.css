@@ -2,8 +2,11 @@
   position: relative;
   min-height: min(88svh, 58rem);
   overflow: hidden;
-  background: var(--paper, #050505);
-  color: var(--ink, #f7f7f2);
+  /* Fixed dark: this hero is a photographic surface under a dark scrim, so it
+     must not follow --paper. In light theme --paper made it near-white while
+     the scrim and the #a8e51f accent stayed dark, giving 1.41:1 text. */
+  background: #050505;
+  color: #f7f7f2;
 }
 .media { position: absolute; inset: 0; }
 .scrim {

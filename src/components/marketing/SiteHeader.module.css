@@ -67,7 +67,9 @@
   border-left: 2px solid var(--ink);
   padding: 0 1.1rem;
   background: var(--flare);
-  color: var(--paper);
+  /* --flare-foreground, not --paper: in light theme --paper is near-white and
+     sat at 4.13:1 on the green fill. The token is the intended pair. */
+  color: var(--flare-foreground);
   font-family: var(--font-mono, monospace);
   font-size: 0.68rem;
   font-weight: 800;
@@ -540,7 +542,7 @@
   border: 1px solid var(--ink);
   padding: clamp(0.7rem, 1.5vw, 1rem) clamp(1rem, 2vw, 1.4rem);
   background: var(--flare);
-  color: var(--paper);
+  color: var(--flare-foreground);
   font-family: var(--font-mono, monospace);
   font-size: clamp(0.62rem, 0.9vw, 0.7rem);
   font-weight: 800;

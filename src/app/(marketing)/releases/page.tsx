@@ -31,7 +31,7 @@ function ReleaseCard({ release, featured = false }: { release: ReleaseLink; feat
     <Link href={`/${release.slug}`} className={`group grid overflow-hidden border-2 border-ink bg-paper transition-colors hover:bg-flare ${featured ? "md:grid-cols-[1.1fr_.9fr]" : "sm:grid-cols-[minmax(8rem,.75fr)_1.25fr]"}`}>
       <div className={`relative overflow-hidden bg-ink ${featured ? "aspect-[1.15] md:aspect-auto md:min-h-[25rem]" : "aspect-square sm:aspect-[1.15]"}`}>
         <Image src={release.coverImage} alt={`${release.title} by ${release.artist} cover artwork`} fill sizes={featured ? "(max-width: 768px) 100vw, 55vw" : "(max-width: 640px) 100vw, 35vw"} className="object-cover transition-transform duration-500 group-hover:scale-[1.03]" unoptimized />
-        {featured && <span className="absolute left-4 top-4 bg-flare px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-widest text-ink">Featured release</span>}
+        {featured && <span className="absolute left-4 top-4 bg-flare px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-widest text-flare-foreground">Featured release</span>}
       </div>
       <div className={`flex flex-col justify-between p-5 sm:p-7 ${featured ? "md:p-10" : ""}`}>
         <div>

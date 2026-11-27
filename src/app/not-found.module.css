@@ -41,7 +41,7 @@
   padding: 0.8rem 1.25rem;
   background: var(--flare);
   box-shadow: 4px 4px 0 var(--ink);
-  color: var(--paper);
+  color: var(--flare-foreground);
   font-family: var(--font-mono, monospace);
   font-size: 0.72rem;
   font-weight: 800;
