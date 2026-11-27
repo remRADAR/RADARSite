@@ -58,7 +58,7 @@ export default async function ReleasesArchivePage() {
       <main>
         <section className="border-b-2 border-ink px-4 pb-10 pt-24 md:px-8">
           <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">(THE RADARMusic / OFFICIAL LINKS)</p>
-          <h1 className="mt-4 display text-[clamp(3rem,11vw,11rem)] leading-[.84]">RELEASE<br /><span className="text-flare">ARCHIVE.</span></h1>
+          <h1 className="mt-4 display text-[clamp(2.6rem,6.5vw,7rem)] leading-[.88]">RELEASE<br /><span className="text-flare">ARCHIVE.</span></h1>
           <p className="mt-8 max-w-2xl font-mono text-sm uppercase leading-relaxed tracking-wide text-muted-foreground">A home for the official pre-save and streaming links created for RADARMusic-distributed releases. Each release opens its own verified link panel.</p>
         </section>
         {featured ? (

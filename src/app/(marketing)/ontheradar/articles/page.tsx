@@ -20,7 +20,7 @@ export default async function ArticlesPage() {
       <div>
       <section className="border-b-2 border-ink px-4 pb-10 pt-24 md:px-8">
         <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">(On The Radar / RADARArticles)</p>
-        <h1 className="mt-4 display text-[clamp(3rem,11vw,11rem)] leading-[.84]">RADAR<br /><span className="text-flare">Articles.</span></h1>
+        <h1 className="mt-4 display text-[clamp(2.6rem,6.5vw,7rem)] leading-[.88]">RADAR<br /><span className="text-flare">Articles.</span></h1>
         <p className="mt-8 max-w-2xl font-mono text-sm uppercase leading-relaxed tracking-wide text-muted-foreground">Choose the editorial lane first: Press for ordinary RADAR editorial coverage, or Spotlight for artist-led profiles. Motherland is an independent project association, and Magazine remains separate.</p>
       </section>
       <section className="grid border-b-2 border-ink md:grid-cols-2">

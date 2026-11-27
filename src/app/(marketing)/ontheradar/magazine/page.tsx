@@ -19,7 +19,7 @@ export default async function MagazinePage() {
       <div>
         <section className="border-b-2 border-ink px-4 pb-10 pt-24 md:px-8">
           <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">(On The Radar / Magazine)</p>
-          <h1 className="mt-4 display text-[clamp(3rem,11vw,11rem)] leading-[.84]">Magazine<span className="text-flare">.</span></h1>
+          <h1 className="mt-4 display text-[clamp(2.6rem,6.5vw,7rem)] leading-[.88]">Magazine<span className="text-flare">.</span></h1>
           <p className="mt-8 max-w-2xl font-mono text-sm uppercase leading-relaxed tracking-wide text-muted-foreground">A separate editorial lane for Special Episodes and Magazine Episodes. Magazine entries retain one canonical article identity and do not appear in Press or Spotlight.</p>
         </section>
         <section className="px-4 py-14 md:px-8 md:py-20">

@@ -24,6 +24,33 @@
   min-width: 0;
 }
 
+/* The community CTA is a fixed three-line lockup: REMEMBER, / stayAKTiV /
+   ALWAYS. Each line is its own block, so it must never wrap inside itself —
+   without this, "REMEMBER," (≈5.95em at weight 800) broke into "REMEMB" +
+   "ER," on every viewport from 768px up, because the old fixed
+   clamp(3rem, 11vw, 12rem) sized the type to the viewport rather than to the
+   column it actually sits in. */
+.headlineLine {
+  /* Fallback for engines without container queries: a conservative clamp that
+     keeps the longest line inside the narrowest column the grid can produce
+     (the column is ≈0.50–0.53 × viewport, so 8vw leaves ≈6.2em of room). */
+  font-size: clamp(2.5rem, 8vw, 8rem);
+  white-space: nowrap;
+}
+
+@supports (container-type: inline-size) {
+  .headline {
+    container-type: inline-size;
+  }
+
+  .headlineLine {
+    /* 15.2cqw ≈ column width ÷ 6.5 — fits the 5.95em longest line with room
+       for the trailing period and letter-spacing rounding, and scales with the
+       column instead of the viewport, so it holds from 768px to television. */
+    font-size: min(11vw, 12rem, 15.2cqw);
+  }
+}
+
 .contact {
   grid-area: contact;
   align-self: end;

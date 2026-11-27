@@ -85,9 +85,13 @@
 
 .heading {
   font-family: var(--font-display), sans-serif;
-  font-size: clamp(3.6rem, 11vw, 10rem);
-  letter-spacing: -0.08em;
-  line-height: 0.78;
+  /* Was clamp(3.6rem, 11vw, 10rem) — at 1920 that is 160px, which crushed the
+     image below it and left the hotspots looking like afterthoughts. The
+     heading is a section title, not a hero: cap it so the map keeps the
+     visual weight and the type scale stays in proportion. */
+  font-size: clamp(2.6rem, 6.2vw, 6.5rem);
+  letter-spacing: -0.06em;
+  line-height: 0.82;
   margin: 0;
   max-width: 8ch;
 }
@@ -198,15 +202,17 @@
 .hotspotNumber,
 .hotspotLabel {
   font-family: var(--font-mono), monospace;
-  font-size: 0.6rem;
+  /* Was 0.6rem — at 1920 the labels were ~9.6px, unreadable against the
+     photograph and dwarfed by the old 160px heading. */
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .hotspotLabel {
-  background: rgba(11, 11, 11, 0.62);
-  padding: 0.25rem 0.35rem;
+  background: rgba(11, 11, 11, 0.72);
+  padding: 0.3rem 0.45rem;
   white-space: nowrap;
 }
 
@@ -254,11 +260,14 @@
 
 .reveal h2 {
   font-family: var(--font-display), sans-serif;
-  font-size: clamp(2rem, 4vw, 4.5rem);
-  letter-spacing: -0.06em;
-  line-height: 0.85;
+  /* Was clamp(2rem, 4vw, 4.5rem) — 72px at 1920 inside a 31rem panel, which
+     forced 4–5 line titles and pushed the body copy and the reset button out
+     of the panel. Sized to the panel, not the viewport. */
+  font-size: clamp(1.5rem, 2.1vw, 2.6rem);
+  letter-spacing: -0.04em;
+  line-height: 0.92;
   margin: 0;
-  max-width: 9ch;
+  max-width: 14ch;
 }
 
 .reveal p {

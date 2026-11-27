@@ -21,7 +21,7 @@ export default async function WorkPage() {
           <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
             (Index / Radar)
           </p>
-          <h1 className="mt-4 display text-[clamp(3rem,11vw,11rem)] leading-[0.85]">
+          <h1 className="mt-4 display text-[clamp(2.6rem,6.5vw,7rem)] leading-[.88]">
             On the
             <br />
             <span className="punctuation-lock">Radar<span className="text-flare">.</span></span>

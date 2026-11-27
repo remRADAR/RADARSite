@@ -27,9 +27,9 @@ export function CTASection() {
         <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">Put it on the RADAR</p>
       </div>
       <FadeIn className={`relative z-10 border-t-2 border-paper px-4 py-20 md:px-8 md:py-32 ${styles.content}`}>
-        <h2 className={`display text-[clamp(3rem,11vw,12rem)] leading-[0.85] ${styles.headline}`}>
+        <h2 className={`display leading-[0.85] ${styles.headline}`}>
           {cta.headline.map((line, index) => (
-            <span key={`${line}-${index}`} className="block">{index === cta.headline.length - 1 ? <span className="text-flare">{line}</span> : line}</span>
+            <span key={`${line}-${index}`} className={`block ${styles.headlineLine}`}>{index === cta.headline.length - 1 ? <span className="text-flare">{line}</span> : line}</span>
           ))}
         </h2>
         <div className={styles.globeStage} data-testid="cta-globe-stage">

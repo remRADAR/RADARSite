@@ -42,7 +42,7 @@
 
 .heading {
   font-family: var(--font-display), sans-serif;
-  font-size: clamp(3.6rem, 11vw, 10rem);
+  font-size: clamp(2.6rem, 6.2vw, 6.5rem);
   letter-spacing: -0.08em;
   line-height: 0.78;
   margin: 0;

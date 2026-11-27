@@ -12,7 +12,7 @@ export default function PrivacyPage() {
         <div className="mx-auto max-w-3xl">
           <Link href="/" className="font-mono text-xs font-bold uppercase tracking-widest">← remRADAR</Link>
           <p className="mt-20 font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">(Legal / Privacy)</p>
-          <h1 className="mt-4 display text-[clamp(3rem,9vw,8rem)]">Privacy<br /><span className="text-flare">policy.</span></h1>
+          <h1 className="mt-4 display text-[clamp(2.4rem,5.5vw,5.5rem)]">Privacy<br /><span className="text-flare">policy.</span></h1>
           <p className="mt-8 font-mono text-xs uppercase tracking-widest text-muted-foreground">Last updated: 15 October 2026</p>
 
           <div className="mt-16 space-y-10 font-mono text-sm leading-relaxed">
