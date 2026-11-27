@@ -113,9 +113,15 @@
   background: #191919;
   border: 1px solid var(--explore-line);
   isolation: isolate;
-  min-height: min(62svh, 42rem);
+  /* No min-height here. With aspect-ratio: 16/9 a min-height also sets a
+     minimum WIDTH (height x 16/9), so min(62svh, 42rem) forced the map to
+     992px wide at a 768px viewport. .explore clips its overflow, so the right
+     edge of the map — and the "ZUMZY BROWN" hotspot label — was cut off
+     between 700px and 1024px. The aspect ratio alone already gives the map
+     50rem of height at the 1440px max width, so the floor was never needed. */
   overflow: hidden;
   position: relative;
+  width: 100%;
 }
 
 .image,
