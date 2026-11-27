@@ -135,6 +135,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
         width: "100%",
         fontFamily: "Arial, Helvetica, sans-serif",
         overflow: "hidden",
+        // White outline frames the whole card. The design carries no internal
+        // rules: the artwork and the write-up sit inside one bordered field.
+        border: "10px solid #ffffff",
+        boxSizing: "border-box",
       }}
     >
       <img src={imageSource} alt="" width="1200" height="630" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
@@ -153,7 +157,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
           <div style={{ display: "flex", fontSize: titleSize(title), lineHeight: 1.02, fontWeight: 900, letterSpacing: "-1.5px", textTransform: "uppercase" }}>{title}</div>
           {excerpt ? <div style={{ display: "flex", marginTop: "16px", maxWidth: "700px", color: "#d6d1c8", fontSize: 16, lineHeight: 1.2, letterSpacing: "0.2px" }}>{excerpt}</div> : null}
         </div>
-        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", width: "100%", borderTop: "2px solid #f4f1ea", paddingTop: "18px", color: "#f4f1ea", fontSize: 18, fontWeight: 700, letterSpacing: "2px" }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", width: "100%", color: "#f4f1ea", fontSize: 18, fontWeight: 700, letterSpacing: "2px" }}>
           <div style={{ display: "flex" }}>RADARCharts by REM</div>
           <div style={{ display: "flex", color: "#ff3b30" }}>PROTECTING THE MUSIC</div>
         </div>
