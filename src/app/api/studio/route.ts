@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { defaultSiteOverrides } from "@/lib/site-overrides";
@@ -8,6 +7,7 @@ import { createSessionToken, getSessionCookieName, getSessionCookieOptions, hasD
 import { deriveEditorialTaxonomy, EDITORIAL_TYPES, MAGAZINE_SUBTYPES, suggestArticleTags, suggestSeoMetadata, validateEditorialTaxonomy } from "@/lib/cms-taxonomy";
 import { sanitizeEditorialHtml } from "@/lib/editorial-migration";
 import { temporaryNotionImageBlocker } from "@/lib/notion-image-hygiene";
+import { temporaryImageUrlBlocker } from "@/lib/article-image-slots";
 import { getClientAddress, isSameOriginMutation, rateLimit } from "@/lib/request-security";
 import { PUBLIC_SITE_OVERRIDES_CACHE_TAG } from "@/lib/public-site";
 
@@ -172,7 +172,7 @@ export async function PUT(request: NextRequest) {
       // expires within the hour and is never mirrored to Cloudflare storage.
       // Drafts are allowed through so an editor can still work on them.
       if (article.status === "published") {
-        const blocker = temporaryNotionImageBlocker(article as Record<string, unknown>);
+        const blocker = temporaryNotionImageBlocker(article as Record<string, unknown>) ?? temporaryImageUrlBlocker(article as Record<string, unknown>);
         if (blocker) return json({ error: blocker, code: "temporary_notion_image_url" }, { status: 422 });
       }
       const next = normalizeContent({ ...current, articles: existing ? current.articles.map((item) => item === existing ? article : item) : [...current.articles, article] }); const written = await writeContentIfUnchanged(snapshot.revision, next);

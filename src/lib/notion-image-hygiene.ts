@@ -1,4 +1,3 @@
-/**
  * Notion image hygiene — the permanent fix for temporary Notion image links.
  *
  * WHY THIS EXISTS
@@ -84,7 +83,36 @@ function encodeAttribute(value: string): string {
   return value.replaceAll("&", "&amp;").replaceAll('"', "&quot;");
 }
 
-const IMG_SRC_PATTERN = /(<img\b[^>]*?\bsrc\s*=\s*")([^"]*)(")/gi;
+function normalizeQuotesInTag(tag: string): string {
+  return tag.replace(/\u201C/g, '"').replace(/\u201D/g, '"').replace(/\u2018/g, "'").replace(/\u2019/g, "'");
+}
+
+/**
+ * Normalize curly quotation marks to straight ones inside tag regions only.
+ *
+ * Prose typography (apostrophes and quoted speech in visible text) is left
+ * untouched; only attribute delimiters, which HTML parsers require to be
+ * straight quotes, are rewritten. Imported markup with curly-quoted
+ * attributes therefore survives sanitization instead of being silently
+ * dropped, and every downstream scanner sees it.
+ */
+export function normalizeTagQuotes(html: string | null | undefined): string {
+  if (typeof html !== "string" || !html) return "";
+  return html.replace(/<[a-zA-Z!/?][^<>]*>/g, normalizeQuotesInTag);
+}
+
+/**
+ * Image src attributes in any supported quote style: straight double, straight
+ * single, or the curly quotes some imported markup uses as delimiters. Curly
+ * quotes are asymmetric pairs, so they are matched as an explicit pair rather
+ * than with a backreference.
+ */
+const IMG_SRC_PATTERN = /(<img\b[^>]*?\bsrc\s*=\s*)(?:"([^"]*)"|'([^']*)'|\u201C([^\u201D]*)\u201D)/gi;
+
+/** The src value of a pattern match, whichever quote style matched. */
+function matchedSrc(match: RegExpMatchArray): string {
+  return match[2] ?? match[3] ?? match[4] ?? "";
+}
 
 /**
  * Every distinct temporary Notion image URL referenced by `html`, in document
@@ -95,7 +123,7 @@ export function findTemporaryNotionImageUrls(html: string | null | undefined): s
   const found: string[] = [];
   const seen = new Set<string>();
   for (const match of html.matchAll(IMG_SRC_PATTERN)) {
-    const raw = decodeAttribute(match[2]);
+    const raw = decodeAttribute(matchedSrc(match));
     if (!isTemporaryNotionImageUrl(raw)) continue;
     if (seen.has(raw)) continue;
     seen.add(raw);
@@ -146,7 +174,7 @@ export async function rewriteTemporaryNotionImages(
   // URL, then apply them in a single synchronous pass.
   const ordered: Array<{ from: string; to: string | null }> = [];
   for (const match of html.matchAll(IMG_SRC_PATTERN)) {
-    const raw = decodeAttribute(match[2]);
+    const raw = decodeAttribute(matchedSrc(match));
     if (!isTemporaryNotionImageUrl(raw)) continue;
     const position = index++;
     if (!cache.has(raw)) {
@@ -171,12 +199,15 @@ export async function rewriteTemporaryNotionImages(
   if (!ordered.length) return { html, replaced: [], unresolved: [] };
 
   let cursor = 0;
-  const rewritten = html.replace(IMG_SRC_PATTERN, (whole: string, prefix: string, src: string, suffix: string) => {
-    const raw = decodeAttribute(src);
+  const rewritten = html.replace(IMG_SRC_PATTERN, (whole: string, prefix: string, dq: string, sq: string, cq: string) => {
+    const raw = decodeAttribute(dq ?? sq ?? cq ?? "");
     if (!isTemporaryNotionImageUrl(raw)) return whole;
     const entry = ordered[cursor++];
     if (!entry || !entry.to) return whole;
-    return `${prefix}${encodeAttribute(entry.to)}${suffix}`;
+    const encoded = encodeAttribute(entry.to);
+    if (dq !== undefined) return `${prefix}"${encoded}"`;
+    if (sq !== undefined) return `${prefix}'${encoded}'`;
+    return `${prefix}\u201C${encoded}\u201D`;
   });
 
   return { html: rewritten, replaced, unresolved };
