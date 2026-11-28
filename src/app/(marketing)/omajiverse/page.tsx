@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
+import { BrandTicker } from "@/components/marketing/BrandTicker";
 import { buildPageMetadata } from "@/lib/seo";
-import { TICKER_SETS } from "@/lib/ticker-sets";
 import { StayAktivActionBar, StayAktivCountdown } from "./StayAktivActions";
 import styles from "./StayAktiv.module.css";
 
@@ -33,18 +33,6 @@ const eventTheme = {
   "--event-accent-rgb": featuredEvent.accentRgb,
 } as CSSProperties;
 
-// The event logos come from the shared stayAKTiV events set (ticker-sets);
-// this page maps its own per-logo style classes on top.
-const tickerLogoClasses: Record<string, string> = {
-  ["/stayaktiv/tickers/omaji-verse-2.png"]: styles.tickerLogoOmaji,
-  ["/stayaktiv/tickers/last-thursdays.png"]: styles.tickerLogoLast,
-  ["/stayaktiv/tickers/release-radar-reel.png"]: styles.tickerLogoRelease,
-};
-
-const tickerLogos = TICKER_SETS.events.logos.map(
-  (logo) => [logo.src, logo.alt, tickerLogoClasses[logo.src] ?? ""] as const,
-);
-
 export default function StayAktivPage() {
   return (
     <>
@@ -56,15 +44,7 @@ export default function StayAktivPage() {
       />
 
       <main className={styles.canvas} style={eventTheme} data-event={featuredEvent.slug}>
-        <div className={`${styles.rail} ${styles.topRail}`} aria-label="Active event ticker">
-          <div className={styles.railInner}>
-            {[...tickerLogos, ...tickerLogos].map(([src, alt, className], index) => (
-              <span className={`${styles.tickerLogoMark} ${className}`} key={`${src}-${index}`}>
-                <Image src={src} alt={alt} width={320} height={64} priority={index < 3} unoptimized />
-              </span>
-            ))}
-          </div>
-        </div>
+        <BrandTicker set="projects" className={`${styles.rail} ${styles.topRail}`} />
 
         <section className={styles.hero} aria-label="OMAJIVERSE hero" aria-labelledby="omajiverse-title">
           <h1 id="omajiverse-title" className="sr-only">OMAJIVERSE event</h1>

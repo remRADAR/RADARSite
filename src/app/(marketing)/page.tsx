@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/marketing/Hero";
+import { BrandTicker } from "@/components/marketing/BrandTicker";
 import { PillarsSection } from "@/components/marketing/PillarsSection";
 import { EditorialTree } from "@/components/marketing/EditorialTree";
 import { CapabilitiesStrip } from "@/components/marketing/CapabilitiesStrip";
@@ -35,6 +36,7 @@ export default async function LandingPage() {
   return (
     <>
       <Hero />
+      <BrandTicker set="brands" />
       <PillarsSection />
       <EditorialTree posts={recentPosts} />
       <CapabilitiesStrip />

@@ -15,7 +15,6 @@ import { useSiteConfig } from "@/lib/site-config-context";
 import { HeroScene } from "@/components/three/HeroScene";
 import { SceneGate } from "@/components/three/SceneGate";
 import { HeroCinematic } from "@/components/marketing/HeroCinematic";
-import { BrandTicker } from "@/components/marketing/BrandTicker";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -103,8 +102,6 @@ export function Hero() {
         </h1>
         <p data-hero-meta className="hero-readable-support mt-6 max-w-[34rem] font-mono text-[11px] font-bold uppercase leading-[1.45] tracking-[0.12em] !text-[#f7f7f2] md:text-xs">{subheadline}</p>
       </div>
-
-      <BrandTicker />
     </section>
   );
 }

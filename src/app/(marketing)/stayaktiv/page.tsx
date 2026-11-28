@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
+import { BrandTicker } from "@/components/marketing/BrandTicker";
 import { EventArchiveHero } from "@/components/marketing/EventArchiveHero";
 import { buildPageMetadata } from "@/lib/seo";
-import { TICKER_SETS } from "@/lib/ticker-sets";
 import styles from "./StayAktivArchive.module.css";
 
 const omajiVerse = {
@@ -24,9 +24,6 @@ export const metadata: Metadata = buildPageMetadata({
   image: omajiVerse.poster,
 });
 
-// The event logos come from the shared stayAKTiV events set (ticker-sets).
-const tickerLogos = TICKER_SETS.events.logos.map((logo) => [logo.src, logo.alt] as const);
-
 export default function StayAktivArchivePage() {
   return (
     <>
@@ -38,16 +35,7 @@ export default function StayAktivArchivePage() {
       />
       <main className={styles.page}>
         <EventArchiveHero />
-        <div className={styles.ticker} aria-label="stayAKTiV event ticker">
-          <div className={styles.tickerTrack}>
-            {[...tickerLogos, ...tickerLogos].map(([src, alt], index) => (
-              <span className={styles.tickerItem} key={`${src}-${index}`}>
-                <Image src={src} alt={alt} width={320} height={64} unoptimized />
-                {index < tickerLogos.length * 2 - 1 ? <span className={styles.tickerRule} aria-hidden="true" /> : null}
-              </span>
-            ))}
-          </div>
-        </div>
+        <BrandTicker set="projects" surface="paper" className={styles.ticker} />
         <section className={styles.archive} aria-labelledby="event-archive-heading">
           <div className={styles.archiveHeader}>
             <p className={styles.eyebrow}>(01 / Featured event)</p>

@@ -1,0 +1,10 @@
+[
+  { "name": "LiVE AiD", "src": "/assets/tickers/brands/logos/LiVE AiD.PNG", "order": 1 },
+  { "name": "XCAPE PLAN", "src": "/assets/tickers/brands/logos/XCAPE PLAN.PNG", "order": 2 },
+  { "name": "dUMb", "src": "/assets/tickers/brands/logos/dUMb.PNG", "order": 3 },
+  { "name": "CZA OF REM", "src": "/assets/tickers/brands/logos/CZA OF REM.PNG", "order": 4 },
+  { "name": "XCAPE", "src": "/assets/tickers/brands/logos/XCAPE.PNG", "order": 5 },
+  { "name": "REM", "src": "/assets/tickers/brands/logos/REM.PNG", "order": 6 },
+  { "name": "remRADAR", "src": "/assets/tickers/brands/logos/remRADAR.PNG", "order": 7 },
+  { "name": "stayAKTiV", "src": "/assets/tickers/brands/logos/stayAKTiV.PNG", "order": 8 }
+]

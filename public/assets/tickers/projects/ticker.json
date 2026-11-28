@@ -1,0 +1,6 @@
+[
+  { "name": "OMAJI VERSE 2.0", "src": "/assets/tickers/projects/logos/omaji-verse-2.png", "order": 1 },
+  { "name": "THE LAST THURSDAYS", "src": "/assets/tickers/projects/logos/last-thursdays.png", "order": 2 },
+  { "name": "stayAKTiV", "src": "/assets/tickers/projects/logos/stayaktiv-logo.png", "order": 3 },
+  { "name": "RELEASE RADAR REEL", "src": "/assets/tickers/projects/logos/release-radar-reel.png", "order": 4 }
+]
