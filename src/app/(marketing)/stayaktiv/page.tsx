@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
 import { EventArchiveHero } from "@/components/marketing/EventArchiveHero";
 import { buildPageMetadata } from "@/lib/seo";
+import { TICKER_SETS } from "@/lib/ticker-sets";
 import styles from "./StayAktivArchive.module.css";
 
 const omajiVerse = {
@@ -23,11 +24,8 @@ export const metadata: Metadata = buildPageMetadata({
   image: omajiVerse.poster,
 });
 
-const tickerLogos = [
-  ["/stayaktiv/tickers/omaji-verse-2.png", "OMAJI VERSE 2.0"],
-  ["/stayaktiv/tickers/last-thursdays.png", "THE LAST THURSDAYS"],
-  ["/stayaktiv/tickers/release-radar-reel.png", "RELEASE RADAR REEL"],
-] as const;
+// The event logos come from the shared stayAKTiV events set (ticker-sets).
+const tickerLogos = TICKER_SETS.events.logos.map((logo) => [logo.src, logo.alt] as const);
 
 export default function StayAktivArchivePage() {
   return (

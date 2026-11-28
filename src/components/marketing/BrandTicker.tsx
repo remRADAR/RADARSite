@@ -1,39 +1,26 @@
 import Image from "next/image";
 import { Marquee } from "@/components/motion/Marquee";
-
-const BRAND_TICKER_LOGOS = [
-  { src: "/brand-ticker/brand-01.webp", alt: "RADARCharts", monochrome: true },
-  { src: "/brand-ticker/brand-02.webp", alt: "remRADAR" },
-  { src: "/brand-ticker/brand-03.webp", alt: "Brand emblem" },
-  { src: "/brand-ticker/brand-04.webp", alt: "Talk to Us", monochrome: true },
-  { src: "/brand-ticker/brand-05.webp", alt: "Top 100 Abuja Playlist" },
-  { src: "/brand-ticker/brand-06.webp", alt: "Xcape brand mark" },
-  { src: "/brand-ticker/brand-07.webp", alt: "Flame emblem" },
-  { src: "/brand-ticker/brand-08.webp", alt: "XCAPE" },
-  { src: "/brand-ticker/brand-09.webp", alt: "Top 100 Abuja Playlist" },
-  { src: "/brand-ticker/brand-10.webp", alt: "Omaji Verse 2.0" },
-  { src: "/brand-ticker/brand-11.webp", alt: "RADAR Legacies", monochrome: true },
-  { src: "/brand-ticker/brand-12.webp", alt: "XCAPE Plan", monochrome: true },
-  { src: "/brand-ticker/brand-13.webp", alt: "Creative Culture", monochrome: true },
-  { src: "/brand-ticker/brand-14.webp", alt: "AfroCamp", monochrome: true },
-];
+import { TICKER_SETS, type TickerSetId } from "@/lib/ticker-sets";
 
 type BrandTickerProps = {
   className?: string;
   surface?: "ink" | "paper";
+  /** Which branded lane this ticker renders; see src/lib/ticker-sets.ts. */
+  set?: TickerSetId;
 };
 
-export function BrandTicker({ className = "", surface = "ink" }: BrandTickerProps) {
+export function BrandTicker({ className = "", surface = "ink", set = "brand" }: BrandTickerProps) {
   const onPaper = surface === "paper";
+  const ticker = TICKER_SETS[set];
 
   return (
     <div
       role="group"
-      aria-label="remRADAR brand and partner logos"
+      aria-label={ticker.ariaLabel}
       className={`relative z-10 overflow-hidden ${onPaper ? "bg-paper text-ink" : "bg-ink text-paper"} py-3 sm:py-4 ${className}`}
     >
       <Marquee durationSeconds={14} repeat={1}>
-        {BRAND_TICKER_LOGOS.map((logo) => (
+        {ticker.logos.map((logo) => (
           <span key={logo.src} className="flex shrink-0 items-center px-2.5 md:px-4">
             <Image
               src={logo.src}

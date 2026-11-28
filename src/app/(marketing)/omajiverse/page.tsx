@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArchiveStructuredData } from "@/components/marketing/ArchiveStructuredData";
 import { buildPageMetadata } from "@/lib/seo";
+import { TICKER_SETS } from "@/lib/ticker-sets";
 import { StayAktivActionBar, StayAktivCountdown } from "./StayAktivActions";
 import styles from "./StayAktiv.module.css";
 
@@ -32,11 +33,17 @@ const eventTheme = {
   "--event-accent-rgb": featuredEvent.accentRgb,
 } as CSSProperties;
 
-const tickerLogos = [
-  ["/stayaktiv/tickers/omaji-verse-2.png", "OMAJI VERSE 2.0", styles.tickerLogoOmaji],
-  ["/stayaktiv/tickers/last-thursdays.png", "THE LAST THURSDAYS", styles.tickerLogoLast],
-  ["/stayaktiv/tickers/release-radar-reel.png", "RELEASE RADAR REEL", styles.tickerLogoRelease],
-] as const;
+// The event logos come from the shared stayAKTiV events set (ticker-sets);
+// this page maps its own per-logo style classes on top.
+const tickerLogoClasses: Record<string, string> = {
+  ["/stayaktiv/tickers/omaji-verse-2.png"]: styles.tickerLogoOmaji,
+  ["/stayaktiv/tickers/last-thursdays.png"]: styles.tickerLogoLast,
+  ["/stayaktiv/tickers/release-radar-reel.png"]: styles.tickerLogoRelease,
+};
+
+const tickerLogos = TICKER_SETS.events.logos.map(
+  (logo) => [logo.src, logo.alt, tickerLogoClasses[logo.src] ?? ""] as const,
+);
 
 export default function StayAktivPage() {
   return (
