@@ -56,6 +56,7 @@
     "radar-playlists:store-contract-test": "tsx scripts/radar-playlists-store-contract-test.ts",
     "radar-playlists:sync-contract-test": "tsx scripts/radar-playlists-sync-contract-test.ts",
     "release-links:spotify-scrape-contract-test": "tsx scripts/release-links-spotify-scrape-contract-test.ts",
+    "release-links:late-discovery-contract-test": "tsx scripts/release-links-late-discovery-contract-test.ts",
     "studio:pending-issues-contract-test": "tsx scripts/studio-pending-issues-contract-test.ts",
     "artwork-palette:contract-test": "tsx scripts/artwork-palette-contract-test.ts",
     "release-sitemap:contract-test": "tsx scripts/release-sitemap-contract-test.ts"

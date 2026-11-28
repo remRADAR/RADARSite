@@ -35,7 +35,23 @@ function databaseEnabled() { return Boolean(process.env.DATABASE_URL); }
 function sql() { return databaseSql(); }
 function text(value: unknown, max = 2000) { return typeof value === "string" ? value.trim().slice(0, max) : ""; }
 export function slugify(value: string) { return value.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 160) || "release"; }
-function uniquePlatforms(items: ReleasePlatform[]) { return items.filter((item, index, all) => item.href && all.findIndex((candidate) => candidate.name === item.name) === index); }
+function uniquePlatforms(items: ReleasePlatform[]) { return items.filter((item, index, all) => item.href && all.findIndex((candidate) => candidate.name.toLowerCase() === item.name.toLowerCase()) === index); }
+
+/**
+ * Merge newly verified destinations into the existing release record. A late
+ * distributor update must never erase Apple/Deezer/YouTube links discovered on
+ * an earlier refresh; a newly verified row replaces only its same-platform row.
+ */
+export function mergeVerifiedPlatformLinks(existing: ReleasePlatform[], discovered: ReleasePlatform[]): ReleasePlatform[] {
+  const merged = [...existing];
+  for (const candidate of discovered) {
+    if (candidate.kind !== "stream" || !candidate.verification || !candidate.href) continue;
+    const samePlatform = merged.findIndex((item) => item.name.toLowerCase() === candidate.name.toLowerCase());
+    if (samePlatform >= 0) merged[samePlatform] = candidate;
+    else merged.push(candidate);
+  }
+  return uniquePlatforms(merged);
+}
 
 export async function ensureReleaseLinksTable() {
   await sql()`CREATE TABLE IF NOT EXISTS release_links (id text PRIMARY KEY, slug text NOT NULL UNIQUE, title text NOT NULL, artist text NOT NULL, release_date text NOT NULL, cover_image text NOT NULL, source_url text NOT NULL, source_title text NOT NULL, platform_links jsonb NOT NULL DEFAULT '[]'::jsonb, status text NOT NULL DEFAULT 'published', updated_at timestamptz NOT NULL DEFAULT now(), artist_key text, detected_by text)`;
@@ -55,7 +71,10 @@ export async function listReleaseLinks(): Promise<ReleaseLink[]> {
 
 export async function getReleaseLink(slug: string): Promise<ReleaseLink | null> {
   const normalized = slugify(slug);
-  if (!databaseEnabled()) return fallbackItems().find((item) => item.slug === normalized) || null;
+  if (!databaseEnabled()) {
+    const fallback = fallbackItems().find((item) => item.slug === normalized) || null;
+    return fallback ? refreshReleaseLink(fallback) : null;
+  }
   try {
     await ensureReleaseLinksTable();
     const rows = await sql()`SELECT id, slug, title, artist, release_date AS "releaseDate", cover_image AS "coverImage", source_url AS "sourceUrl", source_title AS "sourceTitle", platform_links AS "platformLinks", status, updated_at AS "updatedAt", artist_key AS "artistKey", detected_by AS "detectedBy" FROM release_links WHERE slug = ${normalized} AND status = 'published' LIMIT 1` as unknown as ReleaseLink[];
@@ -87,7 +106,7 @@ function releaseDayStart(value: string) {
  * still-presave source never overwrites the stored pre-save link.
  */
 export async function refreshReleaseLink(release: ReleaseLink, now = new Date()): Promise<ReleaseLink> {
-  if (!databaseEnabled() || release.status !== "published" || now.getTime() < releaseDayStart(release.releaseDate).getTime()) return release;
+  if (release.status !== "published" || now.getTime() < releaseDayStart(release.releaseDate).getTime()) return release;
   const cached = releaseRefreshCache.get(release.slug);
   if (cached && Date.now() - cached.at < RELEASE_REFRESH_TTL_MS) return cached.release;
   // Dedupe concurrent callers onto a single scrape: the page render, its
@@ -105,22 +124,23 @@ export async function refreshReleaseLink(release: ReleaseLink, now = new Date())
 async function refreshReleaseLinkNow(release: ReleaseLink): Promise<ReleaseLink> {
   try {
     const scraped = await scrapeReleaseSource(release.sourceUrl);
-    const livePlatforms = scraped.platformLinks.filter((platform) => platform.kind === "stream");
+    const livePlatforms = scraped.platformLinks.filter((platform) => platform.kind === "stream" && platform.verification);
     if (!livePlatforms.length) {
       releaseRefreshCache.set(release.slug, { at: Date.now(), release });
       return release;
     }
-    const refreshed = await upsertReleaseLink({
+    const refreshed = {
       ...release,
       ...scraped,
       id: release.id,
       slug: release.slug,
       sourceUrl: release.sourceUrl,
       backdropImage: release.backdropImage || scraped.backdropImage,
-      platformLinks: scraped.platformLinks,
-    });
-    releaseRefreshCache.set(release.slug, { at: Date.now(), release: refreshed });
-    return refreshed;
+      platformLinks: mergeVerifiedPlatformLinks(release.platformLinks, scraped.platformLinks),
+    } satisfies ReleaseLink;
+    const persisted = databaseEnabled() ? await upsertReleaseLink(refreshed) : refreshed;
+    releaseRefreshCache.set(release.slug, { at: Date.now(), release: persisted });
+    return persisted;
   } catch {
     releaseRefreshCache.set(release.slug, { at: Date.now(), release });
     return release;
@@ -301,6 +321,7 @@ const SEARCH_PAGE_PROBES = [
   { platform: "SoundCloud", searchUrl: (query: string) => `https://soundcloud.com/search?q=${encodeURIComponent(query)}` },
   { platform: "Boomplay", searchUrl: (query: string) => `https://www.boomplay.com/search/album?keyword=${encodeURIComponent(query)}` },
   { platform: "Tidal", searchUrl: (query: string) => `https://tidal.com/search?q=${encodeURIComponent(query)}` },
+  { platform: "YouTube", searchUrl: (query: string) => `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}` },
 ];
 async function probeSearchPlatform(platform: string, searchUrl: string, artist: string, title: string): Promise<ReleasePlatform | null> {
   try {
@@ -407,6 +428,8 @@ export async function scrapeReleaseSource(sourceInput: string): Promise<ReleaseL
   });
   const releaseDate = parseDate(readable);
   if (!title || !releaseDate || !coverImage) throw new Error("Source page did not expose a release title, release date, and cover image together.");
-  const platformLinks = (await Promise.all(potentialLinks.map((platform) => verifyPlatformLink(platform.href, platform.name, artist, title)))).filter((platform): platform is ReleasePlatform => Boolean(platform));
+  const sourceLinks = (await Promise.all(potentialLinks.map((platform) => verifyPlatformLink(platform.href, platform.name, artist, title)))).filter((platform): platform is ReleasePlatform => Boolean(platform));
+  const discoveredLinks = title && artist ? await discoverCrossPlatformLinks(artist, title) : [];
+  const platformLinks = mergeVerifiedPlatformLinks(sourceLinks, discoveredLinks);
   return { id: `source-${slug}`, slug, title, artist, releaseDate, coverImage, sourceUrl: sourceUrl.toString(), sourceTitle, platformLinks, status: "published", updatedAt: new Date().toISOString() };
 }
