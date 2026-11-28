@@ -61,3 +61,77 @@
   .copy { right: 2rem; bottom: 5rem; left: 2rem; }
   .signature { right: 2rem; top: 6rem; }
 }
+
+/* stayAKTiV mark overlay (top-left of the hero) with a voltage current-flow
+   sweep. The streak layers are masked to the mark's own alpha channel, so the
+   current appears to travel through the logo strokes, not across the photo.
+   The mark itself flickers in sync like a live conductor. */
+.logoFlow {
+  position: absolute;
+  top: 2.25rem;
+  left: 1.25rem;
+  z-index: 3;
+  width: clamp(8.5rem, 36vw, 13rem);
+  aspect-ratio: 1 / 1;
+  pointer-events: none;
+}
+.logoBase {
+  object-fit: contain;
+  object-position: left top;
+  animation: voltageFlicker 2.6s ease-in-out infinite;
+}
+.logoCurrent,
+.logoCurrentUnder {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(168, 229, 31, .55) 42%,
+    rgba(255, 255, 255, .95) 50%,
+    rgba(168, 229, 31, .55) 58%,
+    transparent 70%
+  );
+  background-size: 260% 100%;
+  background-repeat: no-repeat;
+  -webkit-mask-image: url("/api/brand/stayaktiv-logo");
+  mask-image: url("/api/brand/stayaktiv-logo");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-position: left top;
+  mask-position: left top;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  mix-blend-mode: screen;
+  animation: currentFlow 2.6s linear infinite;
+}
+.logoCurrentUnder {
+  opacity: .55;
+  background-image: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgba(168, 229, 31, .45) 50%,
+    transparent 65%
+  );
+  animation-duration: 3.4s;
+  animation-delay: -1.2s;
+}
+@keyframes currentFlow {
+  from { background-position: 100% 0; }
+  to { background-position: 0% 0; }
+}
+@keyframes voltageFlicker {
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(168, 229, 31, .28)); }
+  8% { filter: drop-shadow(0 0 9px rgba(168, 229, 31, .5)) brightness(1.12); }
+  9% { filter: drop-shadow(0 0 4px rgba(168, 229, 31, .2)); }
+  12% { filter: drop-shadow(0 0 11px rgba(168, 229, 31, .6)) brightness(1.18); }
+  14% { filter: drop-shadow(0 0 5px rgba(168, 229, 31, .3)); }
+  55% { filter: drop-shadow(0 0 6px rgba(168, 229, 31, .32)); }
+  60% { filter: drop-shadow(0 0 10px rgba(168, 229, 31, .55)) brightness(1.1); }
+  63% { filter: drop-shadow(0 0 5px rgba(168, 229, 31, .26)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logoBase { animation: none; }
+  .logoCurrent,
+  .logoCurrentUnder { display: none; }
+}
