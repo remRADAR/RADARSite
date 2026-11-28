@@ -18,11 +18,10 @@ import {
   findBodyImages,
   imageSlotStatus,
   isTemporaryImageUrl,
-  normalizeTagQuotes,
   temporaryImageUrlBlocker,
   unresolvedImageGroups,
 } from "@/lib/article-image-slots";
-import { findTemporaryNotionImageUrls, hasTemporaryNotionImages, rewriteTemporaryNotionImages } from "@/lib/notion-image-hygiene";
+import { findTemporaryNotionImageUrls, hasTemporaryNotionImages, normalizeTagQuotes, rewriteTemporaryNotionImages } from "@/lib/notion-image-hygiene";
 
 const signed = (n: number) => "https://prod-files-secure.s3.us-west-2.amazonaws.com/9ee58434-9f1c/block-" + n + "/D8257CA4-" + n + ".webp?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=300&X-Amz-Signature=sig" + n;
 const stored = (n: number) => "https://pub-2d7f41f7140544c480801d8b90da765e.r2.dev/studio/assets/2026/11/acekeyz-" + n + ".webp";
