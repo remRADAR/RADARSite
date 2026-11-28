@@ -1,3 +1,4 @@
+import { decode } from "html-entities";
 import { readContent, type CmsRecord, type ContentCollections } from "@/lib/content-server";
 import { normalizeTagQuotes } from "@/lib/notion-image-hygiene";
 import { classifySection, editorialExcerpt, editorialTitle, normalizeEditorialContent } from "@/lib/editorial-normalization";

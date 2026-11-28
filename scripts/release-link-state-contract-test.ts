@@ -46,21 +46,44 @@ assert.equal(beforeRelease.platformLinks[0].kind, "presave");
 
 // The final 24h before release is the case that used to break: a floored day count
 // read 0 and the panel went empty. It must still be a presave.
-const finalHours = await resolveReleaseLinkState(release(), new Date("2026-11-26T23:30:00Z"));
+const finalHours = await resolveReleaseLinkState(release(), new Date("2026-11-25T23:30:00Z"));
 assert.equal(finalHours.linkState, "presave");
 assert.equal(finalHours.platformLinks.length, 1);
 
 // --- rule 4: on release day the Spotify source decides --------------------------
-// The distributor has not flipped the link yet -> stay presave, never claim a stream.
-const notYetFlipped = await resolveReleaseLinkState(release(), new Date("2026-11-27T09:00:00Z"));
+// The probe follows the distributor redirect, so stub it: an unflipped link lands
+// in the presave authorization flow and must stay presave, never claim a stream.
+const originalFetch = globalThis.fetch;
+const redirectResponse = (location: string) => ({ status: 302, headers: new Headers({ location }) }) as unknown as Response;
+const notYetFlippedHref = "https://paradoxrecords.ampsuite.com/releases/link-redirect?release_id=401&store_id=6";
+globalThis.fetch = (async (input: RequestInfo | URL) => {
+  if (String(input) === notYetFlippedHref) return redirectResponse("https://suitebeats.ampsuite.com/spotify_presave.php");
+  throw new Error(`Unexpected contract-test fetch: ${String(input)}`);
+}) as typeof fetch;
+const notYetFlipped = await resolveReleaseLinkState(release({ platformLinks: [{ name: "Spotify", tone: "spotify", href: notYetFlippedHref, verification: "source", kind: "presave" }] }), new Date("2026-11-27T09:00:00Z"));
 assert.equal(notYetFlipped.linkState, "presave");
 assert.equal(notYetFlipped.platformLinks[0].kind, "presave");
-assert.equal(notYetFlipped.platformLinks[0].href, PRESAVE_HREF);
+assert.equal(notYetFlipped.platformLinks[0].href, notYetFlippedHref);
+
+// Once the distributor flips the very same link to the stream page, the panel
+// switches to STREAM NOW with the resolved album URL.
+const liveSpotifyHref = "https://open.spotify.com/album/5IzOj6CjShwPdswnu1oAzV";
+globalThis.fetch = (async (input: RequestInfo | URL) => {
+  if (String(input) === PRESAVE_HREF) return redirectResponse(liveSpotifyHref);
+  throw new Error(`Unexpected contract-test fetch: ${String(input)}`);
+}) as typeof fetch;
+const flipped = await resolveReleaseLinkState(release(), new Date("2026-11-27T09:00:00Z"));
+assert.equal(flipped.linkState, "live");
+assert.equal(flipped.primaryHref, liveSpotifyHref);
+assert.equal(flipped.platformLinks[0].kind, "stream");
+assert.equal(flipped.platformLinks[0].href, liveSpotifyHref);
+globalThis.fetch = originalFetch;
 
 // A release with no platform links at all must not throw.
 const empty = await resolveReleaseLinkState(release({ platformLinks: [] }), new Date("2026-11-27T09:00:00Z"));
 assert.equal(empty.linkState, "presave");
 assert.equal(empty.primaryHref, "");
+globalThis.fetch = originalFetch;
 
 // --- rule 2: the links attachment space carries only the distribution line ------
 const { readFileSync } = await import("node:fs");

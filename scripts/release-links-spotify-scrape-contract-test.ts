@@ -118,20 +118,30 @@ assert.throws(() => buildSpotifyAlbumReleaseLink(sourceUrl, { ...page, coverImag
 const ampsuiteSourceUrl = "https://paradoxrecords.ampsuite.com/releases/links?id=400";
 const ampsuiteLink = "https://paradoxrecords.ampsuite.com/releases/link-redirect?release_id=400&store_id=6";
 const ampsuiteHtml = `<!doctype html><html><head><title>Omolops - Mamuzo</title><meta property="og:title" content="Omolops - Mamuzo" /><meta property="og:image" content="https://paradoxrecords.ampsuite.com/uploaded/500x500/omolops.jpeg" /></head><body><p>Mamuzo - Omolops</p><p>Available from 11/27/26</p><a href="${ampsuiteLink}">Spotify View</a></body></html>`;
-const liveSpotifyHtml = `<!doctype html><html><head><title>Omolops - Album by Mamuzo | Spotify</title><meta property="og:title" content="Omolops - Album by Mamuzo | Spotify" /></head></html>`;
+const liveSpotifyHtml = `<!doctype html><html><head><title>Omolops - Single by Mamuzo | Spotify</title><meta property="og:title" content="Omolops - Single by Mamuzo | Spotify" /></head></html>`;
+const itunesSearchUrl = "https://itunes.apple.com/search?term=Omolops%20Mamuzo&entity=album&limit=10";
+const itunesPayload = JSON.stringify({ results: [{ collectionName: "Omolops - Single", artistName: "Mamuzo", collectionViewUrl: "https://music.apple.com/us/album/omolops-single/6831131434?uo=4" }] });
+const deezerSearchUrl = "https://api.deezer.com/search/album?q=Omolops%20Mamuzo&limit=10";
+const deezerPayload = JSON.stringify({ data: [{ title: "Omolops", artist: { name: "Mamuzo" }, link: "https://www.deezer.com/album/1139364051" }] });
 const originalFetch = globalThis.fetch;
-const fakeResponse = (body: string, url: string) => ({ ok: true, status: 200, url, text: async () => body }) as Response;
+const fakeResponse = (body: string, url: string) => ({ ok: true, status: 200, url, text: async () => body, json: async () => JSON.parse(body) }) as Response;
 globalThis.fetch = (async (input: RequestInfo | URL) => {
   const url = String(input);
   if (url === ampsuiteSourceUrl) return fakeResponse(ampsuiteHtml, ampsuiteSourceUrl);
   if (url === ampsuiteLink) return fakeResponse(liveSpotifyHtml, "https://open.spotify.com/album/5IzOj6CjShwPdswnu1oAzV");
-  throw new Error(`Unexpected contract-test fetch: ${url}`);
+  if (url === itunesSearchUrl) return fakeResponse(itunesPayload, itunesSearchUrl);
+  if (url === deezerSearchUrl) return fakeResponse(deezerPayload, deezerSearchUrl);
+  return { ok: false, status: 404, url, text: async () => "" } as Response;
 }) as typeof fetch;
 try {
   const refreshed = await scrapeReleaseSource(ampsuiteSourceUrl);
   assert.equal(refreshed.sourceUrl, ampsuiteSourceUrl);
   assert.equal(refreshed.releaseDate, "2026-11-27");
-  assert.deepEqual(refreshed.platformLinks, [{ name: "Spotify", tone: "spotify", href: "https://open.spotify.com/album/5IzOj6CjShwPdswnu1oAzV", verification: "metadata", kind: "stream" }]);
+  assert.deepEqual(refreshed.platformLinks, [
+    { name: "Spotify", tone: "spotify", href: "https://open.spotify.com/album/5IzOj6CjShwPdswnu1oAzV", verification: "metadata", kind: "stream" },
+    { name: "Apple Music", tone: "apple", href: "https://music.apple.com/us/album/omolops-single/6831131434?uo=4", verification: "metadata", kind: "stream" },
+    { name: "Deezer", tone: "deezer", href: "https://www.deezer.com/album/1139364051", verification: "metadata", kind: "stream" },
+  ]);
 } finally {
   globalThis.fetch = originalFetch;
 }

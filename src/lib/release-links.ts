@@ -407,6 +407,12 @@ export async function scrapeReleaseSource(sourceInput: string): Promise<ReleaseL
   });
   const releaseDate = parseDate(readable);
   if (!title || !releaseDate || !coverImage) throw new Error("Source page did not expose a release title, release date, and cover image together.");
-  const platformLinks = (await Promise.all(potentialLinks.map((platform) => verifyPlatformLink(platform.href, platform.name, artist, title)))).filter((platform): platform is ReleasePlatform => Boolean(platform));
+  const verifiedLinks = (await Promise.all(potentialLinks.map((platform) => verifyPlatformLink(platform.href, platform.name, artist, title)))).filter((platform): platform is ReleasePlatform => Boolean(platform));
+  // A distributor page usually lists only the retailers the label enabled, so
+  // once one of its links resolves to a live stream the release is out; discover
+  // the remaining active streaming platforms the same way the Spotify source
+  // path does, instead of repopulating the single listed link forever.
+  const discoveredLinks = verifiedLinks.some((platform) => platform.kind === "stream") ? await discoverCrossPlatformLinks(artist, title) : [];
+  const platformLinks = uniquePlatforms([...verifiedLinks, ...discoveredLinks]);
   return { id: `source-${slug}`, slug, title, artist, releaseDate, coverImage, sourceUrl: sourceUrl.toString(), sourceTitle, platformLinks, status: "published", updatedAt: new Date().toISOString() };
 }
