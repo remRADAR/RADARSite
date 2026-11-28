@@ -369,6 +369,13 @@
 @media (max-width: 767px) {
   .scene { min-height: calc(100svh - 3.5rem); }
 
-  /* The stage variant is sized by its parent panel, never by a viewport unit. */
-  .scene.sceneStage { min-height: 0; height: 100%; }
+  /* The stage variant is sized by its parent panel, never by a viewport unit.
+     Keep the moon optically centred on mobile instead of pinning it below the
+     fold; the existing atmosphere and halo keep it blended into the sky. */
+  .scene.sceneStage {
+    min-height: 0;
+    height: 100%;
+    align-items: center;
+    padding-bottom: 0;
+  }
 }
