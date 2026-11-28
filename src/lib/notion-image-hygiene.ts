@@ -1,3 +1,4 @@
+/*
  * Notion image hygiene — the permanent fix for temporary Notion image links.
  *
  * WHY THIS EXISTS
