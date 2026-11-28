@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "node:crypto";
 import { revalidateTag } from "next/cache";
 import { defaultSiteOverrides } from "@/lib/site-overrides";
 import { contentCacheTag, hasContentDatabase, logReadContentError, normalizeContent, readContent, readContentWriteSnapshot, writeContent, writeContentIfUnchanged, type CmsRecord } from "@/lib/content-server";

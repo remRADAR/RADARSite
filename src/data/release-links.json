@@ -13,9 +13,30 @@
       {
         "name": "Spotify",
         "tone": "spotify",
-        "href": "https://paradoxrecords.ampsuite.com/releases/link-redirect?release_id=400&store_id=6",
+        "href": "https://open.spotify.com/album/5IzOj6CjShwPdswnu1oAzV",
         "verification": "source",
-        "kind": "presave"
+        "kind": "stream"
+      },
+      {
+        "name": "Apple Music",
+        "tone": "apple",
+        "href": "https://music.apple.com/us/album/omolops-single/6831131434?uo=4",
+        "verification": "metadata",
+        "kind": "stream"
+      },
+      {
+        "name": "Deezer",
+        "tone": "deezer",
+        "href": "https://www.deezer.com/album/1139364051",
+        "verification": "metadata",
+        "kind": "stream"
+      },
+      {
+        "name": "YouTube",
+        "tone": "youtube",
+        "href": "https://www.youtube.com/watch?v=uSv4sYFNGHc",
+        "verification": "metadata",
+        "kind": "stream"
       }
     ],
     "status": "published",

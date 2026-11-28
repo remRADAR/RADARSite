@@ -24,6 +24,8 @@
 
 import { isTemporaryNotionImageUrl, normalizeTagQuotes } from "@/lib/notion-image-hygiene";
 
+export { normalizeTagQuotes } from "@/lib/notion-image-hygiene";
+
 /** Fields of a CMS record that can carry an image URL. imageUrl mirrors featuredImage and is never scanned separately. */
 export const ARTICLE_IMAGE_FIELDS = ["bodyHtml", "featuredImage", "imageUrl", "socialImage"] as const;
 

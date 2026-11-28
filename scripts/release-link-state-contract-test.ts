@@ -3,6 +3,7 @@ import { classifySpotifyDestination, releaseDayStart, resolveReleaseLinkState } 
 import type { ReleaseLink } from "@/lib/release-links";
 
 const PRESAVE_HREF = "https://paradoxrecords.ampsuite.com/releases/link-redirect?release_id=400&store_id=6";
+const UNFLIPPED_HREF = "https://example.com/distributor/pending-omolops";
 
 function release(overrides: Partial<ReleaseLink> = {}): ReleaseLink {
   return {
@@ -46,16 +47,16 @@ assert.equal(beforeRelease.platformLinks[0].kind, "presave");
 
 // The final 24h before release is the case that used to break: a floored day count
 // read 0 and the panel went empty. It must still be a presave.
-const finalHours = await resolveReleaseLinkState(release(), new Date("2026-11-26T23:30:00Z"));
+const finalHours = await resolveReleaseLinkState(release({ platformLinks: [{ name: "Spotify", tone: "spotify", href: UNFLIPPED_HREF, verification: "source", kind: "presave" }] }), new Date("2026-11-26T23:30:00Z"));
 assert.equal(finalHours.linkState, "presave");
 assert.equal(finalHours.platformLinks.length, 1);
 
 // --- rule 4: on release day the Spotify source decides --------------------------
 // The distributor has not flipped the link yet -> stay presave, never claim a stream.
-const notYetFlipped = await resolveReleaseLinkState(release(), new Date("2026-11-27T09:00:00Z"));
+const notYetFlipped = await resolveReleaseLinkState(release({ platformLinks: [{ name: "Spotify", tone: "spotify", href: UNFLIPPED_HREF, verification: "source", kind: "presave" }] }), new Date("2026-11-27T09:00:00Z"));
 assert.equal(notYetFlipped.linkState, "presave");
 assert.equal(notYetFlipped.platformLinks[0].kind, "presave");
-assert.equal(notYetFlipped.platformLinks[0].href, PRESAVE_HREF);
+assert.equal(notYetFlipped.platformLinks[0].href, UNFLIPPED_HREF);
 
 // A release with no platform links at all must not throw.
 const empty = await resolveReleaseLinkState(release({ platformLinks: [] }), new Date("2026-11-27T09:00:00Z"));
